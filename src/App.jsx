@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Tabs from './components/Tabs'
 import StatsBar from './components/StatsBar'
@@ -16,6 +16,28 @@ import { useStudents } from './hooks/useStudents'
 export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
+
+  // ── AUTO-SEED CLASSES ON FIRST LOAD ──
+  const DEFAULT_CLASSES = [
+    { name: 'ATB_Pro1_3',   level: 'pro',   day: 'MON',      time: '17:30-19:00' },
+    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'MON',      time: '19:15-20:45' },
+    { name: 'HTB_Pro1-2',   level: 'pro',   day: 'TUE',      time: '17:30-19:00' },
+    { name: 'ATB_Elite3_S', level: 'elite', day: 'TUE',      time: '19:15-20:45' },
+    { name: 'Pro3_S',       level: 'pro',   day: 'WED',      time: '17:30-19:00' },
+    { name: 'Elite2_2',     level: 'elite', day: 'WED & SAT',time: '19:15-20:45 / 15:45-17:15' },
+    { name: 'HTB_Pro2_2',   level: 'pro',   day: 'THU',      time: '17:30-19:00' },
+    { name: 'HTB_Pro4-3',   level: 'pro',   day: 'THU',      time: '19:15-20:45' },
+    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'SAT',      time: '17:30-19:00' },
+    { name: 'ATB_Elite1_3', level: 'elite', day: 'SAT',      time: '19:15-20:45' },
+    { name: 'HTB_Pro3_1',   level: 'pro',   day: 'SUN',      time: '08:00-09:30' },
+    { name: 'HTB_Pro1_2',   level: 'pro',   day: 'SUN',      time: '09:30-11:00' },
+  ]
+
+  useEffect(() => {
+    if (!loadingClasses && classes.length === 0) {
+      DEFAULT_CLASSES.forEach(c => addClass({ ...c, students: 0 }))
+    }
+  }, [loadingClasses])
 
   const [tab, setTab] = useState('classes')
   const [selectedClass, setSelectedClass] = useState(null)
