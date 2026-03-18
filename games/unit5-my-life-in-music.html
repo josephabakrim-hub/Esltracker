@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unit 5 — My Life in Music 🎵</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;
+  --text:#f0ede6;--muted:#666;--accent:#f59e0b;--accent2:#3b82f6;
+  --green:#10b981;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;
+  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Animated bg */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 20% 50%,rgba(245,158,11,0.06) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(59,130,246,0.06) 0%,transparent 60%),
+             radial-gradient(ellipse at 60% 80%,rgba(139,92,246,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px}
+
+/* HEADER */
+.header{text-align:center;padding:32px 20px 24px;margin-bottom:8px}
+.header-tag{
+  display:inline-block;
+  font-family:var(--mono);font-size:10px;letter-spacing:3px;
+  color:var(--accent);background:rgba(245,158,11,0.1);
+  border:1px solid rgba(245,158,11,0.3);
+  padding:5px 14px;border-radius:20px;margin-bottom:14px;
+  text-transform:uppercase;
+}
+.header h1{font-size:clamp(26px,5vw,42px);font-weight:900;line-height:1.1;letter-spacing:-1px}
+.header h1 span{color:var(--accent)}
+.header-sub{font-size:13px;color:var(--muted);margin-top:8px;font-family:var(--mono)}
+
+/* GAME SELECTOR */
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:32px}
+.game-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:22px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
+}
+.game-card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;
+}
+.game-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.game-card:hover::before{opacity:1}
+.game-card.c1::before{background:linear-gradient(135deg,rgba(245,158,11,0.08),transparent)}
+.game-card.c2::before{background:linear-gradient(135deg,rgba(59,130,246,0.08),transparent)}
+.game-card.c3::before{background:linear-gradient(135deg,rgba(139,92,246,0.08),transparent)}
+.game-card.c4::before{background:linear-gradient(135deg,rgba(16,185,129,0.08),transparent)}
+.game-card.c5::before{background:linear-gradient(135deg,rgba(236,72,153,0.08),transparent)}
+.game-icon{font-size:32px;margin-bottom:10px}
+.game-title{font-size:15px;font-weight:800;margin-bottom:4px}
+.game-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.game-count{
+  position:absolute;top:14px;right:14px;
+  font-family:var(--mono);font-size:9px;color:var(--muted);
+  background:var(--surface2);padding:3px 8px;border-radius:10px;
+}
+
+/* GAME SCREEN */
+.game-screen{display:none}
+.game-screen.active{display:block}
+
+.game-header{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:16px 20px;margin-bottom:20px;
+}
+.game-header-title{flex:1;font-size:16px;font-weight:800}
+.game-header-sub{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.btn-back{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  padding:8px 14px;border-radius:9px;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:1px;
+  transition:all 0.15s;
+}
+.btn-back:hover{color:var(--text);border-color:var(--text)}
+
+/* SCORE BAR */
+.score-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface2);border-radius:10px;padding:10px 16px;
+  margin-bottom:20px;
+}
+.score-item{text-align:center}
+.score-val{font-size:20px;font-weight:800;font-family:var(--mono)}
+.score-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.score-green{color:var(--green)}
+.score-red{color:var(--red)}
+.score-amber{color:var(--accent)}
+
+/* QUESTION CARD */
+.q-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:28px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.q-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+}
+.q-num{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
+.q-text{font-size:18px;font-weight:700;line-height:1.5;margin-bottom:20px}
+.q-text em{color:var(--accent);font-style:normal}
+
+/* OPTIONS */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{
+  background:var(--surface2);border:2px solid var(--border);
+  border-radius:12px;padding:14px 16px;cursor:pointer;
+  font-size:13px;font-weight:600;transition:all 0.15s;
+  display:flex;align-items:center;gap:10px;
+  text-align:left;
+}
+.option:hover:not([disabled]){border-color:var(--accent);background:rgba(245,158,11,0.06)}
+.option.correct{border-color:var(--green)!important;background:rgba(16,185,129,0.1)!important;color:var(--green)}
+.option.wrong{border-color:var(--red)!important;background:rgba(239,68,68,0.1)!important;color:var(--red)}
+.option.revealed{border-color:var(--green)!important;background:rgba(16,185,129,0.08)!important}
+.option-letter{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--border);display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;
+}
+.option.correct .option-letter{background:var(--green);color:#fff}
+.option.wrong .option-letter{background:var(--red);color:#fff}
+
+/* TRUE/FALSE */
+.tf-options{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf-btn{
+  background:var(--surface2);border:2px solid var(--border);
+  border-radius:14px;padding:20px;cursor:pointer;
+  font-size:20px;font-weight:900;text-align:center;
+  transition:all 0.2s;
+}
+.tf-btn:hover:not([disabled]){transform:scale(1.03)}
+.tf-btn.true-btn:hover:not([disabled]){border-color:var(--green);color:var(--green)}
+.tf-btn.false-btn:hover:not([disabled]){border-color:var(--red);color:var(--red)}
+.tf-btn.correct{border-color:var(--green);background:rgba(16,185,129,0.1);color:var(--green)}
+.tf-btn.wrong{border-color:var(--red);background:rgba(239,68,68,0.1);color:var(--red)}
+
+/* FILL IN BLANK */
+.blank-input{
+  width:100%;background:var(--surface2);border:2px solid var(--border);
+  border-radius:10px;padding:12px 16px;color:var(--text);
+  font-family:var(--font);font-size:15px;outline:none;
+  transition:border-color 0.15s;margin-bottom:10px;
+}
+.blank-input:focus{border-color:var(--accent)}
+.blank-input.correct{border-color:var(--green);background:rgba(16,185,129,0.08)}
+.blank-input.wrong{border-color:var(--red);background:rgba(239,68,68,0.08)}
+
+/* FEEDBACK */
+.feedback{
+  border-radius:12px;padding:14px 18px;margin-top:14px;
+  font-size:13px;font-weight:600;display:none;
+  animation:slideUp 0.2s ease;
+}
+.feedback.show{display:flex;align-items:flex-start;gap:10px}
+.feedback.correct-fb{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green)}
+.feedback.wrong-fb{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
+
+/* NEXT BTN */
+.btn-next{
+  background:linear-gradient(135deg,var(--accent),#f97316);
+  color:#000;font-weight:800;border:none;
+  padding:14px 28px;border-radius:12px;cursor:pointer;
+  font-family:var(--font);font-size:13px;width:100%;margin-top:14px;
+  transition:all 0.15s;display:none;
+}
+.btn-next.show{display:block}
+.btn-next:hover{filter:brightness(1.1);transform:translateY(-1px)}
+
+/* RESULTS */
+.results{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:36px;text-align:center;
+}
+.results-emoji{font-size:64px;margin-bottom:16px}
+.results-score{font-size:48px;font-weight:900;font-family:var(--mono);color:var(--accent)}
+.results-label{font-size:14px;color:var(--muted);margin-bottom:24px}
+.results-msg{font-size:18px;font-weight:700;margin-bottom:8px}
+.results-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.results-btns{display:flex;gap:10px;justify-content:center}
+
+/* WORD MATCH */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+.match-col{display:flex;flex-direction:column;gap:8px}
+.match-item{
+  background:var(--surface2);border:2px solid var(--border);
+  border-radius:10px;padding:12px 14px;cursor:pointer;
+  font-size:13px;font-weight:600;transition:all 0.15s;
+}
+.match-item:hover:not([disabled]){border-color:var(--accent2)}
+.match-item.selected{border-color:var(--accent);background:rgba(245,158,11,0.1)}
+.match-item.matched{border-color:var(--green);background:rgba(16,185,129,0.1);color:var(--green);cursor:default}
+.match-item.wrong-match{border-color:var(--red);background:rgba(239,68,68,0.1)}
+
+/* SPEAKING CARD */
+.speaking-card{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:18px;padding:28px;
+  margin-bottom:14px;text-align:center;
+}
+.speaking-icon{font-size:48px;margin-bottom:14px}
+.speaking-prompt{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.5}
+.speaking-hint{font-size:12px;color:var(--muted);margin-bottom:20px;font-style:italic}
+.speaking-tips{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;
+}
+.speaking-tip{
+  background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);
+  color:var(--accent2);padding:6px 12px;border-radius:20px;
+  font-size:11px;font-family:var(--mono);
+}
+
+/* TIMER */
+.timer-ring{
+  width:48px;height:48px;position:relative;flex-shrink:0;
+}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-ring circle{fill:none;stroke:var(--border);stroke-width:3}
+.timer-ring .progress{stroke:var(--accent);stroke-width:3;stroke-dasharray:126;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke 0.3s}
+.timer-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700}
+
+/* PROGRESS BAR */
+.progress-bar{
+  height:4px;background:var(--border);border-radius:2px;
+  margin-bottom:20px;overflow:hidden;
+}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:2px;transition:width 0.3s ease}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.pop{animation:pop 0.3s cubic-bezier(.34,1.56,.64,1)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="home-screen">
+  <div class="header">
+    <div class="header-tag">Think B1 · Level 2 · Elite 2.2</div>
+    <h1>Unit 5 — <span>My Life in Music</span> 🎵</h1>
+    <div class="header-sub">6 games · vocabulary · grammar · speaking · writing</div>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card c1" onclick="startGame('vocab')">
+      <div class="game-count">10 rounds</div>
+      <div class="game-icon">🎸</div>
+      <div class="game-title">Music Vocab Blitz</div>
+      <div class="game-desc">Music genres, instruments, and industry vocabulary from Unit 5</div>
+    </div>
+    <div class="game-card c2" onclick="startGame('grammar')">
+      <div class="game-count">10 rounds</div>
+      <div class="game-icon">⚡</div>
+      <div class="game-title">Present Perfect Showdown</div>
+      <div class="game-desc">Simple vs continuous — choose the correct form fast!</div>
+    </div>
+    <div class="game-card c3" onclick="startGame('truefalse')">
+      <div class="game-count">10 rounds</div>
+      <div class="game-icon">🎯</div>
+      <div class="game-title">True or False?</div>
+      <div class="game-desc">Reading comprehension — Justin Bieber, John Otway, Rodriguez & more</div>
+    </div>
+    <div class="game-card c4" onclick="startGame('phrasals')">
+      <div class="game-count">8 rounds</div>
+      <div class="game-icon">🔗</div>
+      <div class="game-title">Phrasal Verb Match</div>
+      <div class="game-desc">start out, find out, run out, come out, sort out, go out</div>
+    </div>
+    <div class="game-card c5" onclick="startGame('speaking')">
+      <div class="game-count">6 prompts</div>
+      <div class="game-icon">🗣️</div>
+      <div class="game-title">Speaking Hot Seat</div>
+      <div class="game-desc">Conversation prompts about music — for when you finish early!</div>
+    </div>
+    <div class="game-card c1" onclick="startGame('writing')">
+      <div class="game-count">4 tasks</div>
+      <div class="game-icon">✍️</div>
+      <div class="game-title">Writing Challenge</div>
+      <div class="game-desc">Mini writing tasks inspired by Unit 5 topics</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="game-screen">
+  <div class="game-header">
+    <button class="btn-back" onclick="goHome()">← Back</button>
+    <div>
+      <div class="game-header-title" id="game-title"></div>
+      <div class="game-header-sub" id="game-subtitle"></div>
+    </div>
+    <div class="timer-ring" id="timer-ring" style="display:none">
+      <svg width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20"/>
+        <circle class="progress" id="timer-circle" cx="24" cy="24" r="20"/>
+      </svg>
+      <div class="timer-val" id="timer-val">20</div>
+    </div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item"><div class="score-val score-green" id="score-correct">0</div><div class="score-label">Correct</div></div>
+    <div class="score-item"><div class="score-val score-amber" id="score-q">1/10</div><div class="score-label">Question</div></div>
+    <div class="score-item"><div class="score-val score-red" id="score-wrong">0</div><div class="score-label">Wrong</div></div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+  <div id="question-area"></div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="results-screen" class="game-screen">
+  <div class="results pop">
+    <div class="results-emoji" id="results-emoji">🎉</div>
+    <div class="results-score" id="results-score">8/10</div>
+    <div class="results-label">Score</div>
+    <div class="results-msg" id="results-msg">Amazing!</div>
+    <div class="results-sub" id="results-sub">You really know your music vocab!</div>
+    <div class="results-btns">
+      <button class="btn-back" onclick="goHome()">← All Games</button>
+      <button class="btn-next" style="display:inline-block;width:auto;margin:0" onclick="restartGame()">🔄 Play Again</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════
+// GAME DATA
+// ════════════════════════════════════════
+
+const GAMES = {
+
+  vocab: {
+    title: '🎸 Music Vocab Blitz',
+    subtitle: 'Choose the correct answer',
+    type: 'mcq',
+    questions: [
+      { q: 'Which music genre features a strong beat, rhyming lyrics, and is often spoken rather than sung?', options: ['Jazz','Opera','Rap','Classical'], answer: 'Rap' },
+      { q: 'What do you call it when a musician performs in a public place for money?', options: ['Touring','Busking','Recording','Downloading'], answer: 'Busking' },
+      { q: 'A musician\'s first chart appearance is called <em>entering ___</em>.', options: ['the stage','the studio','the charts','the tour'], answer: 'the charts' },
+      { q: 'What is the name for a musician\'s live performance event?', options: ['A single','A gig','A chart','A label'], answer: 'A gig' },
+      { q: 'Which instrument has black and white keys and is NOT electronic?', options: ['Keyboard','Saxophone','Piano','Trumpet'], answer: 'Piano' },
+      { q: 'What do you call a group of people who support a musician loyally?', options: ['A following','A record','A tour','A label'], answer: 'A following' },
+      { q: 'What is a "single"?', options: ['A musician who performs alone','One song released officially','A type of concert','A music award'], answer: 'One song released officially' },
+      { q: 'Which word means to copy music from the internet to your device?', options: ['Upload','Stream','Download','Record'], answer: 'Download' },
+      { q: 'What does a "talent scout" do?', options: ['Teaches music','Finds talented people for record labels','Organises concerts','Writes song lyrics'], answer: 'Finds talented people for record labels' },
+      { q: 'Justin Bieber\'s mum put videos of him on which website?', options: ['MySpace','Instagram','YouTube','TikTok'], answer: 'YouTube' },
+    ]
+  },
+
+  grammar: {
+    title: '⚡ Present Perfect Showdown',
+    subtitle: 'Simple or Continuous — choose the correct form!',
+    type: 'mcq',
+    questions: [
+      { q: 'She ___ more than 200 poems in her life. (completed action, result matters)', options: ['has been writing','has written','wrote','is writing'], answer: 'has written' },
+      { q: 'I ___ songs since I was a teenager. (ongoing activity, still happening)', options: ['wrote','have written','have been writing','am writing'], answer: 'have been writing' },
+      { q: 'He ___ music for more than 40 years. (ongoing situation)', options: ['has been playing','has played','played','plays'], answer: 'has been playing' },
+      { q: 'We ___ a lot of busking. Look, we have £50! (activity with visible result)', options: ['have been doing','have done','did','are doing'], answer: 'have been doing' },
+      { q: 'She ___ three albums. (completed, countable result)', options: ['has been recording','has recorded','recorded','is recording'], answer: 'has recorded' },
+      { q: 'I\'m tired because I ___ the piano all day. (explains current state)', options: ['have played','played','have been playing','am playing'], answer: 'have been playing' },
+      { q: 'He ___ hundreds of concerts. (completed past actions)', options: ['has been playing','has played','is playing','was playing'], answer: 'has played' },
+      { q: 'We ___ together very long — just 3 months. (duration to now)', options: ['haven\'t played','haven\'t been playing','didn\'t play','weren\'t playing'], answer: 'haven\'t been playing' },
+      { q: 'Look at her eyes — she ___! What happened? (recent activity with visible result)', options: ['has cried','was crying','has been crying','cried'], answer: 'has been crying' },
+      { q: 'They ___ famous since their first album. (state from past to now)', options: ['have been being','have been','are being','were'], answer: 'have been' },
+    ]
+  },
+
+  truefalse: {
+    title: '🎯 True or False?',
+    subtitle: 'Based on Unit 5 texts — read carefully!',
+    type: 'truefalse',
+    questions: [
+      { q: 'Justin Bieber\'s mum put videos of him singing on YouTube in 2007 when he was 12.', answer: true, explanation: 'True! In 2007, when he was just 12, his mum filmed him at a local competition and posted the videos on YouTube.' },
+      { q: 'One Direction won The X Factor in 2010.', answer: false, explanation: 'False! One Direction came THIRD in 2010 — but they became much more famous than the winner.' },
+      { q: 'John Otway has been making music for more than 40 years.', answer: true, explanation: 'True! He released his first record in 1972 and has continued making music ever since.' },
+      { q: 'Rodriguez knew he was famous in South Africa during the 1970s and 80s.', answer: false, explanation: 'False! Rodriguez had absolutely no idea his music had become hugely popular in South Africa. He had been doing manual labour jobs to survive.' },
+      { q: 'Lily Allen became famous by posting music on MySpace.', answer: true, explanation: 'True! Her record label was too busy with bigger artists, so she posted her music on MySpace. Soon she had tens of thousands of fans.' },
+      { q: 'John Otway\'s second hit "Bunsen Burner" reached number 9 in the UK charts.', answer: true, explanation: 'True! His loyal fans all bought the single and it reached number 9 — 25 years after his first hit!' },
+      { q: 'Eric Clapton busked on the streets of Paris when he was starting out.', answer: false, explanation: 'False! Eric Clapton busked on the streets of LONDON, not Paris.' },
+      { q: 'Lorde is from Australia.', answer: false, explanation: 'False! Lorde grew up in New Zealand. Her real name is Ella Marija Lani Yelich-O\'Connor.' },
+      { q: 'Tom never listens to music while doing his homework.', answer: true, explanation: 'True! Tom says "The only time I don\'t listen to music is when I\'m doing my homework. I just can\'t do that."' },
+      { q: 'Rodriguez attended the Oscar ceremony for the documentary "Searching for Sugar Man".', answer: false, explanation: 'False! Rodriguez REFUSED to attend because he didn\'t want attention to be on him instead of the film makers.' },
+    ]
+  },
+
+  phrasals: {
+    title: '🔗 Phrasal Verb Match',
+    subtitle: 'Match the phrasal verb to its meaning',
+    type: 'match',
+    pairs: [
+      { term: 'start out', definition: 'begin your working life or career' },
+      { term: 'find out', definition: 'discover information or the truth' },
+      { term: 'run out (of)', definition: 'use all of something so none is left' },
+      { term: 'come out', definition: 'be released or published' },
+      { term: 'sort out', definition: 'solve a problem or organise something' },
+      { term: 'go out', definition: 'leave your house to do something social' },
+      { term: 'went out and bought', definition: 'left immediately to purchase something' },
+      { term: 'entered the charts', definition: 'appeared in the music rankings for the first time' },
+    ]
+  },
+
+  speaking: {
+    title: '🗣️ Speaking Hot Seat',
+    subtitle: 'Pick a card — answer for 1-2 minutes!',
+    type: 'speaking',
+    prompts: [
+      {
+        icon: '🎵',
+        prompt: 'Talk about your music taste.',
+        hint: 'What genres do you like? Who is your favourite artist? When do you listen to music?',
+        tips: ['I\'m really into...','I\'m not crazy about... but I like...','I mostly listen to...','It makes me feel...']
+      },
+      {
+        icon: '📱',
+        prompt: 'How do you discover new music? Is it better to find music yourself or through a talent show like The X Factor?',
+        hint: 'Think about YouTube, social media, friends, radio, talent shows...',
+        tips: ['In my opinion...','On the one hand... On the other hand...','I think talent shows are... because...','Personally, I prefer...']
+      },
+      {
+        icon: '🎸',
+        prompt: 'If you could play any musical instrument perfectly, which would you choose and why?',
+        hint: 'Think about guitar, piano, violin, drums, saxophone... Why that one?',
+        tips: ['I would choose... because...','I\'ve always been fascinated by...','It\'s the kind of instrument that...','I think it would help me...']
+      },
+      {
+        icon: '🌟',
+        prompt: 'Describe a time when music made you feel a strong emotion.',
+        hint: 'Happy? Sad? Energetic? Nostalgic? What song? When was it?',
+        tips: ['I remember when...','The song that always makes me feel... is...','It was a moment when...','Ever since I heard it...']
+      },
+      {
+        icon: '💭',
+        prompt: 'Would you rather be a famous musician who had only ONE hit, or an unknown musician who made great music for 40 years like John Otway?',
+        hint: 'Think about fame, money, passion, loyalty, happiness...',
+        tips: ['I would definitely rather...','Fame isn\'t everything because...','There\'s no point in... if you can\'t...','On balance, I think...']
+      },
+      {
+        icon: '🚀',
+        prompt: 'How has the internet changed the music industry? Is it better or worse for new musicians today?',
+        hint: 'Think about streaming, YouTube, social media, record labels, busking...',
+        tips: ['Before the internet, musicians had to...','Nowadays, it\'s much easier to...','However, the downside is...','Artists like Justin Bieber show that...']
+      },
+    ]
+  },
+
+  writing: {
+    title: '✍️ Writing Challenge',
+    subtitle: 'Read the task and write your best response!',
+    type: 'writing',
+    tasks: [
+      {
+        icon: '📝',
+        title: 'Music Survey Response',
+        task: 'Imagine you are Sara or Tom from the listening exercise. Write a short paragraph (60-80 words) describing YOUR relationship with music. Use at least 3 of these words: download, listen to, concentrate, feel, rhythm, mood.',
+        example: 'I\'m not crazy about music, but I do like it. I mostly download two or three songs a month...',
+        focus: 'Vocabulary from Unit 5 + present simple'
+      },
+      {
+        icon: '🌟',
+        title: 'Online Review: Rate a Musician',
+        task: 'Write a short online review (70-90 words) of your favourite musician. Include: their genre, how they became famous, what you love about their music, and how long you have been a fan. Use present perfect!',
+        example: 'I have been listening to... ever since I first heard them... They started out as...',
+        focus: 'Present perfect simple + continuous'
+      },
+      {
+        icon: '🎤',
+        title: 'Advice Post',
+        task: 'You are answering "Paulie" from the forum post in Unit 5. Write your advice (70-90 words) for an aspiring singer-songwriter. Use at least 2 phrasal verbs from the unit (start out, find out, run out, sort out, come out, go out).',
+        example: 'My advice is to start out small. Don\'t run out of patience...',
+        focus: 'Phrasal verbs + giving advice (should, could, why don\'t you)'
+      },
+      {
+        icon: '💬',
+        title: 'Write a Dialogue',
+        task: 'Write a 6-line dialogue between two friends. One person has just discovered an amazing new band and is excited. Use at least 3 expressions from Unit 5: "What\'s up?", "Tell me about it!", "No way!", "I can\'t wait", "There\'s no point in...", "If you say so".',
+        example: 'A: What\'s up? You look excited!\nB: No way — you won\'t believe this...',
+        focus: 'Functional expressions from the unit'
+      }
+    ]
+  }
+}
+
+// ════════════════════════════════════════
+// GAME ENGINE
+// ════════════════════════════════════════
+
+let currentGame = null
+let currentIndex = 0
+let correct = 0
+let wrong = 0
+let answered = false
+let timerInterval = null
+let timeLeft = 20
+
+function startGame(gameId) {
+  currentGame = gameId
+  currentIndex = 0
+  correct = 0
+  wrong = 0
+  answered = false
+
+  document.getElementById('home-screen').style.display = 'none'
+  document.getElementById('results-screen').style.display = 'none'
+  document.getElementById('game-screen').style.display = 'block'
+
+  const game = GAMES[gameId]
+  document.getElementById('game-title').textContent = game.title
+  document.getElementById('game-subtitle').textContent = game.subtitle
+  document.getElementById('score-correct').textContent = '0'
+  document.getElementById('score-wrong').textContent = '0'
+
+  renderQuestion()
+}
+
+function renderQuestion() {
+  const game = GAMES[currentGame]
+  answered = false
+  clearTimer()
+
+  const total = game.type === 'match' ? 1
+              : game.type === 'speaking' ? game.prompts.length
+              : game.type === 'writing' ? game.tasks.length
+              : game.questions.length
+
+  document.getElementById('score-q').textContent = `${currentIndex + 1}/${total}`
+  document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`
+
+  const area = document.getElementById('question-area')
+
+  if (game.type === 'mcq') renderMCQ(area)
+  else if (game.type === 'truefalse') renderTF(area)
+  else if (game.type === 'match') renderMatch(area)
+  else if (game.type === 'speaking') renderSpeaking(area)
+  else if (game.type === 'writing') renderWriting(area)
+}
+
+// ── MCQ ──
+function renderMCQ(area) {
+  const game = GAMES[currentGame]
+  const q = game.questions[currentIndex]
+  const letters = ['A','B','C','D']
+
+  // Start timer
+  startTimer(20)
+
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">QUESTION ${currentIndex + 1} OF ${game.questions.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="options">
+        ${q.options.map((opt,i) => `
+          <button class="option" id="opt-${i}" onclick="selectMCQ(${i},'${opt.replace(/'/g,"\\'")}')">
+            <span class="option-letter">${letters[i]}</span>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
+  `
+}
+
+function selectMCQ(index, value) {
+  if (answered) return
+  answered = true
+  clearTimer()
+
+  const game = GAMES[currentGame]
+  const q = game.questions[currentIndex]
+  const isCorrect = value === q.answer
+
+  const opts = document.querySelectorAll('.option')
+  opts.forEach((opt, i) => {
+    opt.disabled = true
+    if (opt.textContent.trim().endsWith(q.answer) || opt.querySelector('.option-letter').nextSibling.textContent.trim() === q.answer) {
+      opt.classList.add('correct')
+    }
+  })
+  document.getElementById(`opt-${index}`).classList.add(isCorrect ? 'correct' : 'wrong')
+
+  showFeedback(isCorrect, `The correct answer is: ${q.answer}`)
+  updateScore(isCorrect)
+}
+
+// ── TRUE/FALSE ──
+function renderTF(area) {
+  const game = GAMES[currentGame]
+  const q = game.questions[currentIndex]
+
+  startTimer(15)
+
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">QUESTION ${currentIndex + 1} OF ${game.questions.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="tf-options">
+        <button class="tf-btn true-btn" id="tf-true" onclick="selectTF(true)">✅ TRUE</button>
+        <button class="tf-btn false-btn" id="tf-false" onclick="selectTF(false)">❌ FALSE</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
+  `
+}
+
+function selectTF(value) {
+  if (answered) return
+  answered = true
+  clearTimer()
+
+  const game = GAMES[currentGame]
+  const q = game.questions[currentIndex]
+  const isCorrect = value === q.answer
+
+  document.getElementById('tf-true').disabled = true
+  document.getElementById('tf-false').disabled = true
+  document.getElementById(value ? 'tf-true' : 'tf-false').classList.add(isCorrect ? 'correct' : 'wrong')
+  document.getElementById(q.answer ? 'tf-true' : 'tf-false').classList.add('correct')
+
+  showFeedback(isCorrect, q.explanation)
+  updateScore(isCorrect)
+}
+
+// ── MATCH ──
+function renderMatch(area) {
+  const game = GAMES[currentGame]
+  const pairs = [...game.pairs].sort(() => Math.random() - 0.5)
+  const shuffledDefs = [...pairs].sort(() => Math.random() - 0.5)
+
+  let selectedTerm = null
+  let matched = 0
+  const matchedIds = new Set()
+
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">MATCH THE PHRASAL VERBS TO THEIR MEANINGS</div>
+      <div class="q-text">Click a word on the left, then click its meaning on the right.</div>
+      <div class="match-grid">
+        <div class="match-col" id="terms-col">
+          ${pairs.map((p,i) => `<div class="match-item" id="term-${i}" data-term="${p.term}" onclick="selectTerm(${i})">${p.term}</div>`).join('')}
+        </div>
+        <div class="match-col" id="defs-col">
+          ${shuffledDefs.map((p,i) => `<div class="match-item" id="def-${i}" data-def="${p.definition}" onclick="selectDef(${i})">${p.definition}</div>`).join('')}
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:8px" id="match-status">Matched: 0 / ${pairs.length}</div>
+    </div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
+  `
+
+  let selectedTermIdx = null
+
+  window.selectTerm = function(i) {
+    if (matchedIds.has('t' + i)) return
+    document.querySelectorAll('#terms-col .match-item').forEach(el => el.classList.remove('selected'))
+    document.getElementById('term-' + i).classList.add('selected')
+    selectedTermIdx = i
+  }
+
+  window.selectDef = function(j) {
+    if (selectedTermIdx === null) return
+    if (matchedIds.has('d' + j)) return
+
+    const termEl = document.getElementById('term-' + selectedTermIdx)
+    const defEl  = document.getElementById('def-' + j)
+    const term = termEl.dataset.term
+    const def  = defEl.dataset.def
+    const correctDef = pairs[selectedTermIdx].definition
+
+    if (def === correctDef) {
+      termEl.classList.remove('selected')
+      termEl.classList.add('matched')
+      defEl.classList.add('matched')
+      termEl.onclick = null
+      defEl.onclick = null
+      matchedIds.add('t' + selectedTermIdx)
+      matchedIds.add('d' + j)
+      matched++
+      document.getElementById('match-status').textContent = `Matched: ${matched} / ${pairs.length}`
+      selectedTermIdx = null
+      correct++
+      document.getElementById('score-correct').textContent = correct
+
+      if (matched === pairs.length) {
+        document.getElementById('btn-next').classList.add('show')
+        document.getElementById('match-status').textContent = '🎉 All matched!'
+        document.getElementById('match-status').style.color = 'var(--green)'
+      }
+    } else {
+      termEl.classList.add('wrong-match')
+      defEl.classList.add('wrong-match')
+      setTimeout(() => {
+        termEl.classList.remove('wrong-match','selected')
+        defEl.classList.remove('wrong-match')
+      }, 600)
+      wrong++
+      document.getElementById('score-wrong').textContent = wrong
+      selectedTermIdx = null
+    }
+  }
+}
+
+// ── SPEAKING ──
+function renderSpeaking(area) {
+  const game = GAMES[currentGame]
+  const prompt = game.prompts[currentIndex]
+
+  area.innerHTML = `
+    <div class="speaking-card">
+      <div class="speaking-icon">${prompt.icon}</div>
+      <div class="speaking-prompt">${prompt.prompt}</div>
+      <div class="speaking-hint">${prompt.hint}</div>
+      <div class="speaking-tips">
+        ${prompt.tips.map(t => `<div class="speaking-tip">${t}</div>`).join('')}
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn-next show" onclick="nextQuestion()" style="width:auto;display:inline-block">
+        Next Prompt →
+      </button>
+    </div>
+  `
+}
+
+// ── WRITING ──
+function renderWriting(area) {
+  const game = GAMES[currentGame]
+  const task = game.tasks[currentIndex]
+
+  area.innerHTML = `
+    <div class="q-card">
+      <div class="q-num">${task.icon} ${task.title.toUpperCase()}</div>
+      <div class="q-text" style="font-size:15px;line-height:1.6">${task.task}</div>
+      <div style="margin-top:14px;padding:12px 14px;background:var(--surface2);border-radius:10px;border-left:3px solid var(--accent)">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">FOCUS</div>
+        <div style="font-size:12px;color:var(--accent)">${task.focus}</div>
+      </div>
+      <div style="margin-top:12px;padding:12px 14px;background:rgba(59,130,246,0.06);border-radius:10px;border-left:3px solid var(--accent2)">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">STARTER</div>
+        <div style="font-size:12px;color:var(--accent2);font-style:italic">${task.example}</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn-next show" onclick="nextQuestion()" style="width:auto;display:inline-block">
+        Next Task →
+      </button>
+    </div>
+  `
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+
+function showFeedback(isCorrect, msg) {
+  const fb = document.getElementById('feedback')
+  fb.className = `feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`
+  fb.innerHTML = `<span>${isCorrect ? '✅' : '❌'}</span><span>${isCorrect ? 'Correct! ' : 'Not quite. '}${msg}</span>`
+  document.getElementById('btn-next').classList.add('show')
+}
+
+function updateScore(isCorrect) {
+  if (isCorrect) { correct++; document.getElementById('score-correct').textContent = correct }
+  else { wrong++; document.getElementById('score-wrong').textContent = wrong }
+}
+
+function nextQuestion() {
+  const game = GAMES[currentGame]
+  const total = game.type === 'match' ? 1
+              : game.type === 'speaking' ? game.prompts.length
+              : game.type === 'writing' ? game.tasks.length
+              : game.questions.length
+  currentIndex++
+  if (currentIndex >= total) showResults()
+  else renderQuestion()
+}
+
+function showResults() {
+  document.getElementById('game-screen').style.display = 'none'
+  document.getElementById('results-screen').style.display = 'block'
+
+  const game = GAMES[currentGame]
+  const total = game.type === 'match' ? game.pairs.length
+              : game.type === 'speaking' || game.type === 'writing' ? 0
+              : game.questions.length
+
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 100
+  let emoji, msg, sub
+
+  if (game.type === 'speaking') { emoji = '🗣️'; msg = 'Great speaking practice!'; sub = 'Every prompt you complete makes you more fluent.' }
+  else if (game.type === 'writing') { emoji = '✍️'; msg = 'Writing complete!'; sub = 'Review your work and check the focus grammar.' }
+  else if (pct === 100) { emoji = '🏆'; msg = 'Perfect Score!'; sub = 'Absolutely incredible — you know this unit inside out!' }
+  else if (pct >= 80) { emoji = '🎉'; msg = 'Amazing!'; sub = 'You really know your Unit 5 material. Well done!' }
+  else if (pct >= 60) { emoji = '👍'; msg = 'Good job!'; sub = 'Solid work. Review the ones you missed and try again!' }
+  else { emoji = '💪'; msg = 'Keep going!'; sub = 'Read through Unit 5 again and try once more. You\'ve got this!' }
+
+  document.getElementById('results-emoji').textContent = emoji
+  document.getElementById('results-score').textContent = total > 0 ? `${correct}/${total}` : '✓'
+  document.getElementById('results-msg').textContent = msg
+  document.getElementById('results-sub').textContent = sub
+}
+
+function restartGame() {
+  startGame(currentGame)
+}
+
+function goHome() {
+  clearTimer()
+  document.getElementById('game-screen').style.display = 'none'
+  document.getElementById('results-screen').style.display = 'none'
+  document.getElementById('home-screen').style.display = 'block'
+}
+
+// ── TIMER ──
+function startTimer(seconds) {
+  timeLeft = seconds
+  const ring = document.getElementById('timer-ring')
+  const circle = document.getElementById('timer-circle')
+  const val = document.getElementById('timer-val')
+  ring.style.display = 'flex'
+  val.textContent = timeLeft
+  circle.style.strokeDashoffset = 0
+  circle.style.stroke = 'var(--accent)'
+
+  timerInterval = setInterval(() => {
+    timeLeft--
+    val.textContent = timeLeft
+    const offset = 126 * (1 - timeLeft / seconds)
+    circle.style.strokeDashoffset = offset
+    if (timeLeft <= 5) circle.style.stroke = 'var(--red)'
+    if (timeLeft <= 0) {
+      clearTimer()
+      if (!answered) {
+        answered = true
+        showFeedback(false, 'Time\'s up!')
+        updateScore(false)
+      }
+    }
+  }, 1000)
+}
+
+function clearTimer() {
+  clearInterval(timerInterval)
+  const ring = document.getElementById('timer-ring')
+  if (ring) ring.style.display = 'none'
+}
+</script>
+</body>
+</html>
