@@ -11,6 +11,7 @@ import ClassModal from './components/ClassModal'
 import StudentModal from './components/StudentModal'
 import NoteModal from './components/NoteModal'
 import AttendanceModal from './components/AttendanceModal'
+import StarSessionModal from './components/StarSessionModal'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -42,12 +43,13 @@ export default function App() {
   const [tab, setTab]                         = useState('classes')
   const [selectedClass, setSelectedClass]     = useState(null)
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [studentOrigin, setStudentOrigin]     = useState(null) // 'class' | 'students'
+  const [studentOrigin, setStudentOrigin]     = useState(null)
 
-  const [classModal,      setClassModal]      = useState(null)
-  const [studentModal,    setStudentModal]    = useState(null)
-  const [noteModal,       setNoteModal]       = useState(null)
-  const [attendanceModal, setAttendanceModal] = useState(null)
+  const [classModal,       setClassModal]      = useState(null)
+  const [studentModal,     setStudentModal]    = useState(null)
+  const [noteModal,        setNoteModal]       = useState(null)
+  const [attendanceModal,  setAttendanceModal] = useState(null)
+  const [starSessionModal, setStarSessionModal] = useState(null) // classId
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -82,7 +84,6 @@ export default function App() {
     setTab(studentOrigin === 'class' ? 'classDetail' : 'students')
   }
 
-  // Note with custom date
   async function handleAddNote(text, date) {
     const s = students.find(st => st.id === noteModal)
     if (!s) return
@@ -92,7 +93,6 @@ export default function App() {
     setNoteModal(null)
   }
 
-  // Attendance: save per-session record, recalculate %
   async function handleSaveAttendance(classId, dateKey, records) {
     const classStudents = students.filter(s => s.classId === classId)
     for (const s of classStudents) {
@@ -104,41 +104,42 @@ export default function App() {
     }
   }
 
-  // Stars
+  // Star session: sessionStars = { [studentId]: count }
+  async function handleSaveStarSession(sessionStars) {
+    const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    for (const [studentId, count] of Object.entries(sessionStars)) {
+      if (count === 0) continue
+      const s = students.find(st => st.id === studentId)
+      if (!s) continue
+      const starsLog = [...(s.starsLog || []), { date: today, count, reason: 'Class session' }]
+      const totalStars = starsLog.reduce((sum, e) => sum + e.count, 0)
+      await updateStudent(studentId, { starsLog, totalStars })
+    }
+  }
+
+  // Individual star from profile
   async function handleAddStars(studentId, count, reason) {
     const s = students.find(st => st.id === studentId)
     if (!s) return
     const starsLog = [...(s.starsLog || []), {
       date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      count,
-      reason: reason || '',
+      count, reason: reason || '',
     }]
     const totalStars = starsLog.reduce((sum, e) => sum + e.count, 0)
     await updateStudent(studentId, { starsLog, totalStars })
   }
 
-  // Navigation
   function openClass(cls) { setSelectedClass(cls); setTab('classDetail') }
-
-  function openStudentFromClass(student) {
-    setSelectedStudent(student); setStudentOrigin('class'); setTab('studentProfile')
-  }
-  function openStudentFromList(student) {
-    setSelectedStudent(student); setStudentOrigin('students'); setTab('studentProfile')
-  }
-  function handleBackFromStudent() {
-    setSelectedStudent(null)
-    setTab(studentOrigin === 'class' ? 'classDetail' : 'students')
-  }
+  function openStudentFromClass(student) { setSelectedStudent(student); setStudentOrigin('class'); setTab('studentProfile') }
+  function openStudentFromList(student) { setSelectedStudent(student); setStudentOrigin('students'); setTab('studentProfile') }
+  function handleBackFromStudent() { setSelectedStudent(null); setTab(studentOrigin === 'class' ? 'classDetail' : 'students') }
 
   const isLoading = loadingClasses || loadingStudents
   const activeTab = tab === 'classDetail' ? 'classes'
                   : tab === 'studentProfile' ? (studentOrigin === 'class' ? 'classes' : 'students')
                   : tab
 
-  function handleTabChange(t) {
-    setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t)
-  }
+  function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
   return (
     <div>
@@ -165,6 +166,7 @@ export default function App() {
               onAddStudent={() => setStudentModal('add')}
               onEditClass={c => setClassModal(c)}
               onOpenAttendance={() => setAttendanceModal(liveClass.id)}
+              onOpenStarSession={() => setStarSessionModal(liveClass.id)}
             />
           )}
 
@@ -195,6 +197,7 @@ export default function App() {
       {studentModal && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
       {noteModal && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
       {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
+      {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} />}
     </div>
   )
 }

@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { SKILLS, SKILL_ICONS, scoreColor, initials, avgSkills } from '../lib/utils'
+import { scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
-  const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean)
+  const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
   const podiumMedals  = ['🥈','🥇','🥉'].slice(0, podiumOrder.length)
   const podiumNums    = ['2','1','3'].slice(0, podiumOrder.length)
   const podiumHeights = [60, 80, 45]
@@ -44,8 +44,9 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             {cls.day && `${cls.day} · `}{cls.time && `${cls.time} · `}{ranked.length} students
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
+          <button className="btn btn-outline" style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }} onClick={onOpenStarSession}>⭐ Star Session</button>
           <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
         </div>
       </div>
@@ -101,8 +102,10 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
                     <NameWithVn s={s} />
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                       <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{s.attendance ?? 100}% attendance</div>
-                      {s.totalStars > 0 && (
-                        <div style={{ fontSize: 10, color: 'var(--gold)', fontFamily: 'var(--mono)' }}>⭐ {s.totalStars}</div>
+                      {(s.totalStars || 0) > 0 && (
+                        <div style={{ fontSize: 10, color: 'var(--gold)', fontFamily: 'var(--mono)' }}>
+                          {(s.totalStars || 0) >= 6 ? '💫' : (s.totalStars || 0) >= 4 ? '🌟' : '⭐'} {s.totalStars}
+                        </div>
                       )}
                     </div>
                   </div>
