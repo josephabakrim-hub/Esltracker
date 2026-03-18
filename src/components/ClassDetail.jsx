@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import { SKILLS, SKILL_ICONS, scoreColor, scoreClass, initials, avgSkills, goalStyle } from '../lib/utils'
+import { SKILLS, SKILL_ICONS, scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean)
-  const podiumMedals = ['🥈','🥇','🥉'].slice(0, podiumOrder.length)
-  const podiumNums   = ['2','1','3'].slice(0, podiumOrder.length)
+  const podiumMedals  = ['🥈','🥇','🥉'].slice(0, podiumOrder.length)
+  const podiumNums    = ['2','1','3'].slice(0, podiumOrder.length)
   const podiumHeights = [60, 80, 45]
-
   const podiumGradients = [
     'linear-gradient(135deg,#c0c0c0,#a0a0a0)',
     'linear-gradient(135deg,#f5d020,#f5a623)',
@@ -22,12 +21,8 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         <span style={{ fontSize: size, fontWeight: 700 }}>{s.nameEn}</span>
-        {s.nameVn && (
-          <button className="vn-btn" onClick={e => toggleVn(s.id, e)}>🇻🇳 VN</button>
-        )}
-        {vnVisible[s.id] && s.nameVn && (
-          <span className="vn-popup">{s.nameVn}</span>
-        )}
+        {s.nameVn && <button className="vn-btn" onClick={e => toggleVn(s.id, e)}>🇻🇳 VN</button>}
+        {vnVisible[s.id] && s.nameVn && <span className="vn-popup">{s.nameVn}</span>}
       </div>
     )
   }
@@ -49,7 +44,10 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             {cls.day && `${cls.day} · `}{cls.time && `${cls.time} · `}{ranked.length} students
           </div>
         </div>
-        <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
+          <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
+        </div>
       </div>
 
       {ranked.length === 0 && (
@@ -63,7 +61,6 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
         <div style={card}>
           <div style={sectionTitle}>🏆 Class Leaderboard</div>
 
-          {/* PODIUM */}
           {top3.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 12, marginBottom: 28, height: 150 }}>
               {podiumOrder.map((s, i) => {
@@ -86,21 +83,28 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             </div>
           )}
 
-          {/* RANKED LIST */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {ranked.map((s, i) => {
               const avg = avgSkills(s)
               return (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 10, background: 'var(--surface2)', cursor: 'pointer', transition: 'all 0.15s' }}
+                <div key={s.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 10, background: 'var(--surface2)', cursor: 'pointer', transition: 'all 0.15s' }}
                   onClick={() => onSelectStudent(s)}
                   onMouseEnter={e => e.currentTarget.style.background = 'var(--border)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'var(--surface2)'}
                 >
                   <div style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 700, color: 'var(--muted)', width: 24, textAlign: 'center' }}>{i + 1}</div>
-                  <div style={{ width: 32, height: 32, borderRadius: 9, background: scoreColor(avg), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{initials(s.nameEn)}</div>
+                  <div style={{ width: 32, height: 32, borderRadius: 9, background: scoreColor(avg), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+                    {initials(s.nameEn)}
+                  </div>
                   <div style={{ flex: 1 }}>
                     <NameWithVn s={s} />
-                    <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{s.attendance ?? 100}% attendance</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                      <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)' }}>{s.attendance ?? 100}% attendance</div>
+                      {s.totalStars > 0 && (
+                        <div style={{ fontSize: 10, color: 'var(--gold)', fontFamily: 'var(--mono)' }}>⭐ {s.totalStars}</div>
+                      )}
+                    </div>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
@@ -118,10 +122,8 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
         <div style={card}>
           <div style={sectionTitle}>🏁 Performance Race Track</div>
           <div style={{ position: 'relative' }}>
-            {/* Finish line */}
             <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 3, background: 'repeating-linear-gradient(180deg,#1a1814 0,#1a1814 10px,#fff 10px,#fff 20px)', borderRadius: 2 }} />
             <div style={{ position: 'absolute', right: 6, top: -26, fontSize: 20 }}>🏁</div>
-
             {ranked.map((s, i) => {
               const avg = avgSkills(s)
               const pct = Math.round((avg / 100) * 86)
@@ -130,7 +132,9 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
                   <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', width: 18, textAlign: 'center', flexShrink: 0 }}>{i + 1}</div>
                   <div style={{ flex: 1, height: 36, background: 'var(--surface2)', borderRadius: 8, position: 'relative', overflow: 'hidden', marginRight: 12 }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${pct}%`, background: `${scoreColor(avg)}22`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4, minWidth: 36, transition: 'width 0.8s cubic-bezier(.34,1.56,.64,1)' }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 8, background: scoreColor(avg), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', flexShrink: 0 }}>{initials(s.nameEn)}</div>
+                      <div style={{ width: 28, height: 28, borderRadius: 8, background: scoreColor(avg), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', flexShrink: 0 }}>
+                        {initials(s.nameEn)}
+                      </div>
                     </div>
                   </div>
                   <div style={{ minWidth: 100 }}>

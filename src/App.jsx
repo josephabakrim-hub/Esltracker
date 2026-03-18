@@ -10,6 +10,7 @@ import AnalyticsView from './components/AnalyticsView'
 import ClassModal from './components/ClassModal'
 import StudentModal from './components/StudentModal'
 import NoteModal from './components/NoteModal'
+import AttendanceModal from './components/AttendanceModal'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -17,20 +18,19 @@ export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
-  // ── AUTO-SEED CLASSES ON FIRST LOAD ──
   const DEFAULT_CLASSES = [
-    { name: 'ATB_Pro1_3',   level: 'pro',   day: 'MON',      time: '17:30-19:00' },
-    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'MON',      time: '19:15-20:45' },
-    { name: 'HTB_Pro1-2',   level: 'pro',   day: 'TUE',      time: '17:30-19:00' },
-    { name: 'ATB_Elite3_S', level: 'elite', day: 'TUE',      time: '19:15-20:45' },
-    { name: 'Pro3_S',       level: 'pro',   day: 'WED',      time: '17:30-19:00' },
-    { name: 'Elite2_2',     level: 'elite', day: 'WED & SAT',time: '19:15-20:45 / 15:45-17:15' },
-    { name: 'HTB_Pro2_2',   level: 'pro',   day: 'THU',      time: '17:30-19:00' },
-    { name: 'HTB_Pro4-3',   level: 'pro',   day: 'THU',      time: '19:15-20:45' },
-    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'SAT',      time: '17:30-19:00' },
-    { name: 'ATB_Elite1_3', level: 'elite', day: 'SAT',      time: '19:15-20:45' },
-    { name: 'HTB_Pro3_1',   level: 'pro',   day: 'SUN',      time: '08:00-09:30' },
-    { name: 'HTB_Pro1_2',   level: 'pro',   day: 'SUN',      time: '09:30-11:00' },
+    { name: 'ATB_Pro1_3',   level: 'pro',   day: 'MON',       time: '17:30-19:00' },
+    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'MON',       time: '19:15-20:45' },
+    { name: 'HTB_Pro1-2',   level: 'pro',   day: 'TUE',       time: '17:30-19:00' },
+    { name: 'ATB_Elite3_S', level: 'elite', day: 'TUE',       time: '19:15-20:45' },
+    { name: 'Pro3_S',       level: 'pro',   day: 'WED',       time: '17:30-19:00' },
+    { name: 'Elite2_2',     level: 'elite', day: 'WED & SAT', time: '19:15-20:45 / 15:45-17:15' },
+    { name: 'HTB_Pro2_2',   level: 'pro',   day: 'THU',       time: '17:30-19:00' },
+    { name: 'HTB_Pro4-3',   level: 'pro',   day: 'THU',       time: '19:15-20:45' },
+    { name: 'ATB_Pro5_4',   level: 'pro',   day: 'SAT',       time: '17:30-19:00' },
+    { name: 'ATB_Elite1_3', level: 'elite', day: 'SAT',       time: '19:15-20:45' },
+    { name: 'HTB_Pro3_1',   level: 'pro',   day: 'SUN',       time: '08:00-09:30' },
+    { name: 'HTB_Pro1_2',   level: 'pro',   day: 'SUN',       time: '09:30-11:00' },
   ]
 
   useEffect(() => {
@@ -39,20 +39,19 @@ export default function App() {
     }
   }, [loadingClasses])
 
-  const [tab, setTab] = useState('classes')
-  const [selectedClass, setSelectedClass] = useState(null)
+  const [tab, setTab]                         = useState('classes')
+  const [selectedClass, setSelectedClass]     = useState(null)
   const [selectedStudent, setSelectedStudent] = useState(null)
+  const [studentOrigin, setStudentOrigin]     = useState(null) // 'class' | 'students'
 
-  // Modals
-  const [classModal, setClassModal] = useState(null)   // null | 'add' | {classObj}
-  const [studentModal, setStudentModal] = useState(null) // null | 'add' | {studentObj}
-  const [noteModal, setNoteModal] = useState(null)      // null | studentId
+  const [classModal,      setClassModal]      = useState(null)
+  const [studentModal,    setStudentModal]    = useState(null)
+  const [noteModal,       setNoteModal]       = useState(null)
+  const [attendanceModal, setAttendanceModal] = useState(null)
 
-  // Always keep selectedClass/Student in sync with live data
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
 
-  // ── CLASS ACTIONS ──
   async function handleSaveClass(data) {
     if (classModal && classModal.id) {
       await updateClass(classModal.id, data)
@@ -68,7 +67,6 @@ export default function App() {
     if (selectedClass?.id === id) setSelectedClass(null)
   }
 
-  // ── STUDENT ACTIONS ──
   async function handleSaveStudent(data) {
     if (studentModal && studentModal.id) {
       await updateStudent(studentModal.id, data)
@@ -81,143 +79,122 @@ export default function App() {
   async function handleDeleteStudent(id) {
     await deleteStudent(id)
     setSelectedStudent(null)
-    setTab('students')
+    setTab(studentOrigin === 'class' ? 'classDetail' : 'students')
   }
 
-  async function handleAddNote(text) {
+  // Note with custom date
+  async function handleAddNote(text, date) {
     const s = students.find(st => st.id === noteModal)
     if (!s) return
-    const notes = [...(s.notes || []), {
-      date: new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
-      text
-    }]
+    const notes = [...(s.notes || []), { date, text }]
+    notes.sort((a, b) => new Date(b.date) - new Date(a.date))
     await updateStudent(noteModal, { notes })
     setNoteModal(null)
   }
 
-  // ── NAVIGATION ──
-  function openClass(cls) {
-    setSelectedClass(cls)
-    setTab('classDetail')
+  // Attendance: save per-session record, recalculate %
+  async function handleSaveAttendance(classId, dateKey, records) {
+    const classStudents = students.filter(s => s.classId === classId)
+    for (const s of classStudents) {
+      const log = { ...(s.attendanceLog || {}), [dateKey]: records[s.id] || 'absent' }
+      const total = Object.keys(log).length
+      const present = Object.values(log).filter(v => v === 'present').length
+      const pct = total > 0 ? Math.round((present / total) * 100) : 100
+      await updateStudent(s.id, { attendanceLog: log, attendance: pct })
+    }
   }
-  function openStudent(student) {
-    setSelectedStudent(student)
-    setTab('studentProfile')
+
+  // Stars
+  async function handleAddStars(studentId, count, reason) {
+    const s = students.find(st => st.id === studentId)
+    if (!s) return
+    const starsLog = [...(s.starsLog || []), {
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      count,
+      reason: reason || '',
+    }]
+    const totalStars = starsLog.reduce((sum, e) => sum + e.count, 0)
+    await updateStudent(studentId, { starsLog, totalStars })
+  }
+
+  // Navigation
+  function openClass(cls) { setSelectedClass(cls); setTab('classDetail') }
+
+  function openStudentFromClass(student) {
+    setSelectedStudent(student); setStudentOrigin('class'); setTab('studentProfile')
+  }
+  function openStudentFromList(student) {
+    setSelectedStudent(student); setStudentOrigin('students'); setTab('studentProfile')
+  }
+  function handleBackFromStudent() {
+    setSelectedStudent(null)
+    setTab(studentOrigin === 'class' ? 'classDetail' : 'students')
   }
 
   const isLoading = loadingClasses || loadingStudents
-
-  const activeTab = ['classDetail','studentProfile'].includes(tab) ? tab.startsWith('class') ? 'classes' : 'students' : tab
+  const activeTab = tab === 'classDetail' ? 'classes'
+                  : tab === 'studentProfile' ? (studentOrigin === 'class' ? 'classes' : 'students')
+                  : tab
 
   function handleTabChange(t) {
-    setSelectedClass(null)
-    setSelectedStudent(null)
-    setTab(t)
+    setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t)
   }
 
   return (
     <div>
-      <Header
-        onAddClass={() => setClassModal('add')}
-        onAddStudent={() => setStudentModal('add')}
-      />
+      <Header onAddClass={() => setClassModal('add')} onAddStudent={() => setStudentModal('add')} />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
         <Tabs active={activeTab} onChange={handleTabChange} />
 
         {isLoading && (
-          <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>
-            Loading...
-          </div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>Loading...</div>
         )}
 
         {!isLoading && <>
-          {/* CLASSES TAB */}
           {tab === 'classes' && (
-            <>
-              <StatsBar students={students} classes={classes} />
-              <ClassesView
-                classes={classes} students={students}
-                onSelectClass={openClass}
-                onAddClass={() => setClassModal('add')}
-                onEditClass={c => setClassModal(c)}
-                onDeleteClass={handleDeleteClass}
-              />
-            </>
+            <><StatsBar students={students} classes={classes} />
+            <ClassesView classes={classes} students={students} onSelectClass={openClass}
+              onAddClass={() => setClassModal('add')} onEditClass={c => setClassModal(c)} onDeleteClass={handleDeleteClass} /></>
           )}
 
-          {/* CLASS DETAIL */}
           {tab === 'classDetail' && liveClass && (
-            <ClassDetail
-              cls={liveClass}
-              students={students.filter(s => s.classId === liveClass.id)}
+            <ClassDetail cls={liveClass} students={students.filter(s => s.classId === liveClass.id)}
               onBack={() => { setSelectedClass(null); setTab('classes') }}
-              onSelectStudent={openStudent}
+              onSelectStudent={openStudentFromClass}
               onAddStudent={() => setStudentModal('add')}
               onEditClass={c => setClassModal(c)}
+              onOpenAttendance={() => setAttendanceModal(liveClass.id)}
             />
           )}
 
-          {/* STUDENTS TAB */}
           {tab === 'students' && (
-            <>
-              <StatsBar students={students} classes={classes} />
-              <StudentsView
-                students={students} classes={classes}
-                onSelectStudent={openStudent}
-                onAddStudent={() => setStudentModal('add')}
-                onEditStudent={s => setStudentModal(s)}
-              />
-            </>
+            <><StatsBar students={students} classes={classes} />
+            <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
+              onAddStudent={() => setStudentModal('add')} onEditStudent={s => setStudentModal(s)} /></>
           )}
 
-          {/* STUDENT PROFILE */}
           {tab === 'studentProfile' && liveStudent && (
-            <StudentProfile
-              student={liveStudent}
-              classes={classes}
-              onBack={() => { setSelectedStudent(null); setTab('students') }}
+            <StudentProfile student={liveStudent} classes={classes}
+              onBack={handleBackFromStudent}
               onEdit={() => setStudentModal(liveStudent)}
               onAddNote={() => setNoteModal(liveStudent.id)}
               onDelete={handleDeleteStudent}
+              onAddStars={handleAddStars}
             />
           )}
 
-          {/* ANALYTICS TAB */}
           {tab === 'analytics' && (
-            <>
-              <StatsBar students={students} classes={classes} />
-              <AnalyticsView students={students} classes={classes} />
-            </>
+            <><StatsBar students={students} classes={classes} />
+            <AnalyticsView students={students} classes={classes} /></>
           )}
         </>}
       </div>
 
-      {/* MODALS */}
-      {classModal && (
-        <ClassModal
-          cls={classModal === 'add' ? null : classModal}
-          onSave={handleSaveClass}
-          onClose={() => setClassModal(null)}
-        />
-      )}
-
-      {studentModal && (
-        <StudentModal
-          student={studentModal === 'add' ? null : studentModal}
-          classes={classes}
-          onSave={handleSaveStudent}
-          onClose={() => setStudentModal(null)}
-        />
-      )}
-
-      {noteModal && (
-        <NoteModal
-          studentName={students.find(s => s.id === noteModal)?.nameEn || ''}
-          onSave={handleAddNote}
-          onClose={() => setNoteModal(null)}
-        />
-      )}
+      {classModal && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
+      {studentModal && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
+      {noteModal && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
+      {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
     </div>
   )
 }
