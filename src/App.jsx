@@ -117,14 +117,21 @@ export default function App() {
     }
   }
 
-  // Individual star from profile
-  async function handleAddStars(studentId, count, reason) {
+  // Individual star from profile — accepts custom date
+  async function handleAddStars(studentId, count, reason, date) {
     const s = students.find(st => st.id === studentId)
     if (!s) return
-    const starsLog = [...(s.starsLog || []), {
-      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      count, reason: reason || '',
-    }]
+    const dateLabel = date || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    const starsLog = [...(s.starsLog || []), { date: dateLabel, count, reason: reason || '' }]
+    const totalStars = starsLog.reduce((sum, e) => sum + e.count, 0)
+    await updateStudent(studentId, { starsLog, totalStars })
+  }
+
+  // Delete a single star entry by index
+  async function handleDeleteStar(studentId, index) {
+    const s = students.find(st => st.id === studentId)
+    if (!s) return
+    const starsLog = (s.starsLog || []).filter((_, i) => i !== index)
     const totalStars = starsLog.reduce((sum, e) => sum + e.count, 0)
     await updateStudent(studentId, { starsLog, totalStars })
   }
@@ -183,6 +190,7 @@ export default function App() {
               onAddNote={() => setNoteModal(liveStudent.id)}
               onDelete={handleDeleteStudent}
               onAddStars={handleAddStars}
+              onDeleteStar={handleDeleteStar}
             />
           )}
 

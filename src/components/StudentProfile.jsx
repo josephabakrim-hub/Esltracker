@@ -1,30 +1,80 @@
 import { useState } from 'react'
 import { SKILLS, SKILL_ICONS, scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function StudentProfile({ student, classes, onBack, onEdit, onAddNote, onDelete, onAddStars }) {
+const PRESET_REASONS = [
+  { label: '🙋 Participation',     value: 'Great participation' },
+  { label: '🤝 Teamwork',          value: 'Excellent teamwork' },
+  { label: '😊 Good behaviour',    value: 'Good behaviour' },
+  { label: '💡 Creative answer',   value: 'Creative answer' },
+  { label: '📖 Reading aloud',     value: 'Confident reading aloud' },
+  { label: '🗣️ Speaking up',       value: 'Spoke up in class' },
+  { label: '✍️ Great writing',     value: 'Great writing effort' },
+  { label: '🎯 Correct answer',    value: 'Correct answer' },
+  { label: '⚡ Fast finisher',     value: 'Finished first correctly' },
+  { label: '🌟 Helped classmate',  value: 'Helped a classmate' },
+  { label: '📝 Homework done',     value: 'Homework completed' },
+  { label: '💪 Most improved',     value: 'Most improved today' },
+]
+
+function starEmoji(index) {
+  if (index >= 5) return '💫'
+  if (index >= 3) return '🌟'
+  return '⭐'
+}
+
+function renderStars(count) {
+  return Array.from({ length: Math.min(count, 8) }).map((_, i) => (
+    <span key={i} style={{
+      fontSize: i >= 5 ? 18 : i >= 3 ? 16 : 14,
+      filter: i >= 5 ? 'drop-shadow(0 0 4px #7c3aed)' : i >= 3 ? 'drop-shadow(0 0 3px #e85d26)' : 'none',
+    }}>{starEmoji(i)}</span>
+  ))
+}
+
+export default function StudentProfile({ student, classes, onBack, onEdit, onAddNote, onDelete, onAddStars, onDeleteStar }) {
   const s = student
   const avg = avgSkills(s)
   const cls = classes.find(c => c.id === s.classId)
   const [vnVisible, setVnVisible] = useState(false)
 
-  // Stars UI state
+  // Stars panel state
   const [showStarPanel, setShowStarPanel] = useState(false)
-  const [starCount, setStarCount]         = useState(1)
-  const [starReason, setStarReason]       = useState('')
-  const [starSaving, setStarSaving]       = useState(false)
+  const [starCount,     setStarCount]     = useState(1)
+  const [starReason,    setStarReason]    = useState('')
+  const [customReason,  setCustomReason]  = useState('')
+  const [starSaving,    setStarSaving]    = useState(false)
+  const todayISO = new Date().toISOString().split('T')[0]
+  const [starDateISO,   setStarDateISO]   = useState(todayISO)
 
   const notes    = s.notes    || []
   const starsLog = s.starsLog || []
   const totalStars = s.totalStars || 0
 
-  async function handleSaveStars() {
-    if (starCount < 1) return
-    setStarSaving(true)
-    await onAddStars(s.id, starCount, starReason)
-    setStarSaving(false)
+  function formatDate(iso) {
+    const d = new Date(iso + 'T00:00:00')
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+
+  function resetStarPanel() {
     setShowStarPanel(false)
     setStarCount(1)
     setStarReason('')
+    setCustomReason('')
+    setStarDateISO(todayISO)
+  }
+
+  async function handleSaveStars() {
+    if (starCount < 1) return
+    const finalReason = customReason.trim() || starReason
+    setStarSaving(true)
+    await onAddStars(s.id, starCount, finalReason, formatDate(starDateISO))
+    setStarSaving(false)
+    resetStarPanel()
+  }
+
+  async function handleDeleteStar(index) {
+    if (!window.confirm('Remove this star entry?')) return
+    await onDeleteStar(s.id, index)
   }
 
   const card = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 24, boxShadow: 'var(--shadow)', marginBottom: 20 }
@@ -87,32 +137,69 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={sectionTitle}>⭐ Star Rewards</div>
-          <button className="btn btn-dark" onClick={() => setShowStarPanel(v => !v)}>+ Award Stars</button>
+          <button className="btn btn-dark" onClick={() => setShowStarPanel(v => !v)}>
+            {showStarPanel ? 'Cancel' : '+ Award Stars'}
+          </button>
         </div>
 
-        {/* Award panel */}
+        {/* ── AWARD PANEL ── */}
         {showStarPanel && (
-          <div style={{ background: 'var(--surface2)', borderRadius: 12, padding: 16, marginBottom: 16, border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', width: 60 }}>Stars</div>
-              <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: 20, marginBottom: 20, border: '1px solid var(--border)' }}>
+
+            {/* Date picker */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Date</div>
+              <input type="date" className="form-input" value={starDateISO} onChange={e => setStarDateISO(e.target.value)} style={{ maxWidth: 200 }} />
+              <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 4 }}>
+                {formatDate(starDateISO)}
+              </div>
+            </div>
+
+            {/* Star count */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Number of Stars</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {[1,2,3,4,5].map(n => (
-                  <button key={n} onClick={() => setStarCount(n)}
-                    style={{ width: 36, height: 36, borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 16, background: starCount >= n ? 'var(--gold)' : 'var(--border)', transition: 'all 0.15s' }}>
-                    ⭐
+                  <button key={n} onClick={() => setStarCount(n)} style={{
+                    width: 40, height: 40, borderRadius: 10, border: 'none', cursor: 'pointer',
+                    fontSize: 18, transition: 'all 0.15s',
+                    background: starCount >= n
+                      ? (n >= 6 ? 'linear-gradient(135deg,#7c3aed,#e85d26)' : n >= 4 ? 'var(--accent)' : 'var(--gold)')
+                      : 'var(--border)',
+                    transform: starCount >= n ? 'scale(1.08)' : 'scale(1)',
+                  }}>
+                    {n >= 6 ? '💫' : n >= 4 ? '🌟' : '⭐'}
+                  </button>
+                ))}
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 800, color: 'var(--gold)', marginLeft: 4 }}>{starCount}</div>
+              </div>
+            </div>
+
+            {/* Preset reasons */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Reason</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                {PRESET_REASONS.map(r => (
+                  <button key={r.value} onClick={() => { setStarReason(r.value); setCustomReason('') }}
+                    style={{
+                      padding: '6px 12px', borderRadius: 20, border: '1.5px solid',
+                      cursor: 'pointer', fontSize: 11, fontFamily: 'var(--font)',
+                      transition: 'all 0.15s',
+                      background: starReason === r.value && !customReason ? 'var(--text)' : 'var(--surface)',
+                      color: starReason === r.value && !customReason ? '#fff' : 'var(--muted)',
+                      borderColor: starReason === r.value && !customReason ? 'var(--text)' : 'var(--border)',
+                    }}>
+                    {r.label}
                   </button>
                 ))}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 700, color: 'var(--gold)' }}>{starCount}</div>
+              <input className="form-input" placeholder="Or type a custom reason..."
+                value={customReason} onChange={e => { setCustomReason(e.target.value); setStarReason('') }} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', width: 60 }}>Reason</div>
-              <input className="form-input" style={{ flex: 1 }} placeholder="e.g. Great participation, Good behaviour..."
-                value={starReason} onChange={e => setStarReason(e.target.value)} />
-            </div>
-            <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
-              <button className="btn btn-outline" onClick={() => setShowStarPanel(false)}>Cancel</button>
-              <button className="btn btn-accent" onClick={handleSaveStars} disabled={starSaving}>
+
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn-outline" onClick={resetStarPanel}>Cancel</button>
+              <button className="btn btn-accent" onClick={handleSaveStars} disabled={starSaving || (!starReason && !customReason.trim())}>
                 {starSaving ? 'Saving...' : `Award ${starCount} ⭐`}
               </button>
             </div>
@@ -132,15 +219,23 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
         {starsLog.length === 0 && (
           <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>No stars awarded yet.</div>
         )}
-        {[...starsLog].reverse().map((entry, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderBottom: i < starsLog.length - 1 ? '1px solid var(--border)' : 'none' }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--accent)', minWidth: 80 }}>{entry.date}</div>
-            <div style={{ fontSize: 16, minWidth: 40 }}>{'⭐'.repeat(Math.min(entry.count, 5))}{entry.count > 5 ? ` x${entry.count}` : ''}</div>
-            <div style={{ fontSize: 13, color: entry.reason ? 'var(--text)' : 'var(--muted)', fontStyle: entry.reason ? 'normal' : 'italic' }}>
-              {entry.reason || 'No reason given'}
+        {[...starsLog].map((entry, i) => {
+          const originalIndex = starsLog.length - 1 - i
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < starsLog.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--accent)', minWidth: 80 }}>{entry.date}</div>
+              <div style={{ display: 'flex', gap: 2, minWidth: 80 }}>{renderStars(entry.count)}{entry.count > 8 && <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--gold)', marginLeft: 4 }}>x{entry.count}</span>}</div>
+              <div style={{ flex: 1, fontSize: 12, color: entry.reason ? 'var(--text)' : 'var(--muted)', fontStyle: entry.reason ? 'normal' : 'italic' }}>
+                {entry.reason || 'No reason given'}
+              </div>
+              <button className="btn-ghost" title="Delete this entry"
+                style={{ fontSize: 13, color: 'var(--red)', opacity: 0.6, flexShrink: 0 }}
+                onClick={() => handleDeleteStar(starsLog.length - 1 - i)}>
+                🗑️
+              </button>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* NOTES */}
