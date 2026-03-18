@@ -12,6 +12,7 @@ import StudentModal from './components/StudentModal'
 import NoteModal from './components/NoteModal'
 import AttendanceModal from './components/AttendanceModal'
 import StarSessionModal from './components/StarSessionModal'
+import SpinOfDoomModal from './components/SpinOfDoomModal'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -45,11 +46,12 @@ export default function App() {
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [studentOrigin, setStudentOrigin]     = useState(null)
 
-  const [classModal,       setClassModal]      = useState(null)
-  const [studentModal,     setStudentModal]    = useState(null)
-  const [noteModal,        setNoteModal]       = useState(null)
-  const [attendanceModal,  setAttendanceModal] = useState(null)
-  const [starSessionModal, setStarSessionModal] = useState(null) // classId
+  const [classModal,       setClassModal]       = useState(null)
+  const [studentModal,     setStudentModal]     = useState(null)
+  const [noteModal,        setNoteModal]        = useState(null)
+  const [attendanceModal,  setAttendanceModal]  = useState(null)
+  const [starSessionModal, setStarSessionModal] = useState(null)
+  const [spinModal,        setSpinModal]        = useState(null) // classId
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -104,7 +106,6 @@ export default function App() {
     }
   }
 
-  // Star session: sessionStars = { [studentId]: count }
   async function handleSaveStarSession(sessionStars) {
     const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     for (const [studentId, count] of Object.entries(sessionStars)) {
@@ -117,8 +118,8 @@ export default function App() {
     }
   }
 
-  // Individual star from profile — accepts custom date
-  async function handleAddStars(studentId, count, reason, date) {
+  // Shared star award function used by both profile and Spin of Doom
+  async function handleAwardStars(studentId, count, reason, date) {
     const s = students.find(st => st.id === studentId)
     if (!s) return
     const dateLabel = date || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -127,7 +128,6 @@ export default function App() {
     await updateStudent(studentId, { starsLog, totalStars })
   }
 
-  // Delete a single star entry by index
   async function handleDeleteStar(studentId, index) {
     const s = students.find(st => st.id === studentId)
     if (!s) return
@@ -174,6 +174,7 @@ export default function App() {
               onEditClass={c => setClassModal(c)}
               onOpenAttendance={() => setAttendanceModal(liveClass.id)}
               onOpenStarSession={() => setStarSessionModal(liveClass.id)}
+              onOpenSpinOfDoom={() => setSpinModal(liveClass.id)}
             />
           )}
 
@@ -189,7 +190,7 @@ export default function App() {
               onEdit={() => setStudentModal(liveStudent)}
               onAddNote={() => setNoteModal(liveStudent.id)}
               onDelete={handleDeleteStudent}
-              onAddStars={handleAddStars}
+              onAddStars={handleAwardStars}
               onDeleteStar={handleDeleteStar}
             />
           )}
@@ -206,6 +207,7 @@ export default function App() {
       {noteModal && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
       {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
       {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} />}
+      {spinModal && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -46,7 +46,12 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
-          <button className="btn btn-outline" style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }} onClick={onOpenStarSession}>⭐ Star Session</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
+            onClick={onOpenStarSession}>⭐ Star Session</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
+            onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
           <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
         </div>
       </div>
