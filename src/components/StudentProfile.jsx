@@ -38,16 +38,17 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
   const [vnVisible, setVnVisible] = useState(false)
 
   // Stars panel state
-  const [showStarPanel, setShowStarPanel] = useState(false)
-  const [starCount,     setStarCount]     = useState(1)
-  const [starReason,    setStarReason]    = useState('')
-  const [customReason,  setCustomReason]  = useState('')
-  const [starSaving,    setStarSaving]    = useState(false)
+  const [showStarPanel,   setShowStarPanel]   = useState(false)
+  const [showStarHistory, setShowStarHistory] = useState(false) // ← collapsible
+  const [starCount,       setStarCount]       = useState(1)
+  const [starReason,      setStarReason]      = useState('')
+  const [customReason,    setCustomReason]    = useState('')
+  const [starSaving,      setStarSaving]      = useState(false)
   const todayISO = new Date().toISOString().split('T')[0]
-  const [starDateISO,   setStarDateISO]   = useState(todayISO)
+  const [starDateISO, setStarDateISO] = useState(todayISO)
 
-  const notes    = s.notes    || []
-  const starsLog = s.starsLog || []
+  const notes      = s.notes    || []
+  const starsLog   = s.starsLog || []
   const totalStars = s.totalStars || 0
 
   function formatDate(iso) {
@@ -70,6 +71,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
     await onAddStars(s.id, starCount, finalReason, formatDate(starDateISO))
     setStarSaving(false)
     resetStarPanel()
+    setShowStarHistory(true) // auto-open history after awarding
   }
 
   async function handleDeleteStar(index) {
@@ -150,9 +152,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Date</div>
               <input type="date" className="form-input" value={starDateISO} onChange={e => setStarDateISO(e.target.value)} style={{ maxWidth: 200 }} />
-              <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 4 }}>
-                {formatDate(starDateISO)}
-              </div>
+              <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 4 }}>{formatDate(starDateISO)}</div>
             </div>
 
             {/* Star count */}
@@ -163,12 +163,10 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
                   <button key={n} onClick={() => setStarCount(n)} style={{
                     width: 40, height: 40, borderRadius: 10, border: 'none', cursor: 'pointer',
                     fontSize: 18, transition: 'all 0.15s',
-                    background: starCount >= n
-                      ? (n >= 6 ? 'linear-gradient(135deg,#7c3aed,#e85d26)' : n >= 4 ? 'var(--accent)' : 'var(--gold)')
-                      : 'var(--border)',
+                    background: starCount >= n ? (n >= 4 ? 'var(--accent)' : 'var(--gold)') : 'var(--border)',
                     transform: starCount >= n ? 'scale(1.08)' : 'scale(1)',
                   }}>
-                    {n >= 6 ? '💫' : n >= 4 ? '🌟' : '⭐'}
+                    {n >= 4 ? '🌟' : '⭐'}
                   </button>
                 ))}
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 800, color: 'var(--gold)', marginLeft: 4 }}>{starCount}</div>
@@ -206,36 +204,74 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           </div>
         )}
 
-        {/* Total */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, padding: '12px 16px', borderRadius: 12, background: totalStars > 0 ? 'rgba(212,144,10,0.08)' : 'var(--surface2)', border: '1px solid var(--border)' }}>
+        {/* ── TOTAL + COLLAPSIBLE HISTORY ── */}
+        <div
+          onClick={() => starsLog.length > 0 && setShowStarHistory(v => !v)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 16,
+            padding: '12px 16px', borderRadius: 12,
+            background: totalStars > 0 ? 'rgba(212,144,10,0.08)' : 'var(--surface2)',
+            border: '1px solid var(--border)',
+            cursor: starsLog.length > 0 ? 'pointer' : 'default',
+            transition: 'all 0.15s',
+            userSelect: 'none',
+          }}
+        >
           <div style={{ fontSize: 32 }}>⭐</div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--gold)' }}>{totalStars}</div>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2 }}>TOTAL STARS</div>
           </div>
+          {starsLog.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
+                {starsLog.length} {starsLog.length === 1 ? 'entry' : 'entries'}
+              </span>
+              <span style={{
+                fontSize: 12, color: 'var(--muted)',
+                transform: showStarHistory ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s',
+                display: 'inline-block',
+              }}>▼</span>
+            </div>
+          )}
         </div>
 
-        {/* History */}
         {starsLog.length === 0 && (
-          <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>No stars awarded yet.</div>
+          <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12, marginTop: 12 }}>No stars awarded yet.</div>
         )}
-        {[...starsLog].map((entry, i) => {
-          const originalIndex = starsLog.length - 1 - i
-          return (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < starsLog.length - 1 ? '1px solid var(--border)' : 'none' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--accent)', minWidth: 80 }}>{entry.date}</div>
-              <div style={{ display: 'flex', gap: 2, minWidth: 80 }}>{renderStars(entry.count)}{entry.count > 8 && <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--gold)', marginLeft: 4 }}>x{entry.count}</span>}</div>
-              <div style={{ flex: 1, fontSize: 12, color: entry.reason ? 'var(--text)' : 'var(--muted)', fontStyle: entry.reason ? 'normal' : 'italic' }}>
-                {entry.reason || 'No reason given'}
+
+        {/* History — only shown when expanded */}
+        {showStarHistory && starsLog.length > 0 && (
+          <div style={{
+            marginTop: 8, borderRadius: 12, overflow: 'hidden',
+            border: '1px solid var(--border)',
+            animation: 'fadeIn 0.15s ease',
+          }}>
+            {[...starsLog].reverse().map((entry, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 14px',
+                borderBottom: i < starsLog.length - 1 ? '1px solid var(--border)' : 'none',
+                background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)',
+              }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--accent)', minWidth: 80 }}>{entry.date}</div>
+                <div style={{ display: 'flex', gap: 2, minWidth: 80 }}>
+                  {renderStars(entry.count)}
+                  {entry.count > 8 && <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--gold)', marginLeft: 4 }}>x{entry.count}</span>}
+                </div>
+                <div style={{ flex: 1, fontSize: 12, color: entry.reason ? 'var(--text)' : 'var(--muted)', fontStyle: entry.reason ? 'normal' : 'italic' }}>
+                  {entry.reason || 'No reason given'}
+                </div>
+                <button className="btn-ghost" title="Delete this entry"
+                  style={{ fontSize: 13, color: 'var(--red)', opacity: 0.6, flexShrink: 0 }}
+                  onClick={() => handleDeleteStar(starsLog.length - 1 - i)}>
+                  🗑️
+                </button>
               </div>
-              <button className="btn-ghost" title="Delete this entry"
-                style={{ fontSize: 13, color: 'var(--red)', opacity: 0.6, flexShrink: 0 }}
-                onClick={() => handleDeleteStar(starsLog.length - 1 - i)}>
-                🗑️
-              </button>
-            </div>
-          )
-        })}
+            ))}
+          </div>
+        )}
       </div>
 
       {/* NOTES */}
