@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unit 3 — Favourite Toys! 🧸</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff9f0;--surface:#ffffff;--border:#ffe4b5;
+  --text:#3d2b1f;--muted:#a08060;
+  --orange:#ff7f2a;--blue:#4a9eff;--green:#22c55e;
+  --red:#ff4d4d;--purple:#a855f7;--yellow:#fbbf24;--pink:#f472b6;
+  --font:'Nunito',sans-serif;--display:'Fredoka One',cursive;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(circle at 15% 25%,rgba(255,127,42,0.08) 0%,transparent 40%),
+             radial-gradient(circle at 85% 75%,rgba(74,158,255,0.08) 0%,transparent 40%),
+             radial-gradient(circle at 50% 50%,rgba(251,191,36,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:16px}
+
+/* HEADER */
+.header{text-align:center;padding:24px 16px 20px}
+.header-tag{display:inline-block;background:var(--orange);color:#fff;font-family:var(--display);font-size:12px;letter-spacing:1px;padding:5px 16px;border-radius:20px;margin-bottom:12px}
+.header h1{font-family:var(--display);font-size:clamp(28px,6vw,46px);color:var(--orange);letter-spacing:1px;margin-bottom:4px}
+.header-sub{font-size:13px;color:var(--muted);font-weight:700}
+
+/* VOCAB STRIP */
+.vocab-strip{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  margin-bottom:20px;
+}
+.vocab-chip{
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:30px;padding:7px 14px;font-weight:800;font-size:13px;
+  display:flex;align-items:center;gap:6px;
+  box-shadow:0 2px 0 rgba(0,0,0,0.06);
+}
+
+/* GAME GRID */
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+.game-card{
+  background:var(--surface);border:3px solid var(--border);
+  border-radius:20px;padding:20px 16px;cursor:pointer;
+  transition:all 0.2s;text-align:center;
+  box-shadow:0 4px 0 rgba(0,0,0,0.08);
+}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 8px 0 rgba(0,0,0,0.1)}
+.game-card.c1:hover{background:#fff8ee;border-color:var(--orange)}
+.game-card.c2:hover{background:#eff6ff;border-color:var(--blue)}
+.game-card.c3:hover{background:#f0fdf4;border-color:var(--green)}
+.game-card.c4:hover{background:#faf5ff;border-color:var(--purple)}
+.game-card.c5:hover{background:#fff0f9;border-color:var(--pink)}
+.game-icon{font-size:40px;margin-bottom:8px}
+.game-title{font-family:var(--display);font-size:16px;color:var(--text);margin-bottom:4px}
+.game-desc{font-size:11px;color:var(--muted);line-height:1.5;font-weight:600}
+.game-badge{display:inline-block;margin-top:8px;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;background:var(--orange);color:#fff}
+
+/* GAME SCREEN */
+.game-screen{display:none}
+.game-header{display:flex;align-items:center;gap:12px;background:var(--surface);border:3px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:16px;box-shadow:0 3px 0 rgba(0,0,0,0.06)}
+.g-emoji{font-size:28px}
+.g-title{font-family:var(--display);font-size:18px;color:var(--orange)}
+.g-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:1px}
+
+/* SCORE */
+.score-bar{display:flex;gap:10px;margin-bottom:16px}
+.score-pill{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:40px;padding:8px 14px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,0.06)}
+.score-val{font-family:var(--display);font-size:22px}
+.sv-g{color:var(--green)}.sv-r{color:var(--red)}.sv-o{color:var(--orange)}
+
+/* PROGRESS */
+.prog-wrap{background:#ffe4b5;border-radius:10px;height:10px;margin-bottom:16px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--orange),var(--yellow));transition:width 0.3s ease}
+
+/* Q CARD */
+.q-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 4px 0 rgba(0,0,0,0.06);text-align:center}
+.q-emoji{font-size:72px;margin-bottom:12px;display:block;animation:bounce 0.5s ease}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.q-text{font-family:var(--display);font-size:clamp(15px,4vw,22px);color:var(--text);line-height:1.3;margin-bottom:6px}
+.q-hint{font-size:12px;color:var(--muted);font-weight:700}
+
+/* OPTIONS */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{
+  background:var(--surface);border:3px solid #e2e8f0;
+  border-radius:14px;padding:14px 10px;cursor:pointer;
+  font-family:var(--display);font-size:clamp(14px,3.5vw,19px);
+  transition:all 0.15s;text-align:center;
+  box-shadow:0 3px 0 rgba(0,0,0,0.08);
+}
+.option:hover:not([disabled]){transform:translateY(-2px);border-color:var(--orange);background:#fff8ee;box-shadow:0 5px 0 rgba(255,127,42,0.2)}
+.option.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important;box-shadow:0 3px 0 rgba(34,197,94,0.25)!important}
+.option.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important;box-shadow:none!important}
+
+/* TF */
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf-btn{background:var(--surface);border:3px solid #e2e8f0;border-radius:18px;padding:22px 14px;cursor:pointer;font-family:var(--display);font-size:24px;text-align:center;transition:all 0.2s;box-shadow:0 4px 0 rgba(0,0,0,0.08)}
+.tf-btn:hover:not([disabled]){transform:translateY(-3px)}
+.tf-yes:hover:not([disabled]){border-color:var(--green);background:#f0fdf4}
+.tf-no:hover:not([disabled]){border-color:var(--red);background:#fff5f5}
+.tf-btn.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important}
+.tf-btn.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important}
+.tf-lbl{font-size:14px;font-weight:800;margin-top:6px;display:block}
+
+/* PREPOSITIONS SCENE */
+.prep-scene{
+  background:linear-gradient(180deg,#e0f2fe 0%,#fef9ee 100%);
+  border:3px solid var(--border);border-radius:20px;
+  padding:20px;margin-bottom:16px;text-align:center;
+  box-shadow:0 4px 0 rgba(0,0,0,0.06);min-height:160px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;
+}
+.scene-table{
+  font-size:60px;margin-top:10px;position:relative;display:inline-block;
+}
+.scene-toy{font-size:36px;position:absolute}
+.toy-on{top:-38px;left:50%;transform:translateX(-50%)}
+.toy-under{bottom:-38px;left:50%;transform:translateX(-50%)}
+.toy-next{top:50%;left:-44px;transform:translateY(-50%)}
+.toy-in{top:6px;left:50%;transform:translateX(-50%)}
+
+/* FEEDBACK */
+.fb{border-radius:14px;padding:14px 18px;margin-top:12px;font-weight:800;font-size:14px;display:none;text-align:center}
+.fb.show{display:block;animation:pop 0.3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-ok{background:#f0fdf4;border:2px solid #86efac;color:var(--green)}
+.fb-no{background:#fff5f5;border:2px solid #fca5a5;color:var(--red)}
+
+/* NEXT */
+.btn-next{background:var(--orange);color:#fff;border:none;font-family:var(--display);font-size:16px;padding:14px 28px;border-radius:50px;cursor:pointer;width:100%;margin-top:12px;display:none;box-shadow:0 4px 0 rgba(200,80,0,0.4);transition:all 0.15s}
+.btn-next.show{display:block}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(200,80,0,0.4)}
+
+/* BACK */
+.btn-back{background:none;border:2px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:30px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:800;transition:all 0.15s}
+.btn-back:hover{border-color:var(--orange);color:var(--orange)}
+
+/* SPEAKING */
+.speaking-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:26px 20px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,0.08);margin-bottom:14px}
+.speech-bubble{background:#fff8ee;border:2px dashed var(--orange);border-radius:16px;padding:16px 14px;margin:14px 0;font-family:var(--display);font-size:18px;color:var(--orange);line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{font-weight:800;font-size:12px;padding:6px 14px;border-radius:20px;color:#fff}
+.ch-o{background:var(--orange)}.ch-b{background:var(--blue)}.ch-g{background:var(--green)}.ch-p{background:var(--purple)}.ch-pk{background:var(--pink)}
+
+/* RESULTS */
+.results{background:var(--surface);border:3px solid var(--border);border-radius:24px;padding:36px 24px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,0.08);animation:pop 0.4s cubic-bezier(.34,1.56,.64,1)}
+.r-star{font-size:72px;display:block;margin-bottom:12px}
+.r-score{font-family:var(--display);font-size:52px;color:var(--orange)}
+.r-msg{font-family:var(--display);font-size:24px;margin:8px 0 4px}
+.r-sub{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:24px}
+.r-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-again{background:var(--orange);color:#fff;border:none;font-family:var(--display);font-size:15px;padding:12px 24px;border-radius:40px;cursor:pointer;box-shadow:0 4px 0 rgba(200,80,0,0.4);transition:all 0.15s}
+.btn-again:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="home-screen">
+  <div class="header">
+    <div class="header-tag">Kids Box NG 1 · Unit 3 · Ages 6–9</div>
+    <h1>Favourite Toys! 🧸</h1>
+    <div class="header-sub">5 fun games · toys · colours · where is it? · speaking</div>
+  </div>
+
+  <!-- Vocab preview strip -->
+  <div class="vocab-strip">
+    <div class="vocab-chip">🎾 ball</div>
+    <div class="vocab-chip">🚲 bike</div>
+    <div class="vocab-chip">🚗 car</div>
+    <div class="vocab-chip">💻 computer</div>
+    <div class="vocab-chip">🪆 doll</div>
+    <div class="vocab-chip">🥁 drum</div>
+    <div class="vocab-chip">🚂 train</div>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card c1" onclick="startGame('toys')">
+      <div class="game-icon">🎯</div>
+      <div class="game-title">Toy Time!</div>
+      <div class="game-desc">See the toy — say the word! Choose the right answer.</div>
+      <div class="game-badge">10 questions</div>
+    </div>
+    <div class="game-card c2" onclick="startGame('colours')">
+      <div class="game-icon">🎨</div>
+      <div class="game-title">Colour Quiz!</div>
+      <div class="game-desc">What colour is it? Choose the right colour word!</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c3" onclick="startGame('prepositions')">
+      <div class="game-icon">📦</div>
+      <div class="game-title">Where Is It?</div>
+      <div class="game-desc">On? Under? In? Next to? Look and choose!</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c4" onclick="startGame('sentences')">
+      <div class="game-icon">💬</div>
+      <div class="game-title">Ask & Answer!</div>
+      <div class="game-desc">Choose the right word to finish the sentence!</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c5" onclick="startGame('speaking')">
+      <div class="game-icon">🗣️</div>
+      <div class="game-title">Talk About It!</div>
+      <div class="game-desc">Speak about YOUR favourite toys! Fun prompts!</div>
+      <div class="game-badge">5 prompts</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="game-screen">
+  <div class="game-header">
+    <div class="g-emoji" id="g-emoji">🎮</div>
+    <div style="flex:1"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
+    <button class="btn-back" onclick="goHome()">← Back</button>
+  </div>
+  <div class="score-bar">
+    <div class="score-pill"><div class="score-val sv-g" id="sc-c">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">⭐ Great!</div></div>
+    <div class="score-pill"><div class="score-val sv-o" id="sc-q">1</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Question</div></div>
+    <div class="score-pill"><div class="score-val sv-r" id="sc-w">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">❌ Oops</div></div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div id="q-area"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="game-screen">
+  <div class="results">
+    <span class="r-star" id="r-star">🌟</span>
+    <div class="r-score" id="r-score">8/10</div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px">Your Score</div>
+    <div class="r-msg" id="r-msg">Amazing!</div>
+    <div class="r-sub" id="r-sub">You know your toys!</div>
+    <div class="r-btns">
+      <button class="btn-back" onclick="goHome()">← All Games</button>
+      <button class="btn-again" onclick="restartGame()">🔄 Play Again!</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ════════════════════════════════════════
+// Kids Box New Generation 1 — Unit 3: Favourite Toys
+// Vocabulary: ball, bike, car, computer, doll, drum, train
+// Colours: black, brown, grey, white (new) + review: red, blue, green, yellow, pink, purple, orange
+// Grammar: What's your favourite toy? My favourite toy's my (drum).
+//          Prepositions: in, next to, on, under
+//          Where's your (ball)? It's (under) the (table).
+//          Is the (ball) (on) the (chair)? Yes, it is. No, it isn't.
+// ════════════════════════════════════════
+
+const GAMES = {
+
+  toys: {
+    emoji:'🎯', title:"Toy Time!", sub:'Choose the right word!', type:'mcq',
+    questions: [
+      { emoji:'🎾', q:"What's this?", opts:['a ball','a drum','a car','a doll'], ans:'a ball', fb:'Great! 🎾 A ball! We play with a ball.' },
+      { emoji:'🚲', q:"What's this?", opts:['a train','a bike','a car','a computer'], ans:'a bike', fb:'Yes! 🚲 A bike! You ride a bike.' },
+      { emoji:'🚗', q:"What's this?", opts:['a car','a ball','a train','a bike'], ans:'a car', fb:'Correct! 🚗 A car! Vroom vroom!' },
+      { emoji:'💻', q:"What's this?", opts:['a drum','a doll','a computer','a train'], ans:'a computer', fb:'Well done! 💻 A computer!' },
+      { emoji:'🪆', q:"What's this?", opts:['a ball','a doll','a drum','a car'], ans:'a doll', fb:'Yes! 🪆 A doll! She is beautiful.' },
+      { emoji:'🥁', q:"What's this?", opts:['a drum','a computer','a ball','a train'], ans:'a drum', fb:'Amazing! 🥁 A drum! Bang bang bang!' },
+      { emoji:'🚂', q:"What's this?", opts:['a car','a bike','a drum','a train'], ans:'a train', fb:'Superstar! 🚂 A train! Choo choo!' },
+      { emoji:'🎾', q:'Is this a ball?', opts:['Yes, it is.','No, it isn\'t.','Yes, it isn\'t.','No, it is.'], ans:'Yes, it is.', fb:'Yes, it is a ball! ✅' },
+      { emoji:'🚗', q:"Is this a doll?", opts:['Yes, it is.','No, it isn\'t.','Yes it is!','No it isn\'t!'], ans:"No, it isn't.", fb:"No, it isn't a doll. It's a car! 🚗" },
+      { emoji:'🥁', q:"My favourite toy's my ___.", opts:['drum','drums','a drum','the drum'], ans:'drum', fb:"My favourite toy's my drum! We don't use 'a' here. 🥁" },
+    ]
+  },
+
+  colours: {
+    emoji:'🎨', title:'Colour Quiz!', sub:'What colour is it?', type:'mcq',
+    questions: [
+      { emoji:'🖤', q:"What colour is this?", opts:['white','black','grey','brown'], ans:'black', fb:'Yes! ⬛ Black! Like the night sky.' },
+      { emoji:'🤍', q:"What colour is this?", opts:['black','grey','white','brown'], ans:'white', fb:'Correct! ⬜ White! Like snow.' },
+      { emoji:'🩶', q:"What colour is this?", opts:['black','white','brown','grey'], ans:'grey', fb:'Well done! 🩶 Grey! Like an elephant.' },
+      { emoji:'🤎', q:"What colour is this?", opts:['grey','orange','brown','black'], ans:'brown', fb:'Amazing! 🤎 Brown! Like chocolate!' },
+      { emoji:'🟥', q:"What colour is this?", opts:['orange','red','pink','brown'], ans:'red', fb:'Yes! 🔴 Red!' },
+      { emoji:'🟦', q:"What colour is this?", opts:['purple','green','blue','grey'], ans:'blue', fb:'Correct! 🔵 Blue!' },
+      { emoji:'🟨', q:"What colour is this?", opts:['orange','yellow','brown','white'], ans:'yellow', fb:'Great! 🟡 Yellow! Like the sun.' },
+      { emoji:'🟩', q:"What colour is this?", opts:['blue','yellow','green','grey'], ans:'green', fb:'Superstar! 🟢 Green! Like the grass.' },
+    ]
+  },
+
+  prepositions: {
+    emoji:'📦', title:'Where Is It?', sub:'In? On? Under? Next to?', type:'prep',
+    questions: [
+      { toy:'🎾', furniture:'🪑', position:'on',      q:"Where's the ball?",      hint:'The ball is on TOP of the chair.',       opts:['on','under','in','next to'], ans:'on',      fb:"It's ON the chair! The ball is on top. ✅" },
+      { toy:'🚗', furniture:'🪑', position:'under',   q:"Where's the car?",       hint:'The car is UNDER the chair.',            opts:['on','in','under','next to'], ans:'under',   fb:"It's UNDER the chair! Under = below. ✅" },
+      { toy:'🥁', furniture:'📦', position:'in',      q:"Where's the drum?",      hint:'The drum is INSIDE the box.',            opts:['on','next to','under','in'], ans:'in',      fb:"It's IN the box! In = inside. ✅" },
+      { toy:'🪆', furniture:'🪑', position:'next to', q:"Where's the doll?",      hint:'The doll is BESIDE the chair.',          opts:['on','in','under','next to'], ans:'next to', fb:"It's NEXT TO the chair! Next to = beside. ✅" },
+      { toy:'🚲', furniture:'📦', position:'on',      q:"Is the bike on the box?",hint:'Look carefully!',                        opts:['Yes, it is.','No, it isn\'t.'], ans:'Yes, it is.', fb:"Yes, it is! The bike IS on the box. ✅" },
+      { toy:'🚂', furniture:'🪑', position:'under',   q:"Is the train on the chair?", hint:'Think carefully!',                  opts:['Yes, it is.','No, it isn\'t.'], ans:"No, it isn't.", fb:"No, it isn't! The train is UNDER the chair. ✅" },
+      { toy:'💻', furniture:'📦', position:'in',      q:"Where's the computer?",  hint:'Is it inside the box?',                 opts:['on','next to','under','in'], ans:'in',      fb:"It's IN the box! 💻✅" },
+      { toy:'🎾', furniture:'🪑', position:'next to', q:"Where's the ball?",      hint:'It is beside the chair.',               opts:['on','in','under','next to'], ans:'next to', fb:"It's NEXT TO the chair! ✅" },
+    ]
+  },
+
+  sentences: {
+    emoji:'💬', title:'Ask & Answer!', sub:'Choose the right word!', type:'mcq',
+    questions: [
+      { emoji:'🎾', q:"What ___ your favourite toy?", opts:["is","are","am","be"], ans:"is", fb:"What IS your favourite toy? We use IS here. ✅" },
+      { emoji:'🥁', q:"My favourite toy ___ my drum.", opts:["is","am","are","be"], ans:"is", fb:"My favourite toy IS my drum! ✅ 🥁" },
+      { emoji:'🚗', q:"___ the car on the table?", opts:["Is","Are","Am","Be"], ans:"Is", fb:"IS the car on the table? We use IS for one thing. ✅" },
+      { emoji:'🪆', q:"Where ___ the doll?", opts:["is","are","am","have"], ans:"is", fb:"Where IS the doll? ✅ Good job! 🪆" },
+      { emoji:'🚂', q:"It's ___ the table. (inside)", opts:["on","under","in","next to"], ans:"in", fb:"It's IN the table — inside! ✅ 🚂" },
+      { emoji:'🎾', q:"The ball is ___ the chair. (below)", opts:["on","next to","in","under"], ans:"under", fb:"The ball is UNDER the chair — below! ✅ 🎾" },
+      { emoji:'🚲', q:"Is it a bike? Yes, ___ ___.", opts:["it is","it isn't","they are","I am"], ans:"it is", fb:"Yes, IT IS! Short answer for yes. ✅" },
+      { emoji:'💻', q:"Is it a ball? No, ___ ___.", opts:["it is","it isn't","they aren't","I'm not"], ans:"it isn't", fb:"No, IT ISN'T! Short answer for no. ✅" },
+    ]
+  },
+
+  speaking: {
+    emoji:'🗣️', title:'Talk About It!', sub:'Speak for 30 seconds!', type:'speaking',
+    prompts: [
+      {
+        emoji:'🏆', title:'What is your favourite toy?',
+        bubble:'"My favourite toy\'s my ___!"',
+        instruction:'Tell the class your favourite toy and WHY you like it!',
+        chips:[{t:'My favourite toy\'s my...',c:'ch-o'},{t:'I like it because...',c:'ch-b'},{t:'It\'s fun!',c:'ch-g'},{t:'It\'s beautiful!',c:'ch-p'}]
+      },
+      {
+        emoji:'📍', title:'Where is your toy?',
+        bubble:'"My ___ is ___ the ___."',
+        instruction:'Tell us where your favourite toy is right now at home!',
+        chips:[{t:'My ... is on the...',c:'ch-o'},{t:'It\'s under the...',c:'ch-b'},{t:'It\'s in the...',c:'ch-g'},{t:'It\'s next to the...',c:'ch-p'}]
+      },
+      {
+        emoji:'🎨', title:'What colour is it?',
+        bubble:'"My ___ is ___."',
+        instruction:'Describe the colour of your favourite toy!',
+        chips:[{t:'red',c:'ch-o'},{t:'blue',c:'ch-b'},{t:'yellow',c:'ch-o'},{t:'black',c:'ch-p'},{t:'white',c:'ch-g'},{t:'brown',c:'ch-pk'},{t:'grey',c:'ch-b'}]
+      },
+      {
+        emoji:'🤝', title:'Ask your friend!',
+        bubble:'"Is your favourite toy a ___?"',
+        instruction:'Ask the person next to you about their favourite toy!',
+        chips:[{t:'Is your favourite toy a...?',c:'ch-o'},{t:'Yes, it is!',c:'ch-g'},{t:'No, it isn\'t.',c:'ch-b'},{t:'My favourite toy\'s my...',c:'ch-p'}]
+      },
+      {
+        emoji:'💡', title:'T or D words!',
+        bubble:'"Train, toy, doll, drum..." — can you say more?',
+        instruction:'The unit sound is T and D! Say as many T and D words as you can in 20 seconds!',
+        chips:[{t:'🚂 train',c:'ch-o'},{t:'🧸 toy',c:'ch-b'},{t:'🪆 doll',c:'ch-g'},{t:'🥁 drum',c:'ch-p'},{t:'🐉 dragon',c:'ch-pk'},{t:'🦷 tooth',c:'ch-b'}]
+      },
+    ]
+  }
+}
+
+let cGame=null, qIdx=0, correct=0, wrong=0, answered=false
+
+function startGame(id) {
+  cGame=id; qIdx=0; correct=0; wrong=0; answered=false
+  document.getElementById('home-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('game-screen').style.display='block'
+  const g=GAMES[id]
+  document.getElementById('g-emoji').textContent=g.emoji
+  document.getElementById('g-title').textContent=g.title
+  document.getElementById('g-sub').textContent=g.sub
+  document.getElementById('sc-c').textContent='0'
+  document.getElementById('sc-w').textContent='0'
+  render()
+}
+
+function total() {
+  const g=GAMES[cGame]
+  if(g.type==='speaking') return g.prompts.length
+  return g.questions.length
+}
+
+function render() {
+  const g=GAMES[cGame]
+  answered=false
+  const t=total()
+  document.getElementById('sc-q').textContent=`${qIdx+1}/${t}`
+  document.getElementById('prog').style.width=`${(qIdx/t)*100}%`
+  if(g.type==='mcq') renderMCQ()
+  else if(g.type==='prep') renderPrep()
+  else if(g.type==='speaking') renderSpeaking()
+}
+
+// ── MCQ ──
+function renderMCQ() {
+  const q=GAMES[cGame].questions[qIdx]
+  const L=['A','B','C','D']
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-card">
+      <span class="q-emoji">${q.emoji}</span>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="options">
+      ${q.opts.map((o,i)=>`
+        <button class="option" id="o${i}" onclick="pickMCQ(${i})">${L[i]}. ${o}</button>
+      `).join('')}
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">Next ➡️</button>
+  `
+}
+
+function pickMCQ(i) {
+  if(answered) return
+  answered=true
+  const q=GAMES[cGame].questions[qIdx]
+  const ok=q.opts[i]===q.ans
+  document.querySelectorAll('.option').forEach((el,idx)=>{
+    el.disabled=true
+    if(q.opts[idx]===q.ans) el.classList.add('correct')
+  })
+  document.getElementById(`o${i}`).classList.add(ok?'correct':'wrong')
+  const fb=document.getElementById('fb')
+  fb.className=`fb show ${ok?'fb-ok':'fb-no'}`
+  fb.textContent=ok?(q.fb||'⭐ Amazing!'):`❌ The answer is: ${q.ans}`
+  if(ok){correct++;document.getElementById('sc-c').textContent=correct}
+  else{wrong++;document.getElementById('sc-w').textContent=wrong}
+  document.getElementById('btn-next').classList.add('show')
+}
+
+// ── PREPOSITIONS ──
+function renderPrep() {
+  const q=GAMES[cGame].questions[qIdx]
+  const isTF = q.opts[0]==='Yes, it is.'
+
+  // Build scene
+  let sceneHTML = ''
+  if(q.position==='on')      sceneHTML=`<div class="scene-table">🪑<span class="scene-toy toy-on">${q.toy}</span></div>`
+  else if(q.position==='under') sceneHTML=`<div class="scene-table">🪑<span class="scene-toy toy-under">${q.toy}</span></div>`
+  else if(q.position==='next to') sceneHTML=`<div class="scene-table">🪑<span class="scene-toy toy-next">${q.toy}</span></div>`
+  else if(q.position==='in') sceneHTML=`<div class="scene-table">📦<span class="scene-toy toy-in">${q.toy}</span></div>`
+
+  document.getElementById('q-area').innerHTML=`
+    <div class="prep-scene">
+      <div style="font-family:var(--display);font-size:14px;color:var(--muted);margin-bottom:8px">Look at the picture! 👀</div>
+      ${sceneHTML}
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:12px">${q.hint}</div>
+    </div>
+    <div class="q-card" style="padding:16px">
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="options" style="grid-template-columns:${q.opts.length===2?'1fr 1fr':'1fr 1fr'}">
+      ${q.opts.map((o,i)=>`<button class="option" id="o${i}" onclick="pickMCQ(${i})">${o}</button>`).join('')}
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">Next ➡️</button>
+  `
+  // Override pickMCQ ans to use preposition ans
+  // Already handled by pickMCQ since q.opts[i]===q.ans check works
+}
+
+// ── SPEAKING ──
+function renderSpeaking() {
+  const p=GAMES[cGame].prompts[qIdx]
+  document.getElementById('q-area').innerHTML=`
+    <div class="speaking-card">
+      <div style="font-size:48px;margin-bottom:10px">${p.emoji}</div>
+      <div style="font-family:var(--display);font-size:20px;margin-bottom:6px">${p.title}</div>
+      <div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:4px">${p.instruction}</div>
+      <div class="speech-bubble">${p.bubble}</div>
+      <div class="chips">${p.chips.map(c=>`<span class="chip ${c.c}">${c.t}</span>`).join('')}</div>
+    </div>
+    <button class="btn-next show" onclick="next()">Next Prompt ➡️</button>
+  `
+}
+
+function next() {
+  qIdx++
+  if(qIdx>=total()) showResults()
+  else render()
+}
+
+function showResults() {
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='block'
+  const isSpeaking=GAMES[cGame].type==='speaking'
+  const t=total()
+  const pct=(!isSpeaking&&t>0)?Math.round((correct/t)*100):100
+  let star,msg,sub
+  if(isSpeaking){star='🗣️';msg='Great talking!';sub='You are a speaking star! 🌟'}
+  else if(pct===100){star='🏆';msg='Perfect! Amazing!';sub='100%! You know ALL your toys! Superstar!'}
+  else if(pct>=80){star='⭐';msg='Excellent!';sub='You know your toys really well! Well done!'}
+  else if(pct>=60){star='😊';msg='Good job!';sub='Practise a little more — you are nearly there!'}
+  else{star='💪';msg='Keep trying!';sub='Look at the words again and try once more. You can do it!'}
+  document.getElementById('r-star').textContent=star
+  document.getElementById('r-score').textContent=isSpeaking?'🌟':`${correct}/${t}`
+  document.getElementById('r-msg').textContent=msg
+  document.getElementById('r-sub').textContent=sub
+}
+
+function restartGame(){startGame(cGame)}
+function goHome(){
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('home-screen').style.display='block'
+}
+</script>
+</body>
+</html>

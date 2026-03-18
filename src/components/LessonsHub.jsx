@@ -35,14 +35,16 @@ const THINK_B1_UNITS = [
   { num: 12, title: 'Playing by the Rules', url: null },
 ]
 
-// Kids Box units (to be built)
+// Kids Box New Generation Level 1 units
 const KIDS_BOX_UNITS = [
-  { num: 1, title: 'Unit 1', url: null },
-  { num: 2, title: 'Unit 2', url: null },
-  { num: 3, title: 'Unit 3', url: null },
-  { num: 4, title: 'Unit 4', url: null },
-  { num: 5, title: 'Unit 5', url: null },
-  { num: 6, title: 'Unit 6', url: null },
+  { num: 1, title: 'Hello!',         url: null },
+  { num: 2, title: 'My School',      url: null },
+  { num: 3, title: 'Favourite Toys', url: 'https://teacherjoseph.vercel.app/games/unit3-favourite-toys-pro3s.html' },
+  { num: 4, title: 'My Family',      url: null },
+  { num: 5, title: 'My Body',        url: null },
+  { num: 6, title: 'Animals',        url: null },
+  { num: 7, title: 'Food',           url: null },
+  { num: 8, title: 'My Home',        url: null },
 ]
 
 export default function LessonsHub({ cls, onClose }) {
