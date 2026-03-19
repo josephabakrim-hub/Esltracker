@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unit 5 — Meet My Family! 👨‍👩‍👧‍👦</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fdf4ff;--surface:#ffffff;--border:#e9d5ff;
+  --text:#3b1f52;--muted:#9a7ab8;
+  --purple:#9333ea;--green:#22c55e;--red:#ef4444;
+  --orange:#f97316;--blue:#3b82f6;--yellow:#fbbf24;--pink:#ec4899;
+  --teal:#14b8a6;
+  --font:'Nunito',sans-serif;--display:'Fredoka One',cursive;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(circle at 20% 30%,rgba(147,51,234,0.07) 0%,transparent 50%),
+             radial-gradient(circle at 80% 70%,rgba(236,72,153,0.06) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:16px}
+
+.header{text-align:center;padding:24px 16px 20px}
+.header-tag{display:inline-block;background:var(--purple);color:#fff;font-family:var(--display);font-size:12px;letter-spacing:1px;padding:5px 16px;border-radius:20px;margin-bottom:12px}
+.header h1{font-family:var(--display);font-size:clamp(26px,6vw,44px);color:var(--purple);letter-spacing:1px;margin-bottom:4px}
+.header-sub{font-size:13px;color:var(--muted);font-weight:700}
+
+.vocab-strip{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.vocab-chip{background:var(--surface);border:2px solid var(--border);border-radius:30px;padding:7px 14px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 0 rgba(0,0,0,0.06)}
+
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+.game-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:20px 16px;cursor:pointer;transition:all 0.2s;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,0.07)}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 8px 0 rgba(0,0,0,0.1)}
+.game-card.c1:hover{border-color:var(--purple);background:#faf5ff}
+.game-card.c2:hover{border-color:var(--orange);background:#fff7ed}
+.game-card.c3:hover{border-color:var(--teal);background:#f0fdfa}
+.game-card.c4:hover{border-color:var(--pink);background:#fdf2f8}
+.game-card.c5:hover{border-color:var(--blue);background:#eff6ff}
+.game-icon{font-size:40px;margin-bottom:8px}
+.game-title{font-family:var(--display);font-size:16px;color:var(--text);margin-bottom:4px}
+.game-desc{font-size:11px;color:var(--muted);line-height:1.5;font-weight:600}
+.game-badge{display:inline-block;margin-top:8px;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;background:var(--purple);color:#fff}
+
+.game-screen{display:none}
+.game-header{display:flex;align-items:center;gap:12px;background:var(--surface);border:3px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:16px;box-shadow:0 3px 0 rgba(0,0,0,0.05)}
+.g-emoji{font-size:28px}
+.g-title{font-family:var(--display);font-size:18px;color:var(--purple)}
+.g-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:1px}
+
+.score-bar{display:flex;gap:10px;margin-bottom:16px}
+.score-pill{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:40px;padding:8px 14px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,0.05)}
+.score-val{font-family:var(--display);font-size:22px}
+.sv-g{color:var(--green)}.sv-r{color:var(--red)}.sv-p{color:var(--purple)}
+
+.prog-wrap{background:#ede9fe;border-radius:10px;height:10px;margin-bottom:16px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--purple),var(--pink));transition:width 0.3s ease}
+
+.q-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 4px 0 rgba(0,0,0,0.05);text-align:center}
+.q-emoji{font-size:72px;margin-bottom:12px;display:block;animation:bounce 0.5s ease}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.q-text{font-family:var(--display);font-size:clamp(15px,4vw,21px);color:var(--text);line-height:1.3;margin-bottom:6px}
+.q-hint{font-size:12px;color:var(--muted);font-weight:700;margin-top:6px}
+
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:var(--surface);border:3px solid #ede9fe;border-radius:14px;padding:14px 10px;cursor:pointer;font-family:var(--display);font-size:clamp(14px,3.5vw,18px);transition:all 0.15s;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,0.07)}
+.option:hover:not([disabled]){transform:translateY(-2px);border-color:var(--purple);background:#faf5ff;box-shadow:0 5px 0 rgba(147,51,234,0.2)}
+.option.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important;box-shadow:0 3px 0 rgba(34,197,94,0.2)!important}
+.option.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important;box-shadow:none!important}
+
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf-btn{background:var(--surface);border:3px solid #ede9fe;border-radius:18px;padding:22px 14px;cursor:pointer;font-family:var(--display);font-size:22px;text-align:center;transition:all 0.2s;box-shadow:0 4px 0 rgba(0,0,0,0.07)}
+.tf-btn:hover:not([disabled]){transform:translateY(-3px)}
+.tf-yes:hover:not([disabled]){border-color:var(--green);background:#f0fdf4}
+.tf-no:hover:not([disabled]){border-color:var(--red);background:#fff5f5}
+.tf-btn.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important}
+.tf-btn.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important}
+.tf-lbl{font-size:14px;font-weight:800;margin-top:6px;display:block}
+
+.fb{border-radius:14px;padding:14px 18px;margin-top:12px;font-weight:800;font-size:14px;display:none;text-align:center}
+.fb.show{display:block;animation:pop 0.3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-ok{background:#f0fdf4;border:2px solid #86efac;color:var(--green)}
+.fb-no{background:#fff5f5;border:2px solid #fca5a5;color:var(--red)}
+
+.btn-next{background:var(--purple);color:#fff;border:none;font-family:var(--display);font-size:16px;padding:14px 28px;border-radius:50px;cursor:pointer;width:100%;margin-top:12px;display:none;box-shadow:0 4px 0 rgba(100,20,180,0.3);transition:all 0.15s}
+.btn-next.show{display:block}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(100,20,180,0.3)}
+.btn-back{background:none;border:2px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:30px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:800;transition:all 0.15s}
+.btn-back:hover{border-color:var(--purple);color:var(--purple)}
+
+/* -ing highlight */
+.ing{color:var(--purple);font-weight:900}
+.kk{color:var(--orange);font-weight:900}
+
+.speaking-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:26px 20px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,0.07);margin-bottom:14px}
+.speech-bubble{background:#faf5ff;border:2px dashed var(--purple);border-radius:16px;padding:16px 14px;margin:14px 0;font-family:var(--display);font-size:17px;color:var(--purple);line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{font-weight:800;font-size:12px;padding:6px 14px;border-radius:20px;color:#fff}
+.ch-p{background:var(--purple)}.ch-g{background:var(--green)}.ch-o{background:var(--orange)}.ch-b{background:var(--blue)}.ch-pk{background:var(--pink)}
+
+.results{background:var(--surface);border:3px solid var(--border);border-radius:24px;padding:36px 24px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,0.07);animation:pop 0.4s cubic-bezier(.34,1.56,.64,1)}
+.r-star{font-size:72px;display:block;margin-bottom:12px}
+.r-score{font-family:var(--display);font-size:52px;color:var(--purple)}
+.r-msg{font-family:var(--display);font-size:24px;margin:8px 0 4px}
+.r-sub{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:24px}
+.r-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-again{background:var(--purple);color:#fff;border:none;font-family:var(--display);font-size:15px;padding:12px 24px;border-radius:40px;cursor:pointer;box-shadow:0 4px 0 rgba(100,20,180,0.3);transition:all 0.15s}
+.btn-again:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="home-screen">
+  <div class="header">
+    <div class="header-tag">Kids Box NG 2 · Unit 5 · Ages 6–9</div>
+    <h1>Meet My Family! 👨‍👩‍👧‍👦</h1>
+    <div class="header-sub">5 games · family words · verb+-ing · sounds c, ck and k · speaking</div>
+  </div>
+
+  <div class="vocab-strip">
+    <div class="vocab-chip">👶 baby</div>
+    <div class="vocab-chip">👫 cousin</div>
+    <div class="vocab-chip">👩 mum</div>
+    <div class="vocab-chip">👨 dad</div>
+    <div class="vocab-chip">👵 grandma</div>
+    <div class="vocab-chip">👴 grandpa</div>
+  </div>
+
+  <div class="game-grid">
+<div class="game-card c2" onclick="startGame('ing')">
+      <div class="game-icon">🏃</div>
+      <div class="game-title">What Are They Doing?</div>
+      <div class="game-desc">Add -ing to the verb! Catch → catching. Can you do it?</div>
+      <div class="game-badge">10 questions</div>
+    </div>
+    <div class="game-card c3" onclick="startGame('spelling')">
+      <div class="game-icon">🔤</div>
+      <div class="game-title">C, CK or K?</div>
+      <div class="game-desc">Which spelling makes the /k/ sound? Choose correctly!</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c4" onclick="startGame('truefalse')">
+      <div class="game-icon">✅</div>
+      <div class="game-title">True or False?</div>
+      <div class="game-desc">Read about the Star family. Is it right or wrong?</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c5" onclick="startGame('speaking')">
+      <div class="game-icon">🗣️</div>
+      <div class="game-title">My Family!</div>
+      <div class="game-desc">Talk about YOUR family and what they are doing!</div>
+      <div class="game-badge">5 prompts</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="game-screen">
+  <div class="game-header">
+    <div class="g-emoji" id="g-emoji">🎮</div>
+    <div style="flex:1"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
+    <button class="btn-back" onclick="goHome()">← Back</button>
+  </div>
+  <div class="score-bar">
+    <div class="score-pill"><div class="score-val sv-g" id="sc-c">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">⭐ Great!</div></div>
+    <div class="score-pill"><div class="score-val sv-p" id="sc-q">1</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Question</div></div>
+    <div class="score-pill"><div class="score-val sv-r" id="sc-w">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">❌ Oops</div></div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div id="q-area"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="game-screen">
+  <div class="results">
+    <span class="r-star" id="r-star">🌟</span>
+    <div class="r-score" id="r-score">8/10</div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px">Your Score</div>
+    <div class="r-msg" id="r-msg">Amazing!</div>
+    <div class="r-sub" id="r-sub"></div>
+    <div class="r-btns">
+      <button class="btn-back" onclick="goHome()">← All Games</button>
+      <button class="btn-again" onclick="restartGame()">🔄 Play Again!</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ════════════════════════════════════════
+// Kids Box New Generation 2 — Unit 5: Meet My Family
+// Vocabulary: baby, cousin, mum, dad, grandma, grandpa
+// Characters: Tony, Alice, Nick, Kim, Hugo, Lucy, Meg, Lenny, Sam, Frank
+// Grammar: Verb + -ing spellings:
+//   Just add -ing: clean→cleaning, fly→flying, run→running (double), sit→sitting (double), sleep→sleeping, talk→talking, jump→jumping, kick→kicking, throw→throwing
+//   Drop e + ing: come→coming
+//   Double consonant + ing: hit→hitting, run→running, sit→sitting
+// Sounds: c, ck and k — cat, clock, kitchen
+// ════════════════════════════════════════
+
+const GAMES = {
+
+  ing: {
+    emoji:'🏃', title:'What Are They Doing?', sub:'Add -ing to the verb!', type:'mcq',
+    questions: [
+      { emoji:'🧹', q:"clean → clean<span class='ing'>___</span>", opts:['cleaning','cleaneing','clening','cleanning'], ans:'cleaning', fb:"CLEANING ✅ — just add -ing! clean + ing = cleaning." },
+      { emoji:'✈️', q:"fly → fl<span class='ing'>___</span>", opts:['flyng','flying','fling','flyying'], ans:'flying', fb:"FLYING ✅ — fly → flying. Change y, add -ing." },
+      { emoji:'🏃', q:"run → run<span class='ing'>___</span> (careful — double the n!)", opts:['runing','running','runeing','runng'], ans:'running', fb:"RUNNING ✅ — run ends in vowel + consonant, so double the n! run → running." },
+      { emoji:'🪑', q:"sit → sit<span class='ing'>___</span> (careful — double the t!)", opts:['siting','siteing','sitting','sitteing'], ans:'sitting', fb:"SITTING ✅ — sit → sitting. Double the t because: short vowel + consonant. ✅" },
+      { emoji:'💤', q:"sleep → sleep<span class='ing'>___</span>", opts:['sleping','sleepeing','sleeping','slepping'], ans:'sleeping', fb:"SLEEPING ✅ — just add -ing! sleep + ing = sleeping." },
+      { emoji:'🗣️', q:"talk → talk<span class='ing'>___</span>", opts:['talkeing','talking','talkin','talkking'], ans:'talking', fb:"TALKING ✅ — just add -ing! talk + ing = talking." },
+      { emoji:'🦘', q:"jump → jump<span class='ing'>___</span>", opts:['jumpping','jumpeing','jumping','jumpiing'], ans:'jumping', fb:"JUMPING ✅ — just add -ing! jump + ing = jumping." },
+      { emoji:'🚀', q:"come → com<span class='ing'>___</span> (careful — drop the e!)", opts:['comeing','coming','commeing','cominng'], ans:'coming', fb:"COMING ✅ — come ends in e, so drop the e! come → coming." },
+      { emoji:'⚾', q:"hit → hit<span class='ing'>___</span> (careful — double the t!)", opts:['hiting','hiteing','hittng','hitting'], ans:'hitting', fb:"HITTING ✅ — hit ends in vowel + consonant, double the t! hit → hitting." },
+      { emoji:'🥏', q:"throw → throw<span class='ing'>___</span>", opts:['throwwing','throwing','throweing','throwin'], ans:'throwing', fb:"THROWING ✅ — just add -ing! throw + ing = throwing." },
+    ]
+  },
+
+  spelling: {
+    emoji:'🔤', title:'C, CK or K?', sub:"Which spelling makes the /k/ sound?", type:'mcq',
+    questions: [
+      { emoji:'🐱', q:"<span class='kk'>___</span>at (a small animal that says meow)", opts:['c','ck','k','g'], ans:'c', fb:"CAT! 🐱 C makes the /k/ sound at the start of words — cat, come, cousin." },
+      { emoji:'⏰', q:"clo<span class='kk'>___</span> (it tells you the time)", opts:['c','ck','k','ch'], ans:'ck', fb:"CLOCK! ⏰ CK makes the /k/ sound after a short vowel — clock, kick, duck." },
+      { emoji:'🍳', q:"<span class='kk'>___</span>itchen (the room where we cook)", opts:['c','ck','k','qu'], ans:'k', fb:"KITCHEN! 🍳 K makes the /k/ sound before i and e — kitchen, kick, kite." },
+      { emoji:'🦆', q:"du<span class='kk'>___</span> (a bird that says quack)", opts:['c','ck','k','g'], ans:'ck', fb:"DUCK! 🦆 CK after a short vowel — duck, clock, kick." },
+      { emoji:'🐄', q:"<span class='kk'>___</span>ow (a big farm animal)", opts:['c','ck','k','g'], ans:'c', fb:"COW! 🐄 C at the start — cow, car, cousin, clean." },
+      { emoji:'⚽', q:"<span class='kk'>___</span>ick (what you do with your foot)", opts:['c','ck','k','q'], ans:'k', fb:"KICK! ⚽ K before i — kick, kitchen, kite." },
+      { emoji:'🦘', q:"<span class='kk'>___</span>angaroo (a jumping animal from Australia)", opts:['c','ck','k','g'], ans:'k', fb:"KANGAROO! 🦘 K at the start — kangaroo, kitchen, kick." },
+      { emoji:'🎒', q:"ba<span class='kk'>___</span>pack (you carry it to school)", opts:['c','ck','k','g'], ans:'ck', fb:"BACKPACK! 🎒 CK after a short vowel — backpack, clock, duck." },
+    ]
+  },
+
+  truefalse: {
+    emoji:'✅', title:'True or False?', sub:'About the Star family!', type:'tf',
+    questions: [
+      { emoji:'👶', q:"A baby is a very young child.", ans:true, fb:"TRUE! ✅ A baby is a very young child." },
+      { emoji:'👴', q:"Your grandpa is your mother's or father's father.", ans:true, fb:"TRUE! ✅ Grandpa = your mum's or dad's father." },
+      { emoji:'👫', q:"Your cousin is your brother's child.", ans:false, fb:"FALSE! ❌ Your cousin is your UNCLE or AUNT's child, not your brother's." },
+      { emoji:'🏃', q:"'Running' has only one n. (run → runing)", ans:false, fb:"FALSE! ❌ Running has DOUBLE n — run → runn+ing = RUNNING. Short vowel + consonant = double!" },
+      { emoji:'🧹', q:"'Cleaning' is spelled c-l-e-a-n-i-n-g.", ans:true, fb:"TRUE! ✅ clean + ing = cleaning. Just add -ing!" },
+      { emoji:'✈️', q:"'Flying' is spelled f-l-y-i-n-g.", ans:true, fb:"TRUE! ✅ fly → flying. Just add -ing!" },
+      { emoji:'💤', q:"'Sleeping' has double e — s-l-e-e-p-i-n-g.", ans:true, fb:"TRUE! ✅ sleep → sleeping. Keep both e's and add -ing." },
+      { emoji:'🍳', q:"The /k/ sound in 'kitchen' is spelled with CK.", ans:false, fb:"FALSE! ❌ Kitchen uses K — not CK. K is used before i and e." },
+    ]
+  },
+
+  speaking: {
+    emoji:'🗣️', title:'My Family!', sub:'Talk for 30 seconds!', type:'speaking',
+    prompts: [
+      {
+        emoji:'👨‍👩‍👧‍👦', title:'Tell us about your family!',
+        bubble:'"I have a ___ and a ___. My family is ___."',
+        instruction:'How many people are in your family? Who are they?',
+        chips:[{t:'mum',c:'ch-p'},{t:'dad',c:'ch-b'},{t:'grandma',c:'ch-pk'},{t:'grandpa',c:'ch-o'},{t:'cousin',c:'ch-g'},{t:'baby brother/sister',c:'ch-p'}]
+      },
+      {
+        emoji:'🏃', title:"What are they doing RIGHT NOW?",
+        bubble:'"My ___ is ___ing. My ___ is ___ing."',
+        instruction:"Imagine your family at home right now. What is everyone doing?",
+        chips:[{t:'sleeping',c:'ch-p'},{t:'talking',c:'ch-b'},{t:'cooking',c:'ch-o'},{t:'cleaning',c:'ch-g'},{t:'sitting',c:'ch-pk'},{t:'watching TV',c:'ch-p'}]
+      },
+      {
+        emoji:'⚽', title:'What are they doing in the picture?',
+        bubble:'"He/She is ___ing. They are ___ing."',
+        instruction:'Point to someone in the classroom or draw a quick stick figure. Describe what they are doing!',
+        chips:[{t:'He is...',c:'ch-b'},{t:'She is...',c:'ch-pk'},{t:'They are...',c:'ch-p'},{t:'jumping',c:'ch-o'},{t:'running',c:'ch-g'},{t:'kicking',c:'ch-b'}]
+      },
+      {
+        emoji:'🔤', title:'C, CK or K challenge!',
+        bubble:'"___ makes the /k/ sound in ___!"',
+        instruction:'Can you think of 3 words with the /k/ sound? Tell the class which spelling — C, CK or K!',
+        chips:[{t:'C — cat, cousin, clean',c:'ch-p'},{t:'CK — clock, duck, kick',c:'ch-o'},{t:'K — kitchen, kite, kangaroo',c:'ch-b'}]
+      },
+      {
+        emoji:'👶', title:'Ask your friend about their family!',
+        bubble:'"Have you got a ___? Is your ___ ___ing?"',
+        instruction:'Ask the person next to you about their family right now!',
+        chips:[{t:'Have you got a...?',c:'ch-p'},{t:'Yes, I have.',c:'ch-g'},{t:"No, I haven't.",c:'ch-b'},{t:'Is your... ...ing?',c:'ch-o'},{t:'Yes, he/she is!',c:'ch-pk'}]
+      },
+    ]
+  }
+}
+
+let cGame=null, qIdx=0, correct=0, wrong=0, answered=false
+
+function startGame(id) {
+  cGame=id; qIdx=0; correct=0; wrong=0; answered=false
+  document.getElementById('home-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('game-screen').style.display='block'
+  const g=GAMES[id]
+  document.getElementById('g-emoji').textContent=g.emoji
+  document.getElementById('g-title').textContent=g.title
+  document.getElementById('g-sub').textContent=g.sub
+  document.getElementById('sc-c').textContent='0'
+  document.getElementById('sc-w').textContent='0'
+  render()
+}
+
+function total(){
+  const g=GAMES[cGame]
+  if(g.type==='speaking') return g.prompts.length
+  return g.questions.length
+}
+
+function render(){
+  answered=false
+  const t=total()
+  document.getElementById('sc-q').textContent=`${qIdx+1}/${t}`
+  document.getElementById('prog').style.width=`${(qIdx/t)*100}%`
+  const g=GAMES[cGame]
+  if(g.type==='mcq') renderMCQ()
+  else if(g.type==='tf') renderTF()
+  else if(g.type==='speaking') renderSpeaking()
+}
+
+function renderMCQ(){
+  const q=GAMES[cGame].questions[qIdx]
+  const L=['A','B','C','D']
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-card">
+      <span class="q-emoji">${q.emoji}</span>
+      <div class="q-text">${q.q}</div>
+      ${q.hint?`<div class="q-hint">${q.hint}</div>`:''}
+    </div>
+    <div class="options">
+      ${q.opts.map((o,i)=>`<button class="option" id="o${i}" onclick="pickMCQ(${i})">${L[i]}. ${o}</button>`).join('')}
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">Next ➡️</button>
+  `
+}
+
+function pickMCQ(i){
+  if(answered) return
+  answered=true
+  const q=GAMES[cGame].questions[qIdx]
+  const ok=q.opts[i]===q.ans
+  document.querySelectorAll('.option').forEach((el,idx)=>{
+    el.disabled=true
+    if(q.opts[idx]===q.ans) el.classList.add('correct')
+  })
+  document.getElementById(`o${i}`).classList.add(ok?'correct':'wrong')
+  const fb=document.getElementById('fb')
+  fb.className=`fb show ${ok?'fb-ok':'fb-no'}`
+  fb.innerHTML=ok?(q.fb||'⭐ Amazing!'):`❌ The answer is: ${q.ans}`
+  if(ok){correct++;document.getElementById('sc-c').textContent=correct}
+  else{wrong++;document.getElementById('sc-w').textContent=wrong}
+  document.getElementById('btn-next').classList.add('show')
+}
+
+function renderTF(){
+  const q=GAMES[cGame].questions[qIdx]
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-card">
+      <span class="q-emoji">${q.emoji}</span>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="tf-grid">
+      <button class="tf-btn tf-yes" id="tf-yes" onclick="pickTF(true)">✅<span class="tf-lbl">TRUE!</span></button>
+      <button class="tf-btn tf-no" id="tf-no" onclick="pickTF(false)">❌<span class="tf-lbl">FALSE!</span></button>
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">Next ➡️</button>
+  `
+}
+
+function pickTF(val){
+  if(answered) return
+  answered=true
+  const q=GAMES[cGame].questions[qIdx]
+  const ok=val===q.ans
+  document.getElementById('tf-yes').disabled=true
+  document.getElementById('tf-no').disabled=true
+  document.getElementById(val?'tf-yes':'tf-no').classList.add(ok?'correct':'wrong')
+  document.getElementById(q.ans?'tf-yes':'tf-no').classList.add('correct')
+  const fb=document.getElementById('fb')
+  fb.className=`fb show ${ok?'fb-ok':'fb-no'}`
+  fb.textContent=q.fb
+  if(ok){correct++;document.getElementById('sc-c').textContent=correct}
+  else{wrong++;document.getElementById('sc-w').textContent=wrong}
+  document.getElementById('btn-next').classList.add('show')
+}
+
+function renderSpeaking(){
+  const p=GAMES[cGame].prompts[qIdx]
+  document.getElementById('q-area').innerHTML=`
+    <div class="speaking-card">
+      <div style="font-size:48px;margin-bottom:10px">${p.emoji}</div>
+      <div style="font-family:var(--display);font-size:20px;margin-bottom:6px">${p.title}</div>
+      <div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:4px">${p.instruction}</div>
+      <div class="speech-bubble">${p.bubble}</div>
+      <div class="chips">${p.chips.map(c=>`<span class="chip ${c.c}">${c.t}</span>`).join('')}</div>
+    </div>
+    <button class="btn-next show" onclick="next()">Next Prompt ➡️</button>
+  `
+}
+
+function next(){
+  qIdx++
+  if(qIdx>=total()) showResults()
+  else render()
+}
+
+function showResults(){
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='block'
+  const isSpeaking=GAMES[cGame].type==='speaking'
+  const t=total()
+  const pct=(!isSpeaking&&t>0)?Math.round((correct/t)*100):100
+  let star,msg,sub
+  if(isSpeaking){star='🗣️';msg='Amazing speaking!';sub='You talked about your family so well! 👨‍👩‍👧‍👦'}
+  else if(pct===100){star='🏆';msg='Perfect Score!';sub='You know ALL about your family and -ing verbs! Superstar!'}
+  else if(pct>=80){star='⭐';msg='Excellent!';sub='You really know your family words and -ing! Well done!'}
+  else if(pct>=60){star='😊';msg='Good job!';sub='A little more practice and you will be perfect!'}
+  else{star='💪';msg='Keep trying!';sub='Look at the words again — you can do it!'}
+  document.getElementById('r-star').textContent=star
+  document.getElementById('r-score').textContent=isSpeaking?'🌟':`${correct}/${t}`
+  document.getElementById('r-msg').textContent=msg
+  document.getElementById('r-sub').textContent=sub
+}
+
+function restartGame(){startGame(cGame)}
+function goHome(){
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('home-screen').style.display='block'
+}
+</script>
+</body>
+</html>
