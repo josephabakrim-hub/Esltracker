@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unit 2 — Home Sweet Home 🏡</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0fdf4;--surface:#ffffff;--border:#bbf7d0;
+  --text:#1a3a2a;--muted:#6aaa84;
+  --green:#16a34a;--red:#ef4444;--blue:#3b82f6;
+  --orange:#f97316;--purple:#9333ea;--yellow:#fbbf24;--teal:#14b8a6;
+  --font:'Nunito',sans-serif;--display:'Fredoka One',cursive;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(circle at 20% 30%,rgba(22,163,74,0.07) 0%,transparent 50%),
+             radial-gradient(circle at 80% 70%,rgba(20,184,166,0.06) 0%,transparent 50%);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:16px}
+
+.header{text-align:center;padding:24px 16px 20px}
+.header-tag{display:inline-block;background:var(--green);color:#fff;font-family:var(--display);font-size:12px;letter-spacing:1px;padding:5px 16px;border-radius:20px;margin-bottom:12px}
+.header h1{font-family:var(--display);font-size:clamp(26px,6vw,44px);color:var(--green);letter-spacing:1px;margin-bottom:4px}
+.header-sub{font-size:13px;color:var(--muted);font-weight:700}
+
+.vocab-strip{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.vocab-chip{background:var(--surface);border:2px solid var(--border);border-radius:30px;padding:7px 14px;font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 0 rgba(0,0,0,0.06)}
+
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+.game-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:20px 16px;cursor:pointer;transition:all 0.2s;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,0.07)}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 8px 0 rgba(0,0,0,0.1)}
+.game-card.c1:hover{border-color:var(--green);background:#f0fdf4}
+.game-card.c2:hover{border-color:var(--orange);background:#fff7ed}
+.game-card.c3:hover{border-color:var(--blue);background:#eff6ff}
+.game-card.c4:hover{border-color:var(--purple);background:#faf5ff}
+.game-card.c5:hover{border-color:var(--teal);background:#f0fdfa}
+.game-icon{font-size:40px;margin-bottom:8px}
+.game-title{font-family:var(--display);font-size:16px;color:var(--text);margin-bottom:4px}
+.game-desc{font-size:11px;color:var(--muted);line-height:1.5;font-weight:600}
+.game-badge{display:inline-block;margin-top:8px;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;background:var(--green);color:#fff}
+
+.game-screen{display:none}
+.game-header{display:flex;align-items:center;gap:12px;background:var(--surface);border:3px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:16px;box-shadow:0 3px 0 rgba(0,0,0,0.05)}
+.g-emoji{font-size:28px}
+.g-title{font-family:var(--display);font-size:18px;color:var(--green)}
+.g-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:1px}
+
+.score-bar{display:flex;gap:10px;margin-bottom:16px}
+.score-pill{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:40px;padding:8px 14px;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,0.05)}
+.score-val{font-family:var(--display);font-size:22px}
+.sv-g{color:var(--green)}.sv-r{color:var(--red)}.sv-gr{color:var(--green)}
+
+.prog-wrap{background:#dcfce7;border-radius:10px;height:10px;margin-bottom:16px;overflow:hidden}
+.prog-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--teal));transition:width 0.3s ease}
+
+.q-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 4px 0 rgba(0,0,0,0.05);text-align:center}
+.q-emoji{font-size:72px;margin-bottom:12px;display:block;animation:bounce 0.5s ease}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.q-text{font-family:var(--display);font-size:clamp(15px,4vw,21px);color:var(--text);line-height:1.3;margin-bottom:6px}
+.q-hint{font-size:12px;color:var(--muted);font-weight:700;margin-top:6px;font-style:italic}
+
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:var(--surface);border:3px solid #dcfce7;border-radius:14px;padding:14px 10px;cursor:pointer;font-family:var(--display);font-size:clamp(13px,3.5vw,17px);transition:all 0.15s;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,0.07)}
+.option:hover:not([disabled]){transform:translateY(-2px);border-color:var(--green);background:#f0fdf4;box-shadow:0 5px 0 rgba(22,163,74,0.2)}
+.option.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important;box-shadow:0 3px 0 rgba(22,163,74,0.2)!important}
+.option.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important;box-shadow:none!important}
+
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf-btn{background:var(--surface);border:3px solid #dcfce7;border-radius:18px;padding:22px 14px;cursor:pointer;font-family:var(--display);font-size:22px;text-align:center;transition:all 0.2s;box-shadow:0 4px 0 rgba(0,0,0,0.07)}
+.tf-btn:hover:not([disabled]){transform:translateY(-3px)}
+.tf-yes:hover:not([disabled]){border-color:var(--green);background:#f0fdf4}
+.tf-no:hover:not([disabled]){border-color:var(--red);background:#fff5f5}
+.tf-btn.correct{border-color:var(--green)!important;background:#f0fdf4!important;color:var(--green)!important}
+.tf-btn.wrong{border-color:var(--red)!important;background:#fff5f5!important;color:var(--red)!important}
+.tf-lbl{font-size:14px;font-weight:800;margin-top:6px;display:block}
+
+.fb{border-radius:14px;padding:14px 18px;margin-top:12px;font-weight:800;font-size:14px;display:none;text-align:center}
+.fb.show{display:block;animation:pop 0.3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-ok{background:#f0fdf4;border:2px solid #86efac;color:var(--green)}
+.fb-no{background:#fff5f5;border:2px solid #fca5a5;color:var(--red)}
+
+.btn-next{background:var(--green);color:#fff;border:none;font-family:var(--display);font-size:16px;padding:14px 28px;border-radius:50px;cursor:pointer;width:100%;margin-top:12px;display:none;box-shadow:0 4px 0 rgba(10,80,30,0.3);transition:all 0.15s}
+.btn-next.show{display:block}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(10,80,30,0.3)}
+.btn-back{background:none;border:2px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:30px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:800;transition:all 0.15s}
+.btn-back:hover{border-color:var(--green);color:var(--green)}
+
+/* EE sound highlight */
+.ee{color:var(--green);font-weight:900}
+
+/* Number quiz */
+.big-number{font-family:var(--display);font-size:56px;color:var(--green);margin-bottom:8px;display:block}
+
+.speaking-card{background:var(--surface);border:3px solid var(--border);border-radius:20px;padding:26px 20px;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,0.07);margin-bottom:14px}
+.speech-bubble{background:#f0fdf4;border:2px dashed var(--green);border-radius:16px;padding:16px 14px;margin:14px 0;font-family:var(--display);font-size:17px;color:var(--green);line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{font-weight:800;font-size:12px;padding:6px 14px;border-radius:20px;color:#fff}
+.ch-g{background:var(--green)}.ch-b{background:var(--blue)}.ch-o{background:var(--orange)}.ch-p{background:var(--purple)}.ch-t{background:var(--teal)}
+
+.results{background:var(--surface);border:3px solid var(--border);border-radius:24px;padding:36px 24px;text-align:center;box-shadow:0 6px 0 rgba(0,0,0,0.07);animation:pop 0.4s cubic-bezier(.34,1.56,.64,1)}
+.r-star{font-size:72px;display:block;margin-bottom:12px}
+.r-score{font-family:var(--display);font-size:52px;color:var(--green)}
+.r-msg{font-family:var(--display);font-size:24px;margin:8px 0 4px}
+.r-sub{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:24px}
+.r-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-again{background:var(--green);color:#fff;border:none;font-family:var(--display);font-size:15px;padding:12px 24px;border-radius:40px;cursor:pointer;box-shadow:0 4px 0 rgba(10,80,30,0.3);transition:all 0.15s}
+.btn-again:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HOME -->
+<div id="home-screen">
+  <div class="header">
+    <div class="header-tag">Kids Box NG 3 · Unit 2 · Ages 6–9</div>
+    <h1>Home Sweet Home 🏡</h1>
+    <div class="header-sub">5 games · numbers · home vocabulary · present continuous · ee sound</div>
+  </div>
+
+  <div class="vocab-strip">
+    <div class="vocab-chip">🏙️ city</div>
+    <div class="vocab-chip">🏘️ town</div>
+    <div class="vocab-chip">🏡 village</div>
+    <div class="vocab-chip">🛗 lift</div>
+    <div class="vocab-chip">🏠 flat</div>
+    <div class="vocab-chip">⬆️ upstairs</div>
+    <div class="vocab-chip">⬇️ downstairs</div>
+    <div class="vocab-chip">🕳️ basement</div>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card c1" onclick="startGame('numbers')">
+      <div class="game-icon">🔢</div>
+      <div class="game-title">Numbers 21–100</div>
+      <div class="game-desc">Read the number and choose the right word — or the other way around!</div>
+      <div class="game-badge">10 questions</div>
+    </div>
+    <div class="game-card c2" onclick="startGame('home')">
+      <div class="game-icon">🏡</div>
+      <div class="game-title">Home Vocabulary</div>
+      <div class="game-desc">Balcony, basement, lift, stairs... Do you know them all?</div>
+      <div class="game-badge">10 questions</div>
+    </div>
+    <div class="game-card c3" onclick="startGame('grammar')">
+      <div class="game-icon">📝</div>
+      <div class="game-title">Present Continuous</div>
+      <div class="game-desc">What is she doing? What does he need? Choose correctly!</div>
+      <div class="game-badge">10 questions</div>
+    </div>
+    <div class="game-card c4" onclick="startGame('eesound')">
+      <div class="game-icon">🐑</div>
+      <div class="game-title">EE Sound!</div>
+      <div class="game-desc">The ee sound — like sheep! Find the words with the /ee/ sound.</div>
+      <div class="game-badge">8 questions</div>
+    </div>
+    <div class="game-card c5" onclick="startGame('speaking')">
+      <div class="game-icon">🗣️</div>
+      <div class="game-title">My Home!</div>
+      <div class="game-desc">Talk about where you live — address, city or village, and more!</div>
+      <div class="game-badge">5 prompts</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="game-screen">
+  <div class="game-header">
+    <div class="g-emoji" id="g-emoji">🎮</div>
+    <div style="flex:1"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
+    <button class="btn-back" onclick="goHome()">← Back</button>
+  </div>
+  <div class="score-bar">
+    <div class="score-pill"><div class="score-val sv-g" id="sc-c">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">⭐ Great!</div></div>
+    <div class="score-pill"><div class="score-val sv-gr" id="sc-q">1</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Question</div></div>
+    <div class="score-pill"><div class="score-val sv-r" id="sc-w">0</div><div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px">❌ Oops</div></div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div id="q-area"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="game-screen">
+  <div class="results">
+    <span class="r-star" id="r-star">🌟</span>
+    <div class="r-score" id="r-score">8/10</div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:10px">Your Score</div>
+    <div class="r-msg" id="r-msg">Amazing!</div>
+    <div class="r-sub" id="r-sub"></div>
+    <div class="r-btns">
+      <button class="btn-back" onclick="goHome()">← All Games</button>
+      <button class="btn-again" onclick="restartGame()">🔄 Play Again!</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ════════════════════════════════════════
+// Kids Box New Generation 3 — Unit 2: Home Sweet Home
+// Vocabulary: numbers 21–100, balcony, basement, downstairs, flat, lift, stairs, upstairs
+// World around us: city, town, village
+// Grammar: Present continuous (not future), Present simple: need/needs, have got/has got
+//          What's your address? It's...
+// Sounds: ee — sheep (meet, street, teeth, sleep, feet, green, tree, between)
+// ════════════════════════════════════════
+
+const GAMES = {
+
+  numbers: {
+    emoji:'🔢', title:'Numbers 21–100!', sub:'Read and choose!', type:'mcq',
+    questions: [
+      { q:'21', opts:['twelve','twenty-one','twenty','thirty-one'], ans:'twenty-one', fb:'21 = TWENTY-ONE! ✅ 20 + 1.' },
+      { q:'35', opts:['thirteen','fifty-three','thirty-five','forty-five'], ans:'thirty-five', fb:'35 = THIRTY-FIVE! ✅ 30 + 5.' },
+      { q:'47', opts:['seventy-four','forty-four','forty-seven','fourteen'], ans:'forty-seven', fb:'47 = FORTY-SEVEN! ✅ 40 + 7.' },
+      { q:'52', opts:['twenty-five','fifty-two','fifteen','sixty-two'], ans:'fifty-two', fb:'52 = FIFTY-TWO! ✅ 50 + 2.' },
+      { q:'63', opts:['thirty-six','sixty-three','sixty-thirteen','seventy-three'], ans:'sixty-three', fb:'63 = SIXTY-THREE! ✅ 60 + 3.' },
+      { q:'seventy-eight', opts:['87','78','68','98'], ans:'78', fb:'Seventy-eight = 78! ✅ 70 + 8.' },
+      { q:'ninety-four', opts:['49','94','84','44'], ans:'94', fb:'Ninety-four = 94! ✅ 90 + 4.' },
+      { q:'100', opts:['a thousand','ten','a hundred','ninety-ten'], ans:'a hundred', fb:'100 = A HUNDRED! ✅ One hundred.' },
+      { q:'What is 40 + 6?', opts:['46','64','36','56'], ans:'46', fb:'40 + 6 = FORTY-SIX = 46! ✅' },
+      { q:'What is 80 + 9?', opts:['98','89','79','99'], ans:'89', fb:'80 + 9 = EIGHTY-NINE = 89! ✅' },
+    ]
+  },
+
+  home: {
+    emoji:'🏡', title:'Home Vocabulary!', sub:'Do you know your home words?', type:'mcq',
+    questions: [
+      { emoji:'🌆', q:"A very big place with lots of buildings, shops and people.", opts:['village','town','city','basement'], ans:'city', fb:'CITY! 🌆 A very big place with lots of people — like Ho Chi Minh City.' },
+      { emoji:'🏘️', q:"A place smaller than a city but bigger than a village.", opts:['city','flat','town','upstairs'], ans:'town', fb:'TOWN! 🏘️ Smaller than a city but bigger than a village.' },
+      { emoji:'🏡', q:"A very small place in the countryside with not many people.", opts:['city','town','basement','village'], ans:'village', fb:'VILLAGE! 🌿 A very small place in the countryside.' },
+      { emoji:'🏢', q:"A home inside a big building — NOT a house.", opts:['basement','village','balcony','flat'], ans:'flat', fb:'FLAT! 🏢 A flat is a home inside a big building. Like an apartment!' },
+      { emoji:'🛗', q:"You press a button and it takes you up or down in a building.", opts:['stairs','balcony','lift','basement'], ans:'lift', fb:'LIFT! 🛗 A lift takes you up and down without using the stairs.' },
+      { emoji:'🕳️', q:"This is BELOW the ground floor. It is underground.", opts:['upstairs','balcony','downstairs','basement'], ans:'basement', fb:'BASEMENT! 🏗️ It is underground — below the ground floor.' },
+      { emoji:'🏠', q:"You go ___ when you go to the floor ABOVE you.", opts:['downstairs','outside','basement','upstairs'], ans:'upstairs', fb:'UPSTAIRS! ⬆️ Going up to a higher floor = going upstairs.' },
+      { emoji:'🏠', q:"You go ___ when you go to the floor BELOW you.", opts:['upstairs','outside','basement','downstairs'], ans:'downstairs', fb:'DOWNSTAIRS! ⬇️ Going to a lower floor = going downstairs.' },
+      { emoji:'🪜', q:"You use these to go up and down between floors. Not a lift!", opts:['balcony','stairs','basement','lift'], ans:'stairs', fb:'STAIRS! 🪜 Steps you walk up and down between floors.' },
+      { emoji:'🌅', q:"This is outside your flat, like a small open space with a railing where you can stand.", opts:['basement','stairs','balcony','lift'], ans:'balcony', fb:'BALCONY! 🌸 An outside space attached to your flat or house.' },
+    ]
+  },
+
+  grammar: {
+    emoji:'📝', title:'Present Continuous & Have Got', sub:'Choose the right form!', type:'mcq',
+    questions: [
+      { emoji:'🏃', q:"Look! She ___ down the stairs.", opts:['run','runs','is running','running'], ans:'is running', fb:'IS RUNNING ✅ — present continuous for what is happening RIGHT NOW. Subject + is/are + verb-ing.' },
+      { emoji:'💤', q:"He ___ in the basement.", opts:['sleep','is sleeping','sleeping','sleeps'], ans:'is sleeping', fb:'IS SLEEPING ✅ — he is doing it right now. He + is + sleeping.' },
+      { emoji:'🏠', q:"They ___ a flat in the city.", opts:['has got','have got','is having','are having'], ans:'have got', fb:'HAVE GOT ✅ — they have got = they own/possess. They → have got.' },
+      { emoji:'🛗', q:"She ___ a lift in her building.", opts:['have got','has got','is having','got'], ans:'has got', fb:'HAS GOT ✅ — she is one person, so HAS got. He/She/It → has got.' },
+      { emoji:'🌆', q:"What ___ your address?", opts:['are','am','is','be'], ans:'is', fb:"WHAT IS your address? ✅ We use 'is' with 'what' for one thing." },
+      { emoji:'🏡', q:"___ your address? It's 24 Green Street.", opts:["What's","Where's","Who's","How's"], ans:"What's", fb:"WHAT'S your address? ✅ We ask for an address with 'what'." },
+      { emoji:'🌿', q:"I ___ a bike. I ride it to school.", opts:['has got','have got','am having','is having'], ans:'have got', fb:"HAVE GOT ✅ — I have got = I own it. I → have got." },
+      { emoji:'📺', q:"What ___ they doing? They ___ TV.", opts:['are / are watching','is / is watching','are / watching','do / watch'], ans:'are / are watching', fb:"WHAT ARE they doing? They ARE WATCHING TV. ✅ They → are + verb-ing." },
+      { emoji:'🏠', q:"She ___ a new flat. Her old one is too small.", opts:['need','is needing','needs','needing'], ans:'needs', fb:"NEEDS ✅ — for facts and situations we use present simple. She/He/It → needs." },
+      { emoji:'🛗', q:"We ___ the lift. The stairs are broken.", opts:['need','is needing','needs','are need'], ans:'need', fb:"NEED ✅ — We/I/You/They → need (no -s)." },
+    ]
+  },
+
+  eesound: {
+    emoji:'🐑', title:'EE Sound — like SHEEP!', sub:'Find the /ee/ sound!', type:'mcq',
+    questions: [
+      { emoji:'🐑', q:"Which word has the /ee/ sound — like SHEEP?", opts:['ship','sheep','shop','shape'], ans:'sheep', fb:'SHEEP! 🐑 sh-ee-p. The EE makes the long /ee/ sound.' },
+      { emoji:'🌳', q:"Which word has the /ee/ sound?", opts:['trick','track','tree','tray'], ans:'tree', fb:'TREE! 🌳 tr-ee. The EE makes the long /ee/ sound.' },
+      { emoji:'😴', q:"Which word has the /ee/ sound?", opts:['slip','slap','slop','sleep'], ans:'sleep', fb:'SLEEP! 😴 sl-ee-p. The EE makes the long /ee/ sound.' },
+      { emoji:'🦶', q:"Which word has the /ee/ sound?", opts:['fat','feet','fit','flat'], ans:'feet', fb:'FEET! 🦶 f-ee-t. The EE makes the long /ee/ sound.' },
+      { emoji:'🦷', q:"Which word has the /ee/ sound?", opts:['tenth','thin','teeth','than'], ans:'teeth', fb:'TEETH! 🦷 t-ee-th. The EE makes the long /ee/ sound.' },
+      { emoji:'🛣️', q:"Which word has the /ee/ sound?", opts:['struck','street','strict','strap'], ans:'street', fb:"STREET! 🛣️ str-ee-t. We live on a STREET — it has the /ee/ sound!" },
+      { emoji:'💚', q:"Which word has the /ee/ sound?", opts:['grain','grin','green','grin'], ans:'green', fb:'GREEN! 💚 gr-ee-n. The EE makes the long /ee/ sound.' },
+      { emoji:'👀', q:"Which word does NOT have the /ee/ sound?", opts:['sleep','street','feet','sit'], ans:'sit', fb:'SIT! ✅ sit has a short /i/ sound — not /ee/. Sleep, street and feet all have /ee/.' },
+    ]
+  },
+
+  speaking: {
+    emoji:'🗣️', title:'My Home!', sub:'Talk for 30 seconds!', type:'speaking',
+    prompts: [
+      {
+        emoji:'🏡', title:"What's your address?",
+        bubble:'"My address is ___ Street / Road. It\'s number ___."',
+        instruction:'Tell the class your address — street name and number! Use numbers 21–100!',
+        chips:[{t:"My address is...",c:'ch-g'},{t:'number 21–100',c:'ch-b'},{t:'Street / Road',c:'ch-o'},{t:"It's in...",c:'ch-p'}]
+      },
+      {
+        emoji:'🌆', title:'City, town or village?',
+        bubble:'"I live in a ___ . It is ___."',
+        instruction:'Do you live in a city, a town or a village? Describe it!',
+        chips:[{t:'I live in a city.',c:'ch-g'},{t:'I live in a town.',c:'ch-b'},{t:'I live in a village.',c:'ch-o'},{t:'It is big/small.',c:'ch-p'},{t:'There is/are...',c:'ch-t'}]
+      },
+      {
+        emoji:'🏢', title:'Describe your home!',
+        bubble:'"I live in a ___. I have got a ___."',
+        instruction:'Is it a house or a flat? Does it have a balcony? A basement? A lift or stairs?',
+        chips:[{t:'I live in a flat.',c:'ch-g'},{t:'I live in a house.',c:'ch-b'},{t:'I have got a balcony.',c:'ch-o'},{t:'We have got a lift.',c:'ch-p'},{t:'There are stairs.',c:'ch-t'}]
+      },
+      {
+        emoji:'🏃', title:"What are people doing RIGHT NOW in your home?",
+        bubble:'"My ___ is ___ing. My ___ is ___ing."',
+        instruction:'Use the present continuous! What is everyone at home doing right now?',
+        chips:[{t:'My mum is...',c:'ch-g'},{t:'My dad is...',c:'ch-b'},{t:'sleeping',c:'ch-o'},{t:'cooking',c:'ch-p'},{t:'watching TV',c:'ch-t'},{t:'talking',c:'ch-g'}]
+      },
+      {
+        emoji:'🐑', title:'EE sound challenge!',
+        bubble:'"I can think of ___ words with the /ee/ sound!"',
+        instruction:'How many words with the /ee/ sound can you say in 20 seconds? sheep, street, feet, tree...',
+        chips:[{t:'🐑 sheep',c:'ch-g'},{t:'🌳 tree',c:'ch-b'},{t:'🦶 feet',c:'ch-o'},{t:'😴 sleep',c:'ch-p'},{t:'💚 green',c:'ch-t'},{t:'🛣️ street',c:'ch-g'}]
+      },
+    ]
+  }
+}
+
+let cGame=null,qIdx=0,correct=0,wrong=0,answered=false
+
+function startGame(id){
+  cGame=id;qIdx=0;correct=0;wrong=0;answered=false
+  document.getElementById('home-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('game-screen').style.display='block'
+  const g=GAMES[id]
+  document.getElementById('g-emoji').textContent=g.emoji
+  document.getElementById('g-title').textContent=g.title
+  document.getElementById('g-sub').textContent=g.sub
+  document.getElementById('sc-c').textContent='0'
+  document.getElementById('sc-w').textContent='0'
+  render()
+}
+
+function total(){
+  const g=GAMES[cGame]
+  if(g.type==='speaking') return g.prompts.length
+  return g.questions.length
+}
+
+function render(){
+  answered=false
+  const t=total()
+  document.getElementById('sc-q').textContent=`${qIdx+1}/${t}`
+  document.getElementById('prog').style.width=`${(qIdx/t)*100}%`
+  const g=GAMES[cGame]
+  if(g.type==='mcq') renderMCQ()
+  else if(g.type==='speaking') renderSpeaking()
+}
+
+function renderMCQ(){
+  const q=GAMES[cGame].questions[qIdx]
+  const L=['A','B','C','D']
+  const isNumber = !q.emoji && !isNaN(q.q.charAt(0))
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-card">
+      ${q.emoji ? `<span class="q-emoji">${q.emoji}</span>` : ''}
+      ${isNumber || !isNaN(parseInt(q.q)) ? `<span class="big-number">${q.q}</span>` : `<div class="q-text">${q.q}</div>`}
+      ${q.hint?`<div class="q-hint">${q.hint}</div>`:''}
+    </div>
+    <div class="options">
+      ${q.opts.map((o,i)=>`<button class="option" id="o${i}" onclick="pickMCQ(${i})">${L[i]}. ${o}</button>`).join('')}
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">Next ➡️</button>
+  `
+}
+
+function pickMCQ(i){
+  if(answered) return
+  answered=true
+  const q=GAMES[cGame].questions[qIdx]
+  const ok=q.opts[i]===q.ans
+  document.querySelectorAll('.option').forEach((el,idx)=>{
+    el.disabled=true
+    if(q.opts[idx]===q.ans) el.classList.add('correct')
+  })
+  document.getElementById(`o${i}`).classList.add(ok?'correct':'wrong')
+  const fb=document.getElementById('fb')
+  fb.className=`fb show ${ok?'fb-ok':'fb-no'}`
+  fb.innerHTML=ok?(q.fb||'⭐ Amazing!'):`❌ The answer is: ${q.ans}`
+  if(ok){correct++;document.getElementById('sc-c').textContent=correct}
+  else{wrong++;document.getElementById('sc-w').textContent=wrong}
+  document.getElementById('btn-next').classList.add('show')
+}
+
+function renderSpeaking(){
+  const p=GAMES[cGame].prompts[qIdx]
+  document.getElementById('q-area').innerHTML=`
+    <div class="speaking-card">
+      <div style="font-size:48px;margin-bottom:10px">${p.emoji}</div>
+      <div style="font-family:var(--display);font-size:20px;margin-bottom:6px">${p.title}</div>
+      <div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:4px">${p.instruction}</div>
+      <div class="speech-bubble">${p.bubble}</div>
+      <div class="chips">${p.chips.map(c=>`<span class="chip ${c.c}">${c.t}</span>`).join('')}</div>
+    </div>
+    <button class="btn-next show" onclick="next()">Next Prompt ➡️</button>
+  `
+}
+
+function next(){
+  qIdx++
+  if(qIdx>=total()) showResults()
+  else render()
+}
+
+function showResults(){
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='block'
+  const isSpeaking=GAMES[cGame].type==='speaking'
+  const t=total()
+  const pct=(!isSpeaking&&t>0)?Math.round((correct/t)*100):100
+  let star,msg,sub
+  if(isSpeaking){star='🗣️';msg='Great talking!';sub='You described your home really well! 🏡'}
+  else if(pct===100){star='🏆';msg='Perfect Score!';sub='You know EVERYTHING about Home Sweet Home! Amazing!'}
+  else if(pct>=80){star='⭐';msg='Excellent!';sub='You really know your home words and numbers! Well done!'}
+  else if(pct>=60){star='😊';msg='Good job!';sub:'A bit more practice and you will be perfect!'}
+  else{star='💪';msg:'Keep trying!';sub:'Look at the words again — you can do it!'}
+  document.getElementById('r-star').textContent=star
+  document.getElementById('r-score').textContent=isSpeaking?'🌟':`${correct}/${t}`
+  document.getElementById('r-msg').textContent=msg
+  document.getElementById('r-sub').textContent=sub
+}
+
+function restartGame(){startGame(cGame)}
+function goHome(){
+  document.getElementById('game-screen').style.display='none'
+  document.getElementById('results-screen').style.display='none'
+  document.getElementById('home-screen').style.display='block'
+}
+</script>
+</body>
+</html>
