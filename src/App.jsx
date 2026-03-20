@@ -21,6 +21,17 @@ export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
+  // Theme — persisted to localStorage, defaults to light
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('tj_theme')
+    return saved ? saved === 'dark' : false // default light
+  })
+
+  useEffect(() => {
+    document.body.classList.toggle('dark', isDark)
+    localStorage.setItem('tj_theme', isDark ? 'dark' : 'light')
+  }, [isDark])
+
   const DEFAULT_CLASSES = [
     { name: 'ATB_Pro1_3',   level: 'pro',   day: 'MON',       time: '17:30-19:00' },
     { name: 'ATB_Pro5_4',   level: 'pro',   day: 'MON',       time: '19:15-20:45' },
@@ -151,7 +162,12 @@ export default function App() {
 
   return (
     <div>
-      <Header onAddClass={() => setClassModal('add')} onAddStudent={() => setStudentModal('add')} />
+      <Header
+        onAddClass={() => setClassModal('add')}
+        onAddStudent={() => setStudentModal('add')}
+        isDark={isDark}
+        onToggleTheme={() => setIsDark(d => !d)}
+      />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
         <Tabs active={activeTab} onChange={handleTabChange} />

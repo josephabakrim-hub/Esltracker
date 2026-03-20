@@ -1,3 +1,58 @@
+/* ── DARK MODE ─────────────────────────────────────────── */
+body.dark {
+  --bg:       #0f0e0c;
+  --surface:  #1a1814;
+  --surface2: #222018;
+  --border:   #2e2b24;
+  --text:     #f0ede6;
+  --muted:    #7a7060;
+  --accent:   #e85d26;
+  --accent2:  #4d8ef8;
+  --green:    #22c55e;
+  --gold:     #f0a429;
+  --red:      #ef4444;
+  --starter:  #f59e42;
+  --pro:      #4d8ef8;
+  --elite:    #a78bfa;
+  --shadow:   0 2px 16px rgba(0,0,0,0.35);
+}
+
+body.dark::before {
+  background-image: radial-gradient(circle, #3a3530 1px, transparent 1px);
+  opacity: 0.25;
+}
+
+body.dark .form-input {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+body.dark .modal {
+  background: var(--surface);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+body.dark .btn-outline {
+  color: rgba(255,255,255,0.5);
+  border-color: rgba(255,255,255,0.15);
+}
+
+body.dark .btn-dark {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+body.dark .btn-dark:hover {
+  background: var(--border);
+}
+
+body.dark select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
