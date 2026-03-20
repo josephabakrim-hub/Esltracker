@@ -45,7 +45,7 @@ function TierBadge({ count }) {
   return null
 }
 
-export default function StarSessionModal({ cls, students, onSave, onClose }) {
+export default function StarSessionModal({ cls, students, onSave, onClose, readOnly }) {
   // sessionStars: { [studentId]: number }
   const [sessionStars, setSessionStars] = useState(() => {
     const init = {}
@@ -100,7 +100,7 @@ export default function StarSessionModal({ cls, students, onSave, onClose }) {
             ⭐ Star Session — <span style={{ color: 'var(--accent)' }}>{cls?.name}</span>
           </div>
           <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 2 }}>
-            TAP + TO AWARD STARS DURING CLASS
+            {readOnly ? 'VIEW SESSION STARS — READ ONLY' : 'TAP + TO AWARD STARS DURING CLASS'}
           </div>
         </div>
 
@@ -188,16 +188,15 @@ export default function StarSessionModal({ cls, students, onSave, onClose }) {
                         <StarDisplay count={count} />
                       </div>
 
-                      {/* Controls */}
+                      {/* Controls — hidden in read-only mode, show count badge only */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                        {/* Remove */}
-                        <button className="btn-ghost star-add-btn"
-                          style={{ width: 30, height: 30, borderRadius: 8, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: count === 0 ? 0.3 : 1 }}
-                          onClick={() => removeStar(s.id)} disabled={count === 0}>
-                          −
-                        </button>
-
-                        {/* Count badge */}
+                        {!readOnly && (
+                          <button className="btn-ghost star-add-btn"
+                            style={{ width: 30, height: 30, borderRadius: 8, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: count === 0 ? 0.3 : 1 }}
+                            onClick={() => removeStar(s.id)} disabled={count === 0}>
+                            −
+                          </button>
+                        )}
                         <div style={{
                           width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -212,16 +211,14 @@ export default function StarSessionModal({ cls, students, onSave, onClose }) {
                         }}>
                           {count}
                         </div>
-
-                        {/* Add */}
-                        <button className="btn-ghost star-add-btn"
-                          style={{ width: 36, height: 36, borderRadius: 10, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gold)', color: '#fff', fontWeight: 800 }}
-                          onClick={() => addStar(s.id)}>
-                          +
-                        </button>
-
-                        {/* Reset */}
-                        {count > 0 && (
+                        {!readOnly && (
+                          <button className="btn-ghost star-add-btn"
+                            style={{ width: 36, height: 36, borderRadius: 10, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gold)', color: '#fff', fontWeight: 800 }}
+                            onClick={() => addStar(s.id)}>
+                            +
+                          </button>
+                        )}
+                        {!readOnly && count > 0 && (
                           <button className="btn-ghost" style={{ fontSize: 11, color: 'var(--muted)', padding: '2px 6px' }}
                             onClick={() => resetStudent(s.id)} title="Reset">✕</button>
                         )}
@@ -233,12 +230,14 @@ export default function StarSessionModal({ cls, students, onSave, onClose }) {
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                <button className="btn btn-outline" onClick={onClose}>Cancel</button>
-                <button className="btn btn-accent"
-                  style={{ opacity: totalAwarded === 0 ? 0.5 : 1 }}
-                  onClick={handleSave} disabled={saving || totalAwarded === 0}>
-                  {saving ? 'Saving...' : `💾 Save Session (${totalAwarded} ⭐)`}
-                </button>
+                <button className="btn btn-outline" onClick={onClose}>{readOnly ? 'Close' : 'Cancel'}</button>
+                {!readOnly && (
+                  <button className="btn btn-accent"
+                    style={{ opacity: totalAwarded === 0 ? 0.5 : 1 }}
+                    onClick={handleSave} disabled={saving || totalAwarded === 0}>
+                    {saving ? 'Saving...' : `💾 Save Session (${totalAwarded} ⭐)`}
+                  </button>
+                )}
               </div>
             </>
           )}

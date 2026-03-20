@@ -8,7 +8,7 @@ const WHEEL_COLORS = [
   '#7c2d12','#1e40af','#166534','#6b21a8',
 ]
 
-export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose }) {
+export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, readOnly }) {
   const canvasRef = useRef(null)
   const spinRef   = useRef(null)
 
@@ -199,13 +199,16 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose }
                   width={size}
                   height={size}
                   style={{ borderRadius: '50%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', cursor: phase === 'ready' ? 'pointer' : 'default' }}
-                  onClick={spin}
+                  onClick={readOnly ? undefined : spin}
                 />
               </div>
 
               {phase === 'ready' && (
                 <div style={{ textAlign: 'center' }}>
-                  <button onClick={spin} className="btn btn-accent" style={{ fontSize: 14, padding: '12px 32px', borderRadius: 12 }}>
+                  {readOnly && (
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', padding: '10px 16px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)', marginBottom: 8 }}>👁 View only — only the teacher can spin</div>
+                  )}
+                  <button onClick={spin} className="btn btn-accent" disabled={readOnly} style={{ fontSize: 14, padding: '12px 32px', borderRadius: 12 }}>
                     🎰 SPIN!
                   </button>
                   <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>or tap the wheel</div>
@@ -260,24 +263,30 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose }
                 </details>
               </div>
 
-              {/* Result buttons */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                <button className="btn" style={{ background: 'rgba(26,158,92,0.1)', color: 'var(--green)', border: '1.5px solid rgba(26,158,92,0.3)', padding: '10px 8px' }}
-                  onClick={handleCorrect} disabled={saving}>
-                  ✅ Correct<br/>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>+4 ⭐</span>
-                </button>
-                <button className="btn" style={{ background: 'rgba(45,107,228,0.1)', color: 'var(--accent2)', border: '1.5px solid rgba(45,107,228,0.3)', padding: '10px 8px' }}
-                  onClick={handleWrong}>
-                  📞 Friend<br/>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>+2⭐ each</span>
-                </button>
-                <button className="btn" style={{ background: 'rgba(214,59,59,0.08)', color: 'var(--red)', border: '1.5px solid rgba(214,59,59,0.2)', padding: '10px 8px' }}
-                  onClick={() => { setLastResult('wrong'); setPhase('result') }}>
-                  ❌ Wrong<br/>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>no stars</span>
-                </button>
-              </div>
+              {/* Result buttons — hidden in read-only mode */}
+              {readOnly ? (
+                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: 1 }}>👁 VIEW ONLY — teacher records the result</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                  <button className="btn" style={{ background: 'rgba(26,158,92,0.1)', color: 'var(--green)', border: '1.5px solid rgba(26,158,92,0.3)', padding: '10px 8px' }}
+                    onClick={handleCorrect} disabled={saving}>
+                    ✅ Correct<br/>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>+4 ⭐</span>
+                  </button>
+                  <button className="btn" style={{ background: 'rgba(45,107,228,0.1)', color: 'var(--accent2)', border: '1.5px solid rgba(45,107,228,0.3)', padding: '10px 8px' }}
+                    onClick={handleWrong}>
+                    📞 Friend<br/>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>+2⭐ each</span>
+                  </button>
+                  <button className="btn" style={{ background: 'rgba(214,59,59,0.08)', color: 'var(--red)', border: '1.5px solid rgba(214,59,59,0.2)', padding: '10px 8px' }}
+                    onClick={() => { setLastResult('wrong'); setPhase('result') }}>
+                    ❌ Wrong<br/>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>no stars</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -295,7 +304,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose }
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16, maxHeight: 220, overflowY: 'auto' }}>
                 {students.filter(s => s.id !== pickedStudent?.id).map(s => (
                   <div key={s.id}
-                    onClick={() => setFriendStudent(s)}
+                    onClick={() => !readOnly && setFriendStudent(s)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
@@ -320,16 +329,22 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose }
                 </div>
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <button className="btn" style={{ background: 'rgba(26,158,92,0.1)', color: 'var(--green)', border: '1.5px solid rgba(26,158,92,0.3)', opacity: friendStudent ? 1 : 0.4 }}
-                  onClick={handleFriendCorrect} disabled={!friendStudent || saving}>
-                  ✅ Friend Correct! (+2⭐ each)
-                </button>
-                <button className="btn" style={{ background: 'rgba(214,59,59,0.08)', color: 'var(--red)', border: '1.5px solid rgba(214,59,59,0.2)' }}
-                  onClick={handleFriendWrong}>
-                  ❌ Friend Wrong
-                </button>
-              </div>
+              {readOnly ? (
+                <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: 1 }}>👁 VIEW ONLY — teacher records the result</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button className="btn" style={{ background: 'rgba(26,158,92,0.1)', color: 'var(--green)', border: '1.5px solid rgba(26,158,92,0.3)', opacity: friendStudent ? 1 : 0.4 }}
+                    onClick={handleFriendCorrect} disabled={!friendStudent || saving}>
+                    ✅ Friend Correct! (+2⭐ each)
+                  </button>
+                  <button className="btn" style={{ background: 'rgba(214,59,59,0.08)', color: 'var(--red)', border: '1.5px solid rgba(214,59,59,0.2)' }}
+                    onClick={handleFriendWrong}>
+                    ❌ Friend Wrong
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

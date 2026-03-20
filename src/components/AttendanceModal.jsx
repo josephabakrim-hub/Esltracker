@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { initials } from '../lib/utils'
 
-export default function AttendanceModal({ cls, students, onSave, onClose }) {
+export default function AttendanceModal({ cls, students, onSave, onClose, readOnly }) {
   const today = new Date()
   const [viewYear,  setViewYear]  = useState(today.getFullYear())
   const [viewMonth, setViewMonth] = useState(today.getMonth()) // 0-indexed
@@ -101,10 +101,10 @@ export default function AttendanceModal({ cls, students, onSave, onClose }) {
               const isToday = key === today.toISOString().split('T')[0]
               const recorded = hasRecord(d)
               return (
-                <div key={key} onClick={() => selectDate(d)}
+                <div key={key} onClick={() => !readOnly && selectDate(d)}
                   style={{
                     textAlign: 'center', padding: '8px 4px', borderRadius: 8,
-                    cursor: 'pointer', fontSize: 13, fontWeight: isToday ? 800 : 400,
+                    cursor: readOnly ? 'default' : 'pointer', fontSize: 13, fontWeight: isToday ? 800 : 400,
                     transition: 'all 0.15s',
                     background: isSelected ? 'var(--accent)' : recorded ? 'rgba(45,107,228,0.12)' : 'var(--surface2)',
                     color: isSelected ? '#fff' : isToday ? 'var(--accent)' : 'var(--text)',
@@ -121,7 +121,7 @@ export default function AttendanceModal({ cls, students, onSave, onClose }) {
             })}
           </div>
           <div style={{ marginTop: 8, fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)' }}>
-            🔵 = session already recorded &nbsp;|&nbsp; click any day to mark attendance
+            {readOnly ? '🔵 = session recorded — view only' : '🔵 = session already recorded \u00a0|\u00a0 click any day to mark attendance'}
           </div>
         </div>
 
@@ -132,10 +132,12 @@ export default function AttendanceModal({ cls, students, onSave, onClose }) {
               <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase' }}>
                 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 9 }} onClick={() => markAll('present')}>All Present</button>
-                <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 9 }} onClick={() => markAll('absent')}>All Absent</button>
-              </div>
+              {!readOnly && (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 9 }} onClick={() => markAll('present')}>All Present</button>
+                  <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 9 }} onClick={() => markAll('absent')}>All Absent</button>
+                </div>
+              )}
             </div>
 
             {students.length === 0 && (
@@ -147,10 +149,10 @@ export default function AttendanceModal({ cls, students, onSave, onClose }) {
                 const isPresent = records[s.id] !== 'absent'
                 return (
                   <div key={s.id}
-                    onClick={() => toggleStudent(s.id)}
+                    onClick={() => !readOnly && toggleStudent(s.id)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                      padding: '10px 14px', borderRadius: 10, cursor: readOnly ? 'default' : 'pointer',
                       background: isPresent ? 'rgba(26,158,92,0.08)' : 'rgba(214,59,59,0.07)',
                       border: `1.5px solid ${isPresent ? 'rgba(26,158,92,0.25)' : 'rgba(214,59,59,0.2)'}`,
                       transition: 'all 0.15s',
@@ -188,10 +190,12 @@ export default function AttendanceModal({ cls, students, onSave, onClose }) {
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-outline" onClick={() => setSelectedDate(null)}>Cancel</button>
-              <button className="btn btn-accent" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : '💾 Save Attendance'}
-              </button>
+              <button className="btn btn-outline" onClick={() => setSelectedDate(null)}>{readOnly ? 'Close' : 'Cancel'}</button>
+              {!readOnly && (
+                <button className="btn btn-accent" onClick={handleSave} disabled={saving}>
+                  {saving ? 'Saving...' : '💾 Save Attendance'}
+                </button>
+              )}
             </div>
           </div>
         )}

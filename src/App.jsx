@@ -205,10 +205,10 @@ export default function App() {
               onSelectStudent={openStudentFromClass}
               onAddStudent={readOnly ? null : () => setStudentModal('add')}
               onEditClass={readOnly ? null : c => setClassModal(c)}
-              onOpenAttendance={readOnly ? null : () => setAttendanceModal(liveClass.id)}
-              onOpenStarSession={readOnly ? null : () => setStarSessionModal(liveClass.id)}
-              onOpenSpinOfDoom={readOnly ? null : () => setSpinModal(liveClass.id)}
-              onOpenLessonsHub={readOnly ? null : () => setLessonsHubModal(liveClass)}
+              onOpenAttendance={() => setAttendanceModal(liveClass.id)}
+              onOpenStarSession={() => setStarSessionModal(liveClass.id)}
+              onOpenSpinOfDoom={() => setSpinModal(liveClass.id)}
+              onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
               readOnly={readOnly}
             />
           )}
@@ -242,13 +242,13 @@ export default function App() {
       </div>
 
       {/* Modals — only mountable when not readOnly */}
-      {!readOnly && classModal    && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
-      {!readOnly && studentModal  && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
-      {!readOnly && noteModal     && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
-      {!readOnly && attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
-      {!readOnly && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} />}
-      {!readOnly && spinModal     && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} />}
-      {!readOnly && lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
+      {classModal && !readOnly    && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
+      {studentModal && !readOnly  && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
+      {noteModal && !readOnly     && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
+      {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={readOnly} />}
+      {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={readOnly} />}
+      {spinModal && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={readOnly} />}
+      {lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
     </div>
   )
 }

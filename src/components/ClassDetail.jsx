@@ -47,21 +47,21 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
           </div>
         </div>
 
-        {!readOnly && (
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
-            <button className="btn btn-outline"
-              style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
-              onClick={onOpenStarSession}>⭐ Star Session</button>
-            <button className="btn btn-outline"
-              style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
-              onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
-            <button className="btn btn-outline"
-              style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
-              onClick={onOpenLessonsHub}>📚 Lessons Hub</button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
+            onClick={onOpenStarSession}>⭐ Star Session</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
+            onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
+            onClick={onOpenLessonsHub}>📚 Lessons Hub</button>
+          {!readOnly && (
             <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {ranked.length === 0 && (
