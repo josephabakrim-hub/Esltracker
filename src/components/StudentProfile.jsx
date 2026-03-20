@@ -31,7 +31,7 @@ function renderStars(count) {
   ))
 }
 
-export default function StudentProfile({ student, classes, onBack, onEdit, onAddNote, onDelete, onAddStars, onDeleteStar }) {
+export default function StudentProfile({ student, classes, onBack, onEdit, onAddNote, onDelete, onAddStars, onDeleteStar, readOnly }) {
   const s = student
   const avg = avgSkills(s)
   const cls = classes.find(c => c.id === s.classId)
@@ -97,7 +97,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <div style={{ fontSize: 24, fontWeight: 800 }}>{s.nameEn}</div>
             {s.nameVn && <button className="vn-btn" onClick={() => setVnVisible(v => !v)}>🇻🇳 VN</button>}
-            <button className="btn-ghost" onClick={onEdit} title="Edit student">✏️</button>
+            {!readOnly && <button className="btn-ghost" onClick={onEdit} title="Edit student">✏️</button>}
           </div>
           {vnVisible && s.nameVn && <div className="vn-popup" style={{ fontSize: 15, marginBottom: 4 }}>{s.nameVn}</div>}
           <div style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--mono)', marginBottom: 14 }}>
@@ -114,10 +114,12 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
             ))}
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <button className="btn btn-accent" onClick={onEdit}>✏️ Update Skills</button>
-          <button className="btn btn-danger" onClick={() => { if (window.confirm(`Delete ${s.nameEn}?`)) onDelete(s.id) }}>🗑️ Delete</button>
-        </div>
+        {!readOnly && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <button className="btn btn-accent" onClick={onEdit}>✏️ Update Skills</button>
+            <button className="btn btn-danger" onClick={() => { if (window.confirm(`Delete ${s.nameEn}?`)) onDelete(s.id) }}>🗑️ Delete</button>
+          </div>
+        )}
       </div>
 
       {/* SKILLS */}
@@ -139,13 +141,15 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={sectionTitle}>⭐ Star Rewards</div>
-          <button className="btn btn-dark" onClick={() => setShowStarPanel(v => !v)}>
-            {showStarPanel ? 'Cancel' : '+ Award Stars'}
-          </button>
+          {!readOnly && (
+            <button className="btn btn-dark" onClick={() => setShowStarPanel(v => !v)}>
+              {showStarPanel ? 'Cancel' : '+ Award Stars'}
+            </button>
+          )}
         </div>
 
         {/* ── AWARD PANEL ── */}
-        {showStarPanel && (
+        {!readOnly && showStarPanel && (
           <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: 20, marginBottom: 20, border: '1px solid var(--border)' }}>
 
             {/* Date picker */}
@@ -263,11 +267,13 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
                 <div style={{ flex: 1, fontSize: 12, color: entry.reason ? 'var(--text)' : 'var(--muted)', fontStyle: entry.reason ? 'normal' : 'italic' }}>
                   {entry.reason || 'No reason given'}
                 </div>
-                <button className="btn-ghost" title="Delete this entry"
-                  style={{ fontSize: 13, color: 'var(--red)', opacity: 0.6, flexShrink: 0 }}
-                  onClick={() => handleDeleteStar(starsLog.length - 1 - i)}>
-                  🗑️
-                </button>
+                {!readOnly && (
+                  <button className="btn-ghost" title="Delete this entry"
+                    style={{ fontSize: 13, color: 'var(--red)', opacity: 0.6, flexShrink: 0 }}
+                    onClick={() => handleDeleteStar(starsLog.length - 1 - i)}>
+                    🗑️
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -278,7 +284,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={sectionTitle}>📝 Teacher Notes</div>
-          <button className="btn btn-dark" onClick={onAddNote}>+ Add Note</button>
+          {!readOnly && <button className="btn btn-dark" onClick={onAddNote}>+ Add Note</button>}
         </div>
         {notes.length === 0 && (
           <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>No notes yet.</div>

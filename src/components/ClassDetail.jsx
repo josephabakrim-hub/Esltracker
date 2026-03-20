@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenLessonsHub }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenLessonsHub, readOnly }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -38,30 +38,35 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ fontSize: 22, fontWeight: 800 }}>{cls.name}</div>
-            <button className="btn-ghost" onClick={() => onEditClass(cls)} title="Edit class name">✏️</button>
+            {!readOnly && (
+              <button className="btn-ghost" onClick={() => onEditClass(cls)} title="Edit class name">✏️</button>
+            )}
           </div>
           <div style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 4 }}>
             {cls.day && `${cls.day} · `}{cls.time && `${cls.time} · `}{ranked.length} students
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
-          <button className="btn btn-outline"
-            style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
-            onClick={onOpenStarSession}>⭐ Star Session</button>
-          <button className="btn btn-outline"
-            style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
-            onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
-          <button className="btn btn-outline"
-            style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
-            onClick={onOpenLessonsHub}>📚 Lessons Hub</button>
-          <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
-        </div>
+
+        {!readOnly && (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>
+            <button className="btn btn-outline"
+              style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
+              onClick={onOpenStarSession}>⭐ Star Session</button>
+            <button className="btn btn-outline"
+              style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
+              onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
+            <button className="btn btn-outline"
+              style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
+              onClick={onOpenLessonsHub}>📚 Lessons Hub</button>
+            <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
+          </div>
+        )}
       </div>
 
       {ranked.length === 0 && (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>
-          No students in this class yet. Click <strong>+ Add Student</strong>.
+          No students in this class yet.{!readOnly && <span> Click <strong>+ Add Student</strong>.</span>}
         </div>
       )}
 

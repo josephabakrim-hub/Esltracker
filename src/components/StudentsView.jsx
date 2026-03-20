@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { SKILLS, scoreColor, scoreClass, initials, avgSkills, goalStyle } from '../lib/utils'
 
-export default function StudentsView({ students, classes, onSelectStudent, onAddStudent, onEditStudent }) {
+export default function StudentsView({ students, classes, onSelectStudent, onAddStudent, onEditStudent, readOnly }) {
   const [filterLevel, setFilterLevel] = useState('all')
   const [filterClass, setFilterClass] = useState('all')
   const [vnVisible, setVnVisible] = useState({})
@@ -30,7 +30,9 @@ export default function StudentsView({ students, classes, onSelectStudent, onAdd
             <option value="all">All Classes</option>
             {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <button className="btn btn-dark" onClick={onAddStudent}>+ Add Student</button>
+          {!readOnly && (
+            <button className="btn btn-dark" onClick={onAddStudent}>+ Add Student</button>
+          )}
         </div>
       </div>
 
@@ -52,7 +54,9 @@ export default function StudentsView({ students, classes, onSelectStudent, onAdd
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: s.level === 'elite' ? 'var(--elite)' : s.level === 'starter' ? 'var(--starter)' : 'var(--pro)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#fff' }}>{initials(s.nameEn)}</div>
-                <button className="btn-ghost" style={{ fontSize: 14 }} onClick={e => { e.stopPropagation(); onEditStudent(s) }}>✏️</button>
+                {!readOnly && (
+                  <button className="btn-ghost" style={{ fontSize: 14 }} onClick={e => { e.stopPropagation(); onEditStudent(s) }}>✏️</button>
+                )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>

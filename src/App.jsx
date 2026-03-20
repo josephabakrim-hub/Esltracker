@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import AccessGate from './components/AccessGate'
 import Header from './components/Header'
 import Tabs from './components/Tabs'
 import StatsBar from './components/StatsBar'
@@ -21,12 +22,16 @@ export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
-  // Theme — persisted to localStorage, defaults to light
+  // ── Access control ──────────────────────────────────────────────────────────
+  // access = null (not chosen yet) | { role, readOnly }
+  const [access, setAccess] = useState(null)
+  const readOnly = access?.readOnly ?? true
+
+  // Theme
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('tj_theme')
-    return saved ? saved === 'dark' : false // default light
+    return saved ? saved === 'dark' : false
   })
-
   useEffect(() => {
     document.body.classList.toggle('dark', isDark)
     localStorage.setItem('tj_theme', isDark ? 'dark' : 'light')
@@ -46,7 +51,6 @@ export default function App() {
     { name: 'HTB_Pro3_1',   level: 'pro',   day: 'SUN',       time: '08:00-09:30' },
     { name: 'HTB_Pro1_2',   level: 'pro',   day: 'SUN',       time: '09:30-11:00' },
   ]
-
   useEffect(() => {
     if (!loadingClasses && classes.length === 0) {
       DEFAULT_CLASSES.forEach(c => addClass({ ...c, students: 0 }))
@@ -64,7 +68,7 @@ export default function App() {
   const [attendanceModal,  setAttendanceModal]  = useState(null)
   const [starSessionModal, setStarSessionModal] = useState(null)
   const [spinModal,        setSpinModal]        = useState(null)
-  const [lessonsHubModal,  setLessonsHubModal]  = useState(null) // class object
+  const [lessonsHubModal,  setLessonsHubModal]  = useState(null)
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -160,13 +164,21 @@ export default function App() {
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
+  // ── Show gate until role chosen ─────────────────────────────────────────────
+  if (!access) {
+    return <AccessGate onAccess={setAccess} />
+  }
+
   return (
     <div>
       <Header
-        onAddClass={() => setClassModal('add')}
-        onAddStudent={() => setStudentModal('add')}
+        onAddClass={readOnly ? null : () => setClassModal('add')}
+        onAddStudent={readOnly ? null : () => setStudentModal('add')}
         isDark={isDark}
         onToggleTheme={() => setIsDark(d => !d)}
+        readOnly={readOnly}
+        role={access.role}
+        onSwitchRole={() => setAccess(null)}
       />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
@@ -180,36 +192,45 @@ export default function App() {
           {tab === 'classes' && (
             <><StatsBar students={students} classes={classes} />
             <ClassesView classes={classes} students={students} onSelectClass={openClass}
-              onAddClass={() => setClassModal('add')} onEditClass={c => setClassModal(c)} onDeleteClass={handleDeleteClass} /></>
+              onAddClass={readOnly ? null : () => setClassModal('add')}
+              onEditClass={readOnly ? null : c => setClassModal(c)}
+              onDeleteClass={readOnly ? null : handleDeleteClass}
+              readOnly={readOnly}
+            /></>
           )}
 
           {tab === 'classDetail' && liveClass && (
             <ClassDetail cls={liveClass} students={students.filter(s => s.classId === liveClass.id)}
               onBack={() => { setSelectedClass(null); setTab('classes') }}
               onSelectStudent={openStudentFromClass}
-              onAddStudent={() => setStudentModal('add')}
-              onEditClass={c => setClassModal(c)}
-              onOpenAttendance={() => setAttendanceModal(liveClass.id)}
-              onOpenStarSession={() => setStarSessionModal(liveClass.id)}
-              onOpenSpinOfDoom={() => setSpinModal(liveClass.id)}
-              onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
+              onAddStudent={readOnly ? null : () => setStudentModal('add')}
+              onEditClass={readOnly ? null : c => setClassModal(c)}
+              onOpenAttendance={readOnly ? null : () => setAttendanceModal(liveClass.id)}
+              onOpenStarSession={readOnly ? null : () => setStarSessionModal(liveClass.id)}
+              onOpenSpinOfDoom={readOnly ? null : () => setSpinModal(liveClass.id)}
+              onOpenLessonsHub={readOnly ? null : () => setLessonsHubModal(liveClass)}
+              readOnly={readOnly}
             />
           )}
 
           {tab === 'students' && (
             <><StatsBar students={students} classes={classes} />
             <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
-              onAddStudent={() => setStudentModal('add')} onEditStudent={s => setStudentModal(s)} /></>
+              onAddStudent={readOnly ? null : () => setStudentModal('add')}
+              onEditStudent={readOnly ? null : s => setStudentModal(s)}
+              readOnly={readOnly}
+            /></>
           )}
 
           {tab === 'studentProfile' && liveStudent && (
             <StudentProfile student={liveStudent} classes={classes}
               onBack={handleBackFromStudent}
-              onEdit={() => setStudentModal(liveStudent)}
-              onAddNote={() => setNoteModal(liveStudent.id)}
-              onDelete={handleDeleteStudent}
-              onAddStars={handleAwardStars}
-              onDeleteStar={handleDeleteStar}
+              onEdit={readOnly ? null : () => setStudentModal(liveStudent)}
+              onAddNote={readOnly ? null : () => setNoteModal(liveStudent.id)}
+              onDelete={readOnly ? null : handleDeleteStudent}
+              onAddStars={readOnly ? null : handleAwardStars}
+              onDeleteStar={readOnly ? null : handleDeleteStar}
+              readOnly={readOnly}
             />
           )}
 
@@ -220,13 +241,14 @@ export default function App() {
         </>}
       </div>
 
-      {classModal && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
-      {studentModal && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
-      {noteModal && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
-      {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
-      {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} />}
-      {spinModal && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} />}
-      {lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
+      {/* Modals — only mountable when not readOnly */}
+      {!readOnly && classModal    && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
+      {!readOnly && studentModal  && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
+      {!readOnly && noteModal     && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
+      {!readOnly && attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} />}
+      {!readOnly && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} />}
+      {!readOnly && spinModal     && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} />}
+      {!readOnly && lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
     </div>
   )
 }
