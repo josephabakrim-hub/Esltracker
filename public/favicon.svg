@@ -1,13 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Dark rounded background -->
   <rect width="32" height="32" rx="8" fill="#1a1814"/>
-  <!-- Blackboard green inner rect -->
-  <rect x="5" y="7" width="22" height="15" rx="3" fill="#1a9e5c"/>
-  <!-- Chalk lines (like writing on board) -->
-  <rect x="8" y="12" width="8" height="1.5" rx="1" fill="rgba(255,255,255,0.85)"/>
-  <rect x="8" y="15.5" width="12" height="1.5" rx="1" fill="rgba(255,255,255,0.85)"/>
-  <!-- Gold star bottom right -->
-  <text x="22" y="28" text-anchor="middle" font-size="9" font-family="sans-serif">⭐</text>
-  <!-- TJ initials on the board -->
-  <text x="20" y="18" text-anchor="middle" font-size="7" font-family="sans-serif" font-weight="800" fill="rgba(255,255,255,0.9)">TJ</text>
+  <text x="7" y="23" font-size="18" font-family="sans-serif" font-weight="800" fill="#ffffff">T</text>
+  <text x="17" y="23" font-size="18" font-family="sans-serif" font-weight="800" fill="#e85d26">J</text>
 </svg>
