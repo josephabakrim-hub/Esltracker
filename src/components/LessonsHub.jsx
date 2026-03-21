@@ -1,115 +1,191 @@
 // ── LESSONS HUB ──
-// Each class maps to a book. Units show as available or coming soon.
-// When a unit has a game file URL, it opens in a new tab.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TO ADD A NEW GAME — only two steps:
+//   1. Name the file:  unit{N}-{classslug}.html
+//      e.g.  unit7-pro54.html  or  unit3-elite13.html
+//   2. Drop it in public/games/ and push to GitHub
+//   Then add one line to READY below. That's it!
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Kids Box New Generation Level 2 units
+const BASE = 'https://teacherjoseph.vercel.app/games'
+
+// Class name → short slug used in game filenames
+const CLASS_SLUG = {
+  'Elite2_2':  'elite22',
+  'Elite3_S':  'elite3s',
+  'Elite1_3':  'elite13',
+  'Pro1_3':    'pro13',
+  'Pro5_4':    'pro54',
+  'Pro1_2':    'pro12',
+  'Pro3_S':    'pro3s',
+  'Pro2_2':    'pro22',
+  'Pro3_1':    'pro31',
+  'Pro6_2':    'pro62',
+}
+
+// Which units are ready — keyed by "classslug-unitnum"
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TO ADD A NEW GAME: add one line here:
+//   'pro54-7': true,   // unit7-pro54.html
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const READY = {
+  'pro62-2':   true,   // unit2-pro62.html   — Home Sweet Home    (Pro6_2  · NG3)
+  'pro3s-3':   true,   // unit3-pro3s.html   — Favourite Toys     (Pro3_S  · NG1)
+  'pro54-4':   true,   // unit4-pro54.html   — After School Club  (Pro5_4  · NG4)
+  'pro22-5':   true,   // unit5-pro22.html   — Meet My Family     (Pro2_2  · NG2)
+  'elite22-5': true,   // unit5-elite22.html — My Life in Music   (Elite2_2· Think L2)
+  'elite13-6': true,   // unit6-elite13.html — How Do They Do It? (Elite1_3· Think L3)
+}
+
+// ── UNIT LISTS (sourced directly from the actual books) ──
+
+// Kids Box New Generation 1 — Pro3_S, Pro3_1
+const KIDS_BOX_NG1_UNITS = [
+  { num: 0,  title: 'Hello!'         },
+  { num: 1,  title: 'Hello!'         },
+  { num: 2,  title: 'My School'      },
+  { num: 3,  title: 'Favourite Toys' },
+  { num: 4,  title: 'My Family'      },
+  { num: 5,  title: 'Our Pets'       },
+  { num: 6,  title: 'My Face'        },
+  { num: 7,  title: 'Wild Animals'   },
+  { num: 8,  title: 'My Clothes'     },
+  { num: 9,  title: 'Fun Time!'      },
+  { num: 10, title: 'At the Funfair' },
+  { num: 11, title: 'Our House'      },
+  { num: 12, title: 'Party Time!'    },
+]
+
+// Kids Box New Generation 2 — Pro1_2, Pro2_2
 const KIDS_BOX_NG2_UNITS = [
-  { num: 1,  title: 'Hello Again!',   url: null },
-  { num: 2,  title: 'Back to School', url: null },
-  { num: 3,  title: 'Play Time!',     url: null },
-  { num: 4,  title: 'At Home',        url: null },
-  { num: 5,  title: 'Meet My Family', url: 'https://teacherjoseph.vercel.app/games/unit5-meet-my-family-htbpro2.html' },
-  { num: 6,  title: 'Dinner Time',    url: null },
-  { num: 7,  title: 'At the Farm',    url: null },
-  { num: 8,  title: 'My Town',        url: null },
-  { num: 9,  title: 'Our Clothes',    url: null },
-  { num: 10, title: 'Our Hobbies',    url: null },
-  { num: 11, title: 'My Birthday',    url: null },
-  { num: 12, title: 'On Holiday!',    url: null },
+  { num: 0,  title: 'Hello Again!'   },
+  { num: 1,  title: 'Back to School' },
+  { num: 2,  title: 'Play Time!'     },
+  { num: 3,  title: 'At Home'        },
+  { num: 4,  title: 'Dinner Time'    },
+  { num: 5,  title: 'Meet My Family' },
+  { num: 6,  title: 'At the Farm'    },
+  { num: 7,  title: 'Our Clothes'    },
+  { num: 8,  title: 'My Town'        },
+  { num: 9,  title: 'Our Hobbies'    },
+  { num: 10, title: 'My Birthday'    },
+  { num: 11, title: 'On Holiday!'    },
 ]
 
+// Kids Box New Generation 3 — Pro1_3, Pro6_2
 const KIDS_BOX_NG3_UNITS = [
-  { num: 0,  title: 'Hello!',              url: null },
-  { num: 1,  title: 'Family Matters',      url: null },
-  { num: 2,  title: 'Home Sweet Home',     url: 'https://teacherjoseph.vercel.app/games/unit2-home-sweet-home-htbpro6.html' },
-  { num: 3,  title: 'A Day in the Life',   url: null },
-  { num: 4,  title: 'In the City',         url: null },
-  { num: 5,  title: 'Fit and Well',        url: null },
-  { num: 6,  title: 'In the Countryside',  url: null },
-  { num: 7,  title: 'World of Animals',    url: null },
-  { num: 8,  title: 'Weather Report',      url: null },
+  { num: 0, title: 'Hello!'              },
+  { num: 1, title: 'Family Matters'      },
+  { num: 2, title: 'Home Sweet Home'     },
+  { num: 3, title: 'A Day in the Life'   },
+  { num: 4, title: 'In the City'         },
+  { num: 5, title: 'Fit and Well'        },
+  { num: 6, title: 'In the Countryside'  },
+  { num: 7, title: 'World of Animals'    },
+  { num: 8, title: 'Weather Report'      },
 ]
 
-// Kids Box New Generation Level 4 units
+// Kids Box New Generation 4 — Pro5_4
 const KIDS_BOX_NG4_UNITS = [
-  { num: 0, title: 'Hello There!',        url: null },
-  { num: 1, title: 'Back to School',      url: null },
-  { num: 2, title: 'Good Sports',         url: null },
-  { num: 3, title: 'Health Matters',      url: null },
-  { num: 4, title: 'After School Club',   url: 'https://teacherjoseph.vercel.app/games/unit4-after-school-club-atbpro54.html' },
-  { num: 5, title: 'Exploring Our World', url: null },
-  { num: 6, title: 'Technology',          url: null },
-  { num: 7, title: 'At the Zoo',          url: null },
-  { num: 8, title: "Let's Party!",        url: null },
+  { num: 0, title: 'Hello There!'        },
+  { num: 1, title: 'Back to School'      },
+  { num: 2, title: 'Good Sports'         },
+  { num: 3, title: 'Health Matters'      },
+  { num: 4, title: 'After School Club'   },
+  { num: 5, title: 'Exploring Our World' },
+  { num: 6, title: 'Technology'          },
+  { num: 7, title: 'At the Zoo'          },
+  { num: 8, title: "Let's Party!"        },
+]
+
+// Think Starter — Elite3_S
+const THINK_STARTER_UNITS = [
+  { num: 0,  title: 'Welcome'                 },
+  { num: 1,  title: 'One World'               },
+  { num: 2,  title: 'I Feel Happy'            },
+  { num: 3,  title: 'Me and My Family'        },
+  { num: 4,  title: 'In the City'             },
+  { num: 5,  title: 'In My Free Time'         },
+  { num: 6,  title: 'Friends'                 },
+  { num: 7,  title: 'Sporting Life'           },
+  { num: 8,  title: 'Dance to the Music'      },
+  { num: 9,  title: 'Would You Like Dessert?' },
+  { num: 10, title: 'High Flyers'             },
+  { num: 11, title: 'A World of Animals'      },
+  { num: 12, title: 'Getting About'           },
+]
+
+// Think Level 2 — Elite2_2
+const THINK_L2_UNITS = [
+  { num: 0,  title: 'Welcome'              },
+  { num: 1,  title: 'Amazing People'       },
+  { num: 2,  title: 'The Ways We Learn'    },
+  { num: 3,  title: "That's Entertainment" },
+  { num: 4,  title: 'Social Networking'    },
+  { num: 5,  title: 'My Life in Music'     },
+  { num: 6,  title: 'Making a Difference'  },
+  { num: 7,  title: 'Future Fun'           },
+  { num: 8,  title: 'Science Counts'       },
+  { num: 9,  title: "What a Job!"          },
+  { num: 10, title: 'Keep Healthy'         },
+  { num: 11, title: 'Making the News'      },
+  { num: 12, title: 'Playing by the Rules' },
+]
+
+// Think Level 3 — Elite1_3
+const THINK_L3_UNITS = [
+  { num: 0,  title: 'Welcome'                     },
+  { num: 1,  title: 'Life Plans'                  },
+  { num: 2,  title: 'Hard Times'                  },
+  { num: 3,  title: "What's in a Name?"           },
+  { num: 4,  title: 'Dilemmas'                    },
+  { num: 5,  title: 'What a Story!'               },
+  { num: 6,  title: 'How Do They Do It?'          },
+  { num: 7,  title: 'All the Same?'               },
+  { num: 8,  title: "It's a Crime"                },
+  { num: 9,  title: 'What Happened?'              },
+  { num: 10, title: 'Money'                       },
+  { num: 11, title: 'Help!'                       },
+  { num: 12, title: 'A First Time for Everything' },
 ]
 
 const CLASS_BOOKS = {
-  // Elite classes → Think B1 Level 2
-  'Elite2_2':     { book: 'Think B1 — Level 2', level: 'elite' },
-  'ATB_Elite3_S': { book: 'Think B1 — Level 2', level: 'elite' },
-  'ATB_Elite1_3': { book: 'Think — Level 3',    level: 'elite3' },
-  // Pro classes → Kids Box
-  'ATB_Pro1_3':   { book: 'Kids Box', level: 'pro' },
-  'ATB_Pro5_4':   { book: 'Kids Box NG — Level 4', level: 'pro4' },
-  'HTB_Pro1-2':   { book: 'Kids Box', level: 'pro' },
-  'Pro3_S':       { book: 'Kids Box', level: 'pro' },
-  'HTB_Pro2_2':   { book: 'Kids Box NG — Level 2', level: 'pro2' },
-  'HTB_Pro4-3':   { book: 'Kids Box', level: 'pro' },
-  'HTB_Pro3_1':   { book: 'Kids Box', level: 'pro' },
-  'HTB_Pro1_2':   { book: 'Kids Box', level: 'pro' },
-  'HTB_Pro6_2':   { book: 'Kids Box NG — Level 3', level: 'pro3' },
+  'Elite2_2':  { book: 'Think — Level 2',      level: 'elite2'  },
+  'Elite3_S':  { book: 'Think — Starter',       level: 'starter' },
+  'Elite1_3':  { book: 'Think — Level 3',       level: 'elite3'  },
+  'Pro1_3':    { book: 'Kids Box NG — Level 3', level: 'ng3'     },
+  'Pro5_4':    { book: 'Kids Box NG — Level 4', level: 'ng4'     },
+  'Pro1_2':    { book: 'Kids Box NG — Level 2', level: 'ng2'     },
+  'Pro3_S':    { book: 'Kids Box NG — Level 1', level: 'ng1'     },
+  'Pro2_2':    { book: 'Kids Box NG — Level 2', level: 'ng2'     },
+  'Pro3_1':    { book: 'Kids Box NG — Level 1', level: 'ng1'     },
+  'Pro6_2':    { book: 'Kids Box NG — Level 3', level: 'ng3'     },
 }
 
-// Think Level 3 units
-const THINK_L3_UNITS = [
-  { num: 0,  title: 'Welcome',                     url: null },
-  { num: 1,  title: 'Life Plans',                  url: null },
-  { num: 2,  title: 'Hard Times',                  url: null },
-  { num: 3,  title: "What's in a Name?",           url: null },
-  { num: 4,  title: 'Dilemmas',                    url: null },
-  { num: 5,  title: 'What a Story!',               url: null },
-  { num: 6,  title: 'How Do They Do It?',          url: 'https://teacherjoseph.vercel.app/games/unit6-how-do-they-do-it-atbelite13.html' },
-  { num: 7,  title: 'All the Same?',               url: null },
-  { num: 8,  title: "It's a Crime",                url: null },
-  { num: 9,  title: 'What Happened?',              url: null },
-  { num: 10, title: 'Money',                       url: null },
-  { num: 11, title: 'Help!',                       url: null },
-  { num: 12, title: 'A First Time for Everything', url: null },
-]
-
-// Think B1 Level 2 units
-const THINK_B1_UNITS = [
-  { num: 0,  title: 'Welcome',              url: null },
-  { num: 1,  title: 'Amazing People',       url: null },
-  { num: 2,  title: 'The Ways We Learn',    url: null },
-  { num: 3,  title: "That's Entertainment", url: null },
-  { num: 4,  title: 'Social Networking',    url: null },
-  { num: 5,  title: 'My Life in Music',     url: 'https://teacherjoseph.vercel.app/games/unit5-my-life-in-music.html' },
-  { num: 6,  title: 'Making a Difference',  url: null },
-  { num: 7,  title: 'Future Fun',           url: null },
-  { num: 8,  title: 'Science Counts',       url: null },
-  { num: 9,  title: "What a Job!",          url: null },
-  { num: 10, title: 'Keep Healthy',         url: null },
-  { num: 11, title: 'Making the News',      url: null },
-  { num: 12, title: 'Playing by the Rules', url: null },
-]
-
-// Kids Box New Generation Level 1 units
-const KIDS_BOX_UNITS = [
-  { num: 1, title: 'Hello!',         url: null },
-  { num: 2, title: 'My School',      url: null },
-  { num: 3, title: 'Favourite Toys', url: 'https://teacherjoseph.vercel.app/games/unit3-favourite-toys-pro3s.html' },
-  { num: 4, title: 'My Family',      url: null },
-  { num: 5, title: 'My Body',        url: null },
-  { num: 6, title: 'Animals',        url: null },
-  { num: 7, title: 'Food',           url: null },
-  { num: 8, title: 'My Home',        url: null },
-]
+function getUnits(level) {
+  if (level === 'starter') return THINK_STARTER_UNITS
+  if (level === 'elite2')  return THINK_L2_UNITS
+  if (level === 'elite3')  return THINK_L3_UNITS
+  if (level === 'ng1')     return KIDS_BOX_NG1_UNITS
+  if (level === 'ng2')     return KIDS_BOX_NG2_UNITS
+  if (level === 'ng3')     return KIDS_BOX_NG3_UNITS
+  if (level === 'ng4')     return KIDS_BOX_NG4_UNITS
+  return KIDS_BOX_NG1_UNITS
+}
 
 export default function LessonsHub({ cls, onClose }) {
-  const bookInfo = CLASS_BOOKS[cls?.name] || { book: 'Unknown Book', level: cls?.level || 'pro' }
-  const units = bookInfo.level === 'elite' ? THINK_B1_UNITS : bookInfo.level === 'elite3' ? THINK_L3_UNITS : bookInfo.level === 'pro2' ? KIDS_BOX_NG2_UNITS : bookInfo.level === 'pro3' ? KIDS_BOX_NG3_UNITS : bookInfo.level === 'pro4' ? KIDS_BOX_NG4_UNITS : KIDS_BOX_UNITS
-  const available = units.filter(u => u.url).length
+  const bookInfo = CLASS_BOOKS[cls?.name] || { book: 'Unknown Book', level: 'ng1' }
+  const slug     = CLASS_SLUG[cls?.name] || ''
+  const units    = getUnits(bookInfo.level)
+
+  const unitsWithUrls = units.map(unit => {
+    const key     = `${slug}-${unit.num}`
+    const isReady = !!READY[key]
+    const url     = `${BASE}/unit${unit.num}-${slug}.html`
+    return { ...unit, isReady, url }
+  })
+
+  const available = unitsWithUrls.filter(u => u.isReady).length
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -128,8 +204,6 @@ export default function LessonsHub({ cls, onClose }) {
             </div>
             <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }} onClick={onClose}>✕</button>
           </div>
-
-          {/* Progress bar */}
           <div style={{ marginTop: 14, height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${(available / units.length) * 100}%`, background: 'var(--accent)', borderRadius: 2, transition: 'width 0.4s ease' }} />
           </div>
@@ -138,8 +212,8 @@ export default function LessonsHub({ cls, onClose }) {
         {/* Unit list */}
         <div style={{ padding: '20px 24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {units.map(unit => {
-              const isReady = !!unit.url
+            {unitsWithUrls.map(unit => {
+              const isReady = unit.isReady
               return (
                 <div
                   key={unit.num}
@@ -156,7 +230,6 @@ export default function LessonsHub({ cls, onClose }) {
                   onMouseEnter={e => { if (isReady) { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.transform = 'translateX(4px)' }}}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = '' }}
                 >
-                  {/* Unit number badge */}
                   <div style={{
                     width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                     background: isReady ? 'var(--accent)' : 'var(--border)',
@@ -166,42 +239,32 @@ export default function LessonsHub({ cls, onClose }) {
                   }}>
                     {unit.num}
                   </div>
-
-                  {/* Title */}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: isReady ? 'var(--text)' : 'var(--muted)' }}>
                       {unit.title}
                     </div>
                     <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1, marginTop: 2 }}>
-                      {isReady ? 'Vocabulary · Grammar · True/False · Speaking · Writing' : 'Coming soon'}
+                      {isReady ? 'Vocabulary · Grammar · Games · Activities' : 'Coming soon'}
                     </div>
                   </div>
-
-                  {/* Status badge */}
                   {isReady ? (
                     <div style={{
                       fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700,
                       padding: '4px 10px', borderRadius: 20, letterSpacing: 1,
                       background: 'rgba(26,158,92,0.12)', color: 'var(--green)',
                       border: '1px solid rgba(26,158,92,0.2)',
-                    }}>
-                      ▶ PLAY
-                    </div>
+                    }}>▶ PLAY</div>
                   ) : (
                     <div style={{
                       fontFamily: 'var(--mono)', fontSize: 9,
                       padding: '4px 10px', borderRadius: 20, letterSpacing: 1,
                       background: 'var(--border)', color: 'var(--muted)',
-                    }}>
-                      🔒 SOON
-                    </div>
+                    }}>🔒 SOON</div>
                   )}
                 </div>
               )
             })}
           </div>
-
-          {/* Footer note */}
           <div style={{ marginTop: 20, padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 4 }}>HOW IT WORKS</div>
             <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
