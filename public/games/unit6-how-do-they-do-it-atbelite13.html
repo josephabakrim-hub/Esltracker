@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 6 – How Do They Do It? | Think Level 3</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0b0b14;
+    --surf:    #12121e;
+    --surf2:   #1a1a2c;
+    --border:  #262640;
+    --text:    #e6e4f0;
+    --muted:   #64648a;
+    --accent:  #7c6fcd;
+    --gold:    #f5c842;
+    --green:   #3ecf8e;
+    --red:     #f5504a;
+    --teal:    #38bdf8;
+    --mono:    'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(124,111,205,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,111,205,0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -250px; right: -250px;
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,111,205,0.07) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; position: relative; z-index: 1; min-height: 100vh; padding: 28px 20px; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ── HOME ── */
+  .eyebrow {
+    font-family: var(--mono); font-size: .68rem;
+    letter-spacing: 3px; color: var(--accent); text-transform: uppercase;
+    text-align: center; margin-bottom: 18px;
+  }
+  .home-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.6rem, 6.5vw, 4.8rem);
+    text-align: center; line-height: 1.05; margin-bottom: 10px;
+  }
+  .home-title em { font-style: italic; color: var(--accent); }
+  .home-sub { text-align: center; color: var(--muted); font-size: .92rem; margin-bottom: 52px; }
+
+  .game-grid {
+    display: grid; grid-template-columns: repeat(2,1fr);
+    gap: 14px; max-width: 840px; width: 100%;
+  }
+  @media(max-width:560px){ .game-grid{ grid-template-columns:1fr; } }
+
+  .gcard {
+    background: var(--surf); border: 1px solid var(--border);
+    border-radius: 16px; padding: 26px 22px;
+    cursor: pointer; transition: border-color .2s, transform .2s, box-shadow .2s;
+    position: relative; overflow: hidden;
+  }
+  .gcard::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, transparent, var(--cc), transparent);
+    opacity:0; transition: opacity .2s;
+  }
+  .gcard:hover { border-color: var(--cc); transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,.4); }
+  .gcard:hover::before { opacity: 1; }
+
+  .gcard-tag {
+    font-family: var(--mono); font-size:.64rem; letter-spacing:2px;
+    text-transform:uppercase; color: var(--cc);
+    display:flex; align-items:center; gap:6px; margin-bottom:12px;
+  }
+  .gcard-tag::before { content:''; width:14px; height:1px; background:var(--cc); }
+  .gcard-title { font-family:'DM Serif Display',serif; font-size:1.35rem; margin-bottom:8px; }
+  .gcard-desc { font-size:.83rem; color:var(--muted); line-height:1.5; }
+  .gcard-arrow {
+    position:absolute; bottom:22px; right:22px;
+    font-size:1.1rem; color:var(--cc); opacity:0; transition: opacity .2s, transform .2s;
+  }
+  .gcard:hover .gcard-arrow { opacity:1; transform:translateX(4px); }
+
+  /* ── SHELL ── */
+  .shell { width:100%; max-width:780px; }
+
+  .shell-head {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px; padding-bottom:18px; border-bottom:1px solid var(--border);
+  }
+  .shell-meta { display:flex; flex-direction:column; gap:4px; }
+  .shell-label { font-family:var(--mono); font-size:.63rem; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+  .shell-name  { font-family:'DM Serif Display',serif; font-size:1.25rem; }
+
+  .score-chip {
+    font-family:var(--mono); font-size:.78rem; font-weight:600;
+    background:rgba(124,111,205,.1); border:1px solid rgba(124,111,205,.3);
+    color:var(--accent); padding:6px 14px; border-radius:20px;
+  }
+  .back-btn {
+    font-family:var(--mono); font-size:.68rem; letter-spacing:1px;
+    color:var(--muted); background:none; border:1px solid var(--border);
+    padding:6px 14px; border-radius:8px; cursor:pointer; transition:all .15s;
+    text-transform:uppercase; margin-left:10px;
+  }
+  .back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  .prog-track { height:2px; background:var(--border); border-radius:2px; margin-bottom:28px; overflow:hidden; }
+  .prog-fill  { height:100%; background:linear-gradient(90deg,var(--accent),var(--teal)); border-radius:2px; transition:width .4s ease; }
+
+  /* ── QUESTION CARD ── */
+  .qcard {
+    background:var(--surf); border:1px solid var(--border);
+    border-radius:16px; padding:32px; margin-bottom:18px;
+  }
+  .qtype { font-family:var(--mono); font-size:.63rem; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:18px; }
+  .qtext { font-size:1.08rem; line-height:1.75; color:var(--text); }
+  .qtext strong { color:var(--gold); font-weight:600; }
+
+  /* ── OPTIONS ── */
+  .opts { display:flex; flex-direction:column; gap:9px; }
+
+  .opt {
+    display:flex; align-items:center; gap:14px;
+    padding:15px 18px; border-radius:12px;
+    background:var(--surf2); border:1px solid var(--border);
+    color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:.93rem; font-weight:500; cursor:pointer;
+    transition:all .15s; text-align:left;
+  }
+  .opt:hover:not(:disabled) { border-color:var(--accent); background:rgba(124,111,205,.08); }
+
+  .opt-let {
+    font-family:var(--mono); font-size:.68rem; font-weight:600;
+    color:var(--muted); width:22px; height:22px; border-radius:6px;
+    border:1px solid var(--border); display:flex; align-items:center;
+    justify-content:center; flex-shrink:0; transition:all .15s;
+  }
+  .opt:hover:not(:disabled) .opt-let { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  .opt.correct { border-color:var(--green) !important; background:rgba(62,207,142,.08) !important; }
+  .opt.correct .opt-let { background:var(--green); border-color:var(--green); color:#0b0b14; }
+  .opt.wrong   { border-color:var(--red) !important;   background:rgba(245,80,74,.08) !important; }
+  .opt.wrong   .opt-let { background:var(--red);   border-color:var(--red);   color:#fff; }
+
+  /* ── FEEDBACK ── */
+  .fb {
+    border-radius:12px; padding:13px 18px;
+    font-size:.88rem; font-weight:500; margin-top:14px;
+    opacity:0; transition:opacity .2s; line-height:1.6;
+  }
+  .fb.show { opacity:1; }
+  .fb.ok  { background:rgba(62,207,142,.1); border:1px solid rgba(62,207,142,.3); color:var(--green); }
+  .fb.err { background:rgba(245,80,74,.1);  border:1px solid rgba(245,80,74,.3);  color:var(--red); }
+
+  /* ── MAKE/DO SORT ── */
+  .md-pools { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+
+  .drop-col {
+    background:var(--surf); border:1px solid var(--border);
+    border-radius:14px; padding:18px; min-height:200px;
+  }
+  .drop-col-label {
+    font-family:'DM Serif Display',serif; font-size:1.5rem;
+    padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--border);
+  }
+  .make-col .drop-col-label { color:var(--teal); }
+  .do-col   .drop-col-label { color:var(--gold); }
+  .drop-items { display:flex; flex-direction:column; gap:7px; min-height:60px; }
+
+  .dropped {
+    font-size:.83rem; font-weight:600; padding:7px 12px;
+    border-radius:8px; animation:slin .2s ease;
+  }
+  .make-col .dropped { background:rgba(56,189,248,.1); color:var(--teal); border:1px solid rgba(56,189,248,.2); }
+  .do-col   .dropped { background:rgba(245,200,66,.1);  color:var(--gold); border:1px solid rgba(245,200,66,.2); }
+  @keyframes slin { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none} }
+
+  .word-pool { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:18px; }
+
+  .wtile {
+    font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600;
+    padding:8px 15px; background:var(--surf2); border:1px solid var(--border);
+    border-radius:8px; cursor:pointer; transition:all .15s; color:var(--text);
+  }
+  .wtile:hover { border-color:var(--accent); color:var(--accent); }
+  .wtile.used { opacity:.25; pointer-events:none; text-decoration:line-through; }
+  .wtile.wterr { border-color:var(--red); color:var(--red); animation:shake .3s ease; }
+
+  @keyframes shake {
+    0%{transform:translateX(0)} 25%{transform:translateX(-5px)}
+    75%{transform:translateX(5px)} 100%{transform:translateX(0)}
+  }
+
+  .check-btn {
+    font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:700;
+    background:var(--accent); color:#fff; border:none;
+    padding:12px 28px; border-radius:10px; cursor:pointer; transition:all .15s;
+  }
+  .check-btn:hover { background:#9585e0; }
+
+  /* ── EXTREME ADJECTIVES ── */
+  .adj-rows { display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+
+  .adj-row {
+    display:flex; align-items:center; gap:12px;
+    background:var(--surf); border:1px solid var(--border);
+    border-radius:12px; padding:14px 18px;
+  }
+  .base-word { font-weight:700; color:var(--gold); min-width:90px; font-size:.92rem; }
+  .arrow-sym  { color:var(--muted); }
+
+  .adj-sel {
+    flex:1; background:var(--surf2); border:1px solid var(--border);
+    border-radius:8px; color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:.88rem;
+    padding:8px 12px; outline:none; cursor:pointer; transition:border-color .15s;
+    appearance:none; -webkit-appearance:none;
+  }
+  .adj-sel:focus { border-color:var(--accent); }
+  .adj-sel.ok  { border-color:var(--green); color:var(--green); }
+  .adj-sel.err { border-color:var(--red);   color:var(--red); }
+
+  /* ── MODIFIER GAME ── */
+  .mod-sentence {
+    font-size:1.05rem; line-height:1.8; color:var(--text);
+  }
+  .mod-blank {
+    display:inline-block; min-width:90px;
+    border-bottom:2px solid var(--accent);
+    color:var(--accent); font-family:var(--mono);
+    font-size:.85rem; text-align:center; padding:0 6px;
+  }
+
+  /* ── COMPLETE ── */
+  .complete-card {
+    background:var(--surf); border:1px solid var(--border);
+    border-radius:20px; padding:52px 44px; text-align:center;
+    max-width:500px; width:100%;
+  }
+  .complete-label { font-family:var(--mono); font-size:.65rem; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:18px; }
+  .complete-title { font-family:'DM Serif Display',serif; font-size:2.8rem; margin-bottom:8px; }
+  .complete-detail { font-family:var(--mono); font-size:.85rem; color:var(--muted); margin-bottom:30px; }
+  .complete-detail span { color:var(--accent); font-weight:600; }
+  .stars-line { font-size:1.8rem; letter-spacing:5px; margin-bottom:32px; }
+  .home-btn {
+    font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:600;
+    background:transparent; border:1px solid var(--accent);
+    color:var(--accent); padding:12px 32px; border-radius:10px;
+    cursor:pointer; transition:all .15s;
+  }
+  .home-btn:hover { background:var(--accent); color:#fff; }
+
+  /* ── CONFETTI ── */
+  .cpiece {
+    position:fixed; width:9px; height:9px; top:-10px;
+    border-radius:2px; animation:cfall linear forwards;
+    pointer-events:none; z-index:9999;
+  }
+  @keyframes cfall { to{ transform:translateY(105vh) rotate(720deg); opacity:0; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen active" id="screen-home">
+  <p class="eyebrow">Think Level 3 · Unit 6 · ATB Elite 1-3</p>
+  <h1 class="home-title">How Do They <em>Do It?</em></h1>
+  <p class="home-sub">Passive voice · Have something done · Extreme adjectives · Make &amp; Do</p>
+
+  <div class="game-grid">
+    <div class="gcard" style="--cc:#7c6fcd" onclick="launch('passive')">
+      <div class="gcard-tag">Grammar</div>
+      <div class="gcard-title">Passive Voice Quiz</div>
+      <div class="gcard-desc">Present, past, present perfect and future passive — choose the correct form.</div>
+      <div class="gcard-arrow">→</div>
+    </div>
+    <div class="gcard" style="--cc:#38bdf8" onclick="launch('haveDone')">
+      <div class="gcard-tag">Grammar</div>
+      <div class="gcard-title">Have Something Done</div>
+      <div class="gcard-desc">Tattoos, haircuts, pizza deliveries — complete the sentences with the right structure.</div>
+      <div class="gcard-arrow">→</div>
+    </div>
+    <div class="gcard" style="--cc:#f5c842" onclick="launch('makedo')">
+      <div class="gcard-tag">Vocabulary</div>
+      <div class="gcard-title">Make or Do?</div>
+      <div class="gcard-desc">Sort 12 collocations into the correct column. Sounds easy — it isn't!</div>
+      <div class="gcard-arrow">→</div>
+    </div>
+    <div class="gcard" style="--cc:#3ecf8e" onclick="launch('extreme')">
+      <div class="gcard-tag">Vocabulary</div>
+      <div class="gcard-title">Extreme Adjectives</div>
+      <div class="gcard-desc">Match ordinary adjectives to extremes, then choose the correct modifier: <em>very</em> or <em>absolutely</em>.</div>
+      <div class="gcard-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PASSIVE QUIZ ═══ -->
+<div class="screen" id="screen-passive">
+  <div class="shell">
+    <div class="shell-head">
+      <div class="shell-meta">
+        <span class="shell-label">Grammar · Passive Voice</span>
+        <span class="shell-name">Choose the correct form</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="score-chip" id="pv-score">0 / 0</span>
+        <button class="back-btn" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="pv-prog" style="width:0%"></div></div>
+    <div class="qcard">
+      <div class="qtype" id="pv-qtype"></div>
+      <div class="qtext" id="pv-qtext"></div>
+    </div>
+    <div class="opts" id="pv-opts"></div>
+    <div class="fb" id="pv-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ HAVE SOMETHING DONE ═══ -->
+<div class="screen" id="screen-haveDone">
+  <div class="shell">
+    <div class="shell-head">
+      <div class="shell-meta">
+        <span class="shell-label">Grammar · Have Something Done</span>
+        <span class="shell-name">Complete the sentence</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="score-chip" id="hd-score">0 / 0</span>
+        <button class="back-btn" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="hd-prog" style="width:0%"></div></div>
+    <div class="qcard">
+      <div class="qtype" id="hd-qtype"></div>
+      <div class="qtext" id="hd-qtext"></div>
+    </div>
+    <div class="opts" id="hd-opts"></div>
+    <div class="fb" id="hd-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ MAKE / DO ═══ -->
+<div class="screen" id="screen-makedo">
+  <div class="shell">
+    <div class="shell-head">
+      <div class="shell-meta">
+        <span class="shell-label">Vocabulary · Collocations</span>
+        <span class="shell-name">Make or Do?</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="score-chip" id="md-score">0 pts</span>
+        <button class="back-btn" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:18px;">Click a word, then click <strong style="color:var(--teal)">MAKE</strong> or <strong style="color:var(--gold)">DO</strong> to place it.</p>
+    <div class="word-pool" id="md-pool"></div>
+    <div class="md-pools">
+      <div class="drop-col make-col">
+        <div class="drop-col-label">MAKE</div>
+        <div class="drop-items" id="md-make"></div>
+      </div>
+      <div class="drop-col do-col">
+        <div class="drop-col-label">DO</div>
+        <div class="drop-items" id="md-do"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="check-btn" id="md-make-btn" onclick="placeMD('make')" disabled style="background:rgba(56,189,248,.2);color:var(--teal);border:1px solid var(--teal)">+ MAKE</button>
+      <button class="check-btn" id="md-do-btn"   onclick="placeMD('do')"   disabled style="background:rgba(245,200,66,.2);color:var(--gold);border:1px solid var(--gold)">+ DO</button>
+    </div>
+    <div class="fb" id="md-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ EXTREME ADJECTIVES ═══ -->
+<div class="screen" id="screen-extreme">
+  <div class="shell">
+    <div class="shell-head">
+      <div class="shell-meta">
+        <span class="shell-label">Vocabulary · Extreme Adjectives</span>
+        <span class="shell-name">Two rounds: match + modifier</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="score-chip" id="ex-score">0 / 0</span>
+        <button class="back-btn" onclick="goHome()">← Home</button>
+      </div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="ex-prog" style="width:0%"></div></div>
+    <div class="qcard">
+      <div class="qtype" id="ex-qtype"></div>
+      <div class="qtext" id="ex-qtext"></div>
+    </div>
+    <div class="opts" id="ex-opts"></div>
+    <div class="fb" id="ex-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETE ═══ -->
+<div class="screen" id="screen-complete">
+  <div class="complete-card">
+    <div class="complete-label">Result</div>
+    <div class="complete-title" id="cpl-title"></div>
+    <div class="stars-line" id="cpl-stars"></div>
+    <div class="complete-detail" id="cpl-detail"></div>
+    <button class="home-btn" onclick="goHome()">← Back to Games</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+
+const pvQs = [
+  {
+    type: 'Present Passive',
+    q: 'The show <strong>_____</strong> by millions of people every week.',
+    a: 'is watched',
+    opts: ['is watched', 'watched', 'was watched', 'has been watched']
+  },
+  {
+    type: 'Past Passive',
+    q: 'Hundreds of photos <strong>_____</strong> by the crowd as Dynamo crossed the river.',
+    a: 'were taken',
+    opts: ['were taken', 'are taken', 'have been taken', 'will be taken']
+  },
+  {
+    type: 'Present Perfect Passive',
+    q: 'All of the tickets for the show <strong>_____</strong> already.',
+    a: 'have been sold',
+    opts: ['have been sold', 'were sold', 'will be sold', 'are sold']
+  },
+  {
+    type: 'Future Passive',
+    q: 'The match <strong>_____</strong> live on TV tomorrow.',
+    a: 'will be shown',
+    opts: ['will be shown', 'is shown', 'was shown', 'has been shown']
+  },
+  {
+    type: 'Present Perfect Passive',
+    q: 'Topics that <strong>_____</strong> include Education, The Body and Around the House.',
+    a: 'have already been covered',
+    opts: ['have already been covered', 'are already covered', 'were already covered', 'will already be covered']
+  },
+  {
+    type: 'Future Passive — Negative',
+    q: "This week's show <strong>_____</strong> at the usual time because of the football.",
+    a: "won't be shown",
+    opts: ["won't be shown", "isn't shown", "hasn't been shown", "wasn't shown"]
+  },
+  {
+    type: 'Past Passive',
+    q: 'When he came out of the box, Dynamo <strong>_____</strong> straight to hospital.',
+    a: 'was taken',
+    opts: ['was taken', 'is taken', 'has been taken', 'were taken']
+  },
+  {
+    type: 'Present Passive',
+    q: 'The best sports cars <strong>_____</strong> in Italy.',
+    a: 'are made',
+    opts: ['are made', 'were made', 'have been made', 'will be made']
+  },
+  {
+    type: 'Future Passive',
+    q: 'In future programmes, secrets such as how Usain Bolt runs so fast <strong>_____</strong>.',
+    a: 'will be revealed',
+    opts: ['will be revealed', 'are revealed', 'have been revealed', 'were revealed']
+  },
+  {
+    type: 'Present Perfect Passive — Negative',
+    q: "We <strong>_____</strong> how to eat chocolate without putting on weight yet!",
+    a: "haven't been shown",
+    opts: ["haven't been shown", "weren't shown", "won't be shown", "aren't shown"]
+  },
+];
+
+const hdQs = [
+  {
+    type: '"Have something done" — Past',
+    q: 'Kim is shocked because Dave says: "I <strong>_____</strong> a tattoo <strong>_____</strong>!"',
+    a: "'ve had ... done",
+    opts: ["'ve had ... done", 'did ... done', 'had ... do', 'have ... made']
+  },
+  {
+    type: '"Have something done" — Infinitive',
+    q: 'Dave says he can <strong>_____</strong> it <strong>_____</strong> if he regrets it.',
+    a: 'have ... removed',
+    opts: ['have ... removed', 'get ... remove', 'make ... removed', 'do ... removed']
+  },
+  {
+    type: '"Have something done" — Future',
+    q: '"I\'m going to <strong>_____</strong> my hair <strong>_____</strong> blue!" said Dave.',
+    a: 'have ... dyed',
+    opts: ['have ... dyed', 'get ... dying', 'make ... dyed', 'have ... dye']
+  },
+  {
+    type: '"Have something done" — Present',
+    q: 'She goes to the salon every month. She <strong>_____</strong> her nails <strong>_____</strong> there.',
+    a: 'has ... done',
+    opts: ['has ... done', 'does ... done', 'makes ... done', 'had ... done']
+  },
+  {
+    type: '"Have something done" — Past',
+    q: 'I went to the hairdresser\'s yesterday and <strong>_____</strong> my hair <strong>_____</strong>.',
+    a: 'had ... cut',
+    opts: ['had ... cut', 'have ... cut', 'got ... cutting', 'had ... cutting']
+  },
+  {
+    type: '"Have something done" — Present Perfect',
+    q: 'In the last two years, they <strong>_____</strong> a lot of new buildings <strong>_____</strong> here.',
+    a: 'have had ... built',
+    opts: ['have had ... built', 'have been ... building', 'had ... build', 'have built ... built']
+  },
+  {
+    type: '"Have something done" — Question form',
+    q: 'Where can you <strong>_____</strong> your car <strong>_____</strong>?',
+    a: 'have ... repaired',
+    opts: ['have ... repaired', 'get ... repair', 'make ... repaired', 'do ... repaired']
+  },
+  {
+    type: '"Have something done" — Negative',
+    q: "My parents won't let me <strong>_____</strong> my ears <strong>_____</strong>.",
+    a: 'have ... pierced',
+    opts: ['have ... pierced', 'get ... pierce', 'do ... pierced', 'have ... piercing']
+  },
+];
+
+const mdWords = [
+  { w: 'a difference', cat: 'make' },
+  { w: 'an effort',    cat: 'make' },
+  { w: 'a mess',       cat: 'make' },
+  { w: 'sense',        cat: 'make' },
+  { w: 'money',        cat: 'make' },
+  { w: 'time',         cat: 'make' },
+  { w: 'homework',     cat: 'do'   },
+  { w: 'housework',    cat: 'do'   },
+  { w: 'damage',       cat: 'do'   },
+  { w: 'your best',    cat: 'do'   },
+  { w: 'well',         cat: 'do'   },
+  { w: 'an experiment',cat: 'do'   },
+];
+
+const exQs = [
+  // Round 1: match ordinary → extreme
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>funny</strong>?',    a: 'hilarious',  opts: ['hilarious','enormous','delighted','terrified'], explain: 'funny → <strong>hilarious</strong> (use absolutely, not very!)' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>big</strong>?',     a: 'enormous',   opts: ['enormous','hilarious','minute','boiling'],   explain: 'big → <strong>enormous</strong> or <strong>huge</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>small</strong>?',   a: 'minute',     opts: ['minute','miserable','freezing','terrified'], explain: 'small → <strong>minute</strong> or <strong>tiny</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>happy</strong>?',   a: 'delighted',  opts: ['delighted','hilarious','boiling','enormous'],  explain: 'happy → <strong>delighted</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>cold</strong>?',    a: 'freezing',   opts: ['freezing','boiling','miserable','minute'],   explain: 'cold → <strong>freezing</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>hot</strong>?',     a: 'boiling',    opts: ['boiling','freezing','enormous','terrified'],  explain: 'hot → <strong>boiling</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>sad</strong>?',     a: 'miserable',  opts: ['miserable','delighted','hilarious','minute'],  explain: 'sad → <strong>miserable</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>scared</strong>?',  a: 'terrified',  opts: ['terrified','miserable','boiling','delighted'], explain: 'scared → <strong>terrified</strong>' },
+  { type: 'Round 1 — Match the extreme adjective', q: 'What is the extreme adjective for <strong>good</strong>?',    a: 'fantastic',  opts: ['fantastic','hilarious','freezing','minute'],   explain: 'good → <strong>fantastic / brilliant / wonderful / amazing</strong>' },
+  // Round 2: modifier
+  { type: 'Round 2 — Correct modifier', q: 'It was _____ <strong>hilarious</strong>. I couldn\'t stop laughing!', a: 'absolutely', opts: ['absolutely','very','really both OK'], explain: 'Extreme adjectives use <strong>absolutely</strong>, not "very".' },
+  { type: 'Round 2 — Correct modifier', q: 'The show was _____ <strong>good</strong>. I enjoyed it.', a: 'very', opts: ['very','absolutely','really both OK'], explain: 'Ordinary adjectives use <strong>very</strong>.' },
+  { type: 'Round 2 — Correct modifier', q: 'It\'s _____ <strong>freezing</strong> outside! Wear a coat.', a: 'absolutely', opts: ['absolutely','very','really both OK'], explain: 'Extreme adjectives use <strong>absolutely</strong>.' },
+  { type: 'Round 2 — Correct modifier', q: 'The crowd was _____ <strong>enormous</strong> — thousands of people!', a: 'absolutely', opts: ['absolutely','very','really both OK'], explain: 'Extreme adjectives use <strong>absolutely</strong>.' },
+  { type: 'Round 2 — Correct modifier', q: 'She was _____ <strong>happy</strong> with her results.', a: 'really both OK', opts: ['really both OK','absolutely','very'], explain: '"Happy" is ordinary — both <strong>very</strong> and <strong>really</strong> work.' },
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let game = '', score = 0, idx = 0, total = 0, answered = false;
+let mdSelected = null;
+let mdCorrect = 0;
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function goHome() { show('home'); game = ''; }
+
+function launch(g) {
+  game = g; score = 0; idx = 0; answered = false;
+
+  if (g === 'passive') {
+    total = pvQs.length;
+    show('passive');
+    loadQ('pv', pvQs, answerQ);
+  } else if (g === 'haveDone') {
+    total = hdQs.length;
+    show('haveDone');
+    loadQ('hd', hdQs, answerQ);
+  } else if (g === 'makedo') {
+    show('makedo');
+    initMD();
+  } else if (g === 'extreme') {
+    total = exQs.length;
+    show('extreme');
+    loadQ('ex', exQs, answerQ);
+  }
+}
+
+// ════════════════════════════════════════
+// GENERIC Q LOADER
+// ════════════════════════════════════════
+function loadQ(prefix, qs, answerFn) {
+  if (idx >= qs.length) { complete(); return; }
+  answered = false;
+  const q = qs[idx];
+  const prog = (idx / qs.length * 100).toFixed(1);
+
+  document.getElementById(prefix + '-prog').style.width = prog + '%';
+  document.getElementById(prefix + '-score').textContent = score + ' / ' + idx;
+
+  if (document.getElementById(prefix + '-qtype'))
+    document.getElementById(prefix + '-qtype').textContent = q.type || '';
+  document.getElementById(prefix + '-qtext').innerHTML = q.q;
+
+  const fb = document.getElementById(prefix + '-fb');
+  fb.className = 'fb';
+
+  const container = document.getElementById(prefix + '-opts');
+  container.innerHTML = '';
+  shuffle([...q.opts]).forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-let">${'ABCDE'[i]}</span>${opt}`;
+    btn.onclick = () => answerFn(prefix, qs, btn, opt, q);
+    container.appendChild(btn);
+  });
+}
+
+function answerQ(prefix, qs, btn, chosen, q) {
+  if (answered) return;
+  answered = true;
+
+  const all = document.querySelectorAll('#' + prefix + '-opts .opt');
+  const fb  = document.getElementById(prefix + '-fb');
+
+  if (chosen === q.a) {
+    btn.classList.add('correct');
+    score++;
+    const praise = ['Excellent!','Spot on!','Well done!','Perfect!','Brilliant!'][Math.floor(Math.random()*5)];
+    fb.textContent = '✓ ' + praise + (q.explain ? '  ' + q.explain.replace(/<[^>]+>/g,'') : '');
+    fb.className = 'fb ok show';
+    confetti(4);
+  } else {
+    btn.classList.add('wrong');
+    all.forEach(b => { if (b.textContent.includes(q.a)) b.classList.add('correct'); });
+    fb.innerHTML = '✗ The answer is: <strong>' + q.a + '</strong>' + (q.explain ? ' — ' + q.explain : '');
+    fb.className = 'fb err show';
+  }
+
+  document.getElementById(prefix + '-score').textContent = score + ' / ' + (idx + 1);
+  setTimeout(() => { idx++; loadQ(prefix, qs, answerQ); }, 1900);
+}
+
+// ════════════════════════════════════════
+// MAKE / DO
+// ════════════════════════════════════════
+function initMD() {
+  mdSelected = null; mdCorrect = 0;
+  document.getElementById('md-make').innerHTML = '';
+  document.getElementById('md-do').innerHTML = '';
+  document.getElementById('md-score').textContent = '0 pts';
+  document.getElementById('md-fb').className = 'fb';
+
+  const pool = document.getElementById('md-pool');
+  pool.innerHTML = '';
+  shuffle([...mdWords]).forEach(item => {
+    const t = document.createElement('button');
+    t.className = 'wtile';
+    t.textContent = item.w;
+    t.dataset.cat = item.cat;
+    t.dataset.w   = item.w;
+    t.onclick = () => selectMDTile(t);
+    pool.appendChild(t);
+  });
+
+  setMDBtn(false);
+}
+
+function selectMDTile(tile) {
+  if (tile.classList.contains('used')) return;
+  document.querySelectorAll('.wtile').forEach(t => t.style.outline = '');
+  tile.style.outline = '2px solid var(--accent)';
+  mdSelected = tile;
+  setMDBtn(true);
+}
+
+function setMDBtn(on) {
+  ['md-make-btn','md-do-btn'].forEach(id => {
+    document.getElementById(id).disabled = !on;
+    document.getElementById(id).style.opacity = on ? '1' : '0.4';
+    document.getElementById(id).style.cursor  = on ? 'pointer' : 'default';
+  });
+}
+
+function placeMD(col) {
+  if (!mdSelected) return;
+  const tile = mdSelected;
+  const correct = tile.dataset.cat;
+  const fb = document.getElementById('md-fb');
+
+  tile.style.outline = '';
+  mdSelected = null;
+  setMDBtn(false);
+
+  if (col === correct) {
+    tile.classList.add('used');
+    mdCorrect++;
+    document.getElementById('md-score').textContent = mdCorrect + ' pts';
+    const div = document.createElement('div');
+    div.className = 'dropped';
+    div.textContent = tile.dataset.w;
+    document.getElementById('md-' + col).appendChild(div);
+    fb.textContent = '✓ Correct! "' + tile.dataset.w + '" goes with ' + col.toUpperCase() + '.';
+    fb.className = 'fb ok show';
+    confetti(3);
+
+    if (mdCorrect === mdWords.length) {
+      setTimeout(() => { score = mdCorrect; total = mdWords.length; complete(); }, 1000);
+    }
+  } else {
+    tile.classList.add('wterr');
+    fb.textContent = '✗ Not quite! "' + tile.dataset.w + '" goes with ' + correct.toUpperCase() + '.';
+    fb.className = 'fb err show';
+    setTimeout(() => tile.classList.remove('wterr'), 700);
+  }
+  setTimeout(() => fb.className = 'fb', 2000);
+}
+
+// ════════════════════════════════════════
+// COMPLETE
+// ════════════════════════════════════════
+function complete() {
+  const pct = total > 0 ? score / total : 0;
+  let title, stars;
+  if (pct >= .9)      { title = 'Outstanding!'; stars = '★★★'; confetti(20); }
+  else if (pct >= .7) { title = 'Well Done!';   stars = '★★☆'; }
+  else if (pct >= .5) { title = 'Good Effort';  stars = '★☆☆'; }
+  else                { title = 'Keep Practising'; stars = '☆☆☆'; }
+
+  document.getElementById('cpl-title').textContent  = title;
+  document.getElementById('cpl-stars').textContent  = stars;
+  document.getElementById('cpl-detail').innerHTML   =
+    'Score: <span>' + score + ' / ' + total + '</span>';
+  show('complete');
+}
+
+// ════════════════════════════════════════
+// CONFETTI
+// ════════════════════════════════════════
+function confetti(n) {
+  const cols = ['#7c6fcd','#f5c842','#3ecf8e','#38bdf8','#f5504a'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'cpiece';
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.background = cols[Math.floor(Math.random()*cols.length)];
+      el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+      el.style.animationDuration = (1.2 + Math.random()*1.5) + 's';
+      el.style.animationDelay = (Math.random()*.3) + 's';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 90);
+  }
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+</script>
+</body>
+</html>
