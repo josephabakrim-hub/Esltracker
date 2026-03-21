@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 4 – After School Club 🎭</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B35;
+    --yellow: #FFD23F;
+    --green: #06D6A0;
+    --blue: #118AB2;
+    --pink: #EF476F;
+    --purple: #845EC2;
+    --dark: #1a1a2e;
+    --card: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== STARS BG ===== */
+  .stars {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse at 20% 30%, #16213e 0%, #0f3460 50%, #1a1a2e 100%);
+  }
+  .stars::before, .stars::after {
+    content: '';
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+      50px 80px 0 white, 120px 20px 0 #ffd, 200px 150px 0 white,
+      300px 60px 0 #ffd, 400px 30px 0 white, 450px 120px 0 #ffd,
+      520px 200px 0 white, 600px 40px 0 white, 700px 180px 0 #ffd,
+      800px 90px 0 white, 900px 50px 0 #ffd, 1000px 160px 0 white,
+      80px 300px 0 #ffd, 160px 400px 0 white, 250px 350px 0 #ffd,
+      350px 450px 0 white, 430px 280px 0 #ffd, 550px 380px 0 white,
+      650px 320px 0 #ffd, 750px 460px 0 white, 850px 340px 0 #ffd;
+  }
+
+  /* ===== SCREEN SYSTEM ===== */
+  .screen {
+    display: none;
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen.active { display: flex; }
+
+  /* ===== HOME SCREEN ===== */
+  .home-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    color: var(--yellow);
+    text-align: center;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .home-sub {
+    font-size: 1.1rem;
+    color: #a8c0d6;
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 600;
+  }
+  .emoji-banner {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}
+  }
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .game-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    border: 4px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card:hover { transform: translateY(-6px) scale(1.02); }
+  .game-card:active { transform: scale(0.97); }
+
+  .game-card.orange { border-color: var(--orange); background: linear-gradient(135deg,#fff8f5,#fff); }
+  .game-card.green  { border-color: var(--green);  background: linear-gradient(135deg,#f0fff9,#fff); }
+  .game-card.blue   { border-color: var(--blue);   background: linear-gradient(135deg,#f0f8ff,#fff); }
+  .game-card.pink   { border-color: var(--pink);   background: linear-gradient(135deg,#fff0f4,#fff); }
+
+  .card-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+  .card-desc { font-size: 0.9rem; color: #666; font-weight: 600; }
+  .card-badge {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--yellow); color: var(--dark);
+    font-size: 0.7rem; font-weight: 800;
+    padding: 4px 8px; border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  /* ===== GAME HEADER ===== */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 24px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+  }
+  .back-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .score-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--yellow);
+    background: rgba(255,210,63,0.15);
+    padding: 6px 16px;
+    border-radius: 12px;
+    border: 2px solid var(--yellow);
+  }
+
+  .game-title-sm {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: white;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    width: 100%;
+    max-width: 800px;
+    height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--yellow));
+    border-radius: 10px;
+    transition: width .4s ease;
+  }
+
+  /* ===== QUESTION AREA ===== */
+  .question-box {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .question-label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #999;
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: var(--dark);
+    line-height: 1.3;
+  }
+  .question-emoji { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+
+  /* ===== OPTIONS GRID ===== */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .option-btn {
+    padding: 18px 20px;
+    border-radius: 18px;
+    border: 3px solid #e0e0e0;
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 4px 0 #e0e0e0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: #f0f8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #c5dff0;
+  }
+  .option-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+  .option-btn.correct {
+    border-color: var(--green) !important;
+    background: #e8fff5 !important;
+    box-shadow: 0 4px 0 #02b07e !important;
+    animation: correctPop .3s ease;
+  }
+  .option-btn.wrong {
+    border-color: var(--pink) !important;
+    background: #fff0f3 !important;
+    box-shadow: 0 4px 0 #c73558 !important;
+    animation: shake .3s ease;
+  }
+  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} 100%{transform:translateX(0)} }
+
+  /* ===== FEEDBACK ===== */
+  .feedback {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 16px 32px;
+    border-radius: 16px;
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity .2s;
+    max-width: 800px;
+    width: 100%;
+  }
+  .feedback.show { opacity: 1; }
+  .feedback.correct-fb { background: #e8fff5; color: #02b07e; border: 3px solid var(--green); }
+  .feedback.wrong-fb   { background: #fff0f3; color: #c73558; border: 3px solid var(--pink); }
+
+  /* ===== ORDINAL GAME – DRAG ===== */
+  .ordinal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .ordinal-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+    border: 3px solid #e8e8e8;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'Fredoka One', cursive;
+  }
+  .ordinal-card .number { font-size: 1.5rem; color: var(--blue); }
+  .ordinal-card .word   { font-size: 0.75rem; color: #888; font-weight: 700; margin-top: 4px; }
+  .ordinal-card.selected { border-color: var(--orange); background: #fff8f0; transform: scale(1.05); }
+  .ordinal-card.matched  { border-color: var(--green); background: #e8fff5; pointer-events: none; }
+  .ordinal-card.wrong-pick { border-color: var(--pink); background: #fff0f3; animation: shake .3s ease; }
+
+  /* ===== COMPLETE SCREEN ===== */
+  .complete-box {
+    background: white;
+    border-radius: 32px;
+    padding: 48px 36px;
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  }
+  .complete-emoji { font-size: 5rem; margin-bottom: 16px; animation: bounce 1.5s infinite; }
+  .complete-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+  .complete-score {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 28px;
+    font-weight: 700;
+  }
+  .stars-row { font-size: 2.5rem; margin-bottom: 28px; }
+
+  .play-again-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--orange), #ff8c42);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #cc5228;
+    transition: all .15s;
+  }
+  .play-again-btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #cc5228; }
+  .play-again-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #cc5228; }
+
+  /* ===== SENTENCE BUILDER ===== */
+  .sentence-target {
+    background: #f0f8ff;
+    border: 3px dashed var(--blue);
+    border-radius: 16px;
+    padding: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--blue);
+    min-height: 64px;
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 16px;
+    word-spacing: 6px;
+  }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .word-chip {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 10px 18px;
+    border-radius: 12px;
+    background: white;
+    border: 3px solid #ddd;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 3px 0 #ccc;
+  }
+  .word-chip:hover:not(.used) { border-color: var(--purple); background: #f5f0ff; transform: translateY(-2px); }
+  .word-chip.used { opacity: 0.35; pointer-events: none; }
+
+  .check-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--green), #04c48a);
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #029e70;
+    transition: all .15s;
+    margin-top: 8px;
+  }
+  .check-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #029e70; }
+
+  .clear-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.1);
+    color: #ccc;
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 10px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  /* ===== PAST SIMPLE FILL ===== */
+  .fill-input {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: var(--dark);
+    border: none;
+    border-bottom: 4px solid var(--blue);
+    background: transparent;
+    text-align: center;
+    width: 180px;
+    outline: none;
+    padding: 4px 8px;
+  }
+  .fill-input.correct-input { border-color: var(--green); color: var(--green); }
+  .fill-input.wrong-input   { border-color: var(--pink);  color: var(--pink);  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 500px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .ordinal-grid { grid-template-columns: repeat(3,1fr); }
+    .game-grid    { grid-template-columns: 1fr; }
+  }
+
+  /* ===== CONFETTI ===== */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<!-- ===== HOME SCREEN ===== -->
+<div class="screen active" id="screen-home">
+  <div class="emoji-banner">🎭🏓♟️🎼</div>
+  <h1 class="home-title">After School Club!</h1>
+  <p class="home-sub">Unit 4 · Kids Box Level 4 · Pro Class 🌟</p>
+
+  <div class="game-grid">
+    <div class="game-card orange" onclick="startGame('vocab')">
+      <div class="card-badge">Vocabulary</div>
+      <div class="card-emoji">🎯</div>
+      <div class="card-title">Activity Match</div>
+      <div class="card-desc">Match activities to their descriptions!</div>
+    </div>
+    <div class="game-card green" onclick="startGame('pastSimple')">
+      <div class="card-emoji">⏰</div>
+      <div class="card-title">Past Simple Quiz</div>
+      <div class="card-desc">Choose the correct past simple form!</div>
+    </div>
+    <div class="game-card blue" onclick="startGame('ordinals')">
+      <div class="card-emoji">🔢</div>
+      <div class="card-title">Ordinal Numbers</div>
+      <div class="card-desc">Click the right ordinal for each number!</div>
+    </div>
+    <div class="game-card pink" onclick="startGame('builder')">
+      <div class="card-emoji">🏗️</div>
+      <div class="card-title">Sentence Builder</div>
+      <div class="card-desc">Build past simple sentences word by word!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VOCAB GAME ===== -->
+<div class="screen" id="screen-vocab">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <span class="game-title-sm">🎯 Activity Match</span>
+    <span class="score-badge" id="vocab-score">⭐ 0</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="vocab-progress" style="width:0%"></div></div>
+  <div class="question-box">
+    <div class="question-label">What activity is this? 🤔</div>
+    <span class="question-emoji" id="vocab-emoji"></span>
+    <div class="question-text" id="vocab-question"></div>
+  </div>
+  <div class="options-grid" id="vocab-options"></div>
+  <div class="feedback" id="vocab-feedback"></div>
+</div>
+
+<!-- ===== PAST SIMPLE GAME ===== -->
+<div class="screen" id="screen-pastSimple">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <span class="game-title-sm">⏰ Past Simple Quiz</span>
+    <span class="score-badge" id="ps-score">⭐ 0</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="ps-progress" style="width:0%"></div></div>
+  <div class="question-box">
+    <div class="question-label">Choose the correct past simple! ✏️</div>
+    <div class="question-text" id="ps-question"></div>
+  </div>
+  <div class="options-grid" id="ps-options"></div>
+  <div class="feedback" id="ps-feedback"></div>
+</div>
+
+<!-- ===== ORDINALS GAME ===== -->
+<div class="screen" id="screen-ordinals">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <span class="game-title-sm">🔢 Ordinal Numbers</span>
+    <span class="score-badge" id="ord-score">⭐ 0</span>
+  </div>
+  <div class="question-box">
+    <div class="question-label">Click the matching ordinal number! 🏆</div>
+    <div class="question-text" id="ord-question"></div>
+  </div>
+  <div class="ordinal-grid" id="ord-grid"></div>
+  <div class="feedback" id="ord-feedback"></div>
+</div>
+
+<!-- ===== SENTENCE BUILDER ===== -->
+<div class="screen" id="screen-builder">
+  <div class="game-header">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <span class="game-title-sm">🏗️ Sentence Builder</span>
+    <span class="score-badge" id="sb-score">⭐ 0</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="sb-progress" style="width:0%"></div></div>
+  <div class="question-box">
+    <div class="question-label">Build the past simple sentence! 🔨</div>
+    <div class="question-text" id="sb-clue"></div>
+  </div>
+  <div class="sentence-target" id="sb-target">Tap a word below to add it!</div>
+  <div class="word-bank" id="sb-wordbank"></div>
+  <div>
+    <button class="check-btn" onclick="checkSentence()">✅ Check!</button>
+    <button class="clear-btn" onclick="clearSentence()">🔄 Clear</button>
+  </div>
+  <div class="feedback" id="sb-feedback"></div>
+</div>
+
+<!-- ===== COMPLETE SCREEN ===== -->
+<div class="screen" id="screen-complete">
+  <div class="complete-box">
+    <div class="complete-emoji" id="complete-emoji">🎉</div>
+    <div class="complete-title" id="complete-title">Amazing!</div>
+    <div class="stars-row" id="complete-stars">⭐⭐⭐</div>
+    <div class="complete-score" id="complete-msg"></div>
+    <button class="play-again-btn" onclick="goHome()">🏠 Play Again!</button>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const vocabQuestions = [
+  { emoji:'🎭', q:'A show with singing and dancing on a big stage', a:'do a musical', opts:['do a musical','play chess','play table tennis','go swimming'] },
+  { emoji:'♟️', q:'A board game where you move pieces to catch the king!', a:'play chess', opts:['play chess','do a musical','play table tennis','do painting'] },
+  { emoji:'🏓', q:'A sport you play with a small ball and a paddle on a table', a:'play table tennis', opts:['play table tennis','play chess','do a musical','go running'] },
+  { emoji:'🎭', q:'Which activity is also called "ping pong"?', a:'play table tennis', opts:['play table tennis','do a musical','play chess','do gymnastics'] },
+  { emoji:'♟️', q:'In this game, pieces are called Queen, King, Bishop, and Knight', a:'play chess', opts:['play chess','play table tennis','do a musical','play football'] },
+  { emoji:'🎵', q:'The school club where students practise songs and acting', a:'do a musical', opts:['do a musical','play chess','play table tennis','do drama'] },
+  { emoji:'🏓', q:'This club needs a net, a small white ball, and two bats', a:'play table tennis', opts:['play table tennis','play chess','do a musical','play badminton'] },
+  { emoji:'♟️', q:'This game is played on a black and white board with 64 squares', a:'play chess', opts:['play chess','do a musical','play table tennis','play draughts'] },
+];
+
+const pastSimpleQs = [
+  { q:'Yesterday, she _____ chess for two hours.', a:'played', opts:['played','playd','plays','playied'] },
+  { q:'They _____ a musical last week! It was great!', a:'performed', opts:['performed','performd','performs','performied'] },
+  { q:'He _____ table tennis at the school club on Monday.', a:'played', opts:['played','playied','plays','playing'] },
+  { q:'We _____ not watch TV. We studied English!', a:'did', opts:['did','does','was','done'] },
+  { q:'_____ she dance in the musical?', a:'Did', opts:['Did','Does','Was','Were'] },
+  { q:'I _____ my homework after school club.', a:'finished', opts:['finished','finishd','finish','finishing'] },
+  { q:'They _____ (not) play chess. They played table tennis!', a:"didn't", opts:["didn't","doesn't","wasn't","don't"] },
+  { q:'He _____ at school at 3pm yesterday.', a:'arrived', opts:['arrived','arrivd','arriving','arrive'] },
+  { q:'_____ you practise for the musical last night?', a:'Did', opts:['Did','Does','Were','Have'] },
+  { q:'She _____ the chess champion in the competition!', a:'was', opts:['was','were','is','be'] },
+];
+
+const ordinalPairs = [
+  {num:1,  word:'1st',   say:'first'},
+  {num:2,  word:'2nd',   say:'second'},
+  {num:3,  word:'3rd',   say:'third'},
+  {num:4,  word:'4th',   say:'fourth'},
+  {num:5,  word:'5th',   say:'fifth'},
+  {num:6,  word:'6th',   say:'sixth'},
+  {num:7,  word:'7th',   say:'seventh'},
+  {num:8,  word:'8th',   say:'eighth'},
+  {num:9,  word:'9th',   say:'ninth'},
+  {num:10, word:'10th',  say:'tenth'},
+  {num:11, word:'11th',  say:'eleventh'},
+  {num:12, word:'12th',  say:'twelfth'},
+  {num:15, word:'15th',  say:'fifteenth'},
+  {num:20, word:'20th',  say:'twentieth'},
+];
+
+const sentences = [
+  { clue:'She did a musical. (last Friday)',           words:['She','performed','in','a','musical','last','Friday','.'], answer:'She performed in a musical last Friday .' },
+  { clue:'He played chess. (yesterday)',               words:['He','played','chess','yesterday','.','the','a'],         answer:'He played chess yesterday .' },
+  { clue:'They did not play table tennis. (Monday)',   words:["They","didn't","play","table","tennis","on","Monday",".","did","chess"], answer:"They didn't play table tennis on Monday ." },
+  { clue:'Did you do a musical? (last year)',          words:['Did','you','do','a','musical','last','year','?','play','chess'], answer:'Did you do a musical last year ?' },
+  { clue:'She finished first in the chess competition.',words:['She','finished','first','in','the','chess','competition','.','did'], answer:'She finished first in the chess competition .' },
+];
+
+// ===== STATE =====
+let currentGame = '';
+let score = 0;
+let currentQ = 0;
+let totalQ = 0;
+let answered = false;
+
+let ordState = { pairs: [], selected: null, matched: [], score: 0 };
+let sbState  = { idx:0, built:[], usedIdxs: new Set() };
+
+// ===== NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function goHome() {
+  showScreen('home');
+  currentGame = '';
+}
+
+function startGame(game) {
+  currentGame = game;
+  score = 0;
+  currentQ = 0;
+  answered = false;
+
+  if (game === 'vocab') {
+    totalQ = vocabQuestions.length;
+    showScreen('vocab');
+    loadVocabQ();
+  } else if (game === 'pastSimple') {
+    totalQ = pastSimpleQs.length;
+    showScreen('pastSimple');
+    loadPsQ();
+  } else if (game === 'ordinals') {
+    score = 0;
+    initOrdinals();
+    showScreen('ordinals');
+  } else if (game === 'builder') {
+    sbState.idx = 0;
+    sbState.score = 0;
+    showScreen('builder');
+    loadSentence();
+  }
+}
+
+// ===== VOCAB GAME =====
+function loadVocabQ() {
+  if (currentQ >= vocabQuestions.length) { showComplete(); return; }
+  answered = false;
+  const q = vocabQuestions[currentQ];
+  document.getElementById('vocab-emoji').textContent = q.emoji;
+  document.getElementById('vocab-question').textContent = q.q;
+  document.getElementById('vocab-progress').style.width = (currentQ/totalQ*100)+'%';
+  document.getElementById('vocab-score').textContent = '⭐ '+score;
+
+  const fb = document.getElementById('vocab-feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  const grid = document.getElementById('vocab-options');
+  const shuffled = shuffle([...q.opts]);
+  grid.innerHTML = '';
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => answerVocab(btn, opt, q.a);
+    grid.appendChild(btn);
+  });
+}
+
+function answerVocab(btn, chosen, correct) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('#vocab-options .option-btn');
+  const fb = document.getElementById('vocab-feedback');
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    score++;
+    fb.textContent = '✅ Excellent! ' + ['Great job!','Superstar!','Brilliant!','Amazing!'][Math.floor(Math.random()*4)];
+    fb.className = 'feedback correct-fb show';
+    launchConfetti(5);
+  } else {
+    btn.classList.add('wrong');
+    btns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
+    fb.textContent = '❌ Not quite! The answer is: ' + correct;
+    fb.className = 'feedback wrong-fb show';
+  }
+
+  setTimeout(() => { currentQ++; loadVocabQ(); }, 1600);
+}
+
+// ===== PAST SIMPLE GAME =====
+function loadPsQ() {
+  if (currentQ >= pastSimpleQs.length) { showComplete(); return; }
+  answered = false;
+  const q = pastSimpleQs[currentQ];
+  document.getElementById('ps-question').textContent = q.q;
+  document.getElementById('ps-progress').style.width = (currentQ/totalQ*100)+'%';
+  document.getElementById('ps-score').textContent = '⭐ '+score;
+
+  const fb = document.getElementById('ps-feedback');
+  fb.className = 'feedback';
+
+  const grid = document.getElementById('ps-options');
+  const shuffled = shuffle([...q.opts]);
+  grid.innerHTML = '';
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => answerPs(btn, opt, q.a);
+    grid.appendChild(btn);
+  });
+}
+
+function answerPs(btn, chosen, correct) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('#ps-options .option-btn');
+  const fb = document.getElementById('ps-feedback');
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    score++;
+    fb.textContent = '✅ Correct! Past simple — perfect!';
+    fb.className = 'feedback correct-fb show';
+    launchConfetti(5);
+  } else {
+    btn.classList.add('wrong');
+    btns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
+    fb.textContent = '❌ Oops! The correct answer is: ' + correct;
+    fb.className = 'feedback wrong-fb show';
+  }
+
+  setTimeout(() => { currentQ++; loadPsQ(); }, 1700);
+}
+
+// ===== ORDINALS GAME =====
+function initOrdinals() {
+  const displayPairs = shuffle([...ordinalPairs]).slice(0, 8);
+  ordState = { pairs: displayPairs, selected: null, matched: [], score: 0 };
+
+  document.getElementById('ord-score').textContent = '⭐ 0';
+  document.getElementById('ord-question').textContent = 'Tap a number, then tap its ordinal word!';
+  renderOrdinals();
+}
+
+function renderOrdinals() {
+  // Show numbers on left, ordinal words on right — shuffled separately
+  const grid = document.getElementById('ord-grid');
+  grid.innerHTML = '';
+  const fb = document.getElementById('ord-feedback');
+  fb.className = 'feedback';
+
+  const { pairs, matched } = ordState;
+  const numItems  = shuffle(pairs.map(p => ({type:'num', num:p.num, word:p.word, say:p.say})));
+  const wordItems = shuffle(pairs.map(p => ({type:'word', num:p.num, word:p.word, say:p.say})));
+  const all = interleave(numItems, wordItems);
+
+  all.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'ordinal-card';
+    const isMatched = matched.includes(item.num);
+    if (isMatched) card.classList.add('matched');
+
+    if (item.type === 'num') {
+      card.innerHTML = `<div class="number">${item.num}</div>`;
+      card.dataset.num = item.num;
+      card.dataset.type = 'num';
+    } else {
+      card.innerHTML = `<div class="number">${item.word}</div><div class="word">${item.say}</div>`;
+      card.dataset.num = item.num;
+      card.dataset.type = 'word';
+    }
+
+    if (!isMatched) card.onclick = () => selectOrdinal(card, item);
+    grid.appendChild(card);
+  });
+}
+
+function selectOrdinal(card, item) {
+  const fb = document.getElementById('ord-feedback');
+
+  if (ordState.selected === null) {
+    ordState.selected = { card, item };
+    card.classList.add('selected');
+    return;
+  }
+
+  const prev = ordState.selected;
+  if (prev.card === card) {
+    card.classList.remove('selected');
+    ordState.selected = null;
+    return;
+  }
+
+  // Check match
+  if (prev.item.num === item.num && prev.item.type !== item.type) {
+    // MATCH!
+    ordState.matched.push(item.num);
+    ordState.score++;
+    document.getElementById('ord-score').textContent = '⭐ '+ordState.score;
+    fb.textContent = '✅ Great match! '+item.num+' → '+item.word+' ('+item.say+')';
+    fb.className = 'feedback correct-fb show';
+    launchConfetti(4);
+    ordState.selected = null;
+
+    if (ordState.matched.length === ordState.pairs.length) {
+      setTimeout(() => {
+        score = ordState.score;
+        totalQ = ordState.pairs.length;
+        showComplete();
+      }, 1000);
+    } else {
+      setTimeout(renderOrdinals, 800);
+    }
+  } else {
+    // WRONG
+    prev.card.classList.remove('selected');
+    prev.card.classList.add('wrong-pick');
+    card.classList.add('wrong-pick');
+    fb.textContent = '❌ Not a match! Try again.';
+    fb.className = 'feedback wrong-fb show';
+    ordState.selected = null;
+    setTimeout(() => {
+      document.querySelectorAll('.ordinal-card.wrong-pick').forEach(c => c.classList.remove('wrong-pick'));
+    }, 600);
+  }
+}
+
+function interleave(a, b) {
+  // alternate: num, word, num, word...
+  const result = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (i < a.length) result.push(a[i]);
+    if (i < b.length) result.push(b[i]);
+  }
+  return result;
+}
+
+// ===== SENTENCE BUILDER =====
+function loadSentence() {
+  if (sbState.idx >= sentences.length) {
+    score = sbState.score || 0;
+    totalQ = sentences.length;
+    showComplete();
+    return;
+  }
+  sbState.built = [];
+  sbState.usedIdxs = new Set();
+
+  const s = sentences[sbState.idx];
+  document.getElementById('sb-clue').textContent = '💡 ' + s.clue;
+  document.getElementById('sb-progress').style.width = (sbState.idx/sentences.length*100)+'%';
+  document.getElementById('sb-score').textContent = '⭐ '+(sbState.score||0);
+  document.getElementById('sb-target').textContent = 'Tap a word below to add it!';
+  document.getElementById('sb-target').style.color = '#aac';
+
+  const fb = document.getElementById('sb-feedback');
+  fb.className = 'feedback';
+
+  const bank = document.getElementById('sb-wordbank');
+  bank.innerHTML = '';
+  shuffle([...s.words]).forEach((w, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'word-chip';
+    chip.textContent = w;
+    chip.dataset.idx = i;
+    chip.onclick = () => addWord(chip, w, i);
+    bank.appendChild(chip);
+  });
+}
+
+function addWord(chip, word, idx) {
+  if (chip.classList.contains('used')) return;
+  chip.classList.add('used');
+  sbState.built.push({word, idx});
+  sbState.usedIdxs.add(idx);
+
+  const target = document.getElementById('sb-target');
+  target.textContent = sbState.built.map(b=>b.word).join(' ');
+  target.style.color = 'var(--blue)';
+}
+
+function clearSentence() {
+  sbState.built = [];
+  sbState.usedIdxs = new Set();
+  document.querySelectorAll('#sb-wordbank .word-chip').forEach(c => c.classList.remove('used'));
+  document.getElementById('sb-target').textContent = 'Tap a word below to add it!';
+  document.getElementById('sb-target').style.color = '#aac';
+  document.getElementById('sb-feedback').className = 'feedback';
+}
+
+function checkSentence() {
+  const s = sentences[sbState.idx];
+  const built = sbState.built.map(b=>b.word).join(' ');
+  const fb = document.getElementById('sb-feedback');
+
+  if (!sbState.built.length) {
+    fb.textContent = '💬 Tap some words first!';
+    fb.className = 'feedback wrong-fb show';
+    return;
+  }
+
+  if (built === s.answer) {
+    fb.textContent = '✅ Perfect sentence! Well done!';
+    fb.className = 'feedback correct-fb show';
+    sbState.score = (sbState.score||0)+1;
+    launchConfetti(8);
+    setTimeout(() => { sbState.idx++; loadSentence(); }, 1800);
+  } else {
+    fb.textContent = '❌ Not quite! Check the order and try again.';
+    fb.className = 'feedback wrong-fb show';
+    setTimeout(() => { clearSentence(); }, 1000);
+  }
+}
+
+// ===== COMPLETE =====
+function showComplete() {
+  const pct = totalQ > 0 ? score/totalQ : 0;
+  let emoji, title, stars;
+
+  if (pct >= 0.9)      { emoji='🏆'; title='Champion!';  stars='⭐⭐⭐'; launchConfetti(20); }
+  else if (pct >= 0.7) { emoji='🎉'; title='Great job!'; stars='⭐⭐'; }
+  else if (pct >= 0.5) { emoji='💪'; title='Good work!'; stars='⭐'; }
+  else                 { emoji='📚'; title='Keep going!'; stars=''; }
+
+  document.getElementById('complete-emoji').textContent = emoji;
+  document.getElementById('complete-title').textContent = title;
+  document.getElementById('complete-stars').textContent = stars;
+  document.getElementById('complete-msg').textContent = `You scored ${score} out of ${totalQ}!`;
+  showScreen('complete');
+}
+
+// ===== CONFETTI =====
+function launchConfetti(n) {
+  const colors = ['#FF6B35','#FFD23F','#06D6A0','#118AB2','#EF476F','#845EC2'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random()*100+'vw';
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+      el.style.animationDuration = (1.2 + Math.random()*1.5)+'s';
+      el.style.animationDelay = (Math.random()*0.3)+'s';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }, i * 80);
+  }
+}
+
+// ===== UTILS =====
+function shuffle(arr) {
+  for (let i = arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+</script>
+</body>
+</html>
