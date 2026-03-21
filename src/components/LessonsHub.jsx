@@ -30,6 +30,19 @@ const KIDS_BOX_NG3_UNITS = [
   { num: 8,  title: 'Weather Report',      url: null },
 ]
 
+// Kids Box New Generation Level 4 units
+const KIDS_BOX_NG4_UNITS = [
+  { num: 0, title: 'Hello There!',    url: null },
+  { num: 1, title: 'Back to School',  url: null },
+  { num: 2, title: 'Good Sports',     url: null },
+  { num: 3, title: 'Health Matters',  url: null },
+  { num: 4, title: 'After School Club', url: 'https://teacherjoseph.vercel.app/games/unit4-after-school-club-atbpro54.html' },
+  { num: 5, title: 'Exploring Our World', url: null },
+  { num: 6, title: 'Technology',      url: null },
+  { num: 7, title: 'At the Zoo',      url: null },
+  { num: 8, title: "Let's Party!",    url: null },
+]
+
 const CLASS_BOOKS = {
   // Elite classes → Think B1 Level 2
   'Elite2_2':     { book: 'Think B1 — Level 2', level: 'elite' },
@@ -37,7 +50,7 @@ const CLASS_BOOKS = {
   'ATB_Elite1_3': { book: 'Think B1 — Level 2', level: 'elite' },
   // Pro classes → Kids Box
   'ATB_Pro1_3':   { book: 'Kids Box', level: 'pro' },
-  'ATB_Pro5_4':   { book: 'Kids Box', level: 'pro' },
+  'ATB_Pro5_4':   { book: 'Kids Box NG — Level 4', level: 'pro4' },
   'HTB_Pro1-2':   { book: 'Kids Box', level: 'pro' },
   'Pro3_S':       { book: 'Kids Box', level: 'pro' },
   'HTB_Pro2_2':   { book: 'Kids Box NG — Level 2', level: 'pro2' },
@@ -78,7 +91,7 @@ const KIDS_BOX_UNITS = [
 
 export default function LessonsHub({ cls, onClose }) {
   const bookInfo = CLASS_BOOKS[cls?.name] || { book: 'Unknown Book', level: cls?.level || 'pro' }
-  const units = bookInfo.level === 'elite' ? THINK_B1_UNITS : bookInfo.level === 'pro2' ? KIDS_BOX_NG2_UNITS : bookInfo.level === 'pro3' ? KIDS_BOX_NG3_UNITS : KIDS_BOX_UNITS
+  const units = bookInfo.level === 'elite' ? THINK_B1_UNITS : bookInfo.level === 'pro2' ? KIDS_BOX_NG2_UNITS : bookInfo.level === 'pro3' ? KIDS_BOX_NG3_UNITS : bookInfo.level === 'pro4' ? KIDS_BOX_NG4_UNITS : KIDS_BOX_UNITS
   const available = units.filter(u => u.url).length
 
   return (
