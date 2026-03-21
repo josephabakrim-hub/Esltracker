@@ -39,18 +39,18 @@ const KIDS_BOX_NG1_UNITS = [
 ]
 
 const KIDS_BOX_NG2_UNITS = [
-  { num: 0,  title: 'Hello Again!'   },
-  { num: 1,  title: 'Back to School' },
-  { num: 2,  title: 'Play Time!'     },
-  { num: 3,  title: 'At Home'        },
-  { num: 4,  title: 'Dinner Time'    },
+  { num: 1,  title: 'Hello Again!'   },
+  { num: 2,  title: 'Back to School' },
+  { num: 3,  title: 'Play Time!'     },
+  { num: 4,  title: 'At Home'        },
   { num: 5,  title: 'Meet My Family' },
-  { num: 6,  title: 'At the Farm'    },
-  { num: 7,  title: 'Our Clothes'    },
+  { num: 6,  title: 'Dinner Time'    },
+  { num: 7,  title: 'At the Farm'    },
   { num: 8,  title: 'My Town'        },
-  { num: 9,  title: 'Our Hobbies'    },
-  { num: 10, title: 'My Birthday'    },
-  { num: 11, title: 'On Holiday!'    },
+  { num: 9,  title: 'Our Clothes'    },
+  { num: 10, title: 'Our Hobbies'    },
+  { num: 11, title: 'My Birthday'    },
+  { num: 12, title: 'On Holiday!'    },
 ]
 
 const KIDS_BOX_NG3_UNITS = [

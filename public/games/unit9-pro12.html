@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 9 – Our Clothes! 👗</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #1a0533;
+  --c1:    #f06292;
+  --c2:    #ab47bc;
+  --c3:    #42a5f5;
+  --c4:    #66bb6a;
+  --c5:    #ffa726;
+  --c6:    #ef5350;
+  --white: #ffffff;
+  --dark:  #1a0533;
+  --muted: #999;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Quicksand',sans-serif;background:var(--bg);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 30% 10%,#2d0a4e,#1a0533 65%)}
+
+/* SPARKLES TOP */
+.sparkles{position:fixed;top:0;left:0;width:100%;height:10px;z-index:10;
+  background:repeating-linear-gradient(90deg,
+    #f06292 0,#f06292 16px,#1a0533 16px,#1a0533 22px,
+    #ab47bc 22px,#ab47bc 38px,#1a0533 38px,#1a0533 44px,
+    #42a5f5 44px,#42a5f5 60px,#1a0533 60px,#1a0533 66px,
+    #ffa726 66px,#ffa726 82px,#1a0533 82px,#1a0533 88px);
+  animation:sparkle 1.8s linear infinite}
+@keyframes sparkle{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:28px 16px 40px;flex-direction:column;align-items:center;justify-content:center}
+.screen.active{display:flex}
+
+/* HOME */
+.home-title{font-family:'Baloo 2',cursive;font-size:clamp(2.4rem,8vw,4.2rem);color:var(--c1);text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.4);line-height:1.1;margin-bottom:6px}
+.home-sub{color:rgba(255,255,255,.65);font-size:.92rem;font-weight:600;text-align:center;margin-bottom:44px}
+.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:860px;width:100%}
+@media(max-width:600px){.game-grid{grid-template-columns:1fr 1fr}}
+.gcard{background:white;border-radius:20px;padding:22px 16px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border-top:5px solid var(--cc);position:relative}
+.gcard:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.gcard:active{transform:scale(.97)}
+.gcard-icon{font-size:2.4rem;margin-bottom:8px;display:block}
+.gcard-name{font-family:'Baloo 2',cursive;font-size:.98rem;color:var(--dark);font-weight:800;line-height:1.2;margin-bottom:4px}
+.gcard-tag{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cc);background:rgba(0,0,0,.06);border-radius:20px;padding:2px 8px;display:inline-block}
+
+/* SHELL */
+.shell{width:100%;max-width:780px}
+.shell-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px dashed rgba(255,255,255,.12)}
+.shell-info{display:flex;flex-direction:column;gap:3px}
+.shell-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.shell-name{font-family:'Baloo 2',cursive;font-size:1.25rem;color:white}
+.shell-right{display:flex;gap:8px;align-items:center}
+.score-pill{font-family:monospace;font-size:.8rem;font-weight:700;background:rgba(240,98,146,.15);border:2px solid var(--c1);color:var(--c1);padding:5px 14px;border-radius:20px}
+.back-btn{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:5px 14px;border-radius:10px;cursor:pointer;transition:all .15s}
+.back-btn:hover{background:rgba(255,255,255,.15);color:white}
+.prog-track{height:8px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden;margin-bottom:22px}
+.prog-fill{height:100%;border-radius:8px;transition:width .4s ease}
+
+/* QUESTION */
+.qcard{background:white;border-radius:20px;padding:26px;margin-bottom:16px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.qtype{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px}
+.qtext{font-family:'Baloo 2',cursive;font-size:clamp(1.15rem,3.5vw,1.65rem);color:var(--dark);line-height:1.4}
+.qtext strong{color:var(--c2)}
+.qemoji{font-size:2.8rem;display:block;margin-bottom:8px}
+
+/* OPTIONS */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:460px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:white;border:3px solid #ebebeb;color:var(--dark);font-family:'Quicksand',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 3px 0 #ddd;text-align:left}
+.opt:hover:not(:disabled){border-color:var(--c2);background:#fdf5ff;transform:translateY(-2px);box-shadow:0 5px 0 #c88de0}
+.opt-letter{width:24px;height:24px;border-radius:8px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:var(--muted);flex-shrink:0;transition:all .15s}
+.opt:hover:not(:disabled) .opt-letter{background:var(--c2);color:white}
+.opt.correct{border-color:var(--c4)!important;background:#f0fff4!important;box-shadow:0 3px 0 #3a8a43!important}
+.opt.correct .opt-letter{background:var(--c4);color:white}
+.opt.wrong{border-color:var(--c6)!important;background:#fff5f5!important;box-shadow:0 3px 0 #aa3333!important;animation:shake .3s ease}
+.opt.wrong .opt-letter{background:var(--c6);color:white}
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}100%{transform:translateX(0)}}
+
+/* FEEDBACK */
+.fb{border-radius:14px;padding:12px 18px;font-size:.88rem;font-weight:700;margin-top:12px;opacity:0;transition:opacity .2s;line-height:1.5}
+.fb.show{opacity:1}
+.fb.ok{background:rgba(102,187,106,.15);border:2px solid var(--c4);color:#2a7a35}
+.fb.err{background:rgba(239,83,80,.1);border:2px solid var(--c6);color:#aa2222}
+
+/* FASHION SHOW (drag/tap to dress) */
+.fashion-wrap{display:flex;gap:20px;width:100%;max-width:780px;flex-wrap:wrap}
+.mannequin-box{flex:1;min-width:220px;background:white;border-radius:20px;padding:20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.mannequin{font-size:5rem;line-height:1;margin-bottom:8px}
+.mannequin-label{font-family:'Baloo 2',cursive;font-size:.95rem;color:var(--dark);font-weight:800;margin-bottom:6px}
+.wearing-slots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:36px}
+.worn-tag{font-size:.78rem;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(171,71,188,.12);color:var(--c2);border:2px solid rgba(171,71,188,.3)}
+
+.clothes-pool{flex:1;min-width:200px;background:rgba(255,255,255,.06);border-radius:20px;padding:18px;border:2px dashed rgba(255,255,255,.2)}
+.clothes-pool-label{font-family:'Baloo 2',cursive;font-size:.9rem;color:rgba(255,255,255,.7);margin-bottom:12px;font-weight:700}
+.clothes-grid{display:flex;flex-wrap:wrap;gap:9px}
+.cloth-btn{font-family:'Quicksand',sans-serif;font-size:.85rem;font-weight:700;padding:9px 15px;background:white;border:3px solid #ddd;border-radius:12px;cursor:pointer;transition:all .15s;color:var(--dark)}
+.cloth-btn:hover{border-color:var(--c1);color:var(--c1);transform:translateY(-2px)}
+.cloth-btn.worn{opacity:.3;pointer-events:none;text-decoration:line-through}
+
+/* SENTENCE BUILDER */
+.sb-target{background:rgba(255,255,255,.07);border:3px dashed rgba(255,255,255,.22);border-radius:16px;padding:16px;font-family:'Baloo 2',cursive;font-size:1.25rem;color:var(--c5);min-height:56px;text-align:center;width:100%;margin-bottom:14px;word-spacing:4px}
+.word-bank{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;width:100%;margin-bottom:16px}
+.wchip{font-family:'Quicksand',sans-serif;font-size:.88rem;font-weight:700;padding:8px 15px;background:white;border:3px solid #ddd;border-radius:10px;cursor:pointer;transition:all .15s;color:var(--dark);box-shadow:0 3px 0 #ccc}
+.wchip:hover:not(.used){border-color:var(--c2);color:var(--c2);transform:translateY(-2px)}
+.wchip.used{opacity:.3;pointer-events:none;text-decoration:line-through}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.go-btn{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;background:var(--c4);color:white;border:none;padding:12px 28px;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #3a8a43;transition:all .15s}
+.go-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #3a8a43}
+.clr-btn{font-family:'Baloo 2',cursive;font-size:.88rem;font-weight:700;background:rgba(255,255,255,.1);color:rgba(255,255,255,.55);border:2px solid rgba(255,255,255,.18);padding:10px 20px;border-radius:12px;cursor:pointer}
+
+/* FLASHCARD */
+.flashcard-wrap{perspective:1000px;width:100%;max-width:500px;margin:0 auto 20px}
+.flashcard{width:100%;height:200px;position:relative;transform-style:preserve-3d;transition:transform .5s ease;cursor:pointer}
+.flashcard.flipped{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;padding:28px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.fc-front{background:white;border:4px solid var(--c2)}
+.fc-back{background:linear-gradient(135deg,var(--c1),var(--c2));transform:rotateY(180deg)}
+.fc-emoji{font-size:3.2rem;margin-bottom:8px}
+.fc-q{font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--dark);font-weight:800}
+.fc-a{font-family:'Baloo 2',cursive;font-size:1.9rem;color:white;font-weight:800}
+.fc-sub{font-size:.8rem;margin-top:5px}
+.fc-sub-front{color:var(--muted)}
+.fc-sub-back{color:rgba(255,255,255,.8)}
+.fc-counter{font-size:.8rem;color:rgba(255,255,255,.55);text-align:center;margin-bottom:14px;font-weight:600}
+.fc-btns{display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.fc-btn{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;padding:11px 22px;border-radius:14px;border:none;cursor:pointer;transition:all .15s}
+.fc-btn.flip{background:var(--c3);color:white;box-shadow:0 4px 0 #2575c4}
+.fc-btn.flip:hover{transform:translateY(-2px)}
+.fc-btn.knew{background:var(--c4);color:white;box-shadow:0 4px 0 #3a8a43}
+.fc-btn.knew:hover{transform:translateY(-2px)}
+.fc-btn.again{background:var(--c6);color:white;box-shadow:0 4px 0 #aa3333}
+.fc-btn.again:hover{transform:translateY(-2px)}
+
+/* CHALLENGE */
+.round-badge{font-family:'Baloo 2',cursive;font-size:.78rem;font-weight:800;padding:5px 16px;border-radius:20px;display:inline-block;margin-bottom:14px}
+.r1{background:rgba(66,165,245,.2);color:var(--c3);border:2px solid var(--c3)}
+.r2{background:rgba(255,167,38,.2);color:var(--c5);border:2px solid var(--c5)}
+.r3{background:rgba(240,98,146,.2);color:var(--c1);border:2px solid var(--c1)}
+
+/* COMPLETE */
+.cpl-card{background:white;border-radius:24px;padding:44px 36px;text-align:center;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.cpl-emoji{font-size:4.5rem;margin-bottom:12px;animation:bounce 1.5s ease-in-out infinite}
+.cpl-title{font-family:'Baloo 2',cursive;font-size:2.4rem;color:var(--dark);margin-bottom:6px}
+.cpl-score{font-size:.93rem;color:var(--muted);font-weight:700;margin-bottom:24px}
+.cpl-stars{font-size:2.2rem;letter-spacing:4px;margin-bottom:28px}
+.home-btn{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,var(--c1),var(--c2));color:white;border:none;padding:14px 36px;border-radius:16px;cursor:pointer;box-shadow:0 5px 0 #8a1a7a;transition:all .15s}
+.home-btn:hover{transform:translateY(-3px);box-shadow:0 8px 0 #8a1a7a}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* CONFETTI */
+.cp{position:fixed;width:9px;height:9px;top:-10px;border-radius:2px;animation:cfal linear forwards;pointer-events:none;z-index:9999}
+@keyframes cfal{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="sparkles"></div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <h1 class="home-title">👗 Our Clothes!</h1>
+  <p class="home-sub">Unit 9 · Kids Box NG2 · Pro1_2 · Clothes & Wearing</p>
+  <div class="game-grid">
+    <div class="gcard" style="--cc:#f06292" onclick="launch('vocab')">
+      <span class="gcard-icon">👗</span>
+      <div class="gcard-name">Clothes Match</div>
+      <div class="gcard-tag">Vocabulary</div>
+    </div>
+    <div class="gcard" style="--cc:#ab47bc" onclick="launch('wearing')">
+      <span class="gcard-icon">🎽</span>
+      <div class="gcard-name">What are they wearing?</div>
+      <div class="gcard-tag">Grammar</div>
+    </div>
+    <div class="gcard" style="--cc:#42a5f5" onclick="launch('havegot')">
+      <span class="gcard-icon">🎩</span>
+      <div class="gcard-name">Have You Got...?</div>
+      <div class="gcard-tag">Grammar</div>
+    </div>
+    <div class="gcard" style="--cc:#66bb6a" onclick="launch('builder')">
+      <span class="gcard-icon">🏗️</span>
+      <div class="gcard-name">Sentence Builder</div>
+      <div class="gcard-tag">Grammar</div>
+    </div>
+    <div class="gcard" style="--cc:#ab47bc" onclick="launch('flashcard')">
+      <span class="gcard-icon">🧠</span>
+      <div class="gcard-name">Flashcard Flip</div>
+      <div class="gcard-tag">🔬 Active Recall</div>
+    </div>
+    <div class="gcard" style="--cc:#ffa726" onclick="launch('challenge')">
+      <span class="gcard-icon">🏆</span>
+      <div class="gcard-name">Clothes Challenge</div>
+      <div class="gcard-tag">🔬 3-Round Review</div>
+    </div>
+  </div>
+</div>
+
+<!-- VOCAB -->
+<div class="screen" id="screen-vocab">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">Vocabulary</span><span class="shell-name">👗 Clothes Match</span></div>
+      <div class="shell-right"><span class="score-pill" id="v-score">⭐ 0</span><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="v-prog" style="width:0%;background:var(--c1)"></div></div>
+    <div class="qcard"><div class="qtype" id="v-qtype"></div><span class="qemoji" id="v-emoji"></span><div class="qtext" id="v-qtext"></div></div>
+    <div class="opts" id="v-opts"></div>
+    <div class="fb" id="v-fb"></div>
+  </div>
+</div>
+
+<!-- WEARING -->
+<div class="screen" id="screen-wearing">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">Grammar · He's/She's wearing</span><span class="shell-name">🎽 What are they wearing?</span></div>
+      <div class="shell-right"><span class="score-pill" id="w-score">⭐ 0</span><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="w-prog" style="width:0%;background:var(--c2)"></div></div>
+    <div class="qcard"><div class="qtype" id="w-qtype"></div><div class="qtext" id="w-qtext"></div></div>
+    <div class="opts" id="w-opts"></div>
+    <div class="fb" id="w-fb"></div>
+  </div>
+</div>
+
+<!-- HAVE GOT -->
+<div class="screen" id="screen-havegot">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">Grammar · Have you got?</span><span class="shell-name">🎩 Have You Got...?</span></div>
+      <div class="shell-right"><span class="score-pill" id="hg-score">⭐ 0</span><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="hg-prog" style="width:0%;background:var(--c3)"></div></div>
+    <div class="qcard"><div class="qtype" id="hg-qtype"></div><div class="qtext" id="hg-qtext"></div></div>
+    <div class="opts" id="hg-opts"></div>
+    <div class="fb" id="hg-fb"></div>
+  </div>
+</div>
+
+<!-- BUILDER -->
+<div class="screen" id="screen-builder">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">Grammar</span><span class="shell-name">🏗️ Sentence Builder</span></div>
+      <div class="shell-right"><span class="score-pill" id="sb-score">⭐ 0</span><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="sb-prog" style="width:0%;background:var(--c4)"></div></div>
+    <div class="qcard"><div class="qtype">Build the sentence! Tap words in order 👇</div><div class="qtext" id="sb-clue"></div></div>
+    <div class="sb-target" id="sb-target">Tap words below...</div>
+    <div class="word-bank" id="sb-bank"></div>
+    <div class="action-btns">
+      <button class="go-btn" onclick="checkSB()">✅ Check!</button>
+      <button class="clr-btn" onclick="clearSB()">🔄 Clear</button>
+    </div>
+    <div class="fb" id="sb-fb"></div>
+  </div>
+</div>
+
+<!-- FLASHCARD -->
+<div class="screen" id="screen-flashcard">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">🔬 Active Recall</span><span class="shell-name">🧠 Flashcard Flip</span></div>
+      <div class="shell-right"><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <p style="color:rgba(255,255,255,.6);font-size:.84rem;text-align:center;margin-bottom:16px;font-weight:600">Think of the answer FIRST — then tap to check! 🧠</p>
+    <div class="fc-counter" id="fc-counter"></div>
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="fc-face fc-front">
+          <span class="fc-emoji" id="fc-emoji"></span>
+          <div class="fc-q" id="fc-q"></div>
+          <div class="fc-sub fc-sub-front">👆 Tap to reveal!</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-a" id="fc-a"></div>
+          <div class="fc-sub fc-sub-back" id="fc-ex"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-btns" id="fc-btns" style="display:none">
+      <button class="fc-btn knew" onclick="fcResult(true)">✅ I knew it!</button>
+      <button class="fc-btn again" onclick="fcResult(false)">🔄 Again</button>
+    </div>
+    <div class="fb" id="fc-fb"></div>
+  </div>
+</div>
+
+<!-- CHALLENGE -->
+<div class="screen" id="screen-challenge">
+  <div class="shell">
+    <div class="shell-top">
+      <div class="shell-info"><span class="shell-label">🔬 3-Round Spaced Review</span><span class="shell-name">🏆 Clothes Challenge</span></div>
+      <div class="shell-right"><span class="score-pill" id="ch-score">⭐ 0</span><button class="back-btn" onclick="goHome()">← Home</button></div>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="ch-prog" style="width:0%;background:var(--c5)"></div></div>
+    <div id="ch-badge"></div>
+    <div class="qcard"><div class="qtype" id="ch-qtype"></div><div class="qtext" id="ch-qtext"></div></div>
+    <div class="opts" id="ch-opts"></div>
+    <div class="fb" id="ch-fb"></div>
+  </div>
+</div>
+
+<!-- COMPLETE -->
+<div class="screen" id="screen-complete">
+  <div class="cpl-card">
+    <div class="cpl-emoji" id="cpl-emoji">🎉</div>
+    <div class="cpl-title" id="cpl-title">Fabulous!</div>
+    <div class="cpl-stars" id="cpl-stars">⭐⭐⭐</div>
+    <div class="cpl-score" id="cpl-score"></div>
+    <button class="home-btn" onclick="goHome()">🏠 Play More!</button>
+  </div>
+</div>
+
+<script>
+// ═══ DATA ═══
+
+const clothes = [
+  { word:'dress',       emoji:'👗', clue:'A girl wears this — it covers the top and bottom together' },
+  { word:'glasses',     emoji:'👓', clue:'You wear these on your face to see better' },
+  { word:'handbag',     emoji:'👜', clue:'You carry this on your arm or shoulder' },
+  { word:'hat',         emoji:'🎩', clue:'You wear this on your head' },
+  { word:'jeans',       emoji:'👖', clue:'Blue trousers made from denim' },
+  { word:'shirt',       emoji:'👔', clue:'You wear this on the top — it has buttons' },
+  { word:'sunglasses',  emoji:'🕶️', clue:'You wear these on sunny days to protect your eyes' },
+]
+
+const vocabQs = [
+  { emoji:'👗', q:'A girl wears this — it covers the top and bottom together.', a:'dress',      opts:['dress','shirt','jeans','hat'] },
+  { emoji:'👓', q:'You wear these on your face to see better.',                 a:'glasses',    opts:['glasses','sunglasses','hat','handbag'] },
+  { emoji:'👜', q:'You carry this on your arm or shoulder.',                    a:'handbag',    opts:['handbag','hat','jeans','shirt'] },
+  { emoji:'🎩', q:'You wear this on your head.',                               a:'hat',        opts:['hat','shirt','glasses','jeans'] },
+  { emoji:'👖', q:'Blue trousers made from denim.',                            a:'jeans',      opts:['jeans','dress','shirt','hat'] },
+  { emoji:'👔', q:'You wear this on the top — it has buttons.',                a:'shirt',      opts:['shirt','jeans','dress','handbag'] },
+  { emoji:'🕶️', q:'You wear these on sunny days to protect your eyes.',        a:'sunglasses', opts:['sunglasses','glasses','hat','dress'] },
+  { emoji:'👗', q:'Which item is NOT a type of glasses?',                       a:'hat',        opts:['hat','glasses','sunglasses','glasses'] },
+]
+
+const wearingQs = [
+  { q:"👧 Look at Stella! _____ wearing a blue dress.",                 a:"She's",      opts:["She's","He's","They're","She"] },
+  { q:"👦 Look at Simon! _____ wearing jeans and a red shirt.",         a:"He's",       opts:["He's","She's","He","They're"] },
+  { q:"👫 Look at them! _____ wearing hats.",                           a:"They're",    opts:["They're","She's","He's","We're"] },
+  { q:"🕶️ Suzy _____ wearing sunglasses today.",                        a:"isn't",      opts:["isn't","aren't","doesn't","is not wearing"] },
+  { q:"👜 _____ Mrs Star wearing her handbag? Yes, she _____ .",        a:"Is / is",    opts:["Is / is","Are / are","Does / does","Is / are"] },
+  { q:"🎩 What _____ Maskman wearing? He's wearing a big hat!",         a:"is",         opts:["is","are","does","wearing"] },
+  { q:"👔 Simon _____ wearing a shirt. He's wearing a T-shirt.",        a:"isn't",      opts:["isn't","is","aren't","doesn't"] },
+  { q:"👗 _____ you wearing a dress? No, I'm _____ .",                  a:"Are / not",  opts:["Are / not","Is / not","Do / not","Are / no"] },
+]
+
+const haveGotQs = [
+  { q:"🎩 _____ you got a hat? Yes, I _____.",                          a:"Have / have",    opts:["Have / have","Has / have","Do / do","Have / has"] },
+  { q:"👓 _____ Maskman got glasses? Yes, he _____.",                   a:"Has / has",      opts:["Has / has","Have / have","Does / does","Has / have"] },
+  { q:"👜 She _____ got a handbag. (make it negative)",                  a:"hasn't",         opts:["hasn't","haven't","doesn't","isn't"] },
+  { q:"👖 _____ they got jeans? No, they _____.",                       a:"Have / haven't", opts:["Have / haven't","Has / hasn't","Do / don't","Have / hasn't"] },
+  { q:"👔 I _____ got a new shirt. It's blue!",                         a:"'ve",            opts:["'ve","'s","have got","am"] },
+  { q:"🕶️ _____ Simon got sunglasses? No, he _____.",                   a:"Has / hasn't",   opts:["Has / hasn't","Have / haven't","Does / doesn't","Has / haven't"] },
+  { q:"👗 Stella _____ got a beautiful red dress.",                     a:"has",            opts:["has","have","is","got"] },
+  { q:"🎩 _____ Mrs Star got a hat? Yes, _____ has.",                   a:"Has / she",      opts:["Has / she","Have / she","Does / she","Has / he"] },
+]
+
+const sentences = [
+  { clue:"She's wearing a blue dress. 👗",         words:["She's","wearing","a","blue","dress",".","He's","jeans"],         ans:"She's wearing a blue dress ." },
+  { clue:"Has he got a hat? Yes, he has. 🎩",      words:["Has","he","got","a","hat","?","Yes,","he","has",".","Have","she"], ans:"Has he got a hat ? Yes, he has ." },
+  { clue:"They're not wearing glasses. 👓",         words:["They're","not","wearing","glasses",".","isn't","He's","hat"],    ans:"They're not wearing glasses ." },
+  { clue:"Have you got sunglasses? 🕶️",            words:["Have","you","got","sunglasses","?","Has","glasses","jeans"],     ans:"Have you got sunglasses ?" },
+  { clue:"He's wearing jeans and a shirt. 👔",      words:["He's","wearing","jeans","and","a","shirt",".","She's","dress"],  ans:"He's wearing jeans and a shirt ." },
+]
+
+const flashcards = [
+  { emoji:'👗', q:'dress',      a:'dress',      ex:"She's wearing a ___." },
+  { emoji:'👓', q:'glasses',    a:'glasses',    ex:"He's got ___ on his face." },
+  { emoji:'👜', q:'handbag',    a:'handbag',    ex:"She's carrying a ___." },
+  { emoji:'🎩', q:'hat',        a:'hat',        ex:"He's wearing a ___ on his head." },
+  { emoji:'👖', q:'jeans',      a:'jeans',      ex:"They're wearing ___." },
+  { emoji:'👔', q:'shirt',      a:'shirt',      ex:"He's wearing a blue ___." },
+  { emoji:'🕶️', q:'sunglasses', a:'sunglasses', ex:"She's got ___ on — it's sunny!" },
+  { emoji:'🎽', q:"He's wearing a red shirt. → Make it negative!", a:"He isn't wearing", ex:"He ___ a red shirt." },
+]
+
+const challengeRounds = [
+  [
+    { type:'Round 1 · See & Choose', q:'👗 What is this clothing item?',     a:'dress',      opts:['dress','shirt','jeans','hat'] },
+    { type:'Round 1 · See & Choose', q:'🎩 What is this clothing item?',     a:'hat',        opts:['hat','glasses','handbag','jeans'] },
+    { type:'Round 1 · See & Choose', q:'🕶️ What is this clothing item?',    a:'sunglasses', opts:['sunglasses','glasses','hat','dress'] },
+    { type:'Round 1 · See & Choose', q:'👜 What is this clothing item?',     a:'handbag',    opts:['handbag','shirt','jeans','hat'] },
+  ],
+  [
+    { type:'Round 2 · Fill the Gap', q:"Stella ___ wearing a green dress.",  a:"is",         opts:['is','are','has','wearing'] },
+    { type:'Round 2 · Fill the Gap', q:"___ Simon got glasses? No, he ___.", a:"Has / hasn't",opts:["Has / hasn't","Have / haven't","Is / isn't","Does / doesn't"] },
+    { type:'Round 2 · Fill the Gap', q:"They ___ wearing jeans.",            a:"aren't",     opts:["aren't","isn't","hasn't","don't"] },
+    { type:'Round 2 · Fill the Gap', q:"She ___ got a blue handbag.",        a:"has",        opts:['has','have','is','wearing'] },
+  ],
+  [
+    { type:"Round 3 · Full Sentence", q:"How do you say Stella has a hat? → Stella ___ a hat.", a:"has got",          opts:["has got","is wearing","have got","got has"] },
+    { type:"Round 3 · Full Sentence", q:"Correct sentence?",                  a:"He's wearing jeans and a shirt.", opts:["He's wearing jeans and a shirt.","He wearing jeans and shirt.","He's wear jeans and a shirt.","He wears jeans and shirt."] },
+    { type:"Round 3 · Full Sentence", q:"Ask about glasses → ___?",           a:"Has she got glasses?",            opts:["Has she got glasses?","Have she got glasses?","Is she wearing glasses?","Does she got glasses?"] },
+    { type:"Round 3 · Full Sentence", q:"Make negative: She's wearing a dress → ___.", a:"She isn't wearing a dress.", opts:["She isn't wearing a dress.","She's not wear a dress.","She haven't wearing a dress.","She doesn't wearing a dress."] },
+  ],
+]
+
+// ═══ STATE ═══
+let game='', score=0, idx=0, total=0, answered=false
+let sbBuilt=[], sbScore=0, sbIdx=0
+let fcCards=[], fcIdx=0, fcKnew=0, fcFlipped=false
+let chRound=0, chIdx=0, chScore=0, chTotal=0
+
+// ═══ NAV ═══
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active')}
+function goHome(){show('home');game=''}
+
+function launch(g){
+  game=g; score=0; idx=0; answered=false
+  if(g==='vocab')    {total=vocabQs.length;  show('vocab');    loadQ('v',vocabQs)}
+  else if(g==='wearing')  {total=wearingQs.length; show('wearing');  loadQ('w',wearingQs)}
+  else if(g==='havegot')  {total=haveGotQs.length; show('havegot');  loadQ('hg',haveGotQs)}
+  else if(g==='builder')  {sbBuilt=[];sbScore=0;sbIdx=0;show('builder');loadSB()}
+  else if(g==='flashcard'){show('flashcard');initFC()}
+  else if(g==='challenge'){show('challenge');initChallenge()}
+}
+
+// ═══ GENERIC Q ═══
+function loadQ(p,qs){
+  if(idx>=qs.length){complete();return}
+  answered=false
+  const q=qs[idx]
+  setprog(p,(idx/qs.length*100))
+  setEl(p+'-score','textContent','⭐ '+score)
+  if(el(p+'-qtype')) el(p+'-qtype').textContent=q.type||'Choose the correct answer!'
+  if(el(p+'-emoji')) el(p+'-emoji').textContent=q.emoji||''
+  if(el(p+'-qtext')) el(p+'-qtext').innerHTML=q.q
+  el(p+'-fb').className='fb'
+  const grid=el(p+'-opts'); grid.innerHTML=''
+  shuffle([...q.opts]).forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt'
+    b.innerHTML=`<span class="opt-letter">${'ABCD'[i]}</span>${o}`
+    b.onclick=()=>ansQ(p,qs,b,o,q.a)
+    grid.appendChild(b)
+  })
+}
+function ansQ(p,qs,btn,chosen,correct){
+  if(answered)return;answered=true
+  const all=document.querySelectorAll('#screen-'+game+' .opt, #screen-'+p.replace('-','')+'  .opt')
+  const fb=el(p+'-fb')
+  if(chosen===correct){
+    btn.classList.add('correct');score++
+    fb.textContent='✅ '+['Fabulous!','Stylish!','Brilliant!','Correct!','Amazing!'][Math.floor(Math.random()*5)]
+    fb.className='fb ok show';confetti(4)
+  } else {
+    btn.classList.add('wrong')
+    document.querySelectorAll('#screen-'+game+' .opt').forEach(b=>{if(b.textContent.includes(correct))b.classList.add('correct')})
+    fb.textContent='❌ The answer is: '+correct
+    fb.className='fb err show'
+  }
+  setEl(p+'-score','textContent','⭐ '+score)
+  setTimeout(()=>{idx++;loadQ(p,qs)},1700)
+}
+
+// ═══ SENTENCE BUILDER ═══
+function loadSB(){
+  if(sbIdx>=sentences.length){score=sbScore;total=sentences.length;complete();return}
+  sbBuilt=[]
+  const s=sentences[sbIdx]
+  el('sb-clue').innerHTML='💡 '+s.clue
+  setprog('sb',(sbIdx/sentences.length*100))
+  setEl('sb-score','textContent','⭐ '+sbScore)
+  el('sb-target').textContent='Tap words below...'
+  el('sb-target').style.color='rgba(255,255,255,.35)'
+  el('sb-fb').className='fb'
+  const bank=el('sb-bank');bank.innerHTML=''
+  shuffle([...s.words]).forEach((w,i)=>{
+    const c=document.createElement('button');c.className='wchip';c.textContent=w;c.dataset.i=i
+    c.onclick=()=>addWord(c,w);bank.appendChild(c)
+  })
+}
+function addWord(chip,w){
+  if(chip.classList.contains('used'))return
+  chip.classList.add('used');sbBuilt.push(w)
+  el('sb-target').textContent=sbBuilt.join(' ')
+  el('sb-target').style.color='var(--c5)'
+}
+function clearSB(){
+  sbBuilt=[];document.querySelectorAll('#sb-bank .wchip').forEach(c=>c.classList.remove('used'))
+  el('sb-target').textContent='Tap words below...'
+  el('sb-target').style.color='rgba(255,255,255,.35)'
+  el('sb-fb').className='fb'
+}
+function checkSB(){
+  const s=sentences[sbIdx];const built=sbBuilt.join(' ');const fb=el('sb-fb')
+  if(!sbBuilt.length){fb.textContent='💬 Tap some words first!';fb.className='fb err show';return}
+  if(built===s.ans){
+    fb.textContent='✅ Perfect sentence!';fb.className='fb ok show';sbScore++;confetti(7)
+    setTimeout(()=>{sbIdx++;loadSB()},1900)
+  } else {
+    fb.textContent='❌ Not quite — check the order!';fb.className='fb err show'
+    setTimeout(clearSB,1000)
+  }
+}
+
+// ═══ FLASHCARD ═══
+function initFC(){
+  fcCards=shuffle([...flashcards]);fcIdx=0;fcKnew=0;fcFlipped=false;loadFC()
+}
+function loadFC(){
+  if(fcIdx>=fcCards.length){score=fcKnew;total=fcCards.length;complete();return}
+  const c=fcCards[fcIdx];fcFlipped=false
+  el('flashcard').classList.remove('flipped')
+  el('fc-emoji').textContent=c.emoji
+  el('fc-q').textContent=c.q
+  el('fc-a').textContent=c.a
+  el('fc-ex').textContent=c.ex
+  el('fc-counter').textContent='Card '+(fcIdx+1)+' of '+fcCards.length+' · ⭐ '+fcKnew+' known'
+  el('fc-btns').style.display='none'
+  el('fc-fb').className='fb'
+}
+function flipCard(){
+  if(fcFlipped)return;fcFlipped=true
+  el('flashcard').classList.add('flipped')
+  el('fc-btns').style.display='flex'
+}
+function fcResult(knew){
+  if(knew){
+    fcKnew++;el('fc-fb').textContent='⭐ Great!';el('fc-fb').className='fb ok show';confetti(3)
+  } else {
+    const card=fcCards.splice(fcIdx,1)[0]
+    fcCards.splice(Math.min(fcIdx+2,fcCards.length),0,card)
+    el('fc-fb').textContent='🔄 Added back — you\'ll see it again soon!';el('fc-fb').className='fb err show'
+  }
+  setTimeout(()=>{fcIdx++;loadFC()},900)
+}
+
+// ═══ CHALLENGE ═══
+function initChallenge(){
+  chRound=0;chIdx=0;chScore=0
+  chTotal=challengeRounds.reduce((a,r)=>a+r.length,0)
+  loadChallenge()
+}
+function loadChallenge(){
+  if(chRound>=challengeRounds.length){score=chScore;total=chTotal;complete();return}
+  const round=challengeRounds[chRound]
+  if(chIdx>=round.length){chRound++;chIdx=0;loadChallenge();return}
+  answered=false
+  const q=round[chIdx]
+  const done=challengeRounds.slice(0,chRound).reduce((a,r)=>a+r.length,0)+chIdx
+  setprog('ch',(done/chTotal*100))
+  setEl('ch-score','textContent','⭐ '+chScore)
+  const badges=['r1','r2','r3']
+  const labels=['👗 Round 1 — See & Choose','🎽 Round 2 — Fill the Gap','🏆 Round 3 — Full Sentence']
+  el('ch-badge').innerHTML=`<div class="round-badge ${badges[chRound]}">${labels[chRound]}</div>`
+  el('ch-qtype').textContent=q.type
+  el('ch-qtext').innerHTML=q.q
+  el('ch-fb').className='fb'
+  const grid=el('ch-opts');grid.innerHTML=''
+  shuffle([...q.opts]).forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt'
+    b.innerHTML=`<span class="opt-letter">${'ABCD'[i]}</span>${o}`
+    b.onclick=()=>ansChallenge(b,o,q.a)
+    grid.appendChild(b)
+  })
+}
+function ansChallenge(btn,chosen,correct){
+  if(answered)return;answered=true
+  const fb=el('ch-fb')
+  if(chosen===correct){
+    btn.classList.add('correct');chScore++
+    fb.textContent='✅ '+['Looking good!','Stylish answer!','Fashionable!'][Math.floor(Math.random()*3)]
+    fb.className='fb ok show';confetti(4)
+  } else {
+    btn.classList.add('wrong')
+    document.querySelectorAll('#screen-challenge .opt').forEach(b=>{if(b.textContent.includes(correct))b.classList.add('correct')})
+    fb.textContent='❌ Answer: '+correct;fb.className='fb err show'
+  }
+  setEl('ch-score','textContent','⭐ '+chScore)
+  setTimeout(()=>{chIdx++;loadChallenge()},1700)
+}
+
+// ═══ COMPLETE ═══
+function complete(){
+  const pct=total>0?score/total:0
+  let emoji,title,stars
+  if(pct>=.9){emoji='👗';title='Fashionista!';stars='⭐⭐⭐';confetti(20)}
+  else if(pct>=.7){emoji='🎉';title='Looking Good!';stars='⭐⭐'}
+  else if(pct>=.5){emoji='💪';title='Good Work!';stars='⭐'}
+  else{emoji='📚';title='Keep Trying!';stars=''}
+  el('cpl-emoji').textContent=emoji
+  el('cpl-title').textContent=title
+  el('cpl-stars').textContent=stars
+  el('cpl-score').textContent='Score: '+score+' / '+total
+  show('complete')
+}
+
+// ═══ UTILS ═══
+function el(id){return document.getElementById(id)}
+function setEl(id,prop,val){const e=el(id);if(!e)return;const p=prop.split('.');if(p.length===2)e[p[0]][p[1]]=val;else e[prop]=val}
+function setprog(p,pct){const e=el(p+'-prog');if(e)e.style.width=pct+'%'}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function confetti(n){
+  const cols=['#f06292','#ab47bc','#42a5f5','#66bb6a','#ffa726','#ef5350']
+  for(let i=0;i<n;i++)setTimeout(()=>{
+    const e=document.createElement('div');e.className='cp'
+    e.style.left=Math.random()*100+'vw'
+    e.style.background=cols[Math.floor(Math.random()*cols.length)]
+    e.style.borderRadius=Math.random()>.5?'50%':'2px'
+    e.style.animationDuration=(1.2+Math.random()*1.5)+'s'
+    document.body.appendChild(e);e.addEventListener('animationend',()=>e.remove())
+  },i*80)
+}
+</script>
+</body>
+</html>
