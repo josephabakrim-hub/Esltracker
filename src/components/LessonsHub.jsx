@@ -1,15 +1,14 @@
 // ── LESSONS HUB ──
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// TO ADD A NEW GAME — only two steps:
+// TO ADD A NEW GAME:
 //   1. Name the file:  unit{N}-{classslug}.html
-//      e.g.  unit7-pro54.html  or  unit3-elite13.html
 //   2. Drop it in public/games/ and push to GitHub
-//   Then add one line to READY below. That's it!
+//   DONE. No changes to this file ever needed!
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+import { useState, useEffect } from 'react'
 
 const BASE = 'https://teacherjoseph.vercel.app/games'
 
-// Class name → short slug used in game filenames
 const CLASS_SLUG = {
   'Elite2_2':  'elite22',
   'Elite3_S':  'elite3s',
@@ -23,23 +22,6 @@ const CLASS_SLUG = {
   'Pro6_2':    'pro62',
 }
 
-// Which units are ready — keyed by "classslug-unitnum"
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// TO ADD A NEW GAME: add one line here:
-//   'pro54-7': true,   // unit7-pro54.html
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const READY = {
-  'pro62-2':   true,   // unit2-pro62.html   — Home Sweet Home    (Pro6_2  · NG3)
-  'pro3s-3':   true,   // unit3-pro3s.html   — Favourite Toys     (Pro3_S  · NG1)
-  'pro54-4':   true,   // unit4-pro54.html   — After School Club  (Pro5_4  · NG4)
-  'pro22-5':   true,   // unit5-pro22.html   — Meet My Family     (Pro2_2  · NG2)
-  'elite22-5': true,   // unit5-elite22.html — My Life in Music   (Elite2_2· Think L2)
-  'elite13-6': true,   // unit6-elite13.html — How Do They Do It? (Elite1_3· Think L3)
-}
-
-// ── UNIT LISTS (sourced directly from the actual books) ──
-
-// Kids Box New Generation 1 — Pro3_S, Pro3_1
 const KIDS_BOX_NG1_UNITS = [
   { num: 0,  title: 'Hello!'         },
   { num: 1,  title: 'Hello!'         },
@@ -56,7 +38,6 @@ const KIDS_BOX_NG1_UNITS = [
   { num: 12, title: 'Party Time!'    },
 ]
 
-// Kids Box New Generation 2 — Pro1_2, Pro2_2
 const KIDS_BOX_NG2_UNITS = [
   { num: 0,  title: 'Hello Again!'   },
   { num: 1,  title: 'Back to School' },
@@ -72,7 +53,6 @@ const KIDS_BOX_NG2_UNITS = [
   { num: 11, title: 'On Holiday!'    },
 ]
 
-// Kids Box New Generation 3 — Pro1_3, Pro6_2
 const KIDS_BOX_NG3_UNITS = [
   { num: 0, title: 'Hello!'              },
   { num: 1, title: 'Family Matters'      },
@@ -85,7 +65,6 @@ const KIDS_BOX_NG3_UNITS = [
   { num: 8, title: 'Weather Report'      },
 ]
 
-// Kids Box New Generation 4 — Pro5_4
 const KIDS_BOX_NG4_UNITS = [
   { num: 0, title: 'Hello There!'        },
   { num: 1, title: 'Back to School'      },
@@ -98,7 +77,6 @@ const KIDS_BOX_NG4_UNITS = [
   { num: 8, title: "Let's Party!"        },
 ]
 
-// Think Starter — Elite3_S
 const THINK_STARTER_UNITS = [
   { num: 0,  title: 'Welcome'                 },
   { num: 1,  title: 'One World'               },
@@ -115,7 +93,6 @@ const THINK_STARTER_UNITS = [
   { num: 12, title: 'Getting About'           },
 ]
 
-// Think Level 2 — Elite2_2
 const THINK_L2_UNITS = [
   { num: 0,  title: 'Welcome'              },
   { num: 1,  title: 'Amazing People'       },
@@ -132,7 +109,6 @@ const THINK_L2_UNITS = [
   { num: 12, title: 'Playing by the Rules' },
 ]
 
-// Think Level 3 — Elite1_3
 const THINK_L3_UNITS = [
   { num: 0,  title: 'Welcome'                     },
   { num: 1,  title: 'Life Plans'                  },
@@ -178,9 +154,26 @@ export default function LessonsHub({ cls, onClose }) {
   const slug     = CLASS_SLUG[cls?.name] || ''
   const units    = getUnits(bookInfo.level)
 
+  // Auto-detect which games exist by checking if the file responds
+  const [readyMap, setReadyMap] = useState({})
+
+  useEffect(() => {
+    if (!slug) return
+    const checks = units.map(unit => {
+      const url = `${BASE}/unit${unit.num}-${slug}.html`
+      return fetch(url, { method: 'HEAD' })
+        .then(res => ({ key: `${unit.num}`, ready: res.ok }))
+        .catch(() => ({ key: `${unit.num}`, ready: false }))
+    })
+    Promise.all(checks).then(results => {
+      const map = {}
+      results.forEach(r => { map[r.key] = r.ready })
+      setReadyMap(map)
+    })
+  }, [slug])
+
   const unitsWithUrls = units.map(unit => {
-    const key     = `${slug}-${unit.num}`
-    const isReady = !!READY[key]
+    const isReady = !!readyMap[String(unit.num)]
     const url     = `${BASE}/unit${unit.num}-${slug}.html`
     return { ...unit, isReady, url }
   })
