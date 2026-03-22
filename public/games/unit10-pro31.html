@@ -464,26 +464,26 @@ const FLYING  = ['plane','helicopter'];
 const RIDING  = ['bike','motorbike','boat','train'];
 const DRIVING = ['car','bus','lorry'];
 
-// G3 — sentence builder rounds (verified from story dialogue)
+// G3 — sentence builder: character speaks in first person, "What are YOU doing?"
 const G3_ROUNDS = [
-  { charEmoji:'🦸', charName:'Maskman', vehicle:'helicopter', verb:'flying',
-    ans:"I'm flying my helicopter .",
-    words:["I'm","flying","my","helicopter",".",] },
-  { charEmoji:'🐭', charName:'Monty',   vehicle:'bike',       verb:'riding',
-    ans:"I'm riding my bike .",
-    words:["I'm","riding","my","bike","."] },
-  { charEmoji:'🧑‍🔧', charName:'Trevor',  vehicle:'lorry',      verb:'driving',
-    ans:"I'm driving my lorry .",
-    words:["I'm","driving","my","lorry","."] },
-  { charEmoji:'🧑‍🎨', charName:'Marie',   vehicle:'car',        verb:'driving',
-    ans:"I'm driving my car .",
-    words:["I'm","driving","my","car","."] },
-  { charEmoji:'🧒', charName:'Simon',   vehicle:'motorbike',  verb:'riding',
-    ans:"I'm riding my motorbike .",
-    words:["I'm","riding","my","motorbike","."] },
-  { charEmoji:'🚁', charName:'Sam',     vehicle:'helicopter', verb:'flying',
+  { vehicle:'helicopter', verb:'flying',
     ans:"I'm flying my helicopter .",
     words:["I'm","flying","my","helicopter","."] },
+  { vehicle:'bike',       verb:'riding',
+    ans:"I'm riding my bike .",
+    words:["I'm","riding","my","bike","."] },
+  { vehicle:'lorry',      verb:'driving',
+    ans:"I'm driving my lorry .",
+    words:["I'm","driving","my","lorry","."] },
+  { vehicle:'car',        verb:'driving',
+    ans:"I'm driving my car .",
+    words:["I'm","driving","my","car","."] },
+  { vehicle:'motorbike',  verb:'riding',
+    ans:"I'm riding my motorbike .",
+    words:["I'm","riding","my","motorbike","."] },
+  { vehicle:'plane',      verb:'flying',
+    ans:"I'm flying my plane .",
+    words:["I'm","flying","my","plane","."] },
 ];
 
 // G4 — word order sentences
@@ -637,11 +637,11 @@ function g3Render(){
   g3built=[]; g3locked=false;
   $('g3qi').textContent=g3i+1;
   hideFb('g3fb'); hide('g3next');
-  const vEmoji = VEHICLES.find(v=>v.id===r.vehicle)?.emoji || r.charEmoji;
+  const vEmoji = VEHICLES.find(v=>v.id===r.vehicle)?.emoji || '🚗';
   $('g3scene').innerHTML=
     '<div class="char-emoji">'+vEmoji+'</div>'+
-    '<div class="char-name">'+r.charName+'</div>'+
-    '<div class="char-prompt">What is '+r.charName+' doing?</div>';
+    '<div class="char-name">What are YOU doing?</div>'+
+    '<div class="char-prompt">Build the sentence with I\'m…</div>';
   const disp=$('g3display');
   disp.className='built-display empty';
   disp.textContent='Tap words to build the sentence…';
