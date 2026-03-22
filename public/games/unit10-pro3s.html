@@ -219,28 +219,30 @@ body {
 .w-tile:hover:not(.used) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,71,111,.4); }
 .w-tile.used { opacity: .25; pointer-events: none; }
 
-/* ══ G5: SPEED MATCH (timed story) ══ */
-.speed-char {
+/* ══ G5: MISSING WORD ══ */
+.mw-sentence {
   background: linear-gradient(135deg, var(--teal), #0a2f2f);
   border: 1px solid var(--border); border-radius: 16px;
-  padding: 18px; text-align: center; margin-bottom: 12px;
+  padding: 22px 18px; text-align: center; margin-bottom: 18px;
+  font-family: 'Baloo 2', sans-serif; font-size: 22px; font-weight: 900;
+  color: var(--white); line-height: 1.6;
 }
-.sp-emoji  { font-size: 60px; margin-bottom: 6px; }
-.sp-name   { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 900; color: var(--yellow); margin-bottom: 8px; }
-.sp-q      { font-family: 'Baloo 2', sans-serif; font-size: 17px; font-weight: 800; color: var(--white); line-height: 1.4; }
-.timer-wrap { height: 6px; background: var(--border); border-radius: 3px; margin: 12px 0; overflow: hidden; }
-.timer-bar  { height: 100%; border-radius: 3px; width: 100%; }
-.sp-opts  { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-.sp-opt {
+.mw-blank {
+  display: inline-block; min-width: 110px;
+  border-bottom: 3px solid var(--yellow); color: var(--yellow);
+  padding: 0 6px;
+}
+.mw-vehicle { font-size: 40px; display: block; margin-bottom: 10px; }
+.mw-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.mw-opt {
   background: var(--teal); border: 2px solid var(--border); border-radius: 13px;
-  font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 800;
+  font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 800;
   color: var(--white); padding: 16px 8px; cursor: pointer; transition: all .15s; text-align: center;
 }
-.sp-opt:hover   { border-color: var(--yellow); color: var(--yellow); }
-.sp-opt.s-ok    { border-color: var(--cyan); color: var(--cyan); background: rgba(6,214,160,.1); animation: popIn .28s ease; pointer-events: none; }
-.sp-opt.s-bad   { border-color: var(--bad);  color: #ff8fab;     background: rgba(239,71,111,.1); animation: shake .4s ease;  pointer-events: none; }
-.sp-opt.s-lock  { pointer-events: none; }
-.sp-tally { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+.mw-opt:hover   { border-color: var(--yellow); color: var(--yellow); }
+.mw-opt.m-ok    { border-color: var(--cyan); color: var(--cyan); background: rgba(6,214,160,.1); animation: popIn .28s ease; pointer-events: none; }
+.mw-opt.m-bad   { border-color: var(--bad);  color: #ff8fab;     background: rgba(239,71,111,.1); animation: shake .4s ease;  pointer-events: none; }
+.mw-opt.m-lock  { pointer-events: none; }
 
 /* ══ G6: TRUE / FALSE ══ */
 .quiz-char { text-align: center; font-size: 44px; margin-bottom: 6px; }
@@ -296,7 +298,7 @@ body {
     <button class="nav-btn"        data-go="1">2 · Sort It</button>
     <button class="nav-btn"        data-go="2">3 · I'm…ing!</button>
     <button class="nav-btn"        data-go="3">4 · Word Order</button>
-    <button class="nav-btn"        data-go="4">5 · Speed Match</button>
+    <button class="nav-btn"        data-go="4">5 · Missing Word</button>
     <button class="nav-btn"        data-go="5">6 · True/False</button>
   </div>
 </div>
@@ -384,16 +386,15 @@ body {
   </div>
 </div>
 
-<!-- G5: SPEED MATCH -->
+<!-- G5: MISSING WORD -->
 <div class="screen" id="sc4">
   <div class="card">
-    <div class="game-badge">⚡ Game 5 · Story — Speed Match</div>
-    <div class="game-title" style="color:var(--yellow)">Speed Match! ⚡</div>
-    <div class="game-instr">Answer before time runs out — what is this character doing?</div>
-    <div class="speed-char" id="g5scene"></div>
-    <div class="timer-wrap"><div class="timer-bar" id="g5timerBar" style="background:var(--yellow)"></div></div>
-    <div class="sp-opts" id="g5opts"></div>
-    <div class="sp-tally" id="g5tally">0 / 0 correct</div>
+    <div class="game-badge">✏️ Game 5 · Grammar — Missing Word</div>
+    <div class="game-title" style="color:var(--yellow)">Missing Word! ✏️</div>
+    <div class="game-instr">Look at the vehicle. Tap the correct verb to complete the sentence!</div>
+    <div class="prog"><div class="prog-fill" id="g5bar" style="width:0%;background:var(--yellow)"></div></div>
+    <div class="mw-sentence" id="g5sentence"></div>
+    <div class="mw-opts" id="g5opts"></div>
     <div class="feedback" id="g5fb"></div>
     <button class="btn btn-right" id="g5next" style="display:none;background:var(--yellow);color:var(--bg);" data-act="g5next">Next ➜</button>
   </div>
@@ -433,7 +434,7 @@ body {
       <li>🎯 Flying, Riding or Driving? — verb groups</li>
       <li>🎉 I'm…ing! — present continuous sentences</li>
       <li>✏️ Word Order — sentence grammar</li>
-      <li>⚡ Speed Match — story characters</li>
+      <li>✏️ Missing Word — I'm ___ my vehicle!</li>
       <li>🔍 True or False — story facts</li>
     </ul>
     <button class="btn btn-full" style="background:var(--yellow);color:var(--bg);" data-act="restart">Play Again 🔄</button>
@@ -495,20 +496,16 @@ const G4_SENTENCES = [
   { words:["They're","flying","a","plane","."],         ans:"They're flying a plane ."         },
 ];
 
-// G5 — speed match (story character + 4 options)
+// G5 — Missing Word: vehicle shown, fill in fly/ride/drive
 const G5_QS = [
-  { emoji:'🦸', name:'Maskman', q:'What is Maskman doing?',
-    correct:"flying his helicopter", opts:["flying his helicopter","riding his bike","driving his lorry","riding a horse"] },
-  { emoji:'🐭', name:'Monty',   q:'What is Monty doing?',
-    correct:"riding his bike",       opts:["flying a plane","riding his bike","driving a car","flying a helicopter"] },
-  { emoji:'🧑‍🔧', name:'Trevor',  q:'What is Trevor doing?',
-    correct:"driving his lorry",     opts:["riding a bus","flying a plane","driving his lorry","riding a motorbike"] },
-  { emoji:'🧑‍🎨', name:'Marie',   q:'What is Marie doing?',
-    correct:"driving her car",       opts:["driving her car","flying a helicopter","riding a bike","driving a bus"] },
-  { emoji:'🧒', name:'Simon',   q:'What does Simon want to ride?',
-    correct:"the black motorbike",   opts:["the red lorry","the yellow boat","the black motorbike","the blue helicopter"] },
-  { emoji:'🧒', name:'Sam',     q:"What can't Sam do?",
-    correct:"swim",                  opts:["swim","fly","ride","drive"] },
+  { emoji:'🚁', sentence:"I'm ___ my helicopter .", blank:'flying',   opts:['flying','riding','driving'] },
+  { emoji:'🚲', sentence:"I'm ___ my bike .",       blank:'riding',   opts:['flying','riding','driving'] },
+  { emoji:'🚛', sentence:"I'm ___ my lorry .",      blank:'driving',  opts:['flying','riding','driving'] },
+  { emoji:'✈️',  sentence:"I'm ___ my plane .",      blank:'flying',   opts:['flying','riding','driving'] },
+  { emoji:'🚗', sentence:"I'm ___ my car .",         blank:'driving',  opts:['flying','riding','driving'] },
+  { emoji:'🏍️', sentence:"I'm ___ my motorbike .",  blank:'riding',   opts:['flying','riding','driving'] },
+  { emoji:'🚌', sentence:"I'm ___ my bus .",         blank:'driving',  opts:['flying','riding','driving'] },
+  { emoji:'⛵',  sentence:"I'm ___ my boat .",        blank:'riding',   opts:['flying','riding','driving'] },
 ];
 
 // G6 — True / False (verified from story script)
@@ -531,7 +528,7 @@ let g1q=[], g1i=0, g1locked=false;
 let g2sel=null, g2placed={}, g2done=false;
 let g3q=[], g3i=0, g3built=[], g3locked=false;
 let g4q=[], g4i=0, g4built=[], g4locked=false;
-let g5q=[], g5i=0, g5locked=false, g5correct=0, g5timer=null;
+let g5q=[], g5i=0, g5locked=false;
 let g6q=[], g6i=0, g6locked=false, g6correct=0;
 
 /* ─── HELPERS ─── */
@@ -727,63 +724,43 @@ function g4Check(){
   show('g4next');
 }
 
-/* ─── G5: SPEED MATCH ─── */
-const SP_TIME=6000;
-function g5Init(){ g5q=rnd(G5_QS); g5i=0; g5correct=0; g5Render(); }
+/* ─── G5: MISSING WORD ─── */
+function g5Init(){ g5q=rnd(G5_QS); g5i=0; g5Render(); }
 function g5Render(){
   if(g5i>=g5q.length){ markDone(4); return; }
   const q=g5q[g5i];
   g5locked=false;
-  $('g5scene').innerHTML=
-    '<div class="sp-emoji">'+q.emoji+'</div>'+
-    '<div class="sp-name">'+q.name+'</div>'+
-    '<div class="sp-q">'+q.q+'</div>';
+  $('g5bar').style.width=(g5i/g5q.length*100)+'%';
+  // Build sentence HTML with blank
+  const parts=q.sentence.split('___ ');
+  $('g5sentence').innerHTML=
+    '<span class="mw-vehicle">'+q.emoji+'</span>'+
+    parts[0]+'<span class="mw-blank">___</span> '+parts[1];
   hideFb('g5fb'); hide('g5next');
-  $('g5tally').textContent=g5correct+' / '+g5i+' correct';
-  // Options — shuffled, track correct via data attribute
-  const shuffled=rnd(q.opts);
+  // Always show all 3 verb options shuffled
   const box=$('g5opts'); box.innerHTML='';
-  shuffled.forEach(opt=>{
+  rnd(q.opts).forEach(opt=>{
     const b=document.createElement('button');
-    b.className='sp-opt'; b.textContent=opt;
+    b.className='mw-opt'; b.textContent=opt;
     b.setAttribute('data-opt',opt);
-    b.setAttribute('data-correct',opt===q.correct?'1':'0');
+    b.setAttribute('data-correct',opt===q.blank?'1':'0');
     box.appendChild(b);
   });
-  // Timer
-  const bar=$('g5timerBar');
-  bar.style.transition='none'; bar.style.width='100%'; bar.style.background='var(--yellow)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    bar.style.transition='width '+SP_TIME+'ms linear';
-    bar.style.width='0%';
-  }));
-  clearTimeout(g5timer);
-  g5timer=setTimeout(()=>{ if(!g5locked) g5TimeUp(); }, SP_TIME);
 }
 function g5Answer(el){
   if(g5locked) return; g5locked=true;
-  clearTimeout(g5timer);
-  $('g5timerBar').style.transition='none';
   const correct=el.getAttribute('data-correct')==='1';
-  document.querySelectorAll('.sp-opt').forEach(b=>{
-    if(b.getAttribute('data-correct')==='1') b.classList.add('s-ok');
-    else if(b===el) b.classList.add('s-bad');
-    else b.classList.add('s-lock');
+  const answer=el.getAttribute('data-opt');
+  document.querySelectorAll('.mw-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('m-ok');
+    else if(b===el) b.classList.add('m-bad');
+    else b.classList.add('m-lock');
   });
-  if(correct){ g5correct++; score(2); showFb('g5fb','ok','⭐ Correct! +2 stars'); }
-  else { showFb('g5fb','bad','Check the correct answer above!'); }
-  $('g5tally').textContent=g5correct+' / '+(g5i+1)+' correct';
-  show('g5next');
-}
-function g5TimeUp(){
-  g5locked=true;
-  $('g5timerBar').style.background='var(--red)';
-  document.querySelectorAll('.sp-opt').forEach(b=>{
-    if(b.getAttribute('data-correct')==='1') b.classList.add('s-ok');
-    else b.classList.add('s-lock');
-  });
-  showFb('g5fb','bad','Too slow! Check the correct answer above.');
-  $('g5tally').textContent=g5correct+' / '+(g5i+1)+' correct';
+  // Fill in the blank visually
+  const blank=$('g5sentence').querySelector('.mw-blank');
+  if(blank){ blank.textContent=answer; blank.style.color=correct?'var(--cyan)':'var(--bad)'; }
+  if(correct){ score(2); showFb('g5fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g5fb','bad','The answer is: '+g5q[g5i].blank); }
   show('g5next');
 }
 
@@ -815,7 +792,6 @@ function g6Answer(val){
 
 /* ─── WIN ─── */
 function showWin(){
-  clearTimeout(g5timer);
   launchConfetti();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $('sc-win').classList.add('active');
@@ -871,9 +847,9 @@ document.addEventListener('click', function(e){
   const wt=t.closest('.w-tile');
   if(wt){ g4Tap(wt); return; }
 
-  // G5 speed options
-  const so=t.closest('.sp-opt');
-  if(so){ g5Answer(so); return; }
+  // G5 missing word options
+  const mo=t.closest('.mw-opt');
+  if(mo){ g5Answer(mo); return; }
 
   // data-act buttons
   const el=t.closest('[data-act]');
@@ -892,7 +868,7 @@ document.addEventListener('click', function(e){
   else if(act==='g5next')  { g5i++; g5Render(); }
   else if(act==='g6ans')   g6Answer(val);
   else if(act==='g6next')  { g6i++; g6Render(); }
-  else if(act==='restart') { clearTimeout(g5timer); location.reload(); }
+  else if(act==='restart') { location.reload(); }
 });
 
 /* ─── BOOT ─── */
