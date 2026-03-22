@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 4 — My Family! 🏠</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:   #fdf6ec;
+  --warm:    #f5e6c8;
+  --orange:  #e88c2e;
+  --rust:    #c0521a;
+  --teal:    #2a9d8f;
+  --sky:     #457b9d;
+  --rose:    #e76f81;
+  --green:   #52b788;
+  --red:     #d62828;
+  --deep:    #2b1d0e;
+  --surface: #fffbf4;
+  --border:  #e8d5b0;
+  --muted:   #9c7e5a;
+  --shadow:  0 4px 24px rgba(43,29,14,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: var(--cream);
+  min-height: 100vh;
+  color: var(--deep);
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--rust);
+  padding: 0;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 3px 16px rgba(43,29,14,0.25);
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+}
+.header-title { font-family:'Baloo 2',sans-serif; font-size:21px; font-weight:900; color:#fff; }
+.header-sub   { font-size:9px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:2px; margin-top:1px; }
+.score-pill   { background:var(--orange); color:#fff; font-family:'Baloo 2',sans-serif; font-size:15px; font-weight:800; padding:5px 14px; border-radius:30px; }
+
+/* ── DOOR NAV ── */
+.door-nav {
+  background: var(--rust);
+  border-top: 2px solid rgba(255,255,255,0.1);
+  display: flex; gap:5px; padding:10px 16px 12px;
+  overflow-x: auto;
+}
+.door-nav::-webkit-scrollbar { display: none; }
+.door-btn {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.55); font-family:'Baloo 2',sans-serif;
+  font-size: 10px; font-weight: 700; padding: 6px 13px; border-radius: 30px;
+  cursor: pointer; transition: all .18s; letter-spacing:.5px;
+}
+.door-btn.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+.door-btn.done   { background:var(--teal);   border-color:var(--teal);   color:#fff; }
+
+/* ── SCREENS ── */
+.screen { display:none; padding:16px; max-width:660px; margin:0 auto; }
+.screen.active { display:block; animation:enterRoom .25s ease; }
+@keyframes enterRoom { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+
+/* ── CARD ── */
+.card {
+  background: var(--surface); border-radius:20px;
+  padding: 20px; box-shadow: var(--shadow);
+  border: 2px solid var(--border); margin-bottom:14px;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background: linear-gradient(90deg, var(--orange), var(--rose), var(--teal));
+}
+.game-label { font-size:9px; font-weight:700; letter-spacing:2.5px; color:var(--muted); margin-bottom:5px; text-transform:uppercase; }
+.game-title { font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900; color:var(--deep); margin-bottom:3px; }
+.game-instr { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:18px; line-height:1.5; }
+
+/* ── FEEDBACK ── */
+.feedback { margin-top:12px; padding:10px 16px; border-radius:11px;
+  font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:700;
+  text-align:center; display:none; }
+.feedback.ok  { background:#d8f3dc; color:#1b6934; display:block; }
+.feedback.bad { background:#fde8e8; color:#c0392b; display:block; }
+
+/* ── BUTTONS ── */
+.btn { background:var(--orange); color:#fff; border:none; border-radius:11px;
+  font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:700;
+  padding:10px 22px; cursor:pointer; transition:all .15s; display:inline-block; }
+.btn:hover { transform:translateY(-2px); box-shadow:0 5px 14px rgba(232,140,46,.35); }
+.btn-teal  { background:var(--teal); }
+.btn-rose  { background:var(--rose); }
+.btn-full  { width:100%; text-align:center; }
+.btn-sm    { font-size:12px; padding:7px 14px; }
+
+/* ── PROGRESS BAR ── */
+.prog { height:5px; background:var(--border); border-radius:3px; margin-bottom:16px; overflow:hidden; }
+.prog-fill { height:100%; background:var(--orange); border-radius:3px; transition:width .4s ease; }
+
+/* ══════════════════════════════════════
+   GAME 1 — PORTRAIT MATCH
+   Drag-style tap: tap a person → tap their name
+══════════════════════════════════════ */
+.portrait-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:16px;
+}
+.portrait-card {
+  background: var(--warm); border: 2.5px solid var(--border); border-radius:16px;
+  padding: 12px 6px; cursor:pointer; transition:all .18s; text-align:center;
+  display: flex; flex-direction:column; align-items:center; gap:4px;
+}
+.portrait-card .p-emoji { font-size:36px; }
+.portrait-card .p-role  { font-family:'Quicksand',sans-serif; font-size:9px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.portrait-card:hover { border-color:var(--orange); transform:translateY(-2px); }
+.portrait-card.p-sel  { border-color:var(--orange); background:#fff8ee; box-shadow:0 0 0 3px rgba(232,140,46,.2); }
+.portrait-card.p-hit-ok  { border-color:var(--green); background:#d8f3dc; animation:popIn .28s ease; }
+.portrait-card.p-hit-bad { border-color:var(--red);   background:#fde8e8; animation:shake .4s ease; }
+
+.name-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
+.name-chip {
+  background: var(--deep); color:#fff; font-family:'Baloo 2',sans-serif;
+  font-size:13px; font-weight:700; padding:8px 16px; border-radius:30px;
+  cursor:pointer; transition:all .15s; border:2px solid transparent;
+}
+.name-chip:hover { background:var(--rust); }
+.name-chip.n-sel   { border-color:var(--orange); background:var(--orange); }
+.name-chip.n-gone  { opacity:0; pointer-events:none; }
+
+/* ══════════════════════════════════════
+   GAME 2 — FEELINGS FACE-OFF
+══════════════════════════════════════ */
+.adjective-display {
+  font-family:'Baloo 2',sans-serif; font-size:34px; font-weight:900;
+  text-align:center; color:var(--rust);
+  background: var(--warm); border-radius:14px; padding:18px;
+  margin-bottom:18px; letter-spacing:1px;
+  border: 2px solid var(--border);
+}
+.face-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.face-card {
+  background: var(--warm); border: 2.5px solid var(--border); border-radius:18px;
+  padding:20px 10px; cursor:pointer; transition:all .18s; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.face-card .fc-emoji { font-size:52px; }
+.face-card .fc-word  { font-family:'Baloo 2',sans-serif; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:1px; }
+.face-card:hover { transform:scale(1.04); border-color:var(--orange); }
+.face-card.fc-ok  { border-color:var(--green); background:#d8f3dc; animation:popIn .3s ease; }
+.face-card.fc-bad { border-color:var(--red);   background:#fde8e8; animation:shake .4s ease; }
+
+/* ══════════════════════════════════════
+   GAME 3 — STAR FAMILY SAYS (who is it?)
+══════════════════════════════════════ */
+.clue-box {
+  background:linear-gradient(135deg,#fff8ee,#fdf0d8);
+  border:2px solid var(--border); border-radius:14px;
+  padding:18px; text-align:center; margin-bottom:18px;
+  font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800;
+  color:var(--deep); line-height:1.5;
+}
+.clue-box .clue-emoji { font-size:38px; margin-bottom:6px; }
+.family-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.fam-btn {
+  background:var(--warm); border:2.5px solid var(--border); border-radius:13px;
+  font-family:'Baloo 2',sans-serif; font-size:12px; font-weight:800;
+  color:var(--deep); padding:12px 6px; cursor:pointer; transition:all .15s;
+  text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.fam-btn .fb-emoji { font-size:24px; }
+.fam-btn:hover { border-color:var(--orange); background:#fff8ee; }
+.fam-btn.fb-ok  { border-color:var(--green); background:#d8f3dc; animation:popIn .28s ease; }
+.fam-btn.fb-bad { border-color:var(--red);   background:#fde8e8; animation:shake .4s ease; }
+.fam-btn.fb-lock { pointer-events:none; }
+
+/* ══════════════════════════════════════
+   GAME 4 — OPPOSITES SNAP (timed)
+══════════════════════════════════════ */
+.snap-word {
+  font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:900; color:var(--rust);
+  text-align:center; margin-bottom:6px;
+}
+.snap-prompt { font-size:13px; font-weight:600; color:var(--muted); text-align:center; margin-bottom:14px; }
+.snap-timer-wrap { height:8px; background:var(--border); border-radius:4px; margin-bottom:18px; overflow:hidden; }
+.snap-timer-bar  { height:100%; background:var(--orange); border-radius:4px; transition:width .1s linear; }
+.snap-opts { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.snap-opt {
+  background:var(--warm); border:2.5px solid var(--border); border-radius:15px;
+  font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800;
+  color:var(--deep); padding:18px 10px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.snap-opt:hover { transform:scale(1.04); border-color:var(--orange); }
+.snap-opt.so-ok  { border-color:var(--green); background:#d8f3dc; animation:popIn .3s ease; }
+.snap-opt.so-bad { border-color:var(--red);   background:#fde8e8; animation:shake .4s ease; }
+.snap-opt.so-lock { pointer-events:none; }
+.snap-score-row  { display:flex; justify-content:center; align-items:center; gap:6px; font-family:'Baloo 2',sans-serif; font-size:12px; font-weight:700; color:var(--muted); }
+
+/* ══════════════════════════════════════
+   GAME 5 — FAMILY TREE FILL
+══════════════════════════════════════ */
+.tree-sentence {
+  font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:800;
+  text-align:center; color:var(--deep); line-height:1.6;
+  margin-bottom:18px; min-height:70px; display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:6px;
+}
+.tree-blank {
+  display:inline-block; min-width:100px; border-bottom:3px solid var(--orange);
+  color:var(--orange); padding:0 4px;
+}
+.tree-opts { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.tree-opt {
+  background:var(--warm); border:2.5px solid var(--border); border-radius:12px;
+  font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700;
+  color:var(--deep); padding:11px 6px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.tree-opt:hover { border-color:var(--orange); background:#fff8ee; }
+.tree-opt.to-ok  { border-color:var(--green); background:#d8f3dc; color:#1b6934; pointer-events:none; }
+.tree-opt.to-bad { border-color:var(--red);   background:#fde8e8; color:#c0392b; pointer-events:none; }
+.tree-opt.to-lock { pointer-events:none; }
+
+/* ══════════════════════════════════════
+   GAME 6 — TRUE / FALSE
+══════════════════════════════════════ */
+.tf-char { text-align:center; font-size:44px; margin-bottom:8px; }
+.tf-q    { font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800; color:var(--deep);
+  text-align:center; line-height:1.45; margin-bottom:22px; min-height:66px;
+  display:flex; align-items:center; justify-content:center; }
+.tf-btns { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.tf-btn  { border:none; border-radius:15px; font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800;
+  padding:18px; cursor:pointer; transition:all .15s; }
+.tf-t    { background:#d8f3dc; color:#1b6934; }
+.tf-f    { background:#fde8e8; color:#c0392b; }
+.tf-btn:hover    { transform:scale(1.04); }
+.tf-btn.tf-ok    { background:var(--green); color:#fff; animation:popIn .3s ease; }
+.tf-btn.tf-wrong { background:var(--red);   color:#fff; animation:shake .4s ease; }
+.tf-btn.tf-lock  { pointer-events:none; }
+.tf-tally { text-align:center; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:1px; }
+
+/* ══════════════════════════════════════
+   COMPLETE
+══════════════════════════════════════ */
+.win-house { font-size:64px; text-align:center; animation:spinIn .6s ease; margin-bottom:12px; }
+.win-title { font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:900; color:var(--rust); text-align:center; margin-bottom:6px; }
+.win-sub   { font-size:13px; color:var(--muted); font-weight:600; text-align:center; margin-bottom:24px; }
+.win-ring  {
+  width:116px; height:116px; border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),var(--rose));
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  margin:0 auto 24px; box-shadow:0 8px 26px rgba(232,140,46,.3);
+}
+.win-num { font-family:'Baloo 2',sans-serif; font-size:32px; font-weight:900; color:#fff; line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(255,255,255,.65); letter-spacing:1px; }
+.win-list { background:var(--surface); border-radius:14px; padding:12px 18px; border:2px solid var(--border); margin-bottom:20px; }
+.win-list li { list-style:none; font-size:13px; font-weight:600; color:var(--deep); padding:5px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:7px; }
+.win-list li:last-child { border:none; }
+
+/* CONFETTI */
+.confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp { position:absolute; width:9px; height:9px; opacity:0; animation:fall linear forwards; }
+@keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ANIMATIONS */
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.14)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:none;opacity:1} }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="header-title">🏠 My Family!</div>
+      <div class="header-sub">UNIT 4 · KIDS BOX NG1 · PRO3_S</div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <div class="door-nav">
+    <button class="door-btn active" data-go="0">1 · Portraits</button>
+    <button class="door-btn"        data-go="1">2 · Feelings</button>
+    <button class="door-btn"        data-go="2">3 · Who Is It?</button>
+    <button class="door-btn"        data-go="3">4 · Opposites</button>
+    <button class="door-btn"        data-go="4">5 · Family Tree</button>
+    <button class="door-btn"        data-go="5">6 · True/False</button>
+  </div>
+</div>
+
+<!-- ═══ GAME 1: PORTRAIT MATCH ═══ -->
+<div class="screen active" id="sc0">
+  <div class="card">
+    <div class="game-label">Game 1 · Vocabulary</div>
+    <div class="game-title">Portrait Match! 🖼️</div>
+    <div class="game-instr">Tap a family member, then tap their name. Match them all!</div>
+    <div class="portrait-grid" id="g1portraits"></div>
+    <div class="name-row" id="g1names"></div>
+    <div class="feedback" id="g1fb"></div>
+    <div style="margin-top:12px;text-align:center;">
+      <button class="btn btn-teal btn-full" id="g1next" style="display:none" data-act="g1next">All matched! Next room ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 2: FEELINGS FACE-OFF ═══ -->
+<div class="screen" id="sc1">
+  <div class="card">
+    <div class="game-label">Game 2 · Vocabulary — Adjectives</div>
+    <div class="game-title">Feelings Face-Off! 😊</div>
+    <div class="game-instr">Read the word. Tap the face that matches!</div>
+    <div class="prog"><div class="prog-fill" id="g2bar" style="width:0%"></div></div>
+    <div class="adjective-display" id="g2word"></div>
+    <div class="face-grid" id="g2faces"></div>
+    <div class="feedback" id="g2fb"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn" style="background:var(--border);color:var(--deep);" id="g2skip" data-act="g2next" style="display:none">Next ➜</button>
+      <button class="btn btn-teal" id="g2next" style="display:none" data-act="g2next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 3: STAR FAMILY SAYS ═══ -->
+<div class="screen" id="sc2">
+  <div class="card">
+    <div class="game-label">Game 3 · Grammar — He's / She's</div>
+    <div class="game-title">Star Family Says! ⭐</div>
+    <div class="game-instr">Read the clue. Who is it? Tap the right family member!</div>
+    <div class="prog"><div class="prog-fill" id="g3bar" style="width:0%"></div></div>
+    <div class="clue-box" id="g3clue"></div>
+    <div class="family-btns" id="g3btns"></div>
+    <div class="feedback" id="g3fb"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn btn-teal" id="g3next" style="display:none" data-act="g3next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 4: OPPOSITES SNAP ═══ -->
+<div class="screen" id="sc3">
+  <div class="card">
+    <div class="game-label">Game 4 · Grammar — Opposites</div>
+    <div class="game-title">Opposites Snap! ⚡</div>
+    <div class="game-instr">Tap the opposite word before time runs out!</div>
+    <div class="snap-word" id="g4word"></div>
+    <div class="snap-prompt">What is the OPPOSITE?</div>
+    <div class="snap-timer-wrap"><div class="snap-timer-bar" id="g4timer"></div></div>
+    <div class="snap-opts" id="g4opts"></div>
+    <div class="snap-score-row">Round <span id="g4ri">1</span> of 8 &nbsp;·&nbsp; ⭐ <span id="g4pts">0</span> pts</div>
+    <div class="feedback" id="g4fb"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn btn-teal" id="g4next" style="display:none" data-act="g4next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 5: FAMILY TREE FILL ═══ -->
+<div class="screen" id="sc4">
+  <div class="card">
+    <div class="game-label">Game 5 · Grammar — This is my…</div>
+    <div class="game-title">Family Tree! 🌳</div>
+    <div class="game-instr">Who is it? Choose the correct family word to complete the sentence.</div>
+    <div class="prog"><div class="prog-fill" id="g5bar" style="width:0%"></div></div>
+    <div class="tree-sentence" id="g5sent"></div>
+    <div class="tree-opts" id="g5opts"></div>
+    <div class="feedback" id="g5fb"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn btn-teal" id="g5next" style="display:none" data-act="g5next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 6: TRUE / FALSE ═══ -->
+<div class="screen" id="sc5">
+  <div class="card">
+    <div class="game-label">Game 6 · Story Quiz</div>
+    <div class="game-title">True or False? 🔍</div>
+    <div class="game-instr">Is the sentence about the Star family TRUE or FALSE?</div>
+    <div class="prog"><div class="prog-fill" id="g6bar" style="width:0%"></div></div>
+    <div class="tf-char" id="g6char"></div>
+    <div class="tf-q"    id="g6q"></div>
+    <div class="tf-btns">
+      <button class="tf-btn tf-t" id="tfT" data-act="g6ans" data-val="true">✅ TRUE</button>
+      <button class="tf-btn tf-f" id="tfF" data-act="g6ans" data-val="false">❌ FALSE</button>
+    </div>
+    <div class="feedback" id="g6fb"></div>
+    <div class="tf-tally" id="g6tally">0 / 0 correct</div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn btn-teal" id="g6next" style="display:none" data-act="g6next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETE ═══ -->
+<div class="screen" id="sc-win">
+  <div style="padding:30px 16px 40px;">
+    <div class="win-house">🏡</div>
+    <div class="win-title">The Star Family loves you!</div>
+    <div class="win-sub">You finished all 6 games!</div>
+    <div class="win-ring">
+      <div class="win-num" id="winScore">0</div>
+      <div class="win-lbl">STARS</div>
+    </div>
+    <ul class="win-list">
+      <li>🖼️ Portrait Match — family vocabulary</li>
+      <li>😊 Feelings Face-Off — adjectives</li>
+      <li>⭐ Star Family Says — He's / She's</li>
+      <li>⚡ Opposites Snap — isn't / is</li>
+      <li>🌳 Family Tree — This is my…</li>
+      <li>🔍 True or False — story facts</li>
+    </ul>
+    <button class="btn btn-full" data-act="restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<script>
+'use strict';
+
+/* ──────────── DATA ──────────── */
+const FAMILY = [
+  { id:'mother',      word:'mother',      emoji:'👩', pronoun:'she', star:'Mrs Star' },
+  { id:'father',      word:'father',      emoji:'👨', pronoun:'he',  star:'Mr Star' },
+  { id:'sister',      word:'sister',      emoji:'👧', pronoun:'she', star:'Stella' },
+  { id:'brother',     word:'brother',     emoji:'👦', pronoun:'he',  star:'Simon' },
+  { id:'grandmother', word:'grandmother', emoji:'👵', pronoun:'she', star:'Grandma Star' },
+  { id:'grandfather', word:'grandfather', emoji:'👴', pronoun:'he',  star:'Grandpa Star' },
+];
+
+const ADJECTIVES = [
+  { id:'happy',    word:'happy',    emoji:'😄', opposite:'sad'   },
+  { id:'sad',      word:'sad',      emoji:'😢', opposite:'happy' },
+  { id:'old',      word:'old',      emoji:'👴', opposite:'young' },
+  { id:'young',    word:'young',    emoji:'👶', opposite:'old'   },
+  { id:'beautiful',word:'beautiful',emoji:'🌸', opposite:'ugly'  },
+  { id:'ugly',     word:'ugly',     emoji:'🤢', opposite:'beautiful' },
+];
+
+// Game 3 — who is it clues
+const G3_CLUES = [
+  { emoji:'👴', clue:'He is old.\nHe is my grandfather.', answer:'grandfather' },
+  { emoji:'👵', clue:'She is happy.\nShe is my grandmother.',answer:'grandmother'},
+  { emoji:'👩', clue:'She is beautiful.\nShe is my mother.', answer:'mother' },
+  { emoji:'👨', clue:'He is sad.\nHe is my father.',       answer:'father' },
+  { emoji:'👧', clue:'She is young.\nShe is my sister.',   answer:'sister' },
+  { emoji:'👦', clue:'He is ugly.\nHe is my brother.',     answer:'brother' },
+];
+
+// Game 5 — family tree sentences
+const G5_SENTENCES = [
+  { display:`This is my <span class="tree-blank">___</span>. She is beautiful.`, answer:'mother',      emote:'👩' },
+  { display:`This is my <span class="tree-blank">___</span>. He is sad.`,        answer:'father',      emote:'👨' },
+  { display:`This is my <span class="tree-blank">___</span>. She is young.`,     answer:'sister',      emote:'👧' },
+  { display:`This is my <span class="tree-blank">___</span>. He is ugly.`,       answer:'brother',     emote:'👦' },
+  { display:`This is my <span class="tree-blank">___</span>. She is old.`,       answer:'grandmother', emote:'👵' },
+  { display:`This is my <span class="tree-blank">___</span>. He is old.`,        answer:'grandfather', emote:'👴' },
+];
+
+// Game 6 — story facts about the Star family
+const G6_QS = [
+  { char:'👴', text:'Grandpa Star is old.',               ans:true  },
+  { char:'👵', text:'Grandma Star is happy.',             ans:true  },
+  { char:'👩', text:'Mrs Star is beautiful.',             ans:true  },
+  { char:'👨', text:'Mr Star is sad.',                    ans:true  },
+  { char:'👧', text:'Stella is the sister.',              ans:true  },
+  { char:'👦', text:'Simon is the brother.',              ans:true  },
+  { char:'👴', text:'Grandpa Star is young.',             ans:false },
+  { char:'👵', text:'Grandma Star is ugly.',              ans:false },
+];
+
+/* ──────────── STATE ──────────── */
+let totalScore = 0;
+const done = [false,false,false,false,false,false];
+
+// G1
+let g1selPortrait = null, g1selName = null, g1matchedCount = 0;
+// G2
+let g2q = [], g2i = 0, g2answered = false;
+// G3
+let g3q = [], g3i = 0, g3answered = false;
+// G4
+let g4q = [], g4i = 0, g4answered = false, g4pts = 0, g4timer = null, g4timeLeft = 0;
+// G5
+let g5q = [], g5i = 0, g5answered = false;
+// G6
+let g6q = [], g6i = 0, g6answered = false, g6correct = 0;
+
+/* ──────────── HELPERS ──────────── */
+function rnd(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];} return b; }
+function $(id){ return document.getElementById(id); }
+function addScore(n){ totalScore+=n; $('scoreNum').textContent=totalScore; }
+function fb(id,type,msg){ const e=$(id); e.className='feedback '+type; e.textContent=msg; }
+function hideFb(id){ $(id).className='feedback'; }
+function markDone(i){ done[i]=true; document.querySelectorAll('.door-btn')[i].classList.add('done'); }
+function navTo(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(idx==='win'?'sc-win':'sc'+idx).classList.add('active');
+  if(idx!=='win'){
+    document.querySelectorAll('.door-btn').forEach((b,i)=>{
+      b.classList.remove('active');
+      if(done[i]) b.classList.add('done');
+    });
+    document.querySelectorAll('.door-btn')[idx].classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+/* ──────────── GAME 1: PORTRAIT MATCH ──────────── */
+function g1Init(){
+  g1selPortrait=null; g1selName=null; g1matchedCount=0;
+  const portraits=$('g1portraits');
+  const names=$('g1names');
+  portraits.innerHTML=''; names.innerHTML='';
+  hideFb('g1fb'); $('g1next').style.display='none';
+
+  // All 6 family members as portrait cards
+  rnd(FAMILY).forEach(f=>{
+    const c=document.createElement('div');
+    c.className='portrait-card'; c.setAttribute('data-g1fid',f.id);
+    c.innerHTML=`<div class="p-emoji">${f.emoji}</div><div class="p-role">${f.pronoun==='he'?'He':'She'} is…</div>`;
+    portraits.appendChild(c);
+  });
+
+  // Name chips shuffled
+  rnd(FAMILY).forEach(f=>{
+    const n=document.createElement('div');
+    n.className='name-chip'; n.textContent=f.word;
+    n.setAttribute('data-g1nid',f.id);
+    names.appendChild(n);
+  });
+}
+
+function g1TapPortrait(el){
+  if(el.classList.contains('p-hit-ok')) return;
+  document.querySelectorAll('.portrait-card:not(.p-hit-ok)').forEach(c=>c.classList.remove('p-sel'));
+  g1selPortrait=el;
+  el.classList.add('p-sel');
+  g1TryMatch();
+}
+
+function g1TapName(el){
+  if(el.classList.contains('n-gone')) return;
+  document.querySelectorAll('.name-chip:not(.n-gone)').forEach(n=>n.classList.remove('n-sel'));
+  g1selName=el;
+  el.classList.add('n-sel');
+  g1TryMatch();
+}
+
+function g1TryMatch(){
+  if(!g1selPortrait||!g1selName) return;
+  const pid=g1selPortrait.getAttribute('data-g1fid');
+  const nid=g1selName.getAttribute('data-g1nid');
+  if(pid===nid){
+    // Correct
+    g1selPortrait.classList.remove('p-sel'); g1selPortrait.classList.add('p-hit-ok');
+    // Add label to portrait
+    g1selPortrait.innerHTML += `<div style="font-family:'Baloo 2';font-size:11px;font-weight:800;color:var(--teal);margin-top:2px;">${g1selName.textContent}</div>`;
+    g1selName.classList.remove('n-sel'); g1selName.classList.add('n-gone');
+    addScore(2); g1matchedCount++;
+    if(g1matchedCount===FAMILY.length){
+      fb('g1fb','ok','⭐ All family matched! +12 stars total');
+      $('g1next').style.display='block';
+      markDone(0);
+    }
+  } else {
+    // Wrong
+    g1selPortrait.classList.remove('p-sel'); g1selPortrait.classList.add('p-hit-bad');
+    g1selName.classList.remove('n-sel');
+    setTimeout(()=>g1selPortrait.classList.remove('p-hit-bad'),600);
+    fb('g1fb','bad','Not quite! Try again.');
+    setTimeout(()=>hideFb('g1fb'),1200);
+  }
+  g1selPortrait=null; g1selName=null;
+}
+
+/* ──────────── GAME 2: FEELINGS FACE-OFF ──────────── */
+function g2Init(){ g2q=rnd(ADJECTIVES); g2i=0; g2answered=false; g2Render(); }
+
+function g2Render(){
+  if(g2i>=g2q.length){ markDone(1); navTo(2); g3Init(); return; }
+  const q=g2q[g2i];
+  $('g2bar').style.width=(g2i/g2q.length*100)+'%';
+  $('g2word').textContent=q.word;
+  hideFb('g2fb'); $('g2next').style.display='none'; g2answered=false;
+
+  // Correct face + one wrong
+  const wrong=ADJECTIVES.find(a=>a.id===q.opposite);
+  const choices=rnd([q,wrong]);
+  const grid=$('g2faces'); grid.innerHTML='';
+  choices.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='face-card';
+    el.setAttribute('data-g2id',c.id);
+    el.innerHTML=`<div class="fc-emoji">${c.emoji}</div><div class="fc-word">${c.word}</div>`;
+    grid.appendChild(el);
+  });
+}
+
+function g2Answer(id){
+  if(g2answered) return; g2answered=true;
+  const correct=g2q[g2i].id;
+  document.querySelectorAll('.face-card').forEach(c=>{
+    const cid=c.getAttribute('data-g2id');
+    if(cid===correct) c.classList.add('fc-ok');
+    else if(cid===id) c.classList.add('fc-bad');
+  });
+  if(id===correct){ addScore(2); fb('g2fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g2fb','bad','The answer is: '+g2q[g2i].word+' '+g2q[g2i].emoji); }
+  $('g2next').style.display='inline-block';
+}
+
+/* ──────────── GAME 3: STAR FAMILY SAYS ──────────── */
+function g3Init(){ g3q=rnd(G3_CLUES); g3i=0; g3answered=false; g3Render(); }
+
+function g3Render(){
+  if(g3i>=g3q.length){ markDone(2); navTo(3); g4Init(); return; }
+  const q=g3q[g3i];
+  $('g3bar').style.width=(g3i/g3q.length*100)+'%';
+  $('g3clue').innerHTML=`<div class="clue-emoji">${q.emoji}</div>${q.clue.replace(/\n/,'<br>')}`;
+  hideFb('g3fb'); $('g3next').style.display='none'; g3answered=false;
+
+  // 6 family buttons
+  const btns=$('g3btns'); btns.innerHTML='';
+  rnd(FAMILY).forEach(f=>{
+    const b=document.createElement('div');
+    b.className='fam-btn';
+    b.setAttribute('data-g3id',f.id);
+    b.innerHTML=`<div class="fb-emoji">${f.emoji}</div><div>${f.word}</div>`;
+    btns.appendChild(b);
+  });
+}
+
+function g3Answer(id){
+  if(g3answered) return; g3answered=true;
+  const correct=g3q[g3i].answer;
+  document.querySelectorAll('.fam-btn').forEach(b=>{
+    b.classList.add('fb-lock');
+    const bid=b.getAttribute('data-g3id');
+    if(bid===correct) b.classList.add('fb-ok');
+    else if(bid===id) b.classList.add('fb-bad');
+  });
+  if(id===correct){ addScore(2); fb('g3fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g3fb','bad','The answer is: '+FAMILY.find(f=>f.id===correct).word); }
+  $('g3next').style.display='inline-block';
+}
+
+/* ──────────── GAME 4: OPPOSITES SNAP ──────────── */
+const SNAP_PAIRS = [
+  {word:'happy',   correct:'sad'},
+  {word:'sad',     correct:'happy'},
+  {word:'old',     correct:'young'},
+  {word:'young',   correct:'old'},
+  {word:'beautiful',correct:'ugly'},
+  {word:'ugly',    correct:'beautiful'},
+  {word:'happy',   correct:'sad'},
+  {word:'old',     correct:'young'},
+];
+const TIME_LIMIT = 5000; // 5 seconds per round
+
+function g4Init(){ g4q=rnd(SNAP_PAIRS).slice(0,8); g4i=0; g4pts=0; g4answered=false; g4Render(); }
+
+function g4Render(){
+  if(g4i>=g4q.length){ markDone(3); navTo(4); g5Init(); return; }
+  const q=g4q[g4i];
+  $('g4ri').textContent=g4i+1;
+  $('g4pts').textContent=g4pts;
+  $('g4word').textContent=q.word;
+  $('g4timer').style.width='100%';
+  $('g4timer').style.background='var(--orange)';
+  $('g4timer').style.transition='width '+TIME_LIMIT+'ms linear';
+  hideFb('g4fb'); $('g4next').style.display='none'; g4answered=false;
+
+  // 2 choices: correct + one distractor
+  const all=ADJECTIVES.map(a=>a.word).filter(w=>w!==q.word&&w!==q.correct);
+  const distractor=all[0|Math.random()*all.length];
+  const choices=rnd([q.correct, distractor]);
+  const opts=$('g4opts'); opts.innerHTML='';
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='snap-opt';
+    b.textContent=c;
+    b.setAttribute('data-g4val',c);
+    opts.appendChild(b);
+  });
+
+  // Start timer
+  if(g4timer) clearInterval(g4timer);
+  g4timeLeft=TIME_LIMIT;
+  const start=Date.now();
+  requestAnimationFrame(()=>{ $('g4timer').style.width='0%'; });
+  g4timer=setTimeout(()=>{
+    if(!g4answered) g4TimeUp();
+  }, TIME_LIMIT);
+}
+
+function g4Answer(val){
+  if(g4answered) return; g4answered=true;
+  clearTimeout(g4timer);
+  $('g4timer').style.transition='none'; $('g4timer').style.width='0%';
+  const correct=g4q[g4i].correct;
+  document.querySelectorAll('.snap-opt').forEach(b=>{
+    b.classList.add('so-lock');
+    if(b.getAttribute('data-g4val')===correct) b.classList.add('so-ok');
+    else if(b.getAttribute('data-g4val')===val)  b.classList.add('so-bad');
+  });
+  if(val===correct){ g4pts+=2; addScore(2); fb('g4fb','ok','⭐ +2! The opposite of '+g4q[g4i].word+' is '+correct); }
+  else { fb('g4fb','bad','The opposite of '+g4q[g4i].word+' is '+correct); }
+  $('g4pts').textContent=g4pts;
+  $('g4next').style.display='inline-block';
+}
+
+function g4TimeUp(){
+  g4answered=true;
+  const correct=g4q[g4i].correct;
+  document.querySelectorAll('.snap-opt').forEach(b=>{
+    b.classList.add('so-lock');
+    if(b.getAttribute('data-g4val')===correct) b.classList.add('so-ok');
+  });
+  fb('g4fb','bad','Too slow! The opposite is: '+correct);
+  $('g4timer').style.background='var(--red)';
+  $('g4next').style.display='inline-block';
+}
+
+/* ──────────── GAME 5: FAMILY TREE FILL ──────────── */
+function g5Init(){ g5q=rnd(G5_SENTENCES); g5i=0; g5answered=false; g5Render(); }
+
+function g5Render(){
+  if(g5i>=g5q.length){ markDone(4); navTo(5); g6Init(); return; }
+  const q=g5q[g5i];
+  $('g5bar').style.width=(g5i/G5_SENTENCES.length*100)+'%';
+  $('g5sent').innerHTML=q.emote+' '+q.display;
+  hideFb('g5fb'); $('g5next').style.display='none'; g5answered=false;
+
+  // 3 options: correct + 2 random others
+  const others=rnd(FAMILY.filter(f=>f.id!==q.answer)).slice(0,2);
+  const choices=rnd([FAMILY.find(f=>f.id===q.answer),...others]);
+  const opts=$('g5opts'); opts.innerHTML='';
+  choices.forEach(f=>{
+    const b=document.createElement('button');
+    b.className='tree-opt';
+    b.textContent=f.word;
+    b.setAttribute('data-g5id',f.id);
+    opts.appendChild(b);
+  });
+}
+
+function g5Answer(id){
+  if(g5answered) return; g5answered=true;
+  const correct=g5q[g5i].answer;
+  document.querySelectorAll('.tree-opt').forEach(b=>{
+    b.classList.add('to-lock');
+    if(b.getAttribute('data-g5id')===correct) b.classList.add('to-ok');
+    else if(b.getAttribute('data-g5id')===id)  b.classList.add('to-bad');
+  });
+  if(id===correct){ addScore(2); fb('g5fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g5fb','bad','The answer is: '+FAMILY.find(f=>f.id===correct).word); }
+  $('g5next').style.display='inline-block';
+}
+
+/* ──────────── GAME 6: TRUE / FALSE ──────────── */
+function g6Init(){ g6q=rnd(G6_QS); g6i=0; g6answered=false; g6correct=0; g6Render(); }
+
+function g6Render(){
+  if(g6i>=g6q.length){ markDone(5); showWin(); return; }
+  const q=g6q[g6i];
+  $('g6bar').style.width=(g6i/g6q.length*100)+'%';
+  $('g6char').textContent=q.char;
+  $('g6q').textContent='"'+q.text+'"';
+  $('g6tally').textContent=g6correct+' / '+g6i+' correct';
+  hideFb('g6fb'); $('g6next').style.display='none';
+  $('tfT').className='tf-btn tf-t'; $('tfF').className='tf-btn tf-f';
+  g6answered=false;
+}
+
+function g6Answer(val){
+  if(g6answered) return; g6answered=true;
+  const q=g6q[g6i];
+  const correct=(val==='true')===q.ans;
+  $('tfT').classList.add('tf-lock'); $('tfF').classList.add('tf-lock');
+  if(q.ans) $('tfT').classList.add('tf-ok'); else $('tfF').classList.add('tf-ok');
+  if(!correct){ if(val==='true') $('tfT').classList.add('tf-wrong'); else $('tfF').classList.add('tf-wrong'); }
+  if(correct){ g6correct++; addScore(2); fb('g6fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g6fb','bad','The answer is: '+(q.ans?'TRUE ✅':'FALSE ❌')); }
+  $('g6tally').textContent=g6correct+' / '+(g6i+1)+' correct';
+  $('g6next').style.display='inline-block';
+}
+
+/* ──────────── WIN ──────────── */
+function showWin(){
+  launchConfetti();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('sc-win').classList.add('active');
+  $('winScore').textContent=totalScore;
+  window.scrollTo(0,0);
+}
+
+function launchConfetti(){
+  const colors=['#e88c2e','#c0521a','#2a9d8f','#e76f81','#52b788','#ffffff'];
+  const shapes=['border-radius:50%','','clip-path:polygon(50% 0%,100% 100%,0% 100%)'];
+  const box=$('confetti');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');
+    p.className='cp';
+    const sz=6+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-20px;width:${sz}px;height:${sz}px;
+      background:${colors[0|Math.random()*colors.length]};${shapes[0|Math.random()*shapes.length]};
+      animation-delay:${Math.random()}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p);
+    setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ──────────── EVENT DELEGATION ──────────── */
+document.addEventListener('click', e=>{
+  const t=e.target;
+
+  // DOOR NAV
+  const dn=t.closest('.door-btn');
+  if(dn){ navTo(+dn.getAttribute('data-go')); return; }
+
+  // G1 portrait card
+  const pc=t.closest('.portrait-card');
+  if(pc&&!pc.classList.contains('p-hit-ok')){ g1TapPortrait(pc); return; }
+
+  // G1 name chip
+  const nc=t.closest('.name-chip');
+  if(nc&&!nc.classList.contains('n-gone')){ g1TapName(nc); return; }
+
+  // G2 face card
+  const fc=t.closest('.face-card');
+  if(fc){ g2Answer(fc.getAttribute('data-g2id')); return; }
+
+  // G3 family btn
+  const fb2=t.closest('.fam-btn');
+  if(fb2){ g3Answer(fb2.getAttribute('data-g3id')); return; }
+
+  // G4 snap option
+  const so=t.closest('.snap-opt');
+  if(so){ g4Answer(so.getAttribute('data-g4val')); return; }
+
+  // G5 tree option
+  const to=t.closest('.tree-opt');
+  if(to){ g5Answer(to.getAttribute('data-g5id')); return; }
+
+  // data-act buttons
+  const act=t.getAttribute('data-act')||t.closest('[data-act]')?.getAttribute('data-act');
+  if(!act) return;
+
+  if     (act==='g1next') { navTo(1); g2Init(); }
+  else if(act==='g2next') { g2i++; g2Render(); }
+  else if(act==='g3next') { g3i++; g3Render(); }
+  else if(act==='g4next') { g4i++; g4Render(); }
+  else if(act==='g5next') { g5i++; g5Render(); }
+  else if(act==='g6ans')  { g6Answer(t.getAttribute('data-val')||t.closest('[data-val]')?.getAttribute('data-val')); }
+  else if(act==='g6next') { g6i++; g6Render(); }
+  else if(act==='restart'){ clearTimeout(g4timer); location.reload(); }
+});
+
+/* ──────────── BOOT ──────────── */
+g1Init();
+</script>
+</body>
+</html>
