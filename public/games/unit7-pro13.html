@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7 — World of Animals 🌍</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --jungle: #1a6b3c;
+    --jungle-light: #27a35a;
+    --jungle-dark: #0f4224;
+    --sky: #1a9fd4;
+    --sky-light: #4dc3f0;
+    --sand: #f5c842;
+    --sand-dark: #e0a800;
+    --coral: #f25c3d;
+    --coral-light: #ff7d61;
+    --leaf: #5ec45a;
+    --leaf-dark: #3da038;
+    --purple: #8b5cf6;
+    --purple-light: #a78bfa;
+    --bg: #0d3320;
+    --surface: #162d1e;
+    --surface2: #1e3d2a;
+    --border: rgba(255,255,255,0.1);
+    --text: #f0faf4;
+    --muted: rgba(240,250,244,0.55);
+    --font-main: 'Baloo 2', cursive;
+    --font-body: 'Quicksand', sans-serif;
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(26,107,60,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(26,159,212,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(15,66,36,0.8) 0%, transparent 80%);
+  }
+
+  /* ── LEAF PARTICLES ── */
+  .leaf-particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.4rem;
+    opacity: 0;
+    animation: leafFall linear infinite;
+    z-index: 0;
+  }
+  @keyframes leafFall {
+    0% { transform: translateY(-40px) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HOME SCREEN ── */
+  #home {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px 40px;
+  }
+
+  .home-header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-top: 10px;
+  }
+  .unit-badge {
+    display: inline-block;
+    background: var(--jungle-light);
+    color: #fff;
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .home-title {
+    font-family: var(--font-main);
+    font-size: clamp(2rem, 8vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--text);
+    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .home-title span { color: var(--sand); }
+  .home-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 600;
+  }
+  .animal-parade {
+    font-size: 2rem;
+    margin-top: 10px;
+    animation: paradeScroll 12s linear infinite;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+  }
+  @keyframes paradeScroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .game-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--card-color, var(--jungle-light));
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: inherit;
+  }
+  .game-card:hover::before, .game-card:active::before { opacity: 0.12; }
+  .game-card:hover { transform: translateY(-3px); border-color: var(--card-color, var(--jungle-light)); }
+  .game-card:active { transform: scale(0.97); }
+  .game-card .card-icon { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+  .game-card .card-title {
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .game-card .card-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .game-card .card-stars {
+    font-size: 11px;
+    margin-top: 6px;
+    color: var(--sand);
+  }
+  .game-card.done { border-color: var(--leaf); }
+  .game-card.done::after {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--leaf);
+    font-weight: 900;
+    font-size: 14px;
+  }
+
+  /* ── GAME SCREEN WRAPPER ── */
+  #game-screen {
+    padding: 0;
+    flex-direction: column;
+  }
+
+  .game-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .back-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .back-btn:hover { background: var(--surface); border-color: var(--jungle-light); }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .score-star { color: var(--sand); font-size: 18px; }
+
+  .progress-wrap {
+    width: 100px;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--jungle-light), var(--sky-light));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  .game-content {
+    flex: 1;
+    padding: 24px 16px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .game-title-bar {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .game-name {
+    font-family: var(--font-main);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .game-name span { color: var(--sand); }
+  .game-instruction {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: var(--font-main);
+    font-weight: 800;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(0.95); }
+  .btn-primary {
+    background: var(--jungle-light);
+    color: #fff;
+    padding: 14px 32px;
+    font-size: 16px;
+    box-shadow: 0 4px 16px rgba(39,163,90,0.4);
+  }
+  .btn-primary:hover { background: var(--leaf); box-shadow: 0 6px 20px rgba(39,163,90,0.5); transform: translateY(-2px); }
+  .btn-sm {
+    padding: 10px 20px;
+    font-size: 14px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-sm:hover { border-color: var(--jungle-light); background: var(--surface); }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    text-align: center;
+    font-family: var(--font-main);
+    font-size: 1.6rem;
+    font-weight: 900;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    margin: 16px 0;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.25s ease;
+  }
+  .feedback.show { opacity: 1; transform: scale(1); }
+  .feedback.correct { background: rgba(94,196,90,0.15); color: var(--leaf); border: 2px solid rgba(94,196,90,0.3); }
+  .feedback.wrong { background: rgba(242,92,61,0.15); color: var(--coral); border: 2px solid rgba(242,92,61,0.3); }
+
+  /* ── GAME 1: ANIMAL SPOTTER ── */
+  .animal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .animal-tile {
+    background: var(--surface2);
+    border: 2.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .animal-tile:hover { border-color: var(--sky-light); transform: scale(1.04); }
+  .animal-tile.selected { border-color: var(--jungle-light); background: rgba(39,163,90,0.15); }
+  .animal-tile.correct { border-color: var(--leaf); background: rgba(94,196,90,0.2); animation: pop 0.3s ease; }
+  .animal-tile.wrong { border-color: var(--coral); background: rgba(242,92,61,0.2); animation: shake 0.4s ease; }
+  .animal-emoji { font-size: 2rem; display: block; margin-bottom: 4px; }
+  .animal-word { font-family: var(--font-main); font-size: 12px; font-weight: 700; color: var(--text); }
+
+  /* ── GAME 2: SPELL IT ── */
+  .word-to-spell {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .spell-emoji { font-size: 4rem; display: block; margin-bottom: 8px; animation: bounce 1.5s infinite; }
+  @keyframes bounce { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-8px);} }
+  .spell-hint { font-family: var(--font-main); font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 14px; }
+  .letter-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .letter-box {
+    width: 40px;
+    height: 46px;
+    border: 2.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--sand);
+    transition: all 0.15s;
+  }
+  .letter-box.filled { border-color: var(--jungle-light); background: rgba(39,163,90,0.1); }
+  .letter-box.correct-letter { border-color: var(--leaf); background: rgba(94,196,90,0.2); color: var(--leaf); }
+  .letter-choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .letter-choice {
+    width: 42px;
+    height: 46px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--font-main);
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .letter-choice:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: translateY(-2px); }
+  .letter-choice:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+  /* ── GAME 3: HABITAT SORT ── */
+  .habitat-zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .habitat-zone {
+    background: var(--surface2);
+    border: 2.5px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 6px;
+    min-height: 120px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .habitat-zone.drag-over { border-color: var(--sand); background: rgba(245,200,66,0.1); transform: scale(1.02); }
+  .habitat-zone.correct-zone { border-color: var(--leaf); border-style: solid; }
+  .zone-label {
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: var(--sand);
+  }
+  .zone-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+  .zone-animals { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+  .zone-chip {
+    background: rgba(39,163,90,0.2);
+    border: 1px solid var(--jungle-light);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .drag-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .drag-chip {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .drag-chip:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); }
+  .drag-chip.selected { border-color: var(--sand); background: rgba(245,200,66,0.15); transform: scale(1.05); }
+  .drag-chip.placed { opacity: 0.35; pointer-events: none; }
+
+  /* ── GAME 4: COMPARATIVES BUILDER ── */
+  .sentence-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    min-height: 60px;
+    padding: 14px;
+    background: var(--surface2);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .sentence-parts.has-words { border-color: var(--jungle-light); }
+  .word-chip {
+    background: var(--jungle-dark);
+    border: 2px solid var(--jungle-light);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    animation: popIn 0.2s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .word-chip:hover { background: rgba(242,92,61,0.2); border-color: var(--coral); }
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .word-option {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .word-option:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: translateY(-2px); }
+  .word-option:disabled { opacity: 0.3; cursor: default; transform: none; }
+  .comparative-prompt {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .comp-animals { font-size: 2.5rem; margin-bottom: 6px; }
+  .comp-question { font-family: var(--font-main); font-size: 15px; font-weight: 700; color: var(--muted); }
+  .comp-question em { color: var(--sand); font-style: normal; }
+
+  /* ── GAME 5: TRUE OR FALSE ── */
+  .fact-card {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .fact-animals { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .fact-text {
+    font-family: var(--font-main);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .tf-buttons { display: flex; gap: 12px; justify-content: center; }
+  .tf-btn {
+    flex: 1;
+    max-width: 160px;
+    padding: 16px;
+    font-family: var(--font-main);
+    font-size: 18px;
+    font-weight: 900;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tf-btn.true-btn { background: linear-gradient(135deg, #27a35a, #1a6b3c); color: #fff; box-shadow: 0 4px 14px rgba(39,163,90,0.4); }
+  .tf-btn.false-btn { background: linear-gradient(135deg, #f25c3d, #c43d22); color: #fff; box-shadow: 0 4px 14px rgba(242,92,61,0.4); }
+  .tf-btn:hover { transform: translateY(-3px) scale(1.03); }
+  .tf-btn:active { transform: scale(0.95); }
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+  .dot.done { background: var(--jungle-light); }
+  .dot.current { background: var(--sand); transform: scale(1.3); }
+
+  /* ── GAME 6: SUPERLATIVES QUIZ ── */
+  .quiz-question {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .quiz-animal-emoji { font-size: 3.5rem; display: block; margin-bottom: 10px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.08);} }
+  .quiz-q-text {
+    font-family: var(--font-main);
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .quiz-option {
+    background: var(--surface2);
+    border: 2.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 10px;
+    font-family: var(--font-main);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .quiz-option:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: scale(1.03); }
+  .quiz-option.correct-opt { border-color: var(--leaf); background: rgba(94,196,90,0.2); color: var(--leaf); }
+  .quiz-option.wrong-opt { border-color: var(--coral); background: rgba(242,92,61,0.15); color: var(--coral); }
+  .quiz-option:disabled { cursor: default; transform: none; }
+
+  /* ── COMPLETE SCREEN ── */
+  #complete {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .complete-emoji { font-size: 4rem; margin-bottom: 14px; animation: spin 2s ease-in-out; }
+  @keyframes spin { from{transform: rotate(0) scale(0.5); opacity:0;} to{transform: rotate(720deg) scale(1); opacity:1;} }
+  .complete-title {
+    font-family: var(--font-main);
+    font-size: 2.4rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    color: var(--sand);
+  }
+  .complete-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 24px; font-weight: 600; }
+  .stars-display { font-size: 2.8rem; margin-bottom: 20px; letter-spacing: 4px; }
+  .score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--jungle-light), var(--sky));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 30px rgba(39,163,90,0.4);
+  }
+  .score-num { font-family: var(--font-main); font-size: 2rem; font-weight: 900; color: #fff; }
+  .score-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 1px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 28px;
+  }
+  .summary-item {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .summary-item .s-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; }
+  .summary-item .s-label { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .speaking-card {
+    background: var(--surface2);
+    border: 2px solid var(--jungle-light);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    max-width: 400px;
+    width: 100%;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .speaking-title {
+    font-family: var(--font-main);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--sand);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .speaking-prompt {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    font-weight: 600;
+  }
+  .speaking-prompt li { margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+  .speaking-prompt li::before { content: '🦁'; position: absolute; left: 0; font-size: 11px; top: 2px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall 1.2s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(200px) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── NEXT BUTTON ── */
+  .center-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+  .q-counter {
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LEAF PARTICLES -->
+<div class="leaf-particle" style="left:8%;animation-duration:9s;animation-delay:0s;font-size:1.2rem;">🍃</div>
+<div class="leaf-particle" style="left:22%;animation-duration:12s;animation-delay:2s;">🌿</div>
+<div class="leaf-particle" style="left:45%;animation-duration:8s;animation-delay:4s;font-size:1rem;">🍃</div>
+<div class="leaf-particle" style="left:68%;animation-duration:11s;animation-delay:1s;">🌿</div>
+<div class="leaf-particle" style="left:85%;animation-duration:10s;animation-delay:6s;font-size:1.5rem;">🍃</div>
+
+<!-- ═══════════════════════════════════════════════ HOME ═══ -->
+<div id="home" class="screen active">
+  <div class="home-header">
+    <div class="unit-badge">📚 Kids Box NG3 · Unit 7</div>
+    <h1 class="home-title">World of<br><span>Animals</span> 🌍</h1>
+    <p class="home-subtitle">6 games · Vocabulary · Grammar · Comparatives</p>
+    <div class="animal-parade">🦁 🐬 🦈 🐼 🦜 🐨 🦇 🐻 🦘 🐋 🦊 🐊 🐸 🦁 🐬 🦈 🐼 🦜</div>
+  </div>
+
+  <div class="game-grid">
+    <div class="game-card" style="--card-color:#4dc3f0" onclick="startGame(1)">
+      <span class="card-icon">🔍</span>
+      <div class="card-title">Animal Spotter</div>
+      <div class="card-desc">Name the animal!</div>
+      <div class="card-stars" id="stars-1">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#f5c842" onclick="startGame(2)">
+      <span class="card-icon">✏️</span>
+      <div class="card-title">Spell It!</div>
+      <div class="card-desc">Build the word</div>
+      <div class="card-stars" id="stars-2">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#27a35a" onclick="startGame(3)">
+      <span class="card-icon">🗺️</span>
+      <div class="card-title">Habitat Hunt</div>
+      <div class="card-desc">Sort by home!</div>
+      <div class="card-stars" id="stars-3">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#8b5cf6" onclick="startGame(4)">
+      <span class="card-icon">🏗️</span>
+      <div class="card-title">Sentence Builder</div>
+      <div class="card-desc">Comparatives!</div>
+      <div class="card-stars" id="stars-4">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#f25c3d" onclick="startGame(5)">
+      <span class="card-icon">✅</span>
+      <div class="card-title">True or False?</div>
+      <div class="card-desc">Fact check!</div>
+      <div class="card-stars" id="stars-5">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#ec4899" onclick="startGame(6)">
+      <span class="card-icon">🏆</span>
+      <div class="card-title">Superlatives!</div>
+      <div class="card-desc">The biggest, fastest…</div>
+      <div class="card-stars" id="stars-6">⭐⭐⭐</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ GAME ═══ -->
+<div id="game-screen" class="screen">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <div class="score-display">
+      <span class="score-star">⭐</span>
+      <span id="live-score">0</span>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="game-content" id="game-content"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ COMPLETE ═══ -->
+<div id="complete" class="screen">
+  <div class="complete-emoji" id="complete-emoji">🎉</div>
+  <div class="complete-title">Amazing!</div>
+  <div class="complete-subtitle" id="complete-subtitle">You're an animal expert!</div>
+  <div class="stars-display" id="complete-stars">⭐⭐⭐</div>
+  <div class="score-circle">
+    <div class="score-num" id="final-score">0</div>
+    <div class="score-label">POINTS</div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <span class="s-icon">🎯</span>
+      <div class="s-label">Accuracy</div>
+      <div id="s-accuracy" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--leaf);">—</div>
+    </div>
+    <div class="summary-item">
+      <span class="s-icon">✅</span>
+      <div class="s-label">Correct</div>
+      <div id="s-correct" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--leaf);">—</div>
+    </div>
+    <div class="summary-item">
+      <span class="s-icon">⏱️</span>
+      <div class="s-label">Game</div>
+      <div id="s-game" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--sand);">—</div>
+    </div>
+  </div>
+  <div class="speaking-card">
+    <div class="speaking-title">🗣️ Speaking Challenge</div>
+    <ul class="speaking-prompt" id="speaking-prompts"></ul>
+  </div>
+  <div class="center-row">
+    <button class="btn btn-sm" onclick="goHome()">🏠 All Games</button>
+    <button class="btn btn-primary" id="replay-btn" onclick="replayGame()">▶ Play Again</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════
+const ANIMALS = [
+  { word: 'bat',       emoji: '🦇', habitat: 'cave',   fact: 'Bats sleep in the day.' },
+  { word: 'bear',      emoji: '🐻', habitat: 'forest', fact: 'Bears eat fish, fruit and plants.' },
+  { word: 'dolphin',   emoji: '🐬', habitat: 'sea',    fact: 'Dolphins live in the sea.' },
+  { word: 'kangaroo',  emoji: '🦘', habitat: 'land',   fact: 'Kangaroos eat leaves.' },
+  { word: 'lion',      emoji: '🦁', habitat: 'land',   fact: 'Lions sleep a lot.' },
+  { word: 'panda',     emoji: '🐼', habitat: 'forest', fact: 'Pandas live in China.' },
+  { word: 'parrot',    emoji: '🦜', habitat: 'forest', fact: 'Parrots talk a lot.' },
+  { word: 'shark',     emoji: '🦈', habitat: 'sea',    fact: 'Sharks live in the sea.' },
+  { word: 'whale',     emoji: '🐋', habitat: 'sea',    fact: 'Whales are the biggest animals.' },
+  { word: 'penguin',   emoji: '🐧', habitat: 'land',   fact: 'Penguins can swim but not fly.' },
+  { word: 'crocodile', emoji: '🐊', habitat: 'land',   fact: 'Crocodiles live near rivers.' },
+  { word: 'frog',      emoji: '🐸', habitat: 'land',   fact: 'Frogs live near water.' },
+];
+
+const COMPARATIVES = [
+  { a: 'dolphin', ae: '🐬', b: 'shark', be: '🦈', adj: 'fast', comp: 'faster', sentence: 'A dolphin is faster than a shark.' },
+  { a: 'whale', ae: '🐋', b: 'shark', be: '🦈', adj: 'big', comp: 'bigger', sentence: 'A whale is bigger than a shark.' },
+  { a: 'lion', ae: '🦁', b: 'dolphin', be: '🐬', adj: 'dangerous', comp: 'more dangerous', sentence: 'A lion is more dangerous than a dolphin.' },
+  { a: 'panda', ae: '🐼', b: 'parrot', be: '🦜', adj: 'beautiful', comp: 'more beautiful', sentence: 'A panda is more beautiful than a parrot.' },
+  { a: 'whale', ae: '🐋', b: 'kangaroo', be: '🦘', adj: 'long', comp: 'longer', sentence: 'A whale is longer than a kangaroo.' },
+  { a: 'cheetah', ae: '🐆', b: 'bear', be: '🐻', adj: 'fast', comp: 'faster', sentence: 'A cheetah is faster than a bear.' },
+];
+
+const TRUE_FALSE = [
+  { emoji: '🐬🦈', text: 'A dolphin is faster than a shark.', answer: true },
+  { emoji: '🐋🦈', text: 'A whale is bigger than a shark.', answer: true },
+  { emoji: '🐧🐋', text: 'A penguin is bigger than a whale.', answer: false },
+  { emoji: '🦇', text: 'Bats sleep in the day.', answer: true },
+  { emoji: '🐼', text: 'Pandas live in Australia.', answer: false },
+  { emoji: '🦜', text: 'Parrots can talk a lot.', answer: true },
+  { emoji: '🦘', text: 'Kangaroos eat meat.', answer: false },
+  { emoji: '🐬🌊', text: 'Dolphins, whales and sharks live in the sea.', answer: true },
+  { emoji: '🦁', text: 'Lions are the fastest land animals.', answer: false },
+  { emoji: '🐋', text: 'Blue whales are the loudest animals.', answer: true },
+];
+
+const SUPERLATIVES_Q = [
+  { emoji: '🐆', question: 'The cheetah is _____ land animal.', options: ['the fastest', 'the slowest', 'the biggest', 'the loudest'], answer: 'the fastest' },
+  { emoji: '🐋', question: 'The blue whale is _____ animal in the world.', options: ['the smallest', 'the loudest', 'the fastest', 'the prettiest'], answer: 'the loudest' },
+  { emoji: '🐼', question: 'Pandas are _____ than other bears.', options: ['more prettier', 'prettier', 'most pretty', 'prettiest than'], answer: 'prettier' },
+  { emoji: '🦁', question: 'Lions are _____ animals.', options: ['the most strong', 'the most stronger', 'the strongest', 'more strong'], answer: 'the strongest' },
+  { emoji: '🐬', question: 'Dolphins are _____ animals in the sea.', options: ['the most clever', 'the cleverest', 'more clever', 'cleverer than'], answer: 'the cleverest' },
+  { emoji: '🐋', question: 'Blue whales are _____ animals.', options: ['the bigger', 'the most big', 'the biggest', 'more bigger'], answer: 'the biggest' },
+];
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+let currentGame = 0, score = 0, totalQ = 0, correctQ = 0;
+let gameScores = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+// Game-specific
+let g1_qIndex = 0, g1_data = [];
+let g2_qIndex = 0, g2_data = [], g2_typed = [];
+let g3_selected = null, g3_placed = {};
+let g4_qIndex = 0, g4_data = [], g4_typed = [];
+let g5_qIndex = 0, g5_data = [];
+let g6_qIndex = 0, g6_data = [];
+
+// ══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() { showScreen('home'); }
+
+function startGame(n) {
+  currentGame = n;
+  score = 0; totalQ = 0; correctQ = 0;
+  document.getElementById('live-score').textContent = '0';
+  document.getElementById('progress-bar').style.width = '0%';
+  showScreen('game-screen');
+  if (n === 1) initGame1();
+  else if (n === 2) initGame2();
+  else if (n === 3) initGame3();
+  else if (n === 4) initGame4();
+  else if (n === 5) initGame5();
+  else if (n === 6) initGame6();
+}
+
+function replayGame() { startGame(currentGame); }
+
+// ══════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function addScore(pts) {
+  score += pts; correctQ++;
+  document.getElementById('live-score').textContent = score;
+}
+
+function updateProgress(current, total) {
+  document.getElementById('progress-bar').style.width = `${(current / total) * 100}%`;
+}
+
+function showFeedback(el, type, msg) {
+  el.textContent = msg;
+  el.className = `feedback ${type} show`;
+  setTimeout(() => { el.classList.remove('show'); }, 1600);
+}
+
+function confetti(x, y) {
+  const colors = ['#f5c842','#27a35a','#f25c3d','#4dc3f0','#8b5cf6','#fff'];
+  for (let i = 0; i < 14; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${x + (Math.random()-0.5)*80}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};transform:rotate(${Math.random()*360}deg);`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1300);
+  }
+}
+
+function showComplete() {
+  const pct = totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 100;
+  const stars = pct >= 90 ? '⭐⭐⭐' : pct >= 60 ? '⭐⭐' : '⭐';
+  gameScores[currentGame] = stars;
+  document.getElementById(`stars-${currentGame}`).textContent = stars;
+  const card = document.querySelector(`.game-grid .game-card:nth-child(${currentGame})`);
+  if (card) card.classList.add('done');
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('complete-stars').textContent = stars;
+  document.getElementById('s-accuracy').textContent = `${pct}%`;
+  document.getElementById('s-correct').textContent = `${correctQ}/${totalQ}`;
+  const gameNames = ['','Animal Spotter','Spell It!','Habitat Hunt','Sentence Builder','True or False','Superlatives'];
+  document.getElementById('s-game').textContent = gameNames[currentGame];
+
+  const prompts = [
+    ['🐋 vs 🦈', 'Say: A whale is bigger than a shark!'],
+    ['🦁 vs 🐼', 'Say: A lion is more dangerous than a panda!'],
+    ['🐬', 'Say: Dolphins are the cleverest sea animals!'],
+    ['🦇', 'Say: Bats sleep in the day. What about you?'],
+  ];
+  const picked = shuffle(prompts).slice(0, 3);
+  document.getElementById('speaking-prompts').innerHTML = picked.map(p => `<li><strong>${p[0]}</strong> ${p[1]}</li>`).join('');
+  showScreen('complete');
+  // big confetti
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => confetti(window.innerWidth/2, window.innerHeight/3), i * 400);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 1 — ANIMAL SPOTTER (tap the correct animal)
+// ══════════════════════════════════════════════════════════
+function initGame1() {
+  g1_data = shuffle(ANIMALS).slice(0, 8);
+  g1_qIndex = 0;
+  renderGame1();
+}
+
+function renderGame1() {
+  if (g1_qIndex >= g1_data.length) { showComplete(); return; }
+  totalQ++;
+  updateProgress(g1_qIndex, g1_data.length);
+  const correct = g1_data[g1_qIndex];
+  // pick 5 distractors
+  const others = shuffle(ANIMALS.filter(a => a.word !== correct.word)).slice(0, 5);
+  const choices = shuffle([correct, ...others]);
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">🔍 Animal <span>Spotter</span></div>
+      <div class="game-instruction">Tap the correct animal!</div>
+    </div>
+    <div class="q-counter">Question ${g1_qIndex + 1} of ${g1_data.length}</div>
+    <div style="text-align:center;margin-bottom:20px;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
+      <div style="font-size:2rem;margin-bottom:8px;">Find:</div>
+      <div style="font-family:var(--font-main);font-size:2.2rem;font-weight:900;color:var(--sand);">${correct.word}</div>
+    </div>
+    <div class="animal-grid">
+      ${choices.map(a => `
+        <div class="animal-tile" onclick="g1Answer(this,'${a.word}','${correct.word}')">
+          <span class="animal-emoji">${a.emoji}</span>
+          <div class="animal-word">${a.word}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="feedback" id="feedback1"></div>
+  `;
+}
+
+function g1Answer(el, chosen, correct) {
+  const tiles = document.querySelectorAll('.animal-tile');
+  tiles.forEach(t => t.style.pointerEvents = 'none');
+  if (chosen === correct) {
+    el.classList.add('correct');
+    addScore(10);
+    showFeedback(document.getElementById('feedback1'), 'correct', '🎉 Correct!');
+    confetti(el.getBoundingClientRect().left + 40, el.getBoundingClientRect().top);
+  } else {
+    el.classList.add('wrong');
+    // show correct
+    tiles.forEach(t => { if (t.querySelector('.animal-word')?.textContent === correct) t.classList.add('correct'); });
+    showFeedback(document.getElementById('feedback1'), 'wrong', `❌ It's ${correct}!`);
+  }
+  g1_qIndex++;
+  setTimeout(renderGame1, 1600);
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 2 — SPELL IT! (pick letters to build word)
+// ══════════════════════════════════════════════════════════
+function initGame2() {
+  g2_data = shuffle(ANIMALS).slice(0, 7);
+  g2_qIndex = 0;
+  renderGame2();
+}
+
+function renderGame2() {
+  if (g2_qIndex >= g2_data.length) { showComplete(); return; }
+  totalQ++;
+  updateProgress(g2_qIndex, g2_data.length);
+  const animal = g2_data[g2_qIndex];
+  g2_typed = [];
+  const word = animal.word;
+  // Build letter pool: correct letters + some wrong ones
+  const wordLetters = word.split('');
+  const extraLetters = 'aeioulrnstbcdmpghkfwy'.split('').filter(l => !wordLetters.includes(l));
+  const extras = shuffle(extraLetters).slice(0, Math.min(5, 10 - wordLetters.length));
+  const pool = shuffle([...wordLetters, ...extras]);
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">✏️ Spell <span>It!</span></div>
+      <div class="game-instruction">Tap letters to spell the word!</div>
+    </div>
+    <div class="q-counter">Word ${g2_qIndex + 1} of ${g2_data.length}</div>
+    <div class="word-to-spell">
+      <span class="spell-emoji">${animal.emoji}</span>
+      <div class="spell-hint">${animal.fact}</div>
+    </div>
+    <div class="letter-boxes" id="letter-boxes">
+      ${wordLetters.map(() => `<div class="letter-box"></div>`).join('')}
+    </div>
+    <div class="letter-choices" id="letter-pool">
+      ${pool.map((l, i) => `<button class="letter-choice" id="lc-${i}" onclick="g2Pick(this,'${l}','${word}')">${l}</button>`).join('')}
+    </div>
+    <div class="center-row">
+      <button class="btn btn-sm" onclick="g2Clear('${word}')">🗑️ Clear</button>
+    </div>
+    <div class="feedback" id="feedback2"></div>
+  `;
+}
+
+function g2Pick(btn, letter, word) {
+  if (g2_typed.length >= word.length) return;
+  btn.disabled = true;
+  g2_typed.push({ letter, btn });
+  // update boxes
+  const boxes = document.querySelectorAll('.letter-box');
+  const idx = g2_typed.length - 1;
+  boxes[idx].textContent = letter;
+  boxes[idx].classList.add('filled');
+  if (g2_typed.length === word.length) {
+    // check
+    const attempt = g2_typed.map(x => x.letter).join('');
+    setTimeout(() => {
+      if (attempt === word) {
+        boxes.forEach(b => b.classList.add('correct-letter'));
+        addScore(15);
+        showFeedback(document.getElementById('feedback2'), 'correct', `🎉 ${word.toUpperCase()}!`);
+        confetti(window.innerWidth / 2, 200);
+        g2_qIndex++;
+        setTimeout(renderGame2, 1500);
+      } else {
+        boxes.forEach(b => { b.classList.remove('filled'); b.classList.add('wrong'); });
+        showFeedback(document.getElementById('feedback2'), 'wrong', `❌ Try again!`);
+        setTimeout(() => {
+          g2_typed.forEach(x => { x.btn.disabled = false; });
+          g2_typed = [];
+          boxes.forEach(b => { b.textContent = ''; b.className = 'letter-box'; });
+        }, 1000);
+      }
+    }, 200);
+  }
+}
+
+function g2Clear(word) {
+  g2_typed.forEach(x => { x.btn.disabled = false; });
+  g2_typed = [];
+  const boxes = document.querySelectorAll('.letter-box');
+  boxes.forEach(b => { b.textContent = ''; b.className = 'letter-box'; });
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 3 — HABITAT HUNT (sort animals by habitat)
+// ══════════════════════════════════════════════════════════
+const HABITATS = {
+  sea: { label: 'Sea', icon: '🌊', color: '#1a9fd4' },
+  forest: { label: 'Forest', icon: '🌳', color: '#27a35a' },
+  cave: { label: 'Cave/Land', icon: '🏔️', color: '#8b5cf6' },
+  land: { label: 'Land', icon: '🌾', color: '#e0a800' },
+};
+// Simplify to 3 zones
+const ZONES = [
+  { key: 'sea', label: 'Sea 🌊' },
+  { key: 'forest', label: 'Forest 🌳' },
+  { key: 'land', label: 'Land 🌾' },
+];
+// Remap cave to land
+const G3_ANIMALS = ANIMALS.map(a => ({ ...a, habitat: a.habitat === 'cave' ? 'land' : a.habitat }));
+
+function initGame3() {
+  g3_placed = {};
+  g3_selected = null;
+  renderGame3();
+}
+
+function renderGame3() {
+  totalQ = G3_ANIMALS.length;
+  updateProgress(Object.keys(g3_placed).length, G3_ANIMALS.length);
+
+  const remaining = G3_ANIMALS.filter(a => !g3_placed[a.word]);
+  const allDone = remaining.length === 0;
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">🗺️ Habitat <span>Hunt</span></div>
+      <div class="game-instruction">Tap an animal, then tap its home!</div>
+    </div>
+    <div class="habitat-zones" id="habitat-zones">
+      ${ZONES.map(z => `
+        <div class="habitat-zone" id="zone-${z.key}" onclick="g3DropZone('${z.key}')">
+          <div class="zone-label">${z.label}</div>
+          <div class="zone-animals" id="zone-animals-${z.key}">
+            ${G3_ANIMALS.filter(a => g3_placed[a.word] === z.key).map(a => `
+              <div class="zone-chip">${a.emoji} ${a.word}</div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="drag-pool" id="drag-pool">
+      ${G3_ANIMALS.map(a => `
+        <div class="drag-chip ${g3_placed[a.word] ? 'placed' : ''} ${g3_selected === a.word ? 'selected' : ''}"
+             id="chip-${a.word}"
+             onclick="g3SelectAnimal('${a.word}')">
+          ${a.emoji} ${a.word}
+        </div>
+      `).join('')}
+    </div>
+    <div class="feedback" id="feedback3"></div>
+    ${allDone ? `<div class="center-row"><button class="btn btn-primary" onclick="g3Finish()">Check & Continue! →</button></div>` : ''}
+  `;
+}
+
+function g3SelectAnimal(word) {
+  if (g3_placed[word]) return;
+  g3_selected = g3_selected === word ? null : word;
+  renderGame3();
+}
+
+function g3DropZone(zoneKey) {
+  if (!g3_selected) {
+    showFeedback(document.getElementById('feedback3'), 'wrong', '👆 First tap an animal!');
+    return;
+  }
+  const animal = G3_ANIMALS.find(a => a.word === g3_selected);
+  const correct = animal.habitat === zoneKey;
+  if (correct) {
+    g3_placed[g3_selected] = zoneKey;
+    addScore(8);
+    correctQ++;
+    g3_selected = null;
+    renderGame3();
+    const fb = document.getElementById('feedback3');
+    if (fb) showFeedback(fb, 'correct', `✅ ${animal.word} lives in the ${zoneKey}!`);
+    confetti(window.innerWidth / 2, 150);
+  } else {
+    const fb = document.getElementById('feedback3');
+    showFeedback(fb, 'wrong', `❌ Not quite! Try another zone.`);
+    document.getElementById(`zone-${zoneKey}`).classList.add('drag-over');
+    setTimeout(() => document.getElementById(`zone-${zoneKey}`)?.classList.remove('drag-over'), 600);
+  }
+}
+
+function g3Finish() {
+  totalQ = G3_ANIMALS.length;
+  showComplete();
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 4 — SENTENCE BUILDER (comparatives)
+// ══════════════════════════════════════════════════════════
+function initGame4() {
+  g4_data = shuffle(COMPARATIVES);
+  g4_qIndex = 0;
+  renderGame4();
+}
+
+function renderGame4() {
+  if (g4_qIndex >= g4_data.length) { showComplete(); return; }
+  totalQ++;
+  updateProgress(g4_qIndex, g4_data.length);
+  const comp = g4_data[g4_qIndex];
+  g4_typed = [];
+
+  // Sentence: "A [animal] is [COMP] than a [animal]."
+  // Word bank: correct words + distractors
+  const correctWords = ['A', comp.ae + comp.a, 'is', comp.comp, 'than', 'a', comp.be + comp.b];
+  const distractors = [comp.adj, 'more', 'most', 'bigger', 'very', 'than', 'the'];
+  const pool = shuffle([...new Set([...correctWords.slice(1, -1), ...distractors.slice(0, 4)])]);
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">🏗️ Sentence <span>Builder</span></div>
+      <div class="game-instruction">Build the comparative sentence!</div>
+    </div>
+    <div class="q-counter">Sentence ${g4_qIndex + 1} of ${g4_data.length}</div>
+    <div class="comparative-prompt">
+      <div class="comp-animals">${comp.ae} vs ${comp.be}</div>
+      <div class="comp-question">Compare using: <em>${comp.adj}</em></div>
+    </div>
+    <div class="sentence-parts" id="sentence-parts">
+      <span style="font-family:var(--font-main);font-size:14px;color:var(--muted);">Tap words to build your sentence…</span>
+    </div>
+    <div class="word-bank" id="word-bank">
+      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">A</div>
+      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">${comp.ae} ${comp.a}</div>
+      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">is</div>
+      ${pool.map((w, i) => `<button class="word-option" id="wo-${i}" onclick="g4Pick(this,'${w}')">${w}</button>`).join('')}
+    </div>
+    <div class="center-row">
+      <button class="btn btn-sm" onclick="renderGame4()">🗑️ Clear</button>
+      <button class="btn btn-primary" onclick="g4Check('${comp.comp}','${comp.a}','${comp.b}')">✓ Check</button>
+    </div>
+    <div class="feedback" id="feedback4"></div>
+    <div id="correct-sentence" style="display:none;text-align:center;margin-top:10px;font-family:var(--font-main);font-size:15px;font-weight:700;color:var(--leaf);"></div>
+  `;
+  g4_typed = [];
+}
+
+function g4Pick(btn, word) {
+  btn.disabled = true;
+  btn.style.opacity = '0.35';
+  g4_typed.push(word);
+  const sp = document.getElementById('sentence-parts');
+  if (g4_typed.length === 1) sp.innerHTML = '';
+  const chip = document.createElement('div');
+  chip.className = 'word-chip';
+  chip.textContent = word;
+  chip.onclick = () => {
+    // remove on click
+    const idx = g4_typed.indexOf(word);
+    if (idx > -1) g4_typed.splice(idx, 1);
+    // re-enable button
+    btn.disabled = false; btn.style.opacity = '1';
+    chip.remove();
+    if (g4_typed.length === 0) sp.innerHTML = '<span style="font-family:var(--font-main);font-size:14px;color:var(--muted);">Tap words to build your sentence…</span>';
+    sp.classList.toggle('has-words', g4_typed.length > 0);
+  };
+  sp.classList.add('has-words');
+  sp.appendChild(chip);
+}
+
+function g4Check(comp, animalA, animalB) {
+  // Expected: [comp, than, a/emoji+animalB]  (first 3 words are fixed)
+  const attempt = g4_typed.join(' ').toLowerCase();
+  const hasComp = attempt.includes(comp.toLowerCase());
+  const hasThan = attempt.includes('than');
+  const hasAnimalB = attempt.includes(animalB.toLowerCase());
+
+  if (hasComp && hasThan && hasAnimalB) {
+    addScore(20);
+    showFeedback(document.getElementById('feedback4'), 'correct', '🎉 Excellent!');
+    const cs = document.getElementById('correct-sentence');
+    cs.style.display = 'block';
+    cs.textContent = `✅ ${g4_data[g4_qIndex].sentence}`;
+    confetti(window.innerWidth / 2, 200);
+    g4_qIndex++;
+    setTimeout(renderGame4, 2000);
+  } else {
+    showFeedback(document.getElementById('feedback4'), 'wrong', `❌ Check your word order!`);
+    const cs = document.getElementById('correct-sentence');
+    cs.style.display = 'block';
+    cs.style.color = 'var(--coral)';
+    cs.textContent = `💡 ${g4_data[g4_qIndex].sentence}`;
+    g4_qIndex++;
+    setTimeout(renderGame4, 2200);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 5 — TRUE OR FALSE
+// ══════════════════════════════════════════════════════════
+function initGame5() {
+  g5_data = shuffle(TRUE_FALSE).slice(0, 8);
+  g5_qIndex = 0;
+  renderGame5();
+}
+
+function renderGame5() {
+  if (g5_qIndex >= g5_data.length) { showComplete(); return; }
+  totalQ++;
+  updateProgress(g5_qIndex, g5_data.length);
+  const fact = g5_data[g5_qIndex];
+
+  const dots = g5_data.map((_, i) => {
+    const cls = i < g5_qIndex ? 'done' : i === g5_qIndex ? 'current' : '';
+    return `<div class="dot ${cls}"></div>`;
+  }).join('');
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">✅ True or <span>False?</span></div>
+      <div class="game-instruction">Is this fact true or false?</div>
+    </div>
+    <div class="progress-dots">${dots}</div>
+    <div class="fact-card">
+      <span class="fact-animals">${fact.emoji}</span>
+      <div class="fact-text">${fact.text}</div>
+    </div>
+    <div class="tf-buttons">
+      <button class="tf-btn true-btn" onclick="g5Answer(this, true)">✅ TRUE</button>
+      <button class="tf-btn false-btn" onclick="g5Answer(this, false)">❌ FALSE</button>
+    </div>
+    <div class="feedback" id="feedback5"></div>
+  `;
+}
+
+function g5Answer(el, answer) {
+  const fact = g5_data[g5_qIndex];
+  document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+  if (answer === fact.answer) {
+    addScore(12);
+    showFeedback(document.getElementById('feedback5'), 'correct', '🎉 That\'s right!');
+    confetti(el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top);
+  } else {
+    const correct = fact.answer ? 'TRUE ✅' : 'FALSE ❌';
+    showFeedback(document.getElementById('feedback5'), 'wrong', `❌ It's ${correct}!`);
+  }
+  g5_qIndex++;
+  setTimeout(renderGame5, 1600);
+}
+
+// ══════════════════════════════════════════════════════════
+//  GAME 6 — SUPERLATIVES QUIZ
+// ══════════════════════════════════════════════════════════
+function initGame6() {
+  g6_data = shuffle(SUPERLATIVES_Q);
+  g6_qIndex = 0;
+  renderGame6();
+}
+
+function renderGame6() {
+  if (g6_qIndex >= g6_data.length) { showComplete(); return; }
+  totalQ++;
+  updateProgress(g6_qIndex, g6_data.length);
+  const q = g6_data[g6_qIndex];
+
+  document.getElementById('game-content').innerHTML = `
+    <div class="game-title-bar">
+      <div class="game-name">🏆 <span>Superlatives!</span></div>
+      <div class="game-instruction">Choose the correct form!</div>
+    </div>
+    <div class="q-counter">Question ${g6_qIndex + 1} of ${g6_data.length}</div>
+    <div class="quiz-question">
+      <span class="quiz-animal-emoji">${q.emoji}</span>
+      <div class="quiz-q-text">${q.question}</div>
+    </div>
+    <div class="quiz-options">
+      ${q.options.map(opt => `
+        <div class="quiz-option" onclick="g6Answer(this, '${opt.replace(/'/g,"\\'")}', '${q.answer.replace(/'/g,"\\'")}')">
+          ${opt}
+        </div>
+      `).join('')}
+    </div>
+    <div class="feedback" id="feedback6"></div>
+  `;
+}
+
+function g6Answer(el, chosen, correct) {
+  document.querySelectorAll('.quiz-option').forEach(o => o.onclick = null);
+  if (chosen === correct) {
+    el.classList.add('correct-opt');
+    addScore(15);
+    showFeedback(document.getElementById('feedback6'), 'correct', '🎉 Correct!');
+    confetti(el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top);
+  } else {
+    el.classList.add('wrong-opt');
+    document.querySelectorAll('.quiz-option').forEach(o => {
+      if (o.textContent.trim() === correct) o.classList.add('correct-opt');
+    });
+    showFeedback(document.getElementById('feedback6'), 'wrong', `❌ "${correct}"`);
+  }
+  g6_qIndex++;
+  setTimeout(renderGame6, 1800);
+}
+</script>
+</body>
+</html>
