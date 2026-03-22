@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Unit 3 – A Day in the Life 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --sky:#4fc3f7;--sun:#ffd54f;--green:#66bb6a;--red:#ef5350;
+    --purple:#ab47bc;--orange:#ffa726;--pink:#ec407a;--teal:#26a69a;
+    --card:#fff;--bg:#e3f2fd;--text:#1a237e;--muted:#546e7a;
+    --radius:16px;--shadow:0 4px 20px rgba(0,0,0,0.12);
+  }
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+  /* ── HOME ── */
+  #home{display:flex;flex-direction:column;align-items:center;padding:28px 20px}
+  .home-header{text-align:center;margin-bottom:32px}
+  .home-title{font-size:2.4rem;font-weight:900;color:var(--text);line-height:1.1}
+  .home-sub{font-size:1.1rem;color:var(--muted);margin-top:6px}
+  .score-banner{background:var(--card);border-radius:var(--radius);padding:12px 28px;box-shadow:var(--shadow);font-size:1rem;font-weight:700;color:var(--text);margin-bottom:24px}
+  .score-banner span{color:var(--orange);font-size:1.3rem}
+
+  .games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:780px;width:100%}
+  .game-card{background:var(--card);border-radius:var(--radius);padding:24px 16px;text-align:center;cursor:pointer;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s;border:3px solid transparent}
+  .game-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.18)}
+  .game-card .icon{font-size:2.8rem;margin-bottom:10px}
+  .game-card .title{font-size:1rem;font-weight:800;margin-bottom:4px}
+  .game-card .desc{font-size:.78rem;color:var(--muted)}
+  .game-card.done{border-color:var(--green)}
+  .game-card.done::after{content:'✓';position:absolute;top:10px;right:14px;font-size:1.2rem;color:var(--green);font-weight:900}
+  .game-card{position:relative}
+
+  /* ── SCREEN ── */
+  .screen{display:none;flex-direction:column;align-items:center;padding:24px 20px;max-width:760px;margin:0 auto;min-height:100vh}
+  .screen.active{display:flex}
+  .back-btn{align-self:flex-start;background:none;border:2px solid var(--muted);color:var(--muted);border-radius:30px;padding:6px 18px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:18px;transition:all .15s}
+  .back-btn:hover{border-color:var(--text);color:var(--text)}
+  .game-title{font-size:1.6rem;font-weight:900;margin-bottom:6px;text-align:center}
+  .game-sub{font-size:.9rem;color:var(--muted);margin-bottom:22px;text-align:center}
+  .progress-bar{width:100%;height:10px;background:#cfd8dc;border-radius:5px;margin-bottom:22px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--purple));border-radius:5px;transition:width .4s}
+  .score-display{font-size:.95rem;font-weight:700;color:var(--muted);margin-bottom:18px}
+
+  /* shared question card */
+  .q-card{background:var(--card);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);width:100%;max-width:600px;margin-bottom:20px;text-align:center}
+  .q-text{font-size:1.15rem;font-weight:700;margin-bottom:20px;line-height:1.5}
+  .q-emoji{font-size:3rem;margin-bottom:12px}
+
+  /* options grid */
+  .options{display:grid;gap:10px;width:100%;max-width:600px}
+  .options.cols2{grid-template-columns:1fr 1fr}
+  .opt-btn{background:var(--card);border:2.5px solid #cfd8dc;border-radius:12px;padding:14px 16px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .15s;text-align:center}
+  .opt-btn:hover:not(:disabled){border-color:var(--sky);background:#e1f5fe}
+  .opt-btn.correct{background:#c8e6c9;border-color:var(--green);color:#1b5e20}
+  .opt-btn.wrong{background:#ffcdd2;border-color:var(--red);color:#b71c1c}
+  .opt-btn:disabled{cursor:default}
+
+  /* feedback */
+  .feedback{font-size:1.1rem;font-weight:800;margin:8px 0 14px;min-height:28px;text-align:center}
+  .feedback.ok{color:var(--green)}
+  .feedback.no{color:var(--red)}
+  .next-btn{background:var(--purple);color:#fff;border:none;border-radius:30px;padding:12px 36px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:background .15s}
+  .next-btn:hover{background:#8e24aa}
+
+  /* ── SPELLING GAME ── */
+  .spell-word{font-size:2.2rem;font-weight:900;letter-spacing:4px;margin-bottom:8px}
+  .spell-hint{font-size:.85rem;color:var(--muted);margin-bottom:18px}
+  .letter-slots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+  .slot{width:44px;height:52px;border-radius:10px;border:2.5px solid #b0bec5;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;background:var(--card);transition:all .2s}
+  .slot.filled{border-color:var(--purple);background:#f3e5f5;color:var(--purple)}
+  .slot.correct{border-color:var(--green);background:#c8e6c9;color:#1b5e20}
+  .slot.wrong{border-color:var(--red);background:#ffcdd2;color:#b71c1c}
+  .letter-bank{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+  .letter-tile{width:44px;height:52px;border-radius:10px;border:2.5px solid var(--sky);background:#e1f5fe;color:var(--text);font-size:1.3rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .letter-tile:hover{background:var(--sky);color:#fff}
+  .letter-tile.used{opacity:.25;pointer-events:none}
+  .spell-actions{display:flex;gap:10px}
+  .clear-btn{background:#eceff1;border:none;border-radius:30px;padding:10px 22px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;color:var(--muted)}
+
+  /* ── SENTENCE BUILDER ── */
+  .sentence-display{min-height:56px;background:#f1f8e9;border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:2px dashed #aed581;width:100%;max-width:600px}
+  .word-chip{background:var(--purple);color:#fff;border-radius:20px;padding:6px 14px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .15s}
+  .word-chip:hover{background:#8e24aa}
+  .word-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;width:100%;max-width:600px}
+  .pool-word{background:var(--card);border:2px solid #90a4ae;border-radius:20px;padding:7px 16px;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .15s}
+  .pool-word:hover:not(.used){border-color:var(--purple);background:#f3e5f5}
+  .pool-word.used{opacity:.25;pointer-events:none}
+
+  /* ── CLOCK GAME ── */
+  .clock-wrap{margin:0 auto 20px;position:relative;width:180px;height:180px}
+  .clock-face{width:180px;height:180px;border-radius:50%;background:var(--card);border:6px solid var(--text);box-shadow:var(--shadow);position:relative}
+  .clock-center{position:absolute;width:12px;height:12px;background:var(--text);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5}
+  .hand{position:absolute;bottom:50%;left:50%;transform-origin:bottom center;border-radius:4px;background:var(--text)}
+  .hand.hour{width:6px;height:52px;margin-left:-3px;background:#37474f}
+  .hand.minute{width:4px;height:70px;margin-left:-2px;background:#ef5350}
+  .clock-num{position:absolute;font-size:.8rem;font-weight:800;color:var(--text)}
+
+  /* ── COMPLETE SCREEN ── */
+  #complete{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:100vh;text-align:center}
+  #complete.active{display:flex}
+  .complete-stars{font-size:3rem;margin-bottom:16px}
+  .complete-title{font-size:2.2rem;font-weight:900;margin-bottom:8px;color:var(--text)}
+  .complete-score{font-size:1.2rem;color:var(--muted);margin-bottom:28px}
+  .play-again{background:var(--purple);color:#fff;border:none;border-radius:30px;padding:14px 40px;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer;margin-right:12px}
+  .home-again{background:var(--card);color:var(--text);border:2.5px solid var(--text);border-radius:30px;padding:14px 40px;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;cursor:pointer}
+
+  /* confetti */
+  .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HOME ══════════ -->
+<div id="home">
+  <div class="home-header">
+    <div class="home-title">🌅 A Day in the Life</div>
+    <div class="home-sub">Kids Box NG3 · Unit 3 · Pro6_2</div>
+  </div>
+  <div class="score-banner">Total Stars: <span id="total-stars">⭐ 0</span></div>
+  <div class="games-grid">
+    <div class="game-card" style="border-top:5px solid #4fc3f7" onclick="launch('mcq')" id="card-mcq">
+      <div class="icon">🎯</div>
+      <div class="title">Routine Quiz</div>
+      <div class="desc">Match routines to pictures</div>
+    </div>
+    <div class="game-card" style="border-top:5px solid #ab47bc" onclick="launch('spell')" id="card-spell">
+      <div class="icon">🔤</div>
+      <div class="title">Spell It!</div>
+      <div class="desc">Build the word letter by letter</div>
+    </div>
+    <div class="game-card" style="border-top:5px solid #ffa726" onclick="launch('sentence')" id="card-sentence">
+      <div class="icon">📝</div>
+      <div class="title">Sentence Builder</div>
+      <div class="desc">Put words in the right order</div>
+    </div>
+    <div class="game-card" style="border-top:5px solid #66bb6a" onclick="launch('clock')" id="card-clock">
+      <div class="icon">🕐</div>
+      <div class="title">What Time Is It?</div>
+      <div class="desc">Read the clock & pick the time</div>
+    </div>
+    <div class="game-card" style="border-top:5px solid #ef5350" onclick="launch('memory')" id="card-memory">
+      <div class="icon">🧠</div>
+      <div class="title">Memory Match</div>
+      <div class="desc">Match routine to its emoji twin</div>
+    </div>
+    <div class="game-card" style="border-top:5px solid #ec407a" onclick="launch('story')" id="card-story">
+      <div class="icon">📖</div>
+      <div class="title">Story Gap-Fill</div>
+      <div class="desc">Complete the daily story</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MCQ SCREEN ══════════ -->
+<div class="screen" id="screen-mcq">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">🎯 Routine Quiz</div>
+  <div class="game-sub">Choose the correct daily routine!</div>
+  <div class="progress-bar"><div class="progress-fill" id="mcq-prog" style="width:0%"></div></div>
+  <div class="score-display" id="mcq-score">Score: 0</div>
+  <div class="q-card">
+    <div class="q-emoji" id="mcq-emoji">🌅</div>
+    <div class="q-text" id="mcq-q">Loading...</div>
+  </div>
+  <div class="options cols2" id="mcq-opts"></div>
+  <div class="feedback" id="mcq-fb"></div>
+  <button class="next-btn" id="mcq-next" style="display:none" onclick="mcqNext()">Next →</button>
+</div>
+
+<!-- ══════════ SPELL SCREEN ══════════ -->
+<div class="screen" id="screen-spell">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">🔤 Spell It!</div>
+  <div class="game-sub">Tap letters to spell the daily routine</div>
+  <div class="progress-bar"><div class="progress-fill" id="spell-prog" style="width:0%"></div></div>
+  <div class="score-display" id="spell-score">Score: 0</div>
+  <div class="q-card">
+    <div class="q-emoji" id="spell-emoji">☀️</div>
+    <div class="spell-hint" id="spell-hint">Spell this routine:</div>
+    <div class="spell-word" id="spell-target"></div>
+  </div>
+  <div class="letter-slots" id="spell-slots"></div>
+  <div class="letter-bank" id="spell-bank"></div>
+  <div class="spell-actions">
+    <button class="clear-btn" onclick="spellClear()">🗑 Clear</button>
+    <button class="next-btn" id="spell-check" onclick="spellCheck()">Check ✓</button>
+  </div>
+  <div class="feedback" id="spell-fb"></div>
+  <button class="next-btn" id="spell-next" style="display:none;margin-top:8px" onclick="spellNext()">Next →</button>
+</div>
+
+<!-- ══════════ SENTENCE SCREEN ══════════ -->
+<div class="screen" id="screen-sentence">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">📝 Sentence Builder</div>
+  <div class="game-sub">Tap words to build the sentence!</div>
+  <div class="progress-bar"><div class="progress-fill" id="sent-prog" style="width:0%"></div></div>
+  <div class="score-display" id="sent-score">Score: 0</div>
+  <div class="q-card">
+    <div class="q-emoji" id="sent-emoji">📖</div>
+    <div class="q-text" id="sent-q">Build the sentence:</div>
+  </div>
+  <div class="sentence-display" id="sent-display"></div>
+  <div class="word-pool" id="sent-pool"></div>
+  <div class="spell-actions">
+    <button class="clear-btn" onclick="sentClear()">🗑 Clear</button>
+    <button class="next-btn" id="sent-check" onclick="sentCheck()">Check ✓</button>
+  </div>
+  <div class="feedback" id="sent-fb"></div>
+  <button class="next-btn" id="sent-next" style="display:none;margin-top:8px" onclick="sentNext()">Next →</button>
+</div>
+
+<!-- ══════════ CLOCK SCREEN ══════════ -->
+<div class="screen" id="screen-clock">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">🕐 What Time Is It?</div>
+  <div class="game-sub">Look at the clock and choose the right time!</div>
+  <div class="progress-bar"><div class="progress-fill" id="clock-prog" style="width:0%"></div></div>
+  <div class="score-display" id="clock-score">Score: 0</div>
+  <div class="q-card">
+    <div class="clock-wrap">
+      <div class="clock-face" id="clock-face">
+        <div class="clock-center"></div>
+        <div class="hand hour" id="hand-hour" style="transform:rotate(0deg) translateX(-50%)"></div>
+        <div class="hand minute" id="hand-min" style="transform:rotate(0deg) translateX(-50%)"></div>
+      </div>
+    </div>
+    <div class="q-text" id="clock-q">What time does she wake up?</div>
+  </div>
+  <div class="options cols2" id="clock-opts"></div>
+  <div class="feedback" id="clock-fb"></div>
+  <button class="next-btn" id="clock-next" style="display:none" onclick="clockNext()">Next →</button>
+</div>
+
+<!-- ══════════ MEMORY SCREEN ══════════ -->
+<div class="screen" id="screen-memory">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">🧠 Memory Match</div>
+  <div class="game-sub">Find the matching pairs! 🃏</div>
+  <div class="score-display" id="mem-score">Pairs found: 0 / 8</div>
+  <div id="mem-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:560px;width:100%"></div>
+  <button class="next-btn" id="mem-done" style="display:none;margin-top:20px" onclick="memDone()">Finish! 🎉</button>
+</div>
+
+<!-- ══════════ STORY SCREEN ══════════ -->
+<div class="screen" id="screen-story">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="game-title">📖 Story Gap-Fill</div>
+  <div class="game-sub">Complete Marie's daily story!</div>
+  <div class="progress-bar"><div class="progress-fill" id="story-prog" style="width:0%"></div></div>
+  <div class="score-display" id="story-score">Score: 0</div>
+  <div class="q-card" style="text-align:left;line-height:2">
+    <div id="story-text" style="font-size:1rem;font-weight:600"></div>
+  </div>
+  <div class="options" id="story-opts" style="max-width:600px"></div>
+  <div class="feedback" id="story-fb"></div>
+  <button class="next-btn" id="story-next" style="display:none;margin-top:8px" onclick="storyNext()">Next →</button>
+</div>
+
+<!-- ══════════ COMPLETE ══════════ -->
+<div id="complete">
+  <div class="complete-stars" id="comp-stars">⭐⭐⭐</div>
+  <div class="complete-title">Amazing! 🎉</div>
+  <div class="complete-score" id="comp-score">You scored 10/10!</div>
+  <div style="margin-bottom:24px">
+    <button class="play-again" onclick="replayGame()">Play Again 🔄</button>
+    <button class="home-again" onclick="goHome()">Home 🏠</button>
+  </div>
+</div>
+
+<script>
+// ══════════ DATA ══════════
+const routines = [
+  {word:'wake up',    emoji:'🌅', hint:'start your day', sentence:'I wake up at seven o\'clock.'},
+  {word:'have a shower', emoji:'🚿', hint:'get clean', sentence:'She has a shower every morning.'},
+  {word:'get dressed', emoji:'👕', hint:'put clothes on', sentence:'He gets dressed after breakfast.'},
+  {word:'have breakfast',emoji:'🥣', hint:'morning meal', sentence:'We have breakfast at eight o\'clock.'},
+  {word:'go to school', emoji:'🏫', hint:'time to learn!', sentence:'They go to school on Monday.'},
+  {word:'have lunch',  emoji:'🍱', hint:'midday meal', sentence:'I have lunch at twelve o\'clock.'},
+  {word:'do my homework',emoji:'📚', hint:'study time', sentence:'She does her homework every day.'},
+  {word:'have dinner', emoji:'🍽️', hint:'evening meal', sentence:'We have dinner at seven o\'clock.'},
+  {word:'wash my hands',emoji:'🧼', hint:'stay clean & healthy', sentence:'He washes his hands before dinner.'},
+  {word:'go to bed',  emoji:'🛏️', hint:'time to sleep', sentence:'I go to bed at nine o\'clock.'},
+  {word:'catch the bus',emoji:'🚌', hint:'travel to school', sentence:'She catches the bus at half past seven.'},
+  {word:'get undressed',emoji:'🧴', hint:'take clothes off', sentence:'He gets undressed at bedtime.'},
+]
+
+const sentences = [
+  {answer:['I','wake','up','at','seven','o\'clock.'],    emoji:'🌅'},
+  {answer:['She','has','a','shower','every','morning.'], emoji:'🚿'},
+  {answer:['He','gets','dressed','after','breakfast.'],  emoji:'👕'},
+  {answer:['They','go','to','school','on','Monday.'],    emoji:'🏫'},
+  {answer:['I','have','lunch','at','twelve','o\'clock.'],emoji:'🍱'},
+  {answer:['She','does','her','homework','every','day.'],emoji:'📚'},
+  {answer:['He','washes','his','hands','before','dinner.'],emoji:'🧼'},
+  {answer:['I','go','to','bed','at','nine','o\'clock.'], emoji:'🛏️'},
+]
+
+const clockQs = [
+  {h:7,m:0,  answer:"seven o'clock",      options:["seven o'clock","eight o'clock","half past six","quarter past seven"], routine:"wake up"},
+  {h:7,m:30, answer:"half past seven",    options:["half past seven","half past eight","quarter to eight","seven o'clock"], routine:"catch the bus"},
+  {h:8,m:0,  answer:"eight o'clock",      options:["eight o'clock","half past eight","seven o'clock","nine o'clock"], routine:"have breakfast"},
+  {h:12,m:0, answer:"twelve o'clock",     options:["twelve o'clock","half past twelve","one o'clock","eleven o'clock"], routine:"have lunch"},
+  {h:15,m:30,answer:"half past three",    options:["half past three","three o'clock","four o'clock","half past four"], routine:"do homework"},
+  {h:19,m:0, answer:"seven o'clock",      options:["seven o'clock","half past six","eight o'clock","six o'clock"], routine:"have dinner"},
+  {h:21,m:0, answer:"nine o'clock",       options:["nine o'clock","ten o'clock","half past nine","eight o'clock"], routine:"go to bed"},
+  {h:7,m:15, answer:"quarter past seven", options:["quarter past seven","half past seven","seven o'clock","quarter to eight"], routine:"get dressed"},
+]
+
+const storyGaps = [
+  {before:"Every morning, Marie",after:"at seven o'clock.", options:["wakes up","wake up","waking up","waked up"], answer:"wakes up", emoji:"🌅"},
+  {before:"Then she",after:"and gets dressed.",             options:["have a shower","has a shower","having a shower","had a shower"], answer:"has a shower", emoji:"🚿"},
+  {before:"She",after:"at eight o'clock.",                  options:["have breakfast","has breakfast","having breakfast","eats breakfast"], answer:"has breakfast", emoji:"🥣"},
+  {before:"Marie",after:"at half past eight.",              options:["go to school","goes to school","going to school","went to school"], answer:"goes to school", emoji:"🏫"},
+  {before:"She always",after:"before dinner.",              options:["wash her hands","washes her hands","washing her hands","washed her hands"], answer:"washes her hands", emoji:"🧼"},
+  {before:"Every evening, she",after:"and reads a book.",   options:["do her homework","does her homework","doing her homework","done her homework"], answer:"does her homework", emoji:"📚"},
+  {before:"Marie",after:"at nine o'clock every night.",     options:["go to bed","goes to bed","going to bed","went to bed"], answer:"goes to bed", emoji:"🛏️"},
+]
+
+// ══════════ STATE ══════════
+let totalStars = 0
+let currentGame = ''
+let gameScore = 0
+let gameIdx = 0
+let gameData = []
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+// ══════════ NAVIGATION ══════════
+function goHome(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  document.getElementById('home').style.display='flex'
+  document.getElementById('complete').classList.remove('active')
+}
+
+function launch(game){
+  document.getElementById('home').style.display='none'
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  currentGame = game
+  gameScore = 0; gameIdx = 0
+  if(game==='mcq')     {initMCQ();    document.getElementById('screen-mcq').classList.add('active')}
+  if(game==='spell')   {initSpell();  document.getElementById('screen-spell').classList.add('active')}
+  if(game==='sentence'){initSent();   document.getElementById('screen-sentence').classList.add('active')}
+  if(game==='clock')   {initClock();  document.getElementById('screen-clock').classList.add('active')}
+  if(game==='memory')  {initMemory(); document.getElementById('screen-memory').classList.add('active')}
+  if(game==='story')   {initStory();  document.getElementById('screen-story').classList.add('active')}
+}
+
+function showComplete(score, total){
+  const pct = score/total
+  const stars = pct>=.85?'⭐⭐⭐':pct>=.6?'⭐⭐':'⭐'
+  const earned = pct>=.85?3:pct>=.6?2:1
+  totalStars += earned
+  document.getElementById('total-stars').textContent = '⭐ '+totalStars
+  document.getElementById('comp-stars').textContent = stars
+  document.getElementById('comp-score').textContent = `You scored ${score}/${total}!`
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'))
+  document.getElementById('complete').classList.add('active')
+  document.getElementById('card-'+currentGame).classList.add('done')
+  if(pct>=.6) confetti()
+}
+
+function replayGame(){
+  document.getElementById('complete').classList.remove('active')
+  launch(currentGame)
+}
+
+// ══════════ CONFETTI ══════════
+function confetti(){
+  const colors=['#4fc3f7','#ab47bc','#ffa726','#66bb6a','#ef5350','#ec407a','#ffd54f']
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div')
+    p.className='confetti-piece'
+    p.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${rand(colors)};width:${6+Math.random()*10}px;height:${6+Math.random()*10}px;animation-duration:${1.2+Math.random()*1.5}s;animation-delay:${Math.random()*.5}s`
+    document.body.appendChild(p)
+    setTimeout(()=>p.remove(),3000)
+  }
+}
+
+// ══════════ GAME 1: MCQ ══════════
+function initMCQ(){
+  gameData = shuffle(routines).slice(0,10)
+  gameIdx=0; gameScore=0
+  renderMCQ()
+}
+
+function renderMCQ(){
+  if(gameIdx>=gameData.length){showComplete(gameScore,gameData.length);return}
+  const q=gameData[gameIdx]
+  const total=gameData.length
+  document.getElementById('mcq-prog').style.width=(gameIdx/total*100)+'%'
+  document.getElementById('mcq-score').textContent='Score: '+gameScore
+  document.getElementById('mcq-emoji').textContent=q.emoji
+  document.getElementById('mcq-q').textContent='Which routine is this? '+q.emoji
+  document.getElementById('mcq-fb').textContent=''
+  document.getElementById('mcq-next').style.display='none'
+
+  // wrong options from other routines
+  const wrongs = shuffle(routines.filter(r=>r.word!==q.word)).slice(0,3).map(r=>r.word)
+  const options = shuffle([q.word,...wrongs])
+  const container = document.getElementById('mcq-opts')
+  container.innerHTML=''
+  options.forEach(opt=>{
+    const btn=document.createElement('button')
+    btn.className='opt-btn'
+    btn.textContent=opt
+    btn.onclick=()=>pickMCQ(btn,opt===q.word,q.word,container)
+    container.appendChild(btn)
+  })
+}
+
+function pickMCQ(btn,correct,answer,container){
+  container.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled=true
+    if(b.textContent===answer) b.classList.add('correct')
+  })
+  if(correct){btn.classList.add('correct');gameScore++;showFB('mcq','✅ Correct! Great job!',true);confetti()}
+  else{btn.classList.add('wrong');showFB('mcq','❌ The answer is: '+answer,false)}
+  document.getElementById('mcq-next').style.display='block'
+}
+
+function mcqNext(){gameIdx++;renderMCQ()}
+function showFB(game,msg,ok){
+  const el=document.getElementById(game+'-fb')
+  el.textContent=msg
+  el.className='feedback '+(ok?'ok':'no')
+}
+
+// ══════════ GAME 2: SPELLING ══════════
+let spellCurrent=null, spellAnswer=[], spellUsed=[]
+
+function initSpell(){
+  gameData=shuffle(routines).slice(0,8)
+  gameIdx=0;gameScore=0
+  renderSpell()
+}
+
+function renderSpell(){
+  if(gameIdx>=gameData.length){showComplete(gameScore,gameData.length);return}
+  const r=gameData[gameIdx]
+  spellCurrent=r
+  spellAnswer=[]
+  spellUsed=[]
+  document.getElementById('spell-prog').style.width=(gameIdx/gameData.length*100)+'%'
+  document.getElementById('spell-score').textContent='Score: '+gameScore
+  document.getElementById('spell-emoji').textContent=r.emoji
+  document.getElementById('spell-target').textContent=r.emoji+' '+r.hint
+  document.getElementById('spell-fb').textContent=''
+  document.getElementById('spell-next').style.display='none'
+  document.getElementById('spell-check').style.display='block'
+
+  // Build slots for the word (spaces as separators)
+  const target = r.word.replace(/ /g,'_')
+  const slots = document.getElementById('spell-slots')
+  slots.innerHTML=''
+  target.split('').forEach((ch,i)=>{
+    const slot=document.createElement('div')
+    if(ch==='_'){slot.style.cssText='width:14px;height:52px;background:transparent;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#90a4ae';slot.textContent=' '}
+    else{slot.className='slot';slot.dataset.idx=i}
+    slots.appendChild(slot)
+  })
+
+  // Shuffle letters for bank
+  const letters = r.word.replace(/ /g,'').toUpperCase().split('')
+  // Add 3 distractor letters
+  const alpha='AEIOURSTLNMDBPHGYCFWK'
+  while(letters.length<letters.length+3){if(letters.length>=r.word.replace(/ /g,'').length+3)break;letters.push(alpha[Math.floor(Math.random()*alpha.length)])}
+  const extras=3
+  for(let i=0;i<extras;i++)letters.push(alpha[Math.floor(Math.random()*alpha.length)])
+  const shuffled=shuffle(letters)
+  const bank=document.getElementById('spell-bank')
+  bank.innerHTML=''
+  shuffled.forEach((lt,i)=>{
+    const tile=document.createElement('div')
+    tile.className='letter-tile'
+    tile.textContent=lt
+    tile.dataset.tidx=i
+    tile.onclick=()=>pickLetter(tile,lt,i)
+    bank.appendChild(tile)
+  })
+}
+
+function pickLetter(tile,letter,tidx){
+  if(tile.classList.contains('used'))return
+  const target=spellCurrent.word.replace(/ /g,'')
+  spellAnswer.push({letter,tidx})
+  tile.classList.add('used')
+  // fill next empty slot
+  const slots=document.querySelectorAll('#spell-slots .slot')
+  const filled=spellAnswer.length-1
+  const targetArr=spellCurrent.word.toUpperCase().replace(/ /g,'').split('')
+  // find the filled-th unfilled slot
+  let count=-1
+  slots.forEach(s=>{
+    if(!s.classList.contains('filled')&&!s.classList.contains('correct')&&count<filled){count++;if(count===filled){s.textContent=letter;s.classList.add('filled')}})
+  })
+}
+
+// Fix the forEach with complex condition
+function pickLetter2(tile,letter,tidx){
+  if(tile.classList.contains('used'))return
+  spellAnswer.push({letter,tidx})
+  tile.classList.add('used')
+  const slots=[...document.querySelectorAll('#spell-slots .slot')]
+  const emptySlot=slots.find(s=>s.textContent==='')
+  if(emptySlot){emptySlot.textContent=letter;emptySlot.classList.add('filled')}
+}
+
+// override pick with the clean version
+document.addEventListener('DOMContentLoaded',()=>{window.pickLetter=pickLetter2})
+
+function spellClear(){
+  spellAnswer=[]
+  document.querySelectorAll('#spell-slots .slot').forEach(s=>{s.textContent='';s.className='slot'})
+  document.querySelectorAll('#spell-bank .letter-tile').forEach(t=>t.classList.remove('used'))
+  document.getElementById('spell-fb').textContent=''
+}
+
+function spellCheck(){
+  const typed=spellAnswer.map(a=>a.letter).join('').toUpperCase()
+  const target=spellCurrent.word.replace(/ /g,'').toUpperCase()
+  const slots=document.querySelectorAll('#spell-slots .slot')
+  if(typed===target){
+    slots.forEach(s=>s.classList.replace('filled','correct'))
+    gameScore++
+    showFB('spell','✅ Perfect spelling! 🎉',true)
+    confetti()
+  }else{
+    slots.forEach(s=>s.classList.replace('filled','wrong'))
+    showFB('spell','❌ Correct spelling: '+spellCurrent.word,false)
+  }
+  document.getElementById('spell-check').style.display='none'
+  document.getElementById('spell-next').style.display='block'
+}
+
+function spellNext(){gameIdx++;renderSpell()}
+
+// ══════════ GAME 3: SENTENCE BUILDER ══════════
+let sentBuilt=[], sentPool=[]
+
+function initSent(){
+  gameData=shuffle(sentences).slice(0,6)
+  gameIdx=0;gameScore=0
+  renderSent()
+}
+
+function renderSent(){
+  if(gameIdx>=gameData.length){showComplete(gameScore,gameData.length);return}
+  const q=gameData[gameIdx]
+  sentBuilt=[]
+  document.getElementById('sent-prog').style.width=(gameIdx/gameData.length*100)+'%'
+  document.getElementById('sent-score').textContent='Score: '+gameScore
+  document.getElementById('sent-emoji').textContent=q.emoji
+  document.getElementById('sent-q').textContent='Put the words in the right order:'
+  document.getElementById('sent-fb').textContent=''
+  document.getElementById('sent-next').style.display='none'
+  document.getElementById('sent-check').style.display='block'
+  document.getElementById('sent-display').innerHTML=''
+
+  const words=shuffle(q.answer)
+  const pool=document.getElementById('sent-pool')
+  pool.innerHTML=''
+  words.forEach((w,i)=>{
+    const chip=document.createElement('div')
+    chip.className='pool-word'
+    chip.textContent=w
+    chip.dataset.idx=i
+    chip.onclick=()=>pickWord(chip,w,i)
+    pool.appendChild(chip)
+  })
+}
+
+function pickWord(chip,word,idx){
+  if(chip.classList.contains('used'))return
+  chip.classList.add('used')
+  sentBuilt.push({word,idx})
+  const display=document.getElementById('sent-display')
+  const chip2=document.createElement('div')
+  chip2.className='word-chip'
+  chip2.textContent=word
+  chip2.dataset.bidx=sentBuilt.length-1
+  chip2.onclick=()=>removeWord(chip2,idx)
+  display.appendChild(chip2)
+}
+
+function removeWord(chip2,origIdx){
+  const bidx=parseInt(chip2.dataset.bidx)
+  sentBuilt=sentBuilt.filter((_,i)=>i!==bidx)
+  chip2.remove()
+  // re-enable original tile
+  document.querySelectorAll('#sent-pool .pool-word').forEach(t=>{
+    if(parseInt(t.dataset.idx)===origIdx)t.classList.remove('used')
+  })
+}
+
+function sentClear(){
+  sentBuilt=[]
+  document.getElementById('sent-display').innerHTML=''
+  document.querySelectorAll('#sent-pool .pool-word').forEach(t=>t.classList.remove('used'))
+  document.getElementById('sent-fb').textContent=''
+}
+
+function sentCheck(){
+  const q=gameData[gameIdx]
+  const built=sentBuilt.map(s=>s.word).join(' ')
+  const correct=q.answer.join(' ')
+  if(built===correct){
+    gameScore++
+    showFB('sent','✅ Perfect sentence! 🌟',true)
+    confetti()
+    document.querySelectorAll('#sent-display .word-chip').forEach(c=>c.style.background='var(--green)')
+  }else{
+    showFB('sent','❌ Correct: '+correct,false)
+    document.querySelectorAll('#sent-display .word-chip').forEach(c=>c.style.background='var(--red)')
+  }
+  document.getElementById('sent-check').style.display='none'
+  document.getElementById('sent-next').style.display='block'
+}
+
+function sentNext(){gameIdx++;renderSent()}
+
+// ══════════ GAME 4: CLOCK ══════════
+function initClock(){
+  gameData=shuffle(clockQs)
+  gameIdx=0;gameScore=0
+  renderClock()
+}
+
+function setClock(h,m){
+  const hourDeg=(h%12)*30+m*0.5
+  const minDeg=m*6
+  document.getElementById('hand-hour').style.transform=`rotate(${hourDeg}deg) translateX(-50%)`
+  document.getElementById('hand-min').style.transform=`rotate(${minDeg}deg) translateX(-50%)`
+}
+
+function renderClock(){
+  if(gameIdx>=gameData.length){showComplete(gameScore,gameData.length);return}
+  const q=gameData[gameIdx]
+  document.getElementById('clock-prog').style.width=(gameIdx/gameData.length*100)+'%'
+  document.getElementById('clock-score').textContent='Score: '+gameScore
+  document.getElementById('clock-fb').textContent=''
+  document.getElementById('clock-next').style.display='none'
+  document.getElementById('clock-q').textContent=`What time does she ${q.routine}?`
+  setClock(q.h,q.m)
+
+  const container=document.getElementById('clock-opts')
+  container.innerHTML=''
+  shuffle(q.options).forEach(opt=>{
+    const btn=document.createElement('button')
+    btn.className='opt-btn'
+    btn.textContent=opt
+    btn.onclick=()=>pickClock(btn,opt===q.answer,q.answer,container)
+    container.appendChild(btn)
+  })
+}
+
+function pickClock(btn,correct,answer,container){
+  container.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(b.textContent===answer)b.classList.add('correct')})
+  if(correct){btn.classList.add('correct');gameScore++;showFB('clock','✅ Correct! 🕐',true);confetti()}
+  else{btn.classList.add('wrong');showFB('clock','❌ It\'s '+answer,false)}
+  document.getElementById('clock-next').style.display='block'
+}
+
+function clockNext(){gameIdx++;renderClock()}
+
+// ══════════ GAME 5: MEMORY MATCH ══════════
+let memFlipped=[],memMatched=[],memLocked=false,memPairs=0
+
+function initMemory(){
+  memFlipped=[];memMatched=[];memLocked=false;memPairs=0
+  document.getElementById('mem-score').textContent='Pairs found: 0 / 8'
+  document.getElementById('mem-done').style.display='none'
+  const pairs=shuffle(routines).slice(0,8)
+  const cards=shuffle([
+    ...pairs.map((r,i)=>({id:i,type:'word',content:r.word,match:i})),
+    ...pairs.map((r,i)=>({id:i,type:'emoji',content:r.emoji,match:i}))
+  ])
+  const grid=document.getElementById('mem-grid')
+  grid.innerHTML=''
+  cards.forEach((c,idx)=>{
+    const card=document.createElement('div')
+    card.style.cssText=`height:80px;border-radius:12px;background:#1a237e;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:${c.type==='emoji'?'2rem':'.72rem'};font-weight:800;color:transparent;transition:all .25s;border:3px solid #283593;user-select:none;padding:4px;text-align:center`
+    card.dataset.idx=idx
+    card.dataset.match=c.match
+    card.dataset.content=c.content
+    card.dataset.type=c.type
+    card.onclick=()=>flipCard(card)
+    grid.appendChild(card)
+  })
+}
+
+function flipCard(card){
+  if(memLocked||card.style.color!=='transparent'||memMatched.includes(parseInt(card.dataset.idx)))return
+  card.style.background='#e3f2fd'
+  card.style.color='var(--text)'
+  card.style.borderColor='var(--sky)'
+  memFlipped.push(card)
+  if(memFlipped.length===2){
+    memLocked=true
+    const [a,b]=memFlipped
+    if(a.dataset.match===b.dataset.match&&a!==b){
+      a.style.background='#c8e6c9';b.style.background='#c8e6c9'
+      a.style.borderColor=b.style.borderColor='var(--green)'
+      memMatched.push(parseInt(a.dataset.idx),parseInt(b.dataset.idx))
+      memPairs++
+      gameScore++
+      document.getElementById('mem-score').textContent=`Pairs found: ${memPairs} / 8`
+      if(memPairs===8){document.getElementById('mem-done').style.display='block';confetti()}
+      memFlipped=[];memLocked=false
+    }else{
+      setTimeout(()=>{
+        a.style.background=b.style.background='#1a237e'
+        a.style.color=b.style.color='transparent'
+        a.style.borderColor=b.style.borderColor='#283593'
+        memFlipped=[];memLocked=false
+      },900)
+    }
+  }
+}
+
+function memDone(){showComplete(memPairs,8)}
+
+// ══════════ GAME 6: STORY GAP-FILL ══════════
+function initStory(){
+  gameData=storyGaps
+  gameIdx=0;gameScore=0
+  renderStory()
+}
+
+function renderStory(){
+  if(gameIdx>=gameData.length){showComplete(gameScore,gameData.length);return}
+  const q=gameData[gameIdx]
+  document.getElementById('story-prog').style.width=(gameIdx/gameData.length*100)+'%'
+  document.getElementById('story-score').textContent='Score: '+gameScore
+  document.getElementById('story-fb').textContent=''
+  document.getElementById('story-next').style.display='none'
+
+  document.getElementById('story-text').innerHTML=
+    `${q.emoji} <em style="color:var(--muted)">${q.before}</em> <span style="background:#ffd54f;padding:2px 10px;border-radius:8px;font-weight:900">_____</span> <em style="color:var(--muted)">${q.after}</em>`
+
+  const container=document.getElementById('story-opts')
+  container.innerHTML=''
+  container.style.gridTemplateColumns='1fr 1fr'
+  shuffle(q.options).forEach(opt=>{
+    const btn=document.createElement('button')
+    btn.className='opt-btn'
+    btn.textContent=opt
+    btn.onclick=()=>pickStory(btn,opt===q.answer,q.answer,container,q)
+    container.appendChild(btn)
+  })
+}
+
+function pickStory(btn,correct,answer,container,q){
+  container.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(b.textContent===answer)b.classList.add('correct')})
+  if(correct){
+    btn.classList.add('correct');gameScore++
+    showFB('story','✅ Correct! 🌟',true)
+    document.getElementById('story-text').innerHTML=
+      `${q.emoji} <em style="color:var(--muted)">${q.before}</em> <span style="background:var(--green);color:#fff;padding:2px 10px;border-radius:8px;font-weight:900">${answer}</span> <em style="color:var(--muted)">${q.after}</em>`
+    confetti()
+  }else{
+    btn.classList.add('wrong')
+    showFB('story','❌ Correct: '+answer,false)
+    document.getElementById('story-text').innerHTML=
+      `${q.emoji} <em style="color:var(--muted)">${q.before}</em> <span style="background:var(--red);color:#fff;padding:2px 10px;border-radius:8px;font-weight:900">${answer}</span> <em style="color:var(--muted)">${q.after}</em>`
+  }
+  document.getElementById('story-next').style.display='block'
+}
+
+function storyNext(){gameIdx++;renderStory()}
+
+// init pick letter correctly
+window.addEventListener('load',()=>{window.pickLetter=pickLetter2})
+</script>
+</body>
+</html>
