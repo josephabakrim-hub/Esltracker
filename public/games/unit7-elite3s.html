@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7 — Sporting Life | Think Starter</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #f0f4ff;
+  --s1:     #ffffff;
+  --s2:     #f5f7ff;
+  --border: #dde3f5;
+  --text:   #1a1f3c;
+  --muted:  #7a82a8;
+  --accent: #3d6ef5;
+  --green:  #16a34a;
+  --red:    #dc2626;
+  --amber:  #d97706;
+  --teal:   #0d9488;
+  --mono:   'JetBrains Mono', monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Subtle dot grid */
+body::before {
+  content:'';
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle, #c7d2f5 1px, transparent 1px);
+  background-size:28px 28px;
+  opacity:.5;
+}
+
+/* Top colour bar */
+body::after {
+  content:'';
+  position:fixed;top:0;left:0;right:0;
+  height:4px;z-index:100;pointer-events:none;
+  background:linear-gradient(90deg,#3d6ef5,#06b6d4,#10b981,#f59e0b,#ef4444,#a855f7);
+}
+
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:40px 20px;flex-direction:column;align-items:center;justify-content:center}
+.screen.active{display:flex}
+
+/* ── HOME ── */
+.home-tag {
+  font-family:var(--mono);font-size:.65rem;letter-spacing:4px;
+  text-transform:uppercase;color:var(--accent);
+  border:1px solid rgba(91,140,255,.3);
+  padding:5px 14px;border-radius:4px;
+  margin-bottom:32px;
+}
+
+.home-title {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(3rem,8vw,5.5rem);
+  font-weight:800;
+  line-height:.95;
+  text-align:center;
+  margin-bottom:12px;
+  letter-spacing:-2px;
+}
+
+.home-title .line1{color:var(--text)}
+.home-title .line2{color:var(--accent);font-style:italic}
+
+.home-sub{
+  font-size:.85rem;color:var(--muted);
+  text-align:center;margin-bottom:56px;
+  letter-spacing:.5px;
+}
+
+.game-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  max-width:960px;width:100%;
+}
+@media(max-width:700px){.game-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.game-grid{grid-template-columns:1fr}}
+
+.gcard{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px 18px;
+  cursor:pointer;
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+.gcard::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--cc);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .2s;
+}
+.gcard:hover{
+  border-color:var(--cc);
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,.5);
+}
+.gcard:hover::after{transform:scaleX(1)}
+
+.gcard-num{
+  font-family:var(--mono);font-size:.6rem;
+  color:var(--muted);letter-spacing:2px;
+  margin-bottom:14px;
+}
+.gcard-name{
+  font-family:'Syne',sans-serif;
+  font-size:1rem;font-weight:700;
+  color:var(--text);margin-bottom:6px;line-height:1.2;
+}
+.gcard-sub{
+  font-size:.72rem;color:var(--muted);line-height:1.4;
+}
+.gcard-tag{
+  margin-top:14px;
+  font-family:var(--mono);font-size:.58rem;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--cc);
+}
+
+/* ── SHELL ── */
+.shell{width:100%;max-width:720px}
+
+.shell-header{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.sh-left{display:flex;flex-direction:column;gap:4px}
+.sh-tag{
+  font-family:var(--mono);font-size:.6rem;
+  letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+}
+.sh-title{
+  font-family:'Syne',sans-serif;
+  font-size:1.3rem;font-weight:700;color:var(--text);
+}
+.sh-right{display:flex;gap:8px;align-items:center}
+
+.score-tag{
+  font-family:var(--mono);font-size:.72rem;font-weight:600;
+  background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.3);
+  color:var(--accent);padding:5px 12px;border-radius:6px;
+}
+.back-link{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);
+  background:none;border:1px solid var(--border);
+  padding:5px 12px;border-radius:6px;cursor:pointer;
+  transition:all .15s;
+}
+.back-link:hover{border-color:var(--accent);color:var(--accent)}
+
+.divider{height:1px;background:var(--border);margin:16px 0 24px}
+
+.prog-bar{
+  height:2px;background:var(--border);
+  border-radius:2px;margin-bottom:32px;overflow:hidden;
+}
+.prog-fill{
+  height:100%;border-radius:2px;
+  transition:width .4s ease;
+}
+
+/* ── QUESTION ── */
+.q-box{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;padding:28px 24px;margin-bottom:18px;
+}
+.q-tag{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+}
+.q-text{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(1.1rem,3vw,1.5rem);
+  font-weight:600;color:var(--text);line-height:1.4;
+}
+.q-text em{color:var(--accent);font-style:normal;font-weight:700}
+
+/* ── OPTIONS ── */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:480px){.opts{grid-template-columns:1fr}}
+
+.opt{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:10px;
+  background:var(--s2);border:1px solid var(--border);
+  color:var(--text);font-family:'Inter',sans-serif;
+  font-size:.88rem;font-weight:500;cursor:pointer;
+  transition:all .15s;text-align:left;
+}
+.opt:hover:not(:disabled){
+  border-color:var(--accent);
+  background:rgba(61,110,245,.06);
+}
+.opt-key{
+  font-family:var(--mono);font-size:.62rem;font-weight:600;
+  color:var(--muted);width:20px;height:20px;
+  border-radius:4px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+}
+.opt:hover:not(:disabled) .opt-key{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+}
+.opt.correct{border-color:var(--green)!important;background:rgba(22,163,74,.08)!important}
+.opt.correct .opt-key{background:var(--green);border-color:var(--green);color:#fff}
+.opt.wrong{border-color:var(--red)!important;background:rgba(220,38,38,.07)!important;animation:shake .3s}
+.opt.wrong .opt-key{background:var(--red);border-color:var(--red);color:#fff}
+
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}100%{transform:translateX(0)}}
+
+/* ── FEEDBACK ── */
+.fb{
+  border-radius:10px;padding:12px 16px;
+  font-size:.83rem;font-weight:500;margin-top:14px;
+  opacity:0;transition:opacity .2s;line-height:1.6;
+  font-family:var(--mono);
+}
+.fb.show{opacity:1}
+.fb.ok{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.35);color:var(--green)}
+.fb.err{background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.3);color:var(--red)}
+.fb.info{background:rgba(61,110,245,.07);border:1px solid rgba(61,110,245,.3);color:var(--accent)}
+
+/* ── SPELLING GAME ── */
+.spell-word-display{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(2rem,6vw,3.5rem);
+  font-weight:800;letter-spacing:8px;
+  text-align:center;color:var(--text);
+  margin:24px 0;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+  min-height:90px;
+}
+.spell-word-display .revealed{color:var(--accent)}
+.spell-word-display .blank{color:var(--border)}
+
+.letter-grid{
+  display:flex;flex-wrap:wrap;gap:8px;
+  justify-content:center;margin-bottom:20px;
+}
+.letter-btn{
+  font-family:'Syne',sans-serif;font-size:1rem;
+  font-weight:700;width:40px;height:40px;
+  background:var(--s2);border:1px solid var(--border);
+  color:var(--text);border-radius:8px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;
+}
+.letter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.letter-btn.used{opacity:.25;pointer-events:none}
+.letter-btn.wrong-letter{border-color:var(--red);color:var(--red);animation:shake .2s}
+
+.spell-hint{
+  font-family:var(--mono);font-size:.72rem;
+  color:var(--muted);text-align:center;margin-bottom:16px;
+}
+.spell-lives{
+  font-family:var(--mono);font-size:.75rem;color:var(--amber);
+  text-align:center;margin-bottom:16px;letter-spacing:4px;
+}
+
+/* ── SPEED ROUND ── */
+.timer-bar{
+  height:6px;background:var(--border);border-radius:6px;
+  margin-bottom:24px;overflow:hidden;
+}
+.timer-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),var(--amber));
+  border-radius:6px;transition:width .1s linear;
+}
+.timer-fill.warning{background:linear-gradient(90deg,var(--amber),var(--red))}
+.timer-count{
+  font-family:var(--mono);font-size:2.5rem;font-weight:600;
+  text-align:center;color:var(--amber);margin-bottom:8px;
+}
+.streak-badge{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;text-align:center;color:var(--muted);margin-bottom:20px;
+}
+
+/* ── TRANSFORM GAME ── */
+.transform-box{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:18px;margin-bottom:16px;
+}
+.transform-label{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.transform-sentence{
+  font-family:'Syne',sans-serif;font-size:1.05rem;
+  font-weight:600;color:var(--accent);
+}
+.transform-instruction{
+  font-size:.8rem;color:var(--muted);margin-top:6px;font-style:italic;
+}
+
+/* ── COMPLETE ── */
+.cpl-wrap{
+  max-width:500px;width:100%;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:16px;padding:52px 40px;text-align:center;
+}
+.cpl-label{
+  font-family:var(--mono);font-size:.6rem;letter-spacing:4px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:20px;
+}
+.cpl-score-big{
+  font-family:'Syne',sans-serif;font-size:5rem;
+  font-weight:800;line-height:1;
+  margin-bottom:4px;
+}
+.cpl-of{
+  font-family:var(--mono);font-size:.8rem;color:var(--muted);
+  margin-bottom:24px;
+}
+.cpl-verdict{
+  font-family:'Syne',sans-serif;font-size:1.5rem;
+  font-weight:700;margin-bottom:32px;
+}
+.home-btn{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:2px;
+  text-transform:uppercase;
+  background:transparent;border:1px solid var(--accent);
+  color:var(--accent);padding:12px 28px;
+  border-radius:8px;cursor:pointer;transition:all .15s;
+}
+.home-btn:hover{background:var(--accent);color:#fff}
+
+/* ── READING ── */
+.reading-passage{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:20px 22px;
+  font-size:.83rem;line-height:1.8;color:#374170;
+  margin-bottom:18px;max-height:220px;overflow-y:auto;
+}
+.reading-passage::-webkit-scrollbar{width:4px}
+.reading-passage::-webkit-scrollbar-track{background:var(--border)}
+.reading-passage::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
+
+.true-false-grid{display:flex;flex-direction:column;gap:8px}
+.tf-row{
+  display:flex;align-items:center;gap:12px;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;
+}
+.tf-statement{flex:1;font-size:.85rem;color:var(--text)}
+.tf-btns{display:flex;gap:6px}
+.tf-btn{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:1px;
+  text-transform:uppercase;padding:6px 12px;border-radius:6px;
+  border:1px solid var(--border);background:var(--s1);
+  color:var(--muted);cursor:pointer;transition:all .15s;
+}
+.tf-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tf-btn.sel-true{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}
+.tf-btn.sel-false{background:rgba(239,68,68,.1);border-color:var(--red);color:var(--red)}
+.tf-btn.sel-ds{background:rgba(91,140,255,.1);border-color:var(--accent);color:var(--accent)}
+.tf-btn.correct-tf{background:rgba(34,197,94,.2);border-color:var(--green);color:var(--green)}
+.tf-btn.wrong-tf{background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red)}
+
+.check-all-btn{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:2px;
+  text-transform:uppercase;
+  background:var(--accent);color:#080810;
+  border:none;padding:12px 28px;border-radius:8px;
+  cursor:pointer;transition:all .15s;margin-top:16px;font-weight:600;
+}
+.check-all-btn:hover{background:#2755d8}
+
+/* ── CONFETTI ── */
+.cp{position:fixed;width:8px;height:8px;top:-10px;border-radius:2px;animation:cfal linear forwards;pointer-events:none;z-index:9999}
+@keyframes cfal{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div class="screen active" id="screen-home">
+  <div class="home-tag">Think Starter · Unit 7 · Elite3_S</div>
+  <h1 class="home-title">
+    <div class="line1">Sporting</div>
+    <div class="line2">Life</div>
+  </h1>
+  <p class="home-sub">Can / Can't &nbsp;·&nbsp; Sports Vocabulary &nbsp;·&nbsp; at/in/on &nbsp;·&nbsp; Suggestions &nbsp;·&nbsp; Spelling</p>
+
+  <div class="game-grid">
+    <div class="gcard" style="--cc:#5b8cff" onclick="launch('vocab')">
+      <div class="gcard-num">01 / 08</div>
+      <div class="gcard-name">Sports Vocab</div>
+      <div class="gcard-sub">Identify sports from their description</div>
+      <div class="gcard-tag">Vocabulary</div>
+    </div>
+    <div class="gcard" style="--cc:#22c55e" onclick="launch('can')">
+      <div class="gcard-num">02 / 08</div>
+      <div class="gcard-name">Can or Can't?</div>
+      <div class="gcard-sub">Choose the correct form of can</div>
+      <div class="gcard-tag">Grammar</div>
+    </div>
+    <div class="gcard" style="--cc:#f59e0b" onclick="launch('spell')">
+      <div class="gcard-num">03 / 08</div>
+      <div class="gcard-name">Spell It</div>
+      <div class="gcard-sub">Reveal the sport one letter at a time</div>
+      <div class="gcard-tag">Spelling</div>
+    </div>
+    <div class="gcard" style="--cc:#14b8a6" onclick="launch('preposition')">
+      <div class="gcard-num">04 / 08</div>
+      <div class="gcard-name">Time Trap</div>
+      <div class="gcard-sub">at / in / on — the classic mistake</div>
+      <div class="gcard-tag">Grammar</div>
+    </div>
+    <div class="gcard" style="--cc:#a78bfa" onclick="launch('suggestion')">
+      <div class="gcard-num">05 / 08</div>
+      <div class="gcard-name">Make a Suggestion</div>
+      <div class="gcard-sub">Why don't / Let's / How about</div>
+      <div class="gcard-tag">Speaking</div>
+    </div>
+    <div class="gcard" style="--cc:#ec4899" onclick="launch('reading')">
+      <div class="gcard-num">06 / 08</div>
+      <div class="gcard-name">The Other Final</div>
+      <div class="gcard-sub">True / False / Doesn't say</div>
+      <div class="gcard-tag">Reading</div>
+    </div>
+    <div class="gcard" style="--cc:#f59e0b" onclick="launch('speed')">
+      <div class="gcard-num">07 / 08</div>
+      <div class="gcard-name">Speed Round</div>
+      <div class="gcard-sub">60 seconds · timed pressure quiz</div>
+      <div class="gcard-tag">🔬 Desirable Difficulty</div>
+    </div>
+    <div class="gcard" style="--cc:#22c55e" onclick="launch('transform')">
+      <div class="gcard-num">08 / 08</div>
+      <div class="gcard-name">Transform It</div>
+      <div class="gcard-sub">Affirmative → Negative → Question</div>
+      <div class="gcard-tag">🔬 Active Production</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VOCAB ═══ -->
+<div class="screen" id="screen-vocab">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Vocabulary · Sports</span><span class="sh-title">Sports Vocab</span></div>
+      <div class="sh-right"><span class="score-tag" id="v-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="v-prog" style="width:0%;background:var(--accent)"></div></div>
+    <div class="q-box"><div class="q-tag" id="v-tag"></div><div class="q-text" id="v-text"></div></div>
+    <div class="opts" id="v-opts"></div>
+    <div class="fb" id="v-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ CAN ═══ -->
+<div class="screen" id="screen-can">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Grammar · Can / Can't</span><span class="sh-title">Can or Can't?</span></div>
+      <div class="sh-right"><span class="score-tag" id="c-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="c-prog" style="width:0%;background:var(--green)"></div></div>
+    <div class="q-box"><div class="q-tag" id="c-tag"></div><div class="q-text" id="c-text"></div></div>
+    <div class="opts" id="c-opts"></div>
+    <div class="fb" id="c-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ SPELL ═══ -->
+<div class="screen" id="screen-spell">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Spelling · Sports</span><span class="sh-title">Spell It</span></div>
+      <div class="sh-right"><span class="score-tag" id="sp-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="sp-prog" style="width:0%;background:var(--amber)"></div></div>
+    <div class="q-box"><div class="q-tag">Clue — think of the sport, then reveal it letter by letter</div><div class="q-text" id="sp-clue"></div></div>
+    <div class="spell-lives" id="sp-lives">♥ ♥ ♥</div>
+    <div class="spell-word-display" id="sp-display"></div>
+    <div class="spell-hint" id="sp-hint"></div>
+    <div class="letter-grid" id="sp-letters"></div>
+    <div class="fb" id="sp-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ PREPOSITION ═══ -->
+<div class="screen" id="screen-preposition">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Grammar · Prepositions of Time</span><span class="sh-title">Time Trap</span></div>
+      <div class="sh-right"><span class="score-tag" id="p-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="p-prog" style="width:0%;background:var(--teal)"></div></div>
+    <div class="q-box"><div class="q-tag" id="p-tag"></div><div class="q-text" id="p-text"></div></div>
+    <div class="opts" id="p-opts"></div>
+    <div class="fb" id="p-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ SUGGESTION ═══ -->
+<div class="screen" id="screen-suggestion">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Speaking · Suggestions</span><span class="sh-title">Make a Suggestion</span></div>
+      <div class="sh-right"><span class="score-tag" id="sg-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="sg-prog" style="width:0%;background:#a78bfa"></div></div>
+    <div class="q-box"><div class="q-tag" id="sg-tag"></div><div class="q-text" id="sg-text"></div></div>
+    <div class="opts" id="sg-opts"></div>
+    <div class="fb" id="sg-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ READING ═══ -->
+<div class="screen" id="screen-reading">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">Reading Comprehension</span><span class="sh-title">The Other Final</span></div>
+      <div class="sh-right"><span class="score-tag" id="r-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="reading-passage">
+      <strong style="color:var(--accent)">The Other Final</strong><br><br>
+      It's 30th June 2002. In the International Stadium in Yokohama, Japan, two great teams, Brazil and Germany, are ready to play in the World Cup final.<br><br>
+      4,500 kilometres away in the Changlimithang Stadium in Thimphu, Bhutan, there is another football match: Bhutan vs. Montserrat. Bhutan are number 202 in the world, Montserrat are 203. They are the bottom two teams in the world.<br><br>
+      It's Matthijs de Jongh's idea. He's a Dutch businessman. He can't watch his national team, the Netherlands, because they are not at this World Cup. He's sad but then he thinks about people from other countries. What about teams that never play in the World Cup? He organises 'the other final' and asks the national teams of Bhutan and Montserrat to play. The Montserrat team fly from the Caribbean to the Himalayan mountains of Bhutan. Thousands of people watch the match. Bhutan win 4–0, but everyone decides that football is the real winner.<br><br>
+      After their game, both teams sit down with the rest of the world and enjoy the real World Cup final.
+    </div>
+    <div class="true-false-grid" id="r-grid"></div>
+    <button class="check-all-btn" onclick="checkReading()">Check All Answers</button>
+    <div class="fb" id="r-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ SPEED ═══ -->
+<div class="screen" id="screen-speed">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">🔬 Desirable Difficulty · Timed</span><span class="sh-title">Speed Round</span></div>
+      <div class="sh-right"><span class="score-tag" id="spd-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="timer-count" id="spd-timer">60</div>
+    <div class="streak-badge" id="spd-streak">Streak: 0</div>
+    <div class="timer-bar"><div class="timer-fill" id="spd-bar" style="width:100%"></div></div>
+    <div class="q-box"><div class="q-tag" id="spd-tag"></div><div class="q-text" id="spd-text"></div></div>
+    <div class="opts" id="spd-opts"></div>
+    <div class="fb" id="spd-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ TRANSFORM ═══ -->
+<div class="screen" id="screen-transform">
+  <div class="shell">
+    <div class="shell-header">
+      <div class="sh-left"><span class="sh-tag">🔬 Active Production · Transform</span><span class="sh-title">Transform It</span></div>
+      <div class="sh-right"><span class="score-tag" id="tr-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="prog-bar"><div class="prog-fill" id="tr-prog" style="width:0%;background:var(--green)"></div></div>
+    <div class="transform-box">
+      <div class="transform-label">Original sentence</div>
+      <div class="transform-sentence" id="tr-original"></div>
+      <div class="transform-instruction" id="tr-instruction"></div>
+    </div>
+    <div class="q-box"><div class="q-tag">Which is the correct transformation?</div><div class="q-text" id="tr-text"></div></div>
+    <div class="opts" id="tr-opts"></div>
+    <div class="fb" id="tr-fb"></div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETE ═══ -->
+<div class="screen" id="screen-complete">
+  <div class="cpl-wrap">
+    <div class="cpl-label">Result</div>
+    <div class="cpl-score-big" id="cpl-num" style="color:var(--accent)">0</div>
+    <div class="cpl-of" id="cpl-of">out of 0</div>
+    <div class="cpl-verdict" id="cpl-verdict">Well done.</div>
+    <button class="home-btn" onclick="goHome()">← Return to Hub</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+
+const vocabQs = [
+  { tag:'Sports vocabulary', q:'You kick a ball, score goals and play with 11 players per side.', a:'football', opts:['football','volleyball','golf','rugby'] },
+  { tag:'Sports vocabulary', q:'You hit a small ball with a club and try to get it into a hole.', a:'golf', opts:['golf','tennis','table tennis','volleyball'] },
+  { tag:'Sports vocabulary', q:'You ride a board with four wheels on streets or ramps.', a:'skateboarding', opts:['skateboarding','snowboarding','surfing','cycling'] },
+  { tag:'Sports vocabulary', q:'You jump, spin, do somersaults — often with music.', a:'gymnastics', opts:['gymnastics','tae kwon do','volleyball','surfing'] },
+  { tag:'Sports vocabulary', q:'You ride a board on snow down a mountain.', a:'snowboarding', opts:['snowboarding','surfing','skateboarding','cycling'] },
+  { tag:'Sports vocabulary', q:'You ride waves on a board in the ocean.', a:'surfing', opts:['surfing','snowboarding','swimming','cycling'] },
+  { tag:'Sports vocabulary', q:'A Korean martial art — you kick and punch with discipline.', a:'tae kwon do', opts:['tae kwon do','gymnastics','rugby','volleyball'] },
+  { tag:'Sports vocabulary', q:'Like tennis, but played on a table with small bats and a light ball.', a:'table tennis', opts:['table tennis','volleyball','tennis','badminton'] },
+  { tag:'Sports vocabulary', q:'You play this with an oval ball and can carry it in your hands.', a:'rugby', opts:['rugby','football','volleyball','basketball'] },
+  { tag:'Sports vocabulary', q:'You pedal a two-wheeled vehicle — on roads or in races.', a:'cycling', opts:['cycling','skateboarding','surfing','tae kwon do'] },
+]
+
+const canQs = [
+  { tag:'Can / Can\'t — affirmative', q:'Nikolai ___ keep a football in the air for 24 hours.', a:'can', opts:['can','can\'t','cans','is can'] },
+  { tag:'Can / Can\'t — negative', q:'Xavier is only three. He ___ read or write.', a:'can\'t', opts:['can\'t','can','cans','not can'] },
+  { tag:'Can / Can\'t — question', q:'___ you play the piano? Yes, I can.', a:'Can', opts:['Can','Do','Is','Have'] },
+  { tag:'Can / Can\'t — short answer', q:'Can she swim 400 metres in five minutes? Yes, she ___.', a:'can', opts:['can','does','is','has'] },
+  { tag:'Can / Can\'t — negative', q:'He ___ run or walk — he races in a wheelchair.', a:'can\'t', opts:['can\'t','doesn\'t','isn\'t','hasn\'t'] },
+  { tag:'Can / Can\'t — question', q:'___ they do somersaults? No, they can\'t.', a:'Can', opts:['Can','Do','Are','Have'] },
+  { tag:'Can / Can\'t — rule', q:'Choose the grammatically correct sentence.', a:'She can dance well.', opts:['She can dance well.','She cans dance well.','She can to dance well.','She can dances well.'] },
+  { tag:'Can / Can\'t — negative question', q:'___ Tillman skateboard? Yes, he can!', a:'Can', opts:['Can','Is','Does','Has'] },
+  { tag:'Can / Can\'t — both', q:'I can sing ___ I can\'t dance.', a:'but', opts:['but','and','or','so'] },
+  { tag:'Can / Can\'t — production', q:'Correct sentence: Xavier / hit a golf ball ✓', a:'Xavier can hit a golf ball.', opts:['Xavier can hit a golf ball.','Xavier can to hit a golf ball.','Xavier cans hit a golf ball.','Xavier hitting a golf ball.'] },
+]
+
+const spellWords = [
+  { word:'VOLLEYBALL',   clue:'Played over a net — you hit the ball with your hands and can\'t let it touch the ground.' },
+  { word:'BASKETBALL',   clue:'You score by throwing the ball through a hoop. 5 players per team.' },
+  { word:'GYMNASTICS',   clue:'Jumping, spinning, somersaults — often performed with music on a mat.' },
+  { word:'SNOWBOARDING', clue:'One board, two feet, a snowy mountain. You race downhill.' },
+  { word:'SKATEBOARD',   clue:'A flat board with four wheels. You ride it on streets or in skate parks.' },
+  { word:'CYCLING',      clue:'You pedal your way to the finish. Used in the Tour de France.' },
+  { word:'SURFING',      clue:'You need waves, an ocean, and a board. A very cool sport.' },
+  { word:'FOOTBALL',     clue:'The world\'s most popular sport. 22 players, one ball, two goals.' },
+  { word:'TENNIS',       clue:'A racket sport. You hit a ball over a net on a court.' },
+]
+
+const prepQs = [
+  { tag:'Prepositions of time — at/in/on', q:'The World Cup final is usually ___ June or July.', a:'in', opts:['in','at','on'] },
+  { tag:'Prepositions of time — at/in/on', q:'The match starts ___ half past three.', a:'at', opts:['at','in','on'] },
+  { tag:'Prepositions of time — at/in/on', q:'Wimbledon is ___ July.', a:'in', opts:['in','at','on'] },
+  { tag:'Prepositions of time — at/in/on', q:'I go swimming ___ Sundays.', a:'on', opts:['on','in','at'] },
+  { tag:'Prepositions of time — at/in/on', q:'The basketball match starts ___ 10 o\'clock.', a:'at', opts:['at','on','in'] },
+  { tag:'Prepositions of time — at/in/on', q:'There\'s a big football match ___ 7th April.', a:'on', opts:['on','in','at'] },
+  { tag:'Prepositions of time — at/in/on', q:'It\'s very cold ___ winter.', a:'in', opts:['in','at','on'] },
+  { tag:'Prepositions of time — at/in/on', q:'The Summer Olympics are usually ___ August.', a:'in', opts:['in','at','on'] },
+  { tag:'Prepositions of time — at/in/on', q:'School starts ___ September.', a:'in', opts:['in','on','at'] },
+  { tag:'Prepositions of time — at/in/on', q:'We play tennis ___ Friday afternoons.', a:'on', opts:['on','in','at'] },
+]
+
+const suggestionQs = [
+  { tag:'Suggestions — Why don\'t / Let\'s / How about', q:"Complete: '___ we all watch the match together?' (suggestion with we)", a:"Why don't", opts:["Why don't","How about","Let's","Why not do"] },
+  { tag:'Suggestions — structure', q:"Which is grammatically correct?", a:"How about going for a walk?", opts:["How about going for a walk?","How about go for a walk?","How about to go for a walk?","How about we going for a walk?"] },
+  { tag:'Suggestions — Let\'s', q:"Complete: '___ play table tennis for a while.'", a:"Let's", opts:["Let's","Why don't","How about","Shall we to"] },
+  { tag:'Suggestions — How about', q:"Complete: '___ playing another game?' (something different now)", a:"How about", opts:["How about","Let's","Why don't","What about to"] },
+  { tag:'Suggestions — structure', q:"Which is grammatically correct?", a:"Why don't we go surfing?", opts:["Why don't we go surfing?","Why don't we to go surfing?","Why don't we going surfing?","Why we don't go surfing?"] },
+  { tag:'Suggestions — Let\'s', q:"'I\'m bored.' → Respond with a suggestion using Let\'s.", a:"Let's watch a film.", opts:["Let's watch a film.","Let's to watch a film.","Lets watch a film.","Let's watching a film."] },
+  { tag:'Suggestions — all three', q:"Which expression is NOT used to make suggestions?", a:"I think we should to play.", opts:["I think we should to play.","Why don't we play?","Let's play!","How about playing?"] },
+  { tag:'Suggestions — response', q:"'How about a game of tennis later?' → Choose the best response.", a:"Sure, what time?", opts:["Sure, what time?","Yes, I can tennis.","I am suggestion tennis.","How about not?"] },
+]
+
+const readingQs = [
+  { s:'The World Cup final in 2002 was played in Japan.',       a:'true',        why:'The text says "International Stadium in Yokohama, Japan".' },
+  { s:'Brazil and Germany played in the World Cup final.',      a:'true',        why:'Directly stated in the text.' },
+  { s:'Bhutan and Montserrat are the two worst-ranked teams.',  a:'true',        why:'"They are the bottom two teams in the world."' },
+  { s:'Matthijs de Jongh is a Dutch football player.',          a:'false',       why:'He is described as a Dutch businessman, not a player.' },
+  { s:'The Netherlands were in the 2002 World Cup.',            a:'false',       why:'He "can\'t watch his national team because they are not at this World Cup."' },
+  { s:'Thousands of people watched the Bhutan vs Montserrat match.', a:'true',   why:'"Thousands of people watch the match."' },
+  { s:'Bhutan won the match 4-0.',                              a:'true',        why:'"Bhutan win 4–0."' },
+  { s:'After the match, both teams flew home immediately.',     a:'doesnt say',  why:'The text says they sat down to enjoy the World Cup final — nothing about flying home.' },
+]
+
+const speedPool = [
+  { tag:'Can/Can\'t', q:'She ___ swim very fast. (ability — positive)', a:'can', opts:['can','can\'t','cans','is'] },
+  { tag:'Preposition', q:'The match is ___ Saturday.', a:'on', opts:['on','in','at'] },
+  { tag:'Preposition', q:'It\'s cold ___ winter.', a:'in', opts:['in','on','at'] },
+  { tag:'Vocabulary', q:'You kick a ball, score goals: ___', a:'football', opts:['football','golf','rugby','tennis'] },
+  { tag:'Can/Can\'t', q:'___ he ride a bike? Yes, he can.', a:'Can', opts:['Can','Is','Does','Has'] },
+  { tag:'Preposition', q:'The game starts ___ 8 o\'clock.', a:'at', opts:['at','in','on'] },
+  { tag:'Vocabulary', q:'You surf on ___.', a:'waves', opts:['waves','snow','a court','a track'] },
+  { tag:'Suggestion', q:'___ go snowboarding! (Let\'s structure)', a:"Let's", opts:["Let's","How about","Why don't","Let us to"] },
+  { tag:'Can/Can\'t', q:'They ___ do somersaults — it\'s too difficult.', a:"can't", opts:["can't","doesn't","aren't","not can"] },
+  { tag:'Preposition', q:'Wimbledon is ___ July.', a:'in', opts:['in','at','on'] },
+  { tag:'Vocabulary', q:'Snow + board + mountain = ___', a:'snowboarding', opts:['snowboarding','surfing','skateboarding','cycling'] },
+  { tag:'Suggestion', q:'"___ we play basketball?" (Why don\'t structure)', a:"Why don't", opts:["Why don't","How about","Let's","Shall to"] },
+  { tag:'Can/Can\'t', q:'Rule: Can + subject + ___?', a:'base verb', opts:['base verb','to + verb','verb + ing','-ed verb'] },
+  { tag:'Preposition', q:'My birthday is ___ 15th March.', a:'on', opts:['on','in','at'] },
+  { tag:'Vocabulary', q:'A Korean martial art where you kick and punch.', a:'tae kwon do', opts:['tae kwon do','gymnastics','rugby','volleyball'] },
+  { tag:'Can/Can\'t', q:'Nikolai can keep a ball in the air. ___ he do it for 24 hours?', a:'Can', opts:['Can','Does','Is','Has'] },
+]
+
+const transformQs = [
+  {
+    original: 'She can play tennis.',
+    instruction: 'Make it NEGATIVE',
+    q: 'Choose the correct negative form:',
+    a: "She can't play tennis.",
+    opts: ["She can't play tennis.", "She doesn't can play tennis.", "She can not to play tennis.", "She cans't play tennis."]
+  },
+  {
+    original: "He can't do gymnastics.",
+    instruction: 'Make it a QUESTION',
+    q: 'Choose the correct question form:',
+    a: "Can he do gymnastics?",
+    opts: ["Can he do gymnastics?", "Does he can do gymnastics?", "Can he does gymnastics?", "He can do gymnastics?"]
+  },
+  {
+    original: 'They can cycle to school.',
+    instruction: 'Make it NEGATIVE',
+    q: 'Choose the correct negative form:',
+    a: "They can't cycle to school.",
+    opts: ["They can't cycle to school.", "They don't can cycle to school.", "They can not cycling to school.", "They cans't cycle to school."]
+  },
+  {
+    original: 'Can Tillman skateboard?',
+    instruction: 'Give the AFFIRMATIVE short answer',
+    q: 'Choose the correct short answer:',
+    a: 'Yes, he can.',
+    opts: ['Yes, he can.', 'Yes, he cans.', 'Yes, he does.', 'Yes, he is.']
+  },
+  {
+    original: "I play football on Sundays.",
+    instruction: 'Add the preposition — is it at / in / on?',
+    q: 'Which preposition completes: "I play football ___ Sundays"?',
+    a: 'on',
+    opts: ['on','in','at','by']
+  },
+  {
+    original: 'Xavier can hit a golf ball a long way.',
+    instruction: 'Make it a QUESTION',
+    q: 'Choose the correct question form:',
+    a: 'Can Xavier hit a golf ball a long way?',
+    opts: ['Can Xavier hit a golf ball a long way?', 'Does Xavier can hit a golf ball?', 'Can Xavier hits a golf ball?', 'Xavier can hit a golf ball?']
+  },
+  {
+    original: "The match is in July.",
+    instruction: 'The time expression is "on 15th July" — which preposition changes?',
+    q: '"The match is ___ 15th July." Which preposition?',
+    a: 'on',
+    opts: ['on','in','at','for']
+  },
+  {
+    original: "We can't go surfing at midnight.",
+    instruction: 'Make it AFFIRMATIVE',
+    q: 'Choose the correct affirmative form:',
+    a: 'We can go surfing at midnight.',
+    opts: ['We can go surfing at midnight.', 'We can to go surfing at midnight.', 'We go can surfing at midnight.', 'We can going surfing at midnight.']
+  },
+]
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let game='', score=0, idx=0, total=0, answered=false
+
+// Spell state
+let spWord='', spGuessed=[], spLives=3, spScore=0, spIdx=0
+
+// Speed state
+let spdTimer=null, spdTimeLeft=60, spdScore=0, spdStreak=0, spdPool=[]
+
+// Reading state
+let rAnswers={}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active')}
+function goHome(){
+  if(spdTimer){clearInterval(spdTimer);spdTimer=null}
+  show('home');game=''
+}
+
+function launch(g){
+  game=g;score=0;idx=0;answered=false
+  if(g==='vocab')      {total=vocabQs.length;     show('vocab');       loadQ('v',vocabQs)}
+  else if(g==='can')   {total=canQs.length;        show('can');         loadQ('c',canQs)}
+  else if(g==='preposition'){total=prepQs.length;  show('preposition'); loadQ('p',prepQs)}
+  else if(g==='suggestion'){total=suggestionQs.length;show('suggestion');loadQ('sg',suggestionQs)}
+  else if(g==='transform'){total=transformQs.length;show('transform'); loadTransform()}
+  else if(g==='spell') {spScore=0;spIdx=0;         show('spell');       loadSpell()}
+  else if(g==='reading'){                          show('reading');     initReading()}
+  else if(g==='speed') {                           show('speed');       initSpeed()}
+}
+
+// ═══════════════════════════════════════
+// GENERIC Q
+// ═══════════════════════════════════════
+function loadQ(p,qs){
+  if(idx>=qs.length){complete();return}
+  answered=false
+  const q=qs[idx]
+  const pct=(idx/qs.length*100).toFixed(1)
+  el(p+'-prog').style.width=pct+'%'
+  el(p+'-score').textContent=score+' pts'
+  if(el(p+'-tag')) el(p+'-tag').textContent=q.tag||''
+  if(el(p+'-text')) el(p+'-text').innerHTML=q.q.replace(/___/g,'<em>___</em>')
+  el(p+'-fb').className='fb'
+  const grid=el(p+'-opts'); grid.innerHTML=''
+  shuffle([...q.opts]).forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt'
+    b.innerHTML=`<span class="opt-key">${'ABCD'[i]}</span>${o}`
+    b.onclick=()=>ansQ(p,qs,b,o,q.a,q.explain)
+    grid.appendChild(b)
+  })
+}
+
+function ansQ(p,qs,btn,chosen,correct,explain){
+  if(answered)return;answered=true
+  const fb=el(p+'-fb')
+  if(chosen===correct){
+    btn.classList.add('correct');score++
+    fb.textContent='✓ Correct.'+(explain?' '+explain:'')
+    fb.className='fb ok show';confetti(3)
+  } else {
+    btn.classList.add('wrong')
+    document.querySelectorAll('#screen-'+game+' .opt').forEach(b=>{
+      if(b.textContent.includes(correct))b.classList.add('correct')
+    })
+    fb.textContent='✗ The answer is: '+correct+(explain?' — '+explain:'')
+    fb.className='fb err show'
+  }
+  el(p+'-score').textContent=score+' pts'
+  setTimeout(()=>{idx++;loadQ(p,qs)},1800)
+}
+
+// ═══════════════════════════════════════
+// SPELLING GAME
+// ═══════════════════════════════════════
+function loadSpell(){
+  if(spIdx>=spellWords.length){score=spScore;total=spellWords.length;complete();return}
+  const w=spellWords[spIdx]
+  spWord=w.word; spGuessed=[]; spLives=3
+  el('sp-prog').style.width=(spIdx/spellWords.length*100)+'%'
+  el('sp-score').textContent=spScore+' pts'
+  el('sp-clue').textContent=w.clue
+  el('sp-hint').textContent='Word length: '+w.word.length+' letters'
+  el('sp-fb').className='fb'
+  renderSpell()
+  renderLetters()
+}
+
+function renderSpell(){
+  const d=el('sp-display')
+  d.innerHTML=spWord.split('').map((ch,i)=>{
+    if(ch===' ')return '<span style="margin:0 8px"> </span>'
+    if(spGuessed.includes(ch))return `<span class="revealed">${ch}</span>`
+    return `<span class="blank">_</span>`
+  }).join('')
+  el('sp-lives').textContent='♥ '.repeat(spLives).trim()||'☠ No lives left'
+}
+
+function renderLetters(){
+  const used=new Set(spGuessed)
+  const wrong=new Set()
+  // figure out wrong guesses: guessed but not in word
+  spGuessed.forEach(g=>{if(!spWord.includes(g))wrong.add(g)})
+
+  const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const grid=el('sp-letters'); grid.innerHTML=''
+  alpha.split('').forEach(ch=>{
+    const b=document.createElement('button');b.className='letter-btn'
+    b.textContent=ch
+    if(used.has(ch)){b.classList.add('used')}
+    b.onclick=()=>guessLetter(ch)
+    grid.appendChild(b)
+  })
+}
+
+function guessLetter(ch){
+  if(spGuessed.includes(ch))return
+  spGuessed.push(ch)
+  const inWord=spWord.includes(ch)
+  if(!inWord){
+    spLives--
+    el('sp-fb').textContent='✗ "'+ch+'" is not in the word. Lives remaining: '+spLives
+    el('sp-fb').className='fb err show'
+  } else {
+    el('sp-fb').textContent='✓ "'+ch+'" is in the word!'
+    el('sp-fb').className='fb ok show'
+  }
+  renderSpell()
+  renderLetters()
+
+  // Check win
+  const allRevealed=spWord.split('').every(c=>c===' '||spGuessed.includes(c))
+  if(allRevealed){
+    spScore++
+    el('sp-fb').textContent='✓ Correct! The word is: '+spWord
+    el('sp-fb').className='fb ok show'
+    confetti(5)
+    setTimeout(()=>{spIdx++;loadSpell()},2000)
+    return
+  }
+  if(spLives<=0){
+    el('sp-fb').textContent='✗ Out of lives. The word was: '+spWord
+    el('sp-fb').className='fb err show'
+    // Reveal all
+    spGuessed=[...spWord.split('').filter(c=>c!=' ')]
+    renderSpell()
+    setTimeout(()=>{spIdx++;loadSpell()},2500)
+  }
+}
+
+// ═══════════════════════════════════════
+// READING — TRUE / FALSE / DOESN'T SAY
+// ═══════════════════════════════════════
+function initReading(){
+  rAnswers={}
+  el('r-score').textContent='0 pts'
+  el('r-fb').className='fb'
+  const grid=el('r-grid'); grid.innerHTML=''
+  readingQs.forEach((q,i)=>{
+    const row=document.createElement('div');row.className='tf-row'
+    row.innerHTML=`
+      <div class="tf-statement">${i+1}. ${q.s}</div>
+      <div class="tf-btns">
+        <button class="tf-btn" id="tf-${i}-true"  onclick="selectTF(${i},'true')">True</button>
+        <button class="tf-btn" id="tf-${i}-false" onclick="selectTF(${i},'false')">False</button>
+        <button class="tf-btn" id="tf-${i}-ds"    onclick="selectTF(${i},'doesnt say')">Doesn't say</button>
+      </div>`
+    grid.appendChild(row)
+  })
+}
+
+function selectTF(i,val){
+  rAnswers[i]=val
+  const classes={true:'sel-true',false:'sel-false','doesnt say':'sel-ds'}
+  ['true','false','ds'].forEach(t=>{
+    const btn=document.getElementById('tf-'+i+'-'+t)
+    btn.className='tf-btn'
+  })
+  const keyMap={'true':'true','false':'false','doesnt say':'ds'}
+  document.getElementById('tf-'+i+'-'+keyMap[val]).className='tf-btn '+classes[val]
+}
+
+function checkReading(){
+  let correct=0
+  readingQs.forEach((q,i)=>{
+    const chosen=rAnswers[i]
+    const isCorrect=chosen===q.a
+    if(isCorrect)correct++
+    // Show result on each button
+    const keyMap={'true':'true','false':'false','doesnt say':'ds'}
+    const correctKey=keyMap[q.a]
+    const correctBtn=document.getElementById('tf-'+i+'-'+correctKey)
+    if(isCorrect){
+      correctBtn.className='tf-btn correct-tf'
+    } else {
+      if(chosen){
+        const chosenKey=keyMap[chosen]
+        document.getElementById('tf-'+i+'-'+chosenKey).className='tf-btn wrong-tf'
+      }
+      correctBtn.className='tf-btn correct-tf'
+    }
+  })
+  score=correct; total=readingQs.length
+  el('r-score').textContent=correct+' pts'
+  if(correct===total)confetti(10)
+  el('r-fb').textContent=(correct===total?'✓ Perfect score! ':'✗ ')+correct+'/'+total+' correct. Review the highlighted answers above.'
+  el('r-fb').className='fb '+(correct>=total*0.7?'ok':'err')+' show'
+  setTimeout(()=>complete(),2500)
+}
+
+// ═══════════════════════════════════════
+// SPEED ROUND
+// ═══════════════════════════════════════
+function initSpeed(){
+  spdScore=0;spdStreak=0;spdTimeLeft=60
+  spdPool=shuffle([...speedPool])
+  idx=0; answered=false
+  el('spd-score').textContent='0 pts'
+  el('spd-streak').textContent='Streak: 0'
+  el('spd-timer').textContent='60'
+  el('spd-bar').style.width='100%'
+  el('spd-bar').className='timer-fill'
+  el('spd-fb').className='fb'
+  loadSpeedQ()
+  spdTimer=setInterval(tickSpeed,100)
+}
+
+function tickSpeed(){
+  spdTimeLeft=Math.max(0,spdTimeLeft-0.1)
+  const pct=(spdTimeLeft/60*100)
+  el('spd-bar').style.width=pct+'%'
+  el('spd-timer').textContent=Math.ceil(spdTimeLeft)
+  if(spdTimeLeft<=15)el('spd-bar').className='timer-fill warning'
+  if(spdTimeLeft<=0){
+    clearInterval(spdTimer);spdTimer=null
+    score=spdScore;total=speedPool.length
+    complete()
+  }
+}
+
+function loadSpeedQ(){
+  if(idx>=spdPool.length){
+    spdPool=shuffle([...speedPool]); idx=0
+  }
+  answered=false
+  const q=spdPool[idx]
+  el('spd-tag').textContent=q.tag
+  el('spd-text').innerHTML=q.q.replace(/___/g,'<em>___</em>')
+  el('spd-fb').className='fb'
+  const grid=el('spd-opts'); grid.innerHTML=''
+  shuffle([...q.opts]).forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt'
+    b.innerHTML=`<span class="opt-key">${'ABCD'[i]}</span>${o}`
+    b.onclick=()=>ansSpeed(b,o,q.a)
+    grid.appendChild(b)
+  })
+}
+
+function ansSpeed(btn,chosen,correct){
+  if(answered)return;answered=true
+  const fb=el('spd-fb')
+  if(chosen===correct){
+    btn.classList.add('correct');spdScore++;spdStreak++
+    fb.textContent='✓ '+spdStreak+' in a row!'
+    fb.className='fb ok show'
+    confetti(spdStreak>=3?5:2)
+  } else {
+    btn.classList.add('wrong');spdStreak=0
+    document.querySelectorAll('#screen-speed .opt').forEach(b=>{
+      if(b.textContent.includes(correct))b.classList.add('correct')
+    })
+    fb.textContent='✗ '+correct
+    fb.className='fb err show'
+  }
+  el('spd-score').textContent=spdScore+' pts'
+  el('spd-streak').textContent='Streak: '+spdStreak
+  setTimeout(()=>{idx++;loadSpeedQ()},900)
+}
+
+// ═══════════════════════════════════════
+// TRANSFORM
+// ═══════════════════════════════════════
+function loadTransform(){
+  if(idx>=transformQs.length){complete();return}
+  answered=false
+  const q=transformQs[idx]
+  el('tr-prog').style.width=(idx/transformQs.length*100)+'%'
+  el('tr-score').textContent=score+' pts'
+  el('tr-original').textContent=q.original
+  el('tr-instruction').textContent='→ '+q.instruction
+  el('tr-text').innerHTML=q.q.replace(/___/g,'<em>___</em>')
+  el('tr-fb').className='fb'
+  const grid=el('tr-opts'); grid.innerHTML=''
+  shuffle([...q.opts]).forEach((o,i)=>{
+    const b=document.createElement('button');b.className='opt'
+    b.innerHTML=`<span class="opt-key">${'ABCD'[i]}</span>${o}`
+    b.onclick=()=>ansTransform(b,o,q.a)
+    grid.appendChild(b)
+  })
+}
+
+function ansTransform(btn,chosen,correct){
+  if(answered)return;answered=true
+  const fb=el('tr-fb')
+  if(chosen===correct){
+    btn.classList.add('correct');score++
+    fb.textContent='✓ Correct transformation.'
+    fb.className='fb ok show';confetti(3)
+  } else {
+    btn.classList.add('wrong')
+    document.querySelectorAll('#screen-transform .opt').forEach(b=>{
+      if(b.textContent.includes(correct))b.classList.add('correct')
+    })
+    fb.textContent='✗ The correct answer: '+correct
+    fb.className='fb err show'
+  }
+  el('tr-score').textContent=score+' pts'
+  setTimeout(()=>{idx++;loadTransform()},1900)
+}
+
+// ═══════════════════════════════════════
+// COMPLETE
+// ═══════════════════════════════════════
+function complete(){
+  const pct=total>0?score/total:0
+  let verdict,color
+  if(pct>=.9){verdict='Outstanding.';color='var(--green)';confetti(20)}
+  else if(pct>=.7){verdict='Well done.';color='var(--accent)'}
+  else if(pct>=.5){verdict='Good effort.';color='var(--amber)'}
+  else{verdict='Keep practising.';color='var(--red)'}
+  el('cpl-num').textContent=score;el('cpl-num').style.color=color
+  el('cpl-of').textContent='out of '+total
+  el('cpl-verdict').textContent=verdict;el('cpl-verdict').style.color=color
+  show('complete')
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function el(id){return document.getElementById(id)}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function confetti(n){
+  const cols=['#5b8cff','#22c55e','#f59e0b','#14b8a6','#a78bfa','#ec4899']
+  for(let i=0;i<n;i++)setTimeout(()=>{
+    const e=document.createElement('div');e.className='cp'
+    e.style.left=Math.random()*100+'vw'
+    e.style.background=cols[Math.floor(Math.random()*cols.length)]
+    e.style.borderRadius=Math.random()>.5?'50%':'2px'
+    e.style.animationDuration=(1+Math.random()*1.5)+'s'
+    document.body.appendChild(e);e.addEventListener('animationend',()=>e.remove())
+  },i*70)
+}
+</script>
+</body>
+</html>
