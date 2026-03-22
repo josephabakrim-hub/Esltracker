@@ -546,13 +546,16 @@ function renderG1(){
       <div style="font-size:1.4rem;margin-bottom:6px;">Find:</div>
       <div style="font-family:var(--font-main);font-size:2rem;font-weight:900;color:var(--sand);">${correct.word}</div>
     </div>
-    <div class="animal-grid">
-      ${choices.map(a=>`<div class="animal-tile" onclick="g1ans(this,'${a.word.replace(/'/g,"\\'")}','${correct.word.replace(/'/g,"\\'")}')">
+    <div class="animal-grid" id="animal-grid">
+      ${choices.map((a,i)=>`<div class="animal-tile" data-idx="${i}">
         <span class="a-emoji">${a.emoji}</span>
         <div class="a-word">${a.word}</div>
       </div>`).join('')}
     </div>
     <div class="feedback" id="fb1"></div>`;
+  document.querySelectorAll('#animal-grid .animal-tile').forEach((tile,i)=>{
+    tile.addEventListener('click', ()=>g1ans(tile, choices[i].word, correct.word));
+  });
 }
 function g1ans(el,chosen,correct){
   document.querySelectorAll('.animal-tile').forEach(t=>t.style.pointerEvents='none');
@@ -584,9 +587,13 @@ function renderG2(){
     <div class="q-counter">Word ${g2i+1} of ${g2d.length}</div>
     <div class="spell-center"><span class="spell-emoji">${an.emoji}</span><div class="spell-hint">${an.fact}</div></div>
     <div class="letter-boxes" id="lboxes">${wl.map(()=>`<div class="l-box"></div>`).join('')}</div>
-    <div class="letter-pool">${pool.map((l,i)=>`<button class="l-btn" id="lb${i}" onclick="g2pick(this,'${l}',${JSON.stringify(wl)})">${l}</button>`).join('')}</div>
+    <div class="letter-pool" id="lpool">${pool.map((l,i)=>`<button class="l-btn" id="lb${i}" data-letter="${l}">${l}</button>`).join('')}</div>
     <div class="center-row"><button class="btn btn-sm" onclick="g2clear()">🗑️ Clear</button></div>
     <div class="feedback" id="fb2"></div>`;
+  // attach listeners after render
+  document.querySelectorAll('#lpool .l-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>g2pick(btn, btn.dataset.letter, wl));
+  });
 }
 function g2pick(btn,letter,wl){
   if(g2typed.length>=wl.length)return;
@@ -640,14 +647,17 @@ function renderG3(){
           </div>
         </div>`).join('')}
     </div>
-    <div class="drag-pool">
-      ${ANIMALS.map(a=>`
-        <div class="drag-chip ${g3placed[a.word]?'placed':''} ${g3sel===a.word?'sel':''}" onclick="g3sel_fn('${a.word.replace(/'/g,"\\'")}')">
+    <div class="drag-pool" id="drag-pool">
+      ${ANIMALS.map((a,i)=>`
+        <div class="drag-chip ${g3placed[a.word]?'placed':''} ${g3sel===a.word?'sel':''}" data-idx="${i}">
           ${a.emoji} ${a.word}
         </div>`).join('')}
     </div>
     <div class="feedback" id="fb3"></div>
     ${allDone?`<div class="center-row" style="margin-top:12px"><button class="btn btn-primary" onclick="g3finish()">✅ All done! Continue →</button></div>`:''}`;
+  document.querySelectorAll('#drag-pool .drag-chip').forEach((chip,i)=>{
+    chip.addEventListener('click', ()=>g3sel_fn(ANIMALS[i].word));
+  });
 }
 function g3sel_fn(word){if(g3placed[word])return;g3sel=(g3sel===word?null:word);renderG3();}
 function g3drop(zoneKey){
@@ -697,7 +707,7 @@ function renderG4(){
     </div>
     <div class="sentence-tray" id="stray"><span class="tray-placeholder">Tap words below…</span></div>
     <div class="word-bank" id="wbank">
-      ${pool.map((w,i)=>`<button class="w-option" id="wo${i}" onclick="g4pick(this,${JSON.stringify(w)})">${w}</button>`).join('')}
+      ${pool.map((w,i)=>`<button class="w-option" id="wo${i}" data-word="${i}">${w}</button>`).join('')}
     </div>
     <div class="center-row">
       <button class="btn btn-sm" onclick="renderG4()">🗑️ Clear</button>
@@ -705,6 +715,11 @@ function renderG4(){
     </div>
     <div class="feedback" id="fb4"></div>
     <div id="csent" class="correct-sent" style="display:none"></div>`;
+  // store pool on the current question so listeners can read it
+  g4d[g4i]._pool = pool;
+  document.querySelectorAll('#wbank .w-option').forEach((btn,i)=>{
+    btn.addEventListener('click', ()=>g4pick(btn, pool[i]));
+  });
 }
 function g4pick(btn,word){
   btn.disabled=true;btn.style.opacity='0.3';
@@ -786,12 +801,16 @@ function renderG6(){
     <div class="q-counter">Question ${g6i+1} of ${g6d.length}</div>
     <div class="quiz-card"><span class="quiz-emoji">${q.emoji}</span><div class="quiz-q">${q.q}</div></div>
     <div class="quiz-opts">
-      ${opts.map(o=>`<div class="q-opt" onclick="g6ans(this,${JSON.stringify(o)},${JSON.stringify(q.ans)})">${o}</div>`).join('')}
+      ${opts.map((o,i)=>`<div class="q-opt" data-idx="${i}">${o}</div>`).join('')}
     </div>
     <div class="feedback" id="fb6"></div>`;
+  document.querySelectorAll('.q-opt').forEach((el,i)=>{
+    el.addEventListener('click', ()=>g6ans(el, opts[i], q.ans));
+  });
 }
 function g6ans(el,chosen,correct){
-  document.querySelectorAll('.q-opt').forEach(o=>o.onclick=null);
+  if(el.classList.contains('correct-opt')||el.classList.contains('wrong-opt'))return;
+  document.querySelectorAll('.q-opt').forEach(o=>o.style.pointerEvents='none');
   if(chosen===correct){
     el.classList.add('correct-opt');addScore(15);feedback('fb6','correct','🎉 Correct!');
     confetti(el.getBoundingClientRect().left+60,el.getBoundingClientRect().top);
