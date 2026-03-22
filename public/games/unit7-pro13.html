@@ -7,33 +7,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --jungle: #1a6b3c;
+    --jungle:       #1a6b3c;
     --jungle-light: #27a35a;
-    --jungle-dark: #0f4224;
-    --sky: #1a9fd4;
-    --sky-light: #4dc3f0;
-    --sand: #f5c842;
-    --sand-dark: #e0a800;
-    --coral: #f25c3d;
-    --coral-light: #ff7d61;
-    --leaf: #5ec45a;
-    --leaf-dark: #3da038;
-    --purple: #8b5cf6;
-    --purple-light: #a78bfa;
-    --bg: #0d3320;
-    --surface: #162d1e;
-    --surface2: #1e3d2a;
-    --border: rgba(255,255,255,0.1);
-    --text: #f0faf4;
-    --muted: rgba(240,250,244,0.55);
-    --font-main: 'Baloo 2', cursive;
-    --font-body: 'Quicksand', sans-serif;
-    --radius: 20px;
-    --radius-sm: 12px;
+    --jungle-dark:  #0f4224;
+    --sky:          #1a9fd4;
+    --sky-light:    #4dc3f0;
+    --sand:         #f5c842;
+    --coral:        #f25c3d;
+    --leaf:         #5ec45a;
+    --purple:       #8b5cf6;
+    --bg:           #0d3320;
+    --surface:      #162d1e;
+    --surface2:     #1e3d2a;
+    --border:       rgba(255,255,255,0.10);
+    --text:         #f0faf4;
+    --muted:        rgba(240,250,244,0.55);
+    --font-main:    'Baloo 2', cursive;
+    --font-body:    'Quicksand', sans-serif;
+    --radius:       20px;
+    --radius-sm:    12px;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
+  * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: var(--font-body);
     background: var(--bg);
@@ -41,1397 +35,772 @@
     min-height: 100vh;
     overflow-x: hidden;
     background-image:
-      radial-gradient(ellipse at 10% 20%, rgba(26,107,60,0.4) 0%, transparent 50%),
-      radial-gradient(ellipse at 90% 80%, rgba(26,159,212,0.2) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgba(15,66,36,0.8) 0%, transparent 80%);
+      radial-gradient(ellipse at 10% 20%, rgba(26,107,60,0.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(26,159,212,0.15) 0%, transparent 50%);
   }
 
-  /* ── LEAF PARTICLES ── */
-  .leaf-particle {
-    position: fixed;
-    pointer-events: none;
-    font-size: 1.4rem;
-    opacity: 0;
-    animation: leafFall linear infinite;
-    z-index: 0;
-  }
-  @keyframes leafFall {
-    0% { transform: translateY(-40px) rotate(0deg); opacity: 0.7; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-  }
+  /* ── SCREENS ── */
+  .screen { display:none; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
 
-  /* ── SCREEN SYSTEM ── */
-  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
-  .screen.active { display: flex; flex-direction: column; }
+  /* ══════════════════════════════ HOME ══════════ */
+  #home { align-items:center; padding:24px 16px 48px; }
 
-  /* ── HOME SCREEN ── */
-  #home {
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px 16px 40px;
-  }
-
-  .home-header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-top: 10px;
-  }
   .unit-badge {
-    display: inline-block;
-    background: var(--jungle-light);
-    color: #fff;
-    font-family: var(--font-main);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    padding: 5px 14px;
-    border-radius: 30px;
-    margin-bottom: 10px;
-    text-transform: uppercase;
+    display:inline-block; background:var(--jungle-light); color:#fff;
+    font-family:var(--font-main); font-size:11px; font-weight:800;
+    letter-spacing:2px; padding:5px 14px; border-radius:30px;
+    margin-bottom:10px; text-transform:uppercase;
   }
   .home-title {
-    font-family: var(--font-main);
-    font-size: clamp(2rem, 8vw, 3.2rem);
-    font-weight: 900;
-    line-height: 1.05;
-    color: var(--text);
-    text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    font-family:var(--font-main); font-size:clamp(2rem,8vw,3rem);
+    font-weight:900; line-height:1.05; text-align:center;
+    text-shadow:0 4px 20px rgba(0,0,0,0.4); margin-bottom:4px;
   }
-  .home-title span { color: var(--sand); }
-  .home-subtitle {
-    font-size: 14px;
-    color: var(--muted);
-    margin-top: 8px;
-    font-weight: 600;
-  }
-  .animal-parade {
-    font-size: 2rem;
-    margin-top: 10px;
-    animation: paradeScroll 12s linear infinite;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 100%;
-  }
-  @keyframes paradeScroll {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
+  .home-title span { color:var(--sand); }
+  .home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:28px; text-align:center; }
 
   .game-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-    max-width: 500px;
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:12px; width:100%; max-width:500px;
   }
-
   .game-card {
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+    background:var(--surface2); border:2px solid var(--border);
+    border-radius:var(--radius); padding:18px 14px;
+    cursor:pointer; transition:transform 0.15s, border-color 0.15s;
+    text-align:center; position:relative; overflow:hidden;
   }
-  .game-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--card-color, var(--jungle-light));
-    opacity: 0;
-    transition: opacity 0.2s;
-    border-radius: inherit;
-  }
-  .game-card:hover::before, .game-card:active::before { opacity: 0.12; }
-  .game-card:hover { transform: translateY(-3px); border-color: var(--card-color, var(--jungle-light)); }
-  .game-card:active { transform: scale(0.97); }
-  .game-card .card-icon { font-size: 2.2rem; margin-bottom: 8px; display: block; }
-  .game-card .card-title {
-    font-family: var(--font-main);
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1.2;
-  }
-  .game-card .card-desc {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-    font-weight: 600;
-  }
-  .game-card .card-stars {
-    font-size: 11px;
-    margin-top: 6px;
-    color: var(--sand);
-  }
-  .game-card.done { border-color: var(--leaf); }
+  .game-card:hover { transform:translateY(-3px); border-color:var(--card-color, var(--jungle-light)); }
+  .game-card:active { transform:scale(0.97); }
   .game-card.done::after {
-    content: '✓';
-    position: absolute;
-    top: 8px; right: 10px;
-    color: var(--leaf);
-    font-weight: 900;
-    font-size: 14px;
+    content:'✓'; position:absolute; top:8px; right:10px;
+    color:var(--leaf); font-weight:900; font-size:14px;
   }
+  .card-icon  { font-size:2.2rem; margin-bottom:8px; display:block; }
+  .card-title { font-family:var(--font-main); font-size:14px; font-weight:800; line-height:1.2; }
+  .card-desc  { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+  .card-stars { font-size:11px; margin-top:6px; color:var(--sand); }
 
-  /* ── GAME SCREEN WRAPPER ── */
-  #game-screen {
-    padding: 0;
-    flex-direction: column;
-  }
-
-  .game-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 12px;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  /* ══════════════════════════════ GAME SHELL ══════════ */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; background:rgba(0,0,0,0.3);
+    border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:10;
   }
   .back-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 7px 14px;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.15s;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); font-family:var(--font-main); font-size:13px;
+    font-weight:700; padding:6px 14px; border-radius:30px; cursor:pointer;
+    transition:border-color 0.15s;
   }
-  .back-btn:hover { background: var(--surface); border-color: var(--jungle-light); }
+  .back-btn:hover { border-color:var(--jungle-light); }
+  .score-pill {
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--font-main); font-size:16px; font-weight:800;
+  }
+  .prog-wrap { width:90px; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .prog-fill  { height:100%; background:linear-gradient(90deg,var(--jungle-light),var(--sky-light)); border-radius:3px; transition:width 0.35s ease; }
 
-  .score-display {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-main);
-    font-size: 16px;
-    font-weight: 800;
-  }
-  .score-star { color: var(--sand); font-size: 18px; }
+  .game-content { flex:1; padding:22px 16px; max-width:600px; width:100%; margin:0 auto; }
 
-  .progress-wrap {
-    width: 100px;
-    height: 6px;
-    background: var(--surface2);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--jungle-light), var(--sky-light));
-    border-radius: 3px;
-    transition: width 0.4s ease;
-  }
-
-  .game-content {
-    flex: 1;
-    padding: 24px 16px;
-    max-width: 600px;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .game-title-bar {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .game-name {
-    font-family: var(--font-main);
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--text);
-  }
-  .game-name span { color: var(--sand); }
-  .game-instruction {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 4px;
-    font-weight: 600;
-  }
+  .game-title-bar { text-align:center; margin-bottom:20px; }
+  .game-name { font-family:var(--font-main); font-size:1.45rem; font-weight:900; }
+  .game-name span { color:var(--sand); }
+  .game-instr { font-size:13px; color:var(--muted); margin-top:3px; font-weight:600; }
+  .q-counter  { font-family:var(--font-main); font-size:12px; font-weight:700; color:var(--muted); text-align:center; margin-bottom:14px; }
 
   /* ── BUTTONS ── */
   .btn {
-    font-family: var(--font-main);
-    font-weight: 800;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    font-family:var(--font-main); font-weight:800; border:none;
+    border-radius:30px; cursor:pointer; transition:all 0.15s;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
   }
-  .btn:active { transform: scale(0.95); }
-  .btn-primary {
-    background: var(--jungle-light);
-    color: #fff;
-    padding: 14px 32px;
-    font-size: 16px;
-    box-shadow: 0 4px 16px rgba(39,163,90,0.4);
-  }
-  .btn-primary:hover { background: var(--leaf); box-shadow: 0 6px 20px rgba(39,163,90,0.5); transform: translateY(-2px); }
-  .btn-sm {
-    padding: 10px 20px;
-    font-size: 14px;
-    background: var(--surface2);
-    color: var(--text);
-    border: 1.5px solid var(--border);
-  }
-  .btn-sm:hover { border-color: var(--jungle-light); background: var(--surface); }
+  .btn:active { transform:scale(0.95); }
+  .btn-primary { background:var(--jungle-light); color:#fff; padding:13px 28px; font-size:15px; box-shadow:0 4px 14px rgba(39,163,90,0.35); }
+  .btn-primary:hover { background:var(--leaf); transform:translateY(-2px); }
+  .btn-sm { padding:9px 18px; font-size:13px; background:var(--surface2); color:var(--text); border:1.5px solid var(--border); }
+  .btn-sm:hover { border-color:var(--jungle-light); }
 
   /* ── FEEDBACK ── */
   .feedback {
-    text-align: center;
-    font-family: var(--font-main);
-    font-size: 1.6rem;
-    font-weight: 900;
-    padding: 14px;
-    border-radius: var(--radius-sm);
-    margin: 16px 0;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.25s ease;
+    text-align:center; font-family:var(--font-main); font-size:1.4rem; font-weight:900;
+    padding:12px; border-radius:var(--radius-sm); margin:14px 0;
+    opacity:0; transform:scale(0.85); transition:all 0.2s ease;
   }
-  .feedback.show { opacity: 1; transform: scale(1); }
-  .feedback.correct { background: rgba(94,196,90,0.15); color: var(--leaf); border: 2px solid rgba(94,196,90,0.3); }
-  .feedback.wrong { background: rgba(242,92,61,0.15); color: var(--coral); border: 2px solid rgba(242,92,61,0.3); }
+  .feedback.show   { opacity:1; transform:scale(1); }
+  .feedback.correct { background:rgba(94,196,90,0.15); color:var(--leaf); border:2px solid rgba(94,196,90,0.3); }
+  .feedback.wrong   { background:rgba(242,92,61,0.15); color:var(--coral); border:2px solid rgba(242,92,61,0.3); }
 
-  /* ── GAME 1: ANIMAL SPOTTER ── */
-  .animal-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  /* ══════════════════════════════ G1 ANIMAL SPOTTER ══════════ */
+  .animal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
   .animal-tile {
-    background: var(--surface2);
-    border: 2.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.18s;
-    user-select: none;
+    background:var(--surface2); border:2.5px solid var(--border);
+    border-radius:var(--radius-sm); padding:14px 8px;
+    text-align:center; cursor:pointer; transition:border-color 0.15s, transform 0.12s;
+    user-select:none;
   }
-  .animal-tile:hover { border-color: var(--sky-light); transform: scale(1.04); }
-  .animal-tile.selected { border-color: var(--jungle-light); background: rgba(39,163,90,0.15); }
-  .animal-tile.correct { border-color: var(--leaf); background: rgba(94,196,90,0.2); animation: pop 0.3s ease; }
-  .animal-tile.wrong { border-color: var(--coral); background: rgba(242,92,61,0.2); animation: shake 0.4s ease; }
-  .animal-emoji { font-size: 2rem; display: block; margin-bottom: 4px; }
-  .animal-word { font-family: var(--font-main); font-size: 12px; font-weight: 700; color: var(--text); }
+  .animal-tile:hover { border-color:var(--sky-light); transform:scale(1.04); }
+  .animal-tile.correct { border-color:var(--leaf); background:rgba(94,196,90,0.18); animation:pop 0.3s ease; }
+  .animal-tile.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.18); animation:shake 0.4s ease; }
+  .a-emoji { font-size:2rem; display:block; margin-bottom:4px; }
+  .a-word  { font-family:var(--font-main); font-size:12px; font-weight:700; }
 
-  /* ── GAME 2: SPELL IT ── */
-  .word-to-spell {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .spell-emoji { font-size: 4rem; display: block; margin-bottom: 8px; animation: bounce 1.5s infinite; }
-  @keyframes bounce { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-8px);} }
-  .spell-hint { font-family: var(--font-main); font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 14px; }
+  /* ══════════════════════════════ G2 SPELL IT ══════════ */
+  .spell-center { text-align:center; margin-bottom:18px; }
+  .spell-emoji  { font-size:4rem; display:block; margin-bottom:6px; }
+  .spell-hint   { font-family:var(--font-main); font-size:13px; font-weight:700; color:var(--muted); }
   .letter-boxes {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+    display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-bottom:18px;
   }
-  .letter-box {
-    width: 40px;
-    height: 46px;
-    border: 2.5px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-main);
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--sand);
-    transition: all 0.15s;
+  .l-box {
+    width:40px; height:46px; border:2.5px solid var(--border); border-radius:10px;
+    background:var(--surface2); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-main); font-size:20px; font-weight:900; color:var(--sand);
+    transition:border-color 0.15s;
   }
-  .letter-box.filled { border-color: var(--jungle-light); background: rgba(39,163,90,0.1); }
-  .letter-box.correct-letter { border-color: var(--leaf); background: rgba(94,196,90,0.2); color: var(--leaf); }
-  .letter-choices {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 16px;
+  .l-box.filled  { border-color:var(--jungle-light); background:rgba(39,163,90,0.1); }
+  .l-box.correct { border-color:var(--leaf); background:rgba(94,196,90,0.2); color:var(--leaf); }
+  .l-box.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.15); }
+  .letter-pool { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:14px; }
+  .l-btn {
+    width:42px; height:46px; background:var(--surface2); border:2px solid var(--border);
+    border-radius:10px; font-family:var(--font-main); font-size:18px; font-weight:900;
+    color:var(--text); cursor:pointer; transition:border-color 0.15s, transform 0.12s;
+    display:flex; align-items:center; justify-content:center;
   }
-  .letter-choice {
-    width: 42px;
-    height: 46px;
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    font-family: var(--font-main);
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .letter-choice:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: translateY(-2px); }
-  .letter-choice:disabled { opacity: 0.3; cursor: default; transform: none; }
+  .l-btn:hover:not(:disabled)  { border-color:var(--sky-light); transform:translateY(-2px); }
+  .l-btn:disabled { opacity:0.28; cursor:default; }
 
-  /* ── GAME 3: HABITAT SORT ── */
-  .habitat-zones {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
+  /* ══════════════════════════════ G3 HABITAT HUNT ══════════ */
+  .habitat-zones { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .h-zone {
+    background:var(--surface2); border:2.5px dashed var(--border);
+    border-radius:var(--radius-sm); padding:10px 6px; min-height:110px;
+    text-align:center; transition:border-color 0.18s, background 0.18s;
   }
-  .habitat-zone {
-    background: var(--surface2);
-    border: 2.5px dashed var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 6px;
-    min-height: 120px;
-    text-align: center;
-    transition: all 0.2s;
+  .h-zone.highlight { border-color:var(--sand); background:rgba(245,200,66,0.08); }
+  .h-zone.correct-zone { border-color:var(--leaf); border-style:solid; }
+  .zone-lbl { font-family:var(--font-main); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--sand); margin-bottom:4px; }
+  .zone-icon { font-size:1.5rem; display:block; margin-bottom:4px; }
+  .zone-chips { display:flex; flex-wrap:wrap; justify-content:center; gap:4px; }
+  .z-chip {
+    background:rgba(39,163,90,0.18); border:1px solid var(--jungle-light);
+    color:var(--text); font-family:var(--font-main); font-size:11px;
+    font-weight:700; padding:3px 8px; border-radius:20px;
   }
-  .habitat-zone.drag-over { border-color: var(--sand); background: rgba(245,200,66,0.1); transform: scale(1.02); }
-  .habitat-zone.correct-zone { border-color: var(--leaf); border-style: solid; }
-  .zone-label {
-    font-family: var(--font-main);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-    color: var(--sand);
-  }
-  .zone-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
-  .zone-animals { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-  .zone-chip {
-    background: rgba(39,163,90,0.2);
-    border: 1px solid var(--jungle-light);
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-  }
-  .drag-pool {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
+  .drag-pool { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
   .drag-chip {
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 8px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
+    background:var(--surface2); border:2px solid var(--border);
+    color:var(--text); font-family:var(--font-main); font-size:13px;
+    font-weight:700; padding:8px 14px; border-radius:20px;
+    cursor:pointer; transition:border-color 0.15s, transform 0.12s; user-select:none;
   }
-  .drag-chip:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); }
-  .drag-chip.selected { border-color: var(--sand); background: rgba(245,200,66,0.15); transform: scale(1.05); }
-  .drag-chip.placed { opacity: 0.35; pointer-events: none; }
+  .drag-chip:hover:not(.placed)    { border-color:var(--sky-light); }
+  .drag-chip.sel   { border-color:var(--sand); background:rgba(245,200,66,0.12); transform:scale(1.04); }
+  .drag-chip.placed { opacity:0.3; pointer-events:none; }
 
-  /* ── GAME 4: COMPARATIVES BUILDER ── */
-  .sentence-parts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 20px;
-    min-height: 60px;
-    padding: 14px;
-    background: var(--surface2);
-    border: 2px dashed var(--border);
-    border-radius: var(--radius-sm);
+  /* ══════════════════════════════ G4 SENTENCE BUILDER ══════════ */
+  .comp-prompt {
+    text-align:center; padding:16px; background:var(--surface2);
+    border-radius:var(--radius-sm); border:1px solid var(--border); margin-bottom:16px;
   }
-  .sentence-parts.has-words { border-color: var(--jungle-light); }
-  .word-chip {
-    background: var(--jungle-dark);
-    border: 2px solid var(--jungle-light);
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 14px;
-    font-weight: 700;
-    padding: 8px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    animation: popIn 0.2s ease;
+  .comp-animals-row { font-size:2.8rem; margin-bottom:6px; }
+  .comp-q { font-family:var(--font-main); font-size:14px; font-weight:700; color:var(--muted); }
+  .comp-q em { color:var(--sand); font-style:normal; }
+  .sentence-tray {
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    min-height:56px; padding:12px; background:var(--surface2);
+    border:2px dashed var(--border); border-radius:var(--radius-sm); margin-bottom:14px;
   }
-  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .word-chip:hover { background: rgba(242,92,61,0.2); border-color: var(--coral); }
-  .word-bank {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 16px;
+  .sentence-tray.has-words { border-color:var(--jungle-light); }
+  .tray-placeholder { font-family:var(--font-main); font-size:13px; color:var(--muted); align-self:center; }
+  .word-bank { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
+  .w-chip {
+    background:var(--jungle-dark); border:2px solid var(--jungle-light);
+    color:var(--text); font-family:var(--font-main); font-size:14px;
+    font-weight:700; padding:8px 14px; border-radius:20px; cursor:pointer;
+    transition:background 0.12s, border-color 0.12s;
+    animation:popIn 0.18s ease;
   }
-  .word-option {
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-main);
-    font-size: 14px;
-    font-weight: 700;
-    padding: 8px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
+  .w-chip:hover { background:rgba(242,92,61,0.2); border-color:var(--coral); }
+  .w-option {
+    background:var(--surface2); border:2px solid var(--border);
+    color:var(--text); font-family:var(--font-main); font-size:14px;
+    font-weight:700; padding:8px 14px; border-radius:20px;
+    cursor:pointer; transition:border-color 0.15s, transform 0.1s;
   }
-  .word-option:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: translateY(-2px); }
-  .word-option:disabled { opacity: 0.3; cursor: default; transform: none; }
-  .comparative-prompt {
-    text-align: center;
-    margin-bottom: 16px;
-    padding: 16px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+  .w-option:hover:not(:disabled) { border-color:var(--sky-light); transform:translateY(-2px); }
+  .w-option:disabled { opacity:0.28; cursor:default; }
+  .correct-sent {
+    text-align:center; font-family:var(--font-main); font-size:15px;
+    font-weight:700; padding:10px; border-radius:var(--radius-sm); margin-top:8px;
   }
-  .comp-animals { font-size: 2.5rem; margin-bottom: 6px; }
-  .comp-question { font-family: var(--font-main); font-size: 15px; font-weight: 700; color: var(--muted); }
-  .comp-question em { color: var(--sand); font-style: normal; }
 
-  /* ── GAME 5: TRUE OR FALSE ── */
+  /* ══════════════════════════════ G5 TRUE/FALSE ══════════ */
+  .dots-row { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.25s; }
+  .dot.done    { background:var(--jungle-light); }
+  .dot.current { background:var(--sand); transform:scale(1.3); }
   .fact-card {
-    background: var(--surface2);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px 20px;
-    text-align: center;
-    margin-bottom: 20px;
+    background:var(--surface2); border:2px solid var(--border);
+    border-radius:var(--radius); padding:22px 18px; text-align:center; margin-bottom:18px;
   }
-  .fact-animals { font-size: 3rem; margin-bottom: 12px; display: block; }
-  .fact-text {
-    font-family: var(--font-main);
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--text);
-  }
-  .tf-buttons { display: flex; gap: 12px; justify-content: center; }
+  .fact-emojis { font-size:2.8rem; margin-bottom:10px; display:block; }
+  .fact-text   { font-family:var(--font-main); font-size:1.05rem; font-weight:700; line-height:1.45; }
+  .tf-btns { display:flex; gap:12px; justify-content:center; }
   .tf-btn {
-    flex: 1;
-    max-width: 160px;
-    padding: 16px;
-    font-family: var(--font-main);
-    font-size: 18px;
-    font-weight: 900;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
+    flex:1; max-width:150px; padding:15px; font-family:var(--font-main);
+    font-size:17px; font-weight:900; border:none; border-radius:var(--radius);
+    cursor:pointer; transition:transform 0.15s;
   }
-  .tf-btn.true-btn { background: linear-gradient(135deg, #27a35a, #1a6b3c); color: #fff; box-shadow: 0 4px 14px rgba(39,163,90,0.4); }
-  .tf-btn.false-btn { background: linear-gradient(135deg, #f25c3d, #c43d22); color: #fff; box-shadow: 0 4px 14px rgba(242,92,61,0.4); }
-  .tf-btn:hover { transform: translateY(-3px) scale(1.03); }
-  .tf-btn:active { transform: scale(0.95); }
-  .progress-dots {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: all 0.3s;
-  }
-  .dot.done { background: var(--jungle-light); }
-  .dot.current { background: var(--sand); transform: scale(1.3); }
+  .tf-btn:hover  { transform:translateY(-3px); }
+  .tf-btn:active { transform:scale(0.95); }
+  .true-btn  { background:linear-gradient(135deg,#27a35a,#1a6b3c); color:#fff; box-shadow:0 4px 14px rgba(39,163,90,0.35); }
+  .false-btn { background:linear-gradient(135deg,#f25c3d,#c43d22); color:#fff; box-shadow:0 4px 14px rgba(242,92,61,0.35); }
 
-  /* ── GAME 6: SUPERLATIVES QUIZ ── */
-  .quiz-question {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 20px;
-    background: var(--surface2);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
+  /* ══════════════════════════════ G6 SUPERLATIVES ══════════ */
+  .quiz-card {
+    text-align:center; padding:20px; background:var(--surface2);
+    border-radius:var(--radius); border:1px solid var(--border); margin-bottom:18px;
   }
-  .quiz-animal-emoji { font-size: 3.5rem; display: block; margin-bottom: 10px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{ transform: scale(1);} 50%{ transform: scale(1.08);} }
-  .quiz-q-text {
-    font-family: var(--font-main);
-    font-size: 1.15rem;
-    font-weight: 800;
-    line-height: 1.35;
+  .quiz-emoji { font-size:3.2rem; display:block; margin-bottom:10px; }
+  .quiz-q { font-family:var(--font-main); font-size:1.1rem; font-weight:800; line-height:1.35; }
+  .quiz-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .q-opt {
+    background:var(--surface2); border:2.5px solid var(--border);
+    border-radius:var(--radius-sm); padding:13px 10px;
+    font-family:var(--font-main); font-size:14px; font-weight:700;
+    color:var(--text); cursor:pointer; text-align:center; transition:border-color 0.15s, transform 0.1s;
   }
-  .quiz-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .quiz-option {
-    background: var(--surface2);
-    border: 2.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 10px;
-    font-family: var(--font-main);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-  }
-  .quiz-option:hover { border-color: var(--sky-light); background: rgba(77,195,240,0.1); transform: scale(1.03); }
-  .quiz-option.correct-opt { border-color: var(--leaf); background: rgba(94,196,90,0.2); color: var(--leaf); }
-  .quiz-option.wrong-opt { border-color: var(--coral); background: rgba(242,92,61,0.15); color: var(--coral); }
-  .quiz-option:disabled { cursor: default; transform: none; }
+  .q-opt:hover:not(:disabled) { border-color:var(--sky-light); transform:scale(1.03); }
+  .q-opt.correct-opt { border-color:var(--leaf); background:rgba(94,196,90,0.18); color:var(--leaf); }
+  .q-opt.wrong-opt   { border-color:var(--coral); background:rgba(242,92,61,0.13); color:var(--coral); }
+  .q-opt:disabled { cursor:default; }
 
-  /* ── COMPLETE SCREEN ── */
-  #complete {
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 30px 20px;
-  }
-  .complete-emoji { font-size: 4rem; margin-bottom: 14px; animation: spin 2s ease-in-out; }
-  @keyframes spin { from{transform: rotate(0) scale(0.5); opacity:0;} to{transform: rotate(720deg) scale(1); opacity:1;} }
-  .complete-title {
-    font-family: var(--font-main);
-    font-size: 2.4rem;
-    font-weight: 900;
-    margin-bottom: 8px;
-    color: var(--sand);
-  }
-  .complete-subtitle { font-size: 15px; color: var(--muted); margin-bottom: 24px; font-weight: 600; }
-  .stars-display { font-size: 2.8rem; margin-bottom: 20px; letter-spacing: 4px; }
+  /* ══════════════════════════════ COMPLETE ══════════ */
+  #complete { align-items:center; justify-content:center; text-align:center; padding:30px 20px; }
+  .c-emoji  { font-size:4rem; margin-bottom:12px; animation:spinIn 0.6s ease; }
+  .c-title  { font-family:var(--font-main); font-size:2.2rem; font-weight:900; color:var(--sand); margin-bottom:6px; }
+  .c-sub    { font-size:14px; color:var(--muted); margin-bottom:20px; font-weight:600; }
+  .stars-big { font-size:2.6rem; margin-bottom:18px; letter-spacing:4px; }
   .score-circle {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--jungle-light), var(--sky));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin: 0 auto 24px;
-    box-shadow: 0 8px 30px rgba(39,163,90,0.4);
+    width:96px; height:96px; border-radius:50%;
+    background:linear-gradient(135deg,var(--jungle-light),var(--sky));
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    margin:0 auto 22px; box-shadow:0 8px 28px rgba(39,163,90,0.4);
   }
-  .score-num { font-family: var(--font-main); font-size: 2rem; font-weight: 900; color: #fff; }
-  .score-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); letter-spacing: 1px; }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 28px;
-  }
-  .summary-item {
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 12px 8px;
-    text-align: center;
-  }
-  .summary-item .s-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; }
-  .summary-item .s-label { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .sc-num   { font-family:var(--font-main); font-size:2rem; font-weight:900; color:#fff; }
+  .sc-lbl   { font-size:10px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:1px; }
+  .sum-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:24px; }
+  .sum-item { background:var(--surface2); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; }
+  .sum-item .si-icon  { font-size:1.3rem; margin-bottom:4px; display:block; }
+  .sum-item .si-lbl   { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .sum-item .si-val   { font-family:var(--font-main); font-weight:800; font-size:14px; color:var(--leaf); }
   .speaking-card {
-    background: var(--surface2);
-    border: 2px solid var(--jungle-light);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    max-width: 400px;
-    width: 100%;
-    margin-bottom: 24px;
-    text-align: left;
+    background:var(--surface2); border:2px solid var(--jungle-light);
+    border-radius:var(--radius); padding:16px 18px;
+    max-width:380px; width:100%; margin-bottom:22px; text-align:left;
   }
-  .speaking-title {
-    font-family: var(--font-main);
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--sand);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-  }
-  .speaking-prompt {
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.7;
-    font-weight: 600;
-  }
-  .speaking-prompt li { margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
-  .speaking-prompt li::before { content: '🦁'; position: absolute; left: 0; font-size: 11px; top: 2px; }
+  .sp-title { font-family:var(--font-main); font-weight:800; font-size:12px; color:var(--sand); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .sp-list  { list-style:none; font-size:13px; color:var(--text); line-height:1.7; font-weight:600; }
+  .sp-list li { padding-left:22px; position:relative; margin-bottom:5px; }
+  .sp-list li::before { content:'🦁'; position:absolute; left:0; font-size:11px; top:2px; }
+  .center-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:8px; }
 
-  /* ── ANIMATIONS ── */
-  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
-  @keyframes shake {
-    0%,100%{transform:translateX(0)}
-    20%{transform:translateX(-6px)}
-    40%{transform:translateX(6px)}
-    60%{transform:translateX(-4px)}
-    80%{transform:translateX(4px)}
-  }
+  /* ══════════════════════════════ KEYFRAMES ══════════ */
+  @keyframes pop    { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+  @keyframes shake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  @keyframes popIn  { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes spinIn { from{transform:rotate(0) scale(0.4);opacity:0} to{transform:rotate(360deg) scale(1);opacity:1} }
 
   /* ── CONFETTI ── */
-  .confetti-piece {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    pointer-events: none;
-    z-index: 9999;
-    animation: confettiFall 1.2s ease-out forwards;
+  .cp {
+    position:fixed; width:9px; height:9px; border-radius:2px;
+    pointer-events:none; z-index:9999; animation:cFall 1.1s ease-out forwards;
   }
-  @keyframes confettiFall {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(200px) rotate(720deg); opacity: 0; }
-  }
-
-  /* ── NEXT BUTTON ── */
-  .center-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-
-  .q-counter {
-    font-family: var(--font-main);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 12px;
-  }
+  @keyframes cFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(180px) rotate(540deg);opacity:0} }
 </style>
 </head>
 <body>
 
-<!-- LEAF PARTICLES -->
-<div class="leaf-particle" style="left:8%;animation-duration:9s;animation-delay:0s;font-size:1.2rem;">🍃</div>
-<div class="leaf-particle" style="left:22%;animation-duration:12s;animation-delay:2s;">🌿</div>
-<div class="leaf-particle" style="left:45%;animation-duration:8s;animation-delay:4s;font-size:1rem;">🍃</div>
-<div class="leaf-particle" style="left:68%;animation-duration:11s;animation-delay:1s;">🌿</div>
-<div class="leaf-particle" style="left:85%;animation-duration:10s;animation-delay:6s;font-size:1.5rem;">🍃</div>
-
-<!-- ═══════════════════════════════════════════════ HOME ═══ -->
+<!-- ══════════════════════════════════════ HOME ══════════════════════════════════════ -->
 <div id="home" class="screen active">
-  <div class="home-header">
+  <div style="text-align:center;padding:28px 16px 22px;">
     <div class="unit-badge">📚 Kids Box NG3 · Unit 7</div>
     <h1 class="home-title">World of<br><span>Animals</span> 🌍</h1>
-    <p class="home-subtitle">6 games · Vocabulary · Grammar · Comparatives</p>
-    <div class="animal-parade">🦁 🐬 🦈 🐼 🦜 🐨 🦇 🐻 🦘 🐋 🦊 🐊 🐸 🦁 🐬 🦈 🐼 🦜</div>
+    <p class="home-sub">6 games · Vocabulary · Habitats · Comparatives · Superlatives</p>
   </div>
-
   <div class="game-grid">
     <div class="game-card" style="--card-color:#4dc3f0" onclick="startGame(1)">
       <span class="card-icon">🔍</span>
       <div class="card-title">Animal Spotter</div>
-      <div class="card-desc">Name the animal!</div>
+      <div class="card-desc">Match word to animal!</div>
       <div class="card-stars" id="stars-1">⭐⭐⭐</div>
     </div>
     <div class="game-card" style="--card-color:#f5c842" onclick="startGame(2)">
       <span class="card-icon">✏️</span>
       <div class="card-title">Spell It!</div>
-      <div class="card-desc">Build the word</div>
+      <div class="card-desc">Build each animal word</div>
       <div class="card-stars" id="stars-2">⭐⭐⭐</div>
     </div>
     <div class="game-card" style="--card-color:#27a35a" onclick="startGame(3)">
       <span class="card-icon">🗺️</span>
       <div class="card-title">Habitat Hunt</div>
-      <div class="card-desc">Sort by home!</div>
+      <div class="card-desc">Ocean · Jungle · Ice</div>
       <div class="card-stars" id="stars-3">⭐⭐⭐</div>
     </div>
     <div class="game-card" style="--card-color:#8b5cf6" onclick="startGame(4)">
       <span class="card-icon">🏗️</span>
-      <div class="card-title">Sentence Builder</div>
-      <div class="card-desc">Comparatives!</div>
+      <div class="card-title">Comparatives</div>
+      <div class="card-desc">Build the sentence!</div>
       <div class="card-stars" id="stars-4">⭐⭐⭐</div>
     </div>
     <div class="game-card" style="--card-color:#f25c3d" onclick="startGame(5)">
       <span class="card-icon">✅</span>
       <div class="card-title">True or False?</div>
-      <div class="card-desc">Fact check!</div>
+      <div class="card-desc">Fact check the animals!</div>
       <div class="card-stars" id="stars-5">⭐⭐⭐</div>
     </div>
     <div class="game-card" style="--card-color:#ec4899" onclick="startGame(6)">
       <span class="card-icon">🏆</span>
       <div class="card-title">Superlatives!</div>
-      <div class="card-desc">The biggest, fastest…</div>
+      <div class="card-desc">Biggest · Fastest…</div>
       <div class="card-stars" id="stars-6">⭐⭐⭐</div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════ GAME ═══ -->
+<!-- ══════════════════════════════════════ GAME SHELL ══════════════════════════════════════ -->
 <div id="game-screen" class="screen">
-  <div class="game-topbar">
+  <div class="topbar">
     <button class="back-btn" onclick="goHome()">← Home</button>
-    <div class="score-display">
-      <span class="score-star">⭐</span>
-      <span id="live-score">0</span>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-fill" id="progress-bar" style="width:0%"></div>
-    </div>
+    <div class="score-pill">⭐ <span id="live-score">0</span></div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
   </div>
   <div class="game-content" id="game-content"></div>
 </div>
 
-<!-- ═══════════════════════════════════════════════ COMPLETE ═══ -->
+<!-- ══════════════════════════════════════ COMPLETE ══════════════════════════════════════ -->
 <div id="complete" class="screen">
-  <div class="complete-emoji" id="complete-emoji">🎉</div>
-  <div class="complete-title">Amazing!</div>
-  <div class="complete-subtitle" id="complete-subtitle">You're an animal expert!</div>
-  <div class="stars-display" id="complete-stars">⭐⭐⭐</div>
+  <div class="c-emoji">🎉</div>
+  <div class="c-title">Amazing!</div>
+  <div class="c-sub">You're an animal expert!</div>
+  <div class="stars-big" id="c-stars">⭐⭐⭐</div>
   <div class="score-circle">
-    <div class="score-num" id="final-score">0</div>
-    <div class="score-label">POINTS</div>
+    <div class="sc-num" id="final-score">0</div>
+    <div class="sc-lbl">POINTS</div>
   </div>
-  <div class="summary-grid">
-    <div class="summary-item">
-      <span class="s-icon">🎯</span>
-      <div class="s-label">Accuracy</div>
-      <div id="s-accuracy" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--leaf);">—</div>
-    </div>
-    <div class="summary-item">
-      <span class="s-icon">✅</span>
-      <div class="s-label">Correct</div>
-      <div id="s-correct" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--leaf);">—</div>
-    </div>
-    <div class="summary-item">
-      <span class="s-icon">⏱️</span>
-      <div class="s-label">Game</div>
-      <div id="s-game" style="font-family:var(--font-main);font-weight:800;font-size:14px;color:var(--sand);">—</div>
-    </div>
+  <div class="sum-grid">
+    <div class="sum-item"><span class="si-icon">🎯</span><div class="si-lbl">Accuracy</div><div class="si-val" id="s-acc">—</div></div>
+    <div class="sum-item"><span class="si-icon">✅</span><div class="si-lbl">Correct</div><div class="si-val" id="s-cor">—</div></div>
+    <div class="sum-item"><span class="si-icon">🎮</span><div class="si-lbl">Game</div><div class="si-val" id="s-gname" style="color:var(--sand)">—</div></div>
   </div>
   <div class="speaking-card">
-    <div class="speaking-title">🗣️ Speaking Challenge</div>
-    <ul class="speaking-prompt" id="speaking-prompts"></ul>
+    <div class="sp-title">🗣️ Speaking Challenge</div>
+    <ul class="sp-list" id="sp-prompts"></ul>
   </div>
   <div class="center-row">
     <button class="btn btn-sm" onclick="goHome()">🏠 All Games</button>
-    <button class="btn btn-primary" id="replay-btn" onclick="replayGame()">▶ Play Again</button>
+    <button class="btn btn-primary" onclick="replayGame()">▶ Play Again</button>
   </div>
 </div>
 
+<!-- ══════════════════════════════════════ JS ══════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════════
-//  DATA
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  DATA  —  habitats match the book: "in the ocean / in the jungle / on the ice"
+// ═══════════════════════════════════════════════════════════
 const ANIMALS = [
-  { word: 'bat',       emoji: '🦇', habitat: 'cave',   fact: 'Bats sleep in the day.' },
-  { word: 'bear',      emoji: '🐻', habitat: 'forest', fact: 'Bears eat fish, fruit and plants.' },
-  { word: 'dolphin',   emoji: '🐬', habitat: 'sea',    fact: 'Dolphins live in the sea.' },
-  { word: 'kangaroo',  emoji: '🦘', habitat: 'land',   fact: 'Kangaroos eat leaves.' },
-  { word: 'lion',      emoji: '🦁', habitat: 'land',   fact: 'Lions sleep a lot.' },
-  { word: 'panda',     emoji: '🐼', habitat: 'forest', fact: 'Pandas live in China.' },
-  { word: 'parrot',    emoji: '🦜', habitat: 'forest', fact: 'Parrots talk a lot.' },
-  { word: 'shark',     emoji: '🦈', habitat: 'sea',    fact: 'Sharks live in the sea.' },
-  { word: 'whale',     emoji: '🐋', habitat: 'sea',    fact: 'Whales are the biggest animals.' },
-  { word: 'penguin',   emoji: '🐧', habitat: 'land',   fact: 'Penguins can swim but not fly.' },
-  { word: 'crocodile', emoji: '🐊', habitat: 'land',   fact: 'Crocodiles live near rivers.' },
-  { word: 'frog',      emoji: '🐸', habitat: 'land',   fact: 'Frogs live near water.' },
+  { word:'shark',      emoji:'🦈', habitat:'ocean',  fact:'Sharks live in the ocean.' },
+  { word:'dolphin',    emoji:'🐬', habitat:'ocean',  fact:'Dolphins live in the ocean.' },
+  { word:'whale',      emoji:'🐋', habitat:'ocean',  fact:'Whales are the biggest animals.' },
+  { word:'jellyfish',  emoji:'🪼', habitat:'ocean',  fact:'Jellyfish live in the ocean.' },
+  { word:'parrot',     emoji:'🦜', habitat:'jungle', fact:'Parrots live in the jungle.' },
+  { word:'snake',      emoji:'🐍', habitat:'jungle', fact:'Snakes live in the jungle.' },
+  { word:'frog',       emoji:'🐸', habitat:'jungle', fact:'Frogs live in the jungle.' },
+  { word:'bat',        emoji:'🦇', habitat:'jungle', fact:'Bats live in caves in the jungle.' },
+  { word:'penguin',    emoji:'🐧', habitat:'ice',    fact:'Penguins live on the ice.' },
+  { word:'polar bear', emoji:'🐻‍❄️', habitat:'ice',    fact:'Polar bears live on the ice.' },
+  { word:'seal',       emoji:'🦭', habitat:'ice',    fact:'Seals live on the ice.' },
 ];
 
+// SENTENCE BUILDER FIX:
+// The chooseable pool now includes BOTH animal names + the comparative + "than"
+// The fixed (greyed) prefix is just "A" and "is" (shown as labels, not buttons)
+// Students pick: [animal A] + [comparative] + [than] + [a] + [animal B]
 const COMPARATIVES = [
-  { a: 'dolphin', ae: '🐬', b: 'shark', be: '🦈', adj: 'fast', comp: 'faster', sentence: 'A dolphin is faster than a shark.' },
-  { a: 'whale', ae: '🐋', b: 'shark', be: '🦈', adj: 'big', comp: 'bigger', sentence: 'A whale is bigger than a shark.' },
-  { a: 'lion', ae: '🦁', b: 'dolphin', be: '🐬', adj: 'dangerous', comp: 'more dangerous', sentence: 'A lion is more dangerous than a dolphin.' },
-  { a: 'panda', ae: '🐼', b: 'parrot', be: '🦜', adj: 'beautiful', comp: 'more beautiful', sentence: 'A panda is more beautiful than a parrot.' },
-  { a: 'whale', ae: '🐋', b: 'kangaroo', be: '🦘', adj: 'long', comp: 'longer', sentence: 'A whale is longer than a kangaroo.' },
-  { a: 'cheetah', ae: '🐆', b: 'bear', be: '🐻', adj: 'fast', comp: 'faster', sentence: 'A cheetah is faster than a bear.' },
+  { a:'dolphin',    ae:'🐬', b:'shark',    be:'🦈', adj:'fast',       comp:'faster',        sentence:'A dolphin is faster than a shark.' },
+  { a:'whale',      ae:'🐋', b:'shark',    be:'🦈', adj:'big',        comp:'bigger',         sentence:'A whale is bigger than a shark.' },
+  { a:'whale',      ae:'🐋', b:'penguin',  be:'🐧', adj:'long',       comp:'longer',         sentence:'A whale is longer than a penguin.' },
+  { a:'snake',      ae:'🐍', b:'frog',     be:'🐸', adj:'long',       comp:'longer',         sentence:'A snake is longer than a frog.' },
+  { a:'parrot',     ae:'🦜', b:'bat',      be:'🦇', adj:'colourful',  comp:'more colourful', sentence:'A parrot is more colourful than a bat.' },
+  { a:'polar bear', ae:'🐻‍❄️', b:'penguin', be:'🐧', adj:'big',        comp:'bigger',         sentence:'A polar bear is bigger than a penguin.' },
 ];
 
 const TRUE_FALSE = [
-  { emoji: '🐬🦈', text: 'A dolphin is faster than a shark.', answer: true },
-  { emoji: '🐋🦈', text: 'A whale is bigger than a shark.', answer: true },
-  { emoji: '🐧🐋', text: 'A penguin is bigger than a whale.', answer: false },
-  { emoji: '🦇', text: 'Bats sleep in the day.', answer: true },
-  { emoji: '🐼', text: 'Pandas live in Australia.', answer: false },
-  { emoji: '🦜', text: 'Parrots can talk a lot.', answer: true },
-  { emoji: '🦘', text: 'Kangaroos eat meat.', answer: false },
-  { emoji: '🐬🌊', text: 'Dolphins, whales and sharks live in the sea.', answer: true },
-  { emoji: '🦁', text: 'Lions are the fastest land animals.', answer: false },
-  { emoji: '🐋', text: 'Blue whales are the loudest animals.', answer: true },
+  { emoji:'🐬🦈', text:'A dolphin is faster than a shark.',       answer:true  },
+  { emoji:'🐋🦈', text:'A whale is smaller than a shark.',        answer:false },
+  { emoji:'🐧',   text:'Penguins live on the ice.',               answer:true  },
+  { emoji:'🦜',   text:'Parrots live in the jungle.',             answer:true  },
+  { emoji:'🦈',   text:'Sharks live in the jungle.',              answer:false },
+  { emoji:'🐻‍❄️',   text:'Polar bears live in the ocean.',          answer:false },
+  { emoji:'🐋',   text:'Whales are the biggest animals.',         answer:true  },
+  { emoji:'🐍🐸', text:'A snake is longer than a frog.',          answer:true  },
+  { emoji:'🪼',   text:'Jellyfish are more dangerous than whales.',answer:false },
+  { emoji:'🦭',   text:'Seals live on the ice.',                  answer:true  },
 ];
 
-const SUPERLATIVES_Q = [
-  { emoji: '🐆', question: 'The cheetah is _____ land animal.', options: ['the fastest', 'the slowest', 'the biggest', 'the loudest'], answer: 'the fastest' },
-  { emoji: '🐋', question: 'The blue whale is _____ animal in the world.', options: ['the smallest', 'the loudest', 'the fastest', 'the prettiest'], answer: 'the loudest' },
-  { emoji: '🐼', question: 'Pandas are _____ than other bears.', options: ['more prettier', 'prettier', 'most pretty', 'prettiest than'], answer: 'prettier' },
-  { emoji: '🦁', question: 'Lions are _____ animals.', options: ['the most strong', 'the most stronger', 'the strongest', 'more strong'], answer: 'the strongest' },
-  { emoji: '🐬', question: 'Dolphins are _____ animals in the sea.', options: ['the most clever', 'the cleverest', 'more clever', 'cleverer than'], answer: 'the cleverest' },
-  { emoji: '🐋', question: 'Blue whales are _____ animals.', options: ['the bigger', 'the most big', 'the biggest', 'more bigger'], answer: 'the biggest' },
+const SUPERLATIVES = [
+  { emoji:'🐋', q:'The blue whale is _____ animal in the world.',    opts:['the biggest','the smallest','the fastest','the loudest'],          ans:'the biggest'        },
+  { emoji:'🦈', q:'Sharks are _____ fish in the ocean.',             opts:['the most dangerous','the most friendly','the smallest','the most beautiful'], ans:'the most dangerous' },
+  { emoji:'🐧', q:'Penguins are _____ birds — they cannot fly.',     opts:['the most unusual','the most common','the biggest','the fastest'],  ans:'the most unusual'   },
+  { emoji:'🦜', q:'Parrots are _____ birds in the jungle.',          opts:['the most colourful','the biggest','the fastest','the longest'],    ans:'the most colourful' },
+  { emoji:'🐍', q:'The anaconda is _____ snake in the world.',       opts:['the longest','the shortest','the smallest','the fastest'],         ans:'the longest'        },
+  { emoji:'🐻‍❄️', q:'Polar bears are _____ land animals in the Arctic.',opts:['the biggest','the smallest','the fastest','the most colourful'],  ans:'the biggest'        },
 ];
 
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  STATE
-// ══════════════════════════════════════════════════════════
-let currentGame = 0, score = 0, totalQ = 0, correctQ = 0;
-let gameScores = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-// Game-specific
-let g1_qIndex = 0, g1_data = [];
-let g2_qIndex = 0, g2_data = [], g2_typed = [];
-let g3_selected = null, g3_placed = {};
-let g4_qIndex = 0, g4_data = [], g4_typed = [];
-let g5_qIndex = 0, g5_data = [];
-let g6_qIndex = 0, g6_data = [];
+// ═══════════════════════════════════════════════════════════
+let currentGame=0, score=0, totalQ=0, correctQ=0;
+let g1i=0, g1d=[];
+let g2i=0, g2d=[], g2typed=[];
+let g3sel=null, g3placed={};
+let g4i=0, g4d=[], g4typed=[];
+let g5i=0, g5d=[];
+let g6i=0, g6d=[];
 
-// ══════════════════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
+// ═══════════════════════════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════════════════════════
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function goHome(){ show('home'); }
+function replayGame(){ startGame(currentGame); }
+function startGame(n){
+  currentGame=n; score=0; totalQ=0; correctQ=0;
+  document.getElementById('live-score').textContent='0';
+  document.getElementById('prog-bar').style.width='0%';
+  show('game-screen');
+  [initG1,initG2,initG3,initG4,initG5,initG6][n-1]();
 }
 
-function goHome() { showScreen('home'); }
-
-function startGame(n) {
-  currentGame = n;
-  score = 0; totalQ = 0; correctQ = 0;
-  document.getElementById('live-score').textContent = '0';
-  document.getElementById('progress-bar').style.width = '0%';
-  showScreen('game-screen');
-  if (n === 1) initGame1();
-  else if (n === 2) initGame2();
-  else if (n === 3) initGame3();
-  else if (n === 4) initGame4();
-  else if (n === 5) initGame5();
-  else if (n === 6) initGame6();
-}
-
-function replayGame() { startGame(currentGame); }
-
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  UTILS
-// ══════════════════════════════════════════════════════════
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+// ═══════════════════════════════════════════════════════════
+const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
+function addScore(pts){score+=pts;correctQ++;document.getElementById('live-score').textContent=score;}
+function setProgress(cur,total){document.getElementById('prog-bar').style.width=`${Math.round((cur/total)*100)}%`;}
+function feedback(elId,type,msg){
+  const el=document.getElementById(elId); if(!el) return;
+  el.textContent=msg; el.className=`feedback ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),1500);
 }
-
-function addScore(pts) {
-  score += pts; correctQ++;
-  document.getElementById('live-score').textContent = score;
-}
-
-function updateProgress(current, total) {
-  document.getElementById('progress-bar').style.width = `${(current / total) * 100}%`;
-}
-
-function showFeedback(el, type, msg) {
-  el.textContent = msg;
-  el.className = `feedback ${type} show`;
-  setTimeout(() => { el.classList.remove('show'); }, 1600);
-}
-
-function confetti(x, y) {
-  const colors = ['#f5c842','#27a35a','#f25c3d','#4dc3f0','#8b5cf6','#fff'];
-  for (let i = 0; i < 14; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    p.style.cssText = `left:${x + (Math.random()-0.5)*80}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};transform:rotate(${Math.random()*360}deg);`;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1300);
+function confetti(x,y){
+  const cols=['#f5c842','#27a35a','#f25c3d','#4dc3f0','#8b5cf6','#ffffff'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');p.className='cp';
+    p.style.cssText=`left:${x+(Math.random()-.5)*70}px;top:${y}px;background:${cols[Math.floor(Math.random()*cols.length)]};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),1200);
   }
 }
-
-function showComplete() {
-  const pct = totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 100;
-  const stars = pct >= 90 ? '⭐⭐⭐' : pct >= 60 ? '⭐⭐' : '⭐';
-  gameScores[currentGame] = stars;
-  document.getElementById(`stars-${currentGame}`).textContent = stars;
-  const card = document.querySelector(`.game-grid .game-card:nth-child(${currentGame})`);
-  if (card) card.classList.add('done');
-  document.getElementById('final-score').textContent = score;
-  document.getElementById('complete-stars').textContent = stars;
-  document.getElementById('s-accuracy').textContent = `${pct}%`;
-  document.getElementById('s-correct').textContent = `${correctQ}/${totalQ}`;
-  const gameNames = ['','Animal Spotter','Spell It!','Habitat Hunt','Sentence Builder','True or False','Superlatives'];
-  document.getElementById('s-game').textContent = gameNames[currentGame];
-
-  const prompts = [
-    ['🐋 vs 🦈', 'Say: A whale is bigger than a shark!'],
-    ['🦁 vs 🐼', 'Say: A lion is more dangerous than a panda!'],
-    ['🐬', 'Say: Dolphins are the cleverest sea animals!'],
-    ['🦇', 'Say: Bats sleep in the day. What about you?'],
+function showComplete(){
+  const pct=totalQ>0?Math.round((correctQ/totalQ)*100):100;
+  const stars=pct>=85?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+  document.getElementById(`stars-${currentGame}`).textContent=stars;
+  document.querySelector(`.game-grid .game-card:nth-child(${currentGame})`)?.classList.add('done');
+  document.getElementById('final-score').textContent=score;
+  document.getElementById('c-stars').textContent=stars;
+  document.getElementById('s-acc').textContent=`${pct}%`;
+  document.getElementById('s-cor').textContent=`${correctQ}/${totalQ}`;
+  const names=['','Animal Spotter','Spell It!','Habitat Hunt','Comparatives','True/False','Superlatives'];
+  document.getElementById('s-gname').textContent=names[currentGame];
+  const allPrompts=[
+    'Say: A whale is bigger than a shark!',
+    'Say: A dolphin is faster than a shark!',
+    'Say: Penguins live on the ice.',
+    'Say: Parrots live in the jungle.',
+    'Say: A snake is longer than a frog!',
+    'Say: Polar bears are the biggest land animals.',
+    'Say: Sharks are the most dangerous fish!',
   ];
-  const picked = shuffle(prompts).slice(0, 3);
-  document.getElementById('speaking-prompts').innerHTML = picked.map(p => `<li><strong>${p[0]}</strong> ${p[1]}</li>`).join('');
-  showScreen('complete');
-  // big confetti
-  for (let i = 0; i < 3; i++) {
-    setTimeout(() => confetti(window.innerWidth/2, window.innerHeight/3), i * 400);
-  }
+  document.getElementById('sp-prompts').innerHTML=shuffle(allPrompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  show('complete');
+  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),100);
+  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),500);
 }
 
-// ══════════════════════════════════════════════════════════
-//  GAME 1 — ANIMAL SPOTTER (tap the correct animal)
-// ══════════════════════════════════════════════════════════
-function initGame1() {
-  g1_data = shuffle(ANIMALS).slice(0, 8);
-  g1_qIndex = 0;
-  renderGame1();
-}
-
-function renderGame1() {
-  if (g1_qIndex >= g1_data.length) { showComplete(); return; }
-  totalQ++;
-  updateProgress(g1_qIndex, g1_data.length);
-  const correct = g1_data[g1_qIndex];
-  // pick 5 distractors
-  const others = shuffle(ANIMALS.filter(a => a.word !== correct.word)).slice(0, 5);
-  const choices = shuffle([correct, ...others]);
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">🔍 Animal <span>Spotter</span></div>
-      <div class="game-instruction">Tap the correct animal!</div>
-    </div>
-    <div class="q-counter">Question ${g1_qIndex + 1} of ${g1_data.length}</div>
-    <div style="text-align:center;margin-bottom:20px;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
-      <div style="font-size:2rem;margin-bottom:8px;">Find:</div>
-      <div style="font-family:var(--font-main);font-size:2.2rem;font-weight:900;color:var(--sand);">${correct.word}</div>
+// ═══════════════════════════════════════════════════════════
+//  GAME 1 — ANIMAL SPOTTER
+// ═══════════════════════════════════════════════════════════
+function initG1(){g1d=shuffle(ANIMALS).slice(0,8);g1i=0;renderG1();}
+function renderG1(){
+  if(g1i>=g1d.length){showComplete();return;}
+  totalQ++;setProgress(g1i,g1d.length);
+  const correct=g1d[g1i];
+  const choices=shuffle([correct,...shuffle(ANIMALS.filter(a=>a.word!==correct.word)).slice(0,5)]);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🔍 Animal <span>Spotter</span></div><div class="game-instr">Tap the correct animal!</div></div>
+    <div class="q-counter">Question ${g1i+1} of ${g1d.length}</div>
+    <div style="text-align:center;margin-bottom:18px;padding:18px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
+      <div style="font-size:1.4rem;margin-bottom:6px;">Find:</div>
+      <div style="font-family:var(--font-main);font-size:2rem;font-weight:900;color:var(--sand);">${correct.word}</div>
     </div>
     <div class="animal-grid">
-      ${choices.map(a => `
-        <div class="animal-tile" onclick="g1Answer(this,'${a.word}','${correct.word}')">
-          <span class="animal-emoji">${a.emoji}</span>
-          <div class="animal-word">${a.word}</div>
-        </div>
-      `).join('')}
+      ${choices.map(a=>`<div class="animal-tile" onclick="g1ans(this,'${a.word.replace(/'/g,"\\'")}','${correct.word.replace(/'/g,"\\'")}')">
+        <span class="a-emoji">${a.emoji}</span>
+        <div class="a-word">${a.word}</div>
+      </div>`).join('')}
     </div>
-    <div class="feedback" id="feedback1"></div>
-  `;
+    <div class="feedback" id="fb1"></div>`;
 }
-
-function g1Answer(el, chosen, correct) {
-  const tiles = document.querySelectorAll('.animal-tile');
-  tiles.forEach(t => t.style.pointerEvents = 'none');
-  if (chosen === correct) {
-    el.classList.add('correct');
-    addScore(10);
-    showFeedback(document.getElementById('feedback1'), 'correct', '🎉 Correct!');
-    confetti(el.getBoundingClientRect().left + 40, el.getBoundingClientRect().top);
+function g1ans(el,chosen,correct){
+  document.querySelectorAll('.animal-tile').forEach(t=>t.style.pointerEvents='none');
+  if(chosen===correct){
+    el.classList.add('correct');addScore(10);
+    feedback('fb1','correct','🎉 Correct!');
+    confetti(el.getBoundingClientRect().left+40,el.getBoundingClientRect().top);
   } else {
     el.classList.add('wrong');
-    // show correct
-    tiles.forEach(t => { if (t.querySelector('.animal-word')?.textContent === correct) t.classList.add('correct'); });
-    showFeedback(document.getElementById('feedback1'), 'wrong', `❌ It's ${correct}!`);
+    document.querySelectorAll('.animal-tile').forEach(t=>{if(t.querySelector('.a-word')?.textContent===correct)t.classList.add('correct');});
+    feedback('fb1','wrong',`❌ It's "${correct}"!`);
   }
-  g1_qIndex++;
-  setTimeout(renderGame1, 1600);
+  g1i++;setTimeout(renderG1,1600);
 }
 
-// ══════════════════════════════════════════════════════════
-//  GAME 2 — SPELL IT! (pick letters to build word)
-// ══════════════════════════════════════════════════════════
-function initGame2() {
-  g2_data = shuffle(ANIMALS).slice(0, 7);
-  g2_qIndex = 0;
-  renderGame2();
+// ═══════════════════════════════════════════════════════════
+//  GAME 2 — SPELL IT
+// ═══════════════════════════════════════════════════════════
+function initG2(){g2d=shuffle(ANIMALS).slice(0,7);g2i=0;renderG2();}
+function renderG2(){
+  if(g2i>=g2d.length){showComplete();return;}
+  totalQ++;setProgress(g2i,g2d.length);
+  const an=g2d[g2i];g2typed=[];
+  const wl=an.word.replace(' ','').split('');
+  const extra='aeioulrnstbcdmpghkfwy'.split('').filter(l=>!wl.includes(l));
+  const pool=shuffle([...wl,...shuffle(extra).slice(0,Math.max(4,8-wl.length))]);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">✏️ Spell <span>It!</span></div><div class="game-instr">Tap letters to spell the word!</div></div>
+    <div class="q-counter">Word ${g2i+1} of ${g2d.length}</div>
+    <div class="spell-center"><span class="spell-emoji">${an.emoji}</span><div class="spell-hint">${an.fact}</div></div>
+    <div class="letter-boxes" id="lboxes">${wl.map(()=>`<div class="l-box"></div>`).join('')}</div>
+    <div class="letter-pool">${pool.map((l,i)=>`<button class="l-btn" id="lb${i}" onclick="g2pick(this,'${l}',${JSON.stringify(wl)})">${l}</button>`).join('')}</div>
+    <div class="center-row"><button class="btn btn-sm" onclick="g2clear()">🗑️ Clear</button></div>
+    <div class="feedback" id="fb2"></div>`;
 }
-
-function renderGame2() {
-  if (g2_qIndex >= g2_data.length) { showComplete(); return; }
-  totalQ++;
-  updateProgress(g2_qIndex, g2_data.length);
-  const animal = g2_data[g2_qIndex];
-  g2_typed = [];
-  const word = animal.word;
-  // Build letter pool: correct letters + some wrong ones
-  const wordLetters = word.split('');
-  const extraLetters = 'aeioulrnstbcdmpghkfwy'.split('').filter(l => !wordLetters.includes(l));
-  const extras = shuffle(extraLetters).slice(0, Math.min(5, 10 - wordLetters.length));
-  const pool = shuffle([...wordLetters, ...extras]);
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">✏️ Spell <span>It!</span></div>
-      <div class="game-instruction">Tap letters to spell the word!</div>
-    </div>
-    <div class="q-counter">Word ${g2_qIndex + 1} of ${g2_data.length}</div>
-    <div class="word-to-spell">
-      <span class="spell-emoji">${animal.emoji}</span>
-      <div class="spell-hint">${animal.fact}</div>
-    </div>
-    <div class="letter-boxes" id="letter-boxes">
-      ${wordLetters.map(() => `<div class="letter-box"></div>`).join('')}
-    </div>
-    <div class="letter-choices" id="letter-pool">
-      ${pool.map((l, i) => `<button class="letter-choice" id="lc-${i}" onclick="g2Pick(this,'${l}','${word}')">${l}</button>`).join('')}
-    </div>
-    <div class="center-row">
-      <button class="btn btn-sm" onclick="g2Clear('${word}')">🗑️ Clear</button>
-    </div>
-    <div class="feedback" id="feedback2"></div>
-  `;
-}
-
-function g2Pick(btn, letter, word) {
-  if (g2_typed.length >= word.length) return;
-  btn.disabled = true;
-  g2_typed.push({ letter, btn });
-  // update boxes
-  const boxes = document.querySelectorAll('.letter-box');
-  const idx = g2_typed.length - 1;
-  boxes[idx].textContent = letter;
-  boxes[idx].classList.add('filled');
-  if (g2_typed.length === word.length) {
-    // check
-    const attempt = g2_typed.map(x => x.letter).join('');
-    setTimeout(() => {
-      if (attempt === word) {
-        boxes.forEach(b => b.classList.add('correct-letter'));
-        addScore(15);
-        showFeedback(document.getElementById('feedback2'), 'correct', `🎉 ${word.toUpperCase()}!`);
-        confetti(window.innerWidth / 2, 200);
-        g2_qIndex++;
-        setTimeout(renderGame2, 1500);
+function g2pick(btn,letter,wl){
+  if(g2typed.length>=wl.length)return;
+  btn.disabled=true;
+  g2typed.push({letter,btn});
+  const boxes=document.querySelectorAll('.l-box');
+  const idx=g2typed.length-1;
+  boxes[idx].textContent=letter;boxes[idx].classList.add('filled');
+  if(g2typed.length===wl.length){
+    const ok=g2typed.map(x=>x.letter).join('')===wl.join('');
+    setTimeout(()=>{
+      if(ok){
+        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('correct');});
+        addScore(15);feedback('fb2','correct',`🎉 ${g2d[g2i].word.toUpperCase()}!`);
+        confetti(window.innerWidth/2,180);
+        g2i++;setTimeout(renderG2,1500);
       } else {
-        boxes.forEach(b => { b.classList.remove('filled'); b.classList.add('wrong'); });
-        showFeedback(document.getElementById('feedback2'), 'wrong', `❌ Try again!`);
-        setTimeout(() => {
-          g2_typed.forEach(x => { x.btn.disabled = false; });
-          g2_typed = [];
-          boxes.forEach(b => { b.textContent = ''; b.className = 'letter-box'; });
-        }, 1000);
+        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('wrong');});
+        feedback('fb2','wrong','❌ Try again!');
+        setTimeout(()=>{g2typed.forEach(x=>x.btn.disabled=false);g2typed=[];boxes.forEach(b=>{b.textContent='';b.className='l-box';});},900);
       }
-    }, 200);
+    },150);
   }
 }
-
-function g2Clear(word) {
-  g2_typed.forEach(x => { x.btn.disabled = false; });
-  g2_typed = [];
-  const boxes = document.querySelectorAll('.letter-box');
-  boxes.forEach(b => { b.textContent = ''; b.className = 'letter-box'; });
+function g2clear(){
+  g2typed.forEach(x=>x.btn.disabled=false);g2typed=[];
+  document.querySelectorAll('.l-box').forEach(b=>{b.textContent='';b.className='l-box';});
 }
 
-// ══════════════════════════════════════════════════════════
-//  GAME 3 — HABITAT HUNT (sort animals by habitat)
-// ══════════════════════════════════════════════════════════
-const HABITATS = {
-  sea: { label: 'Sea', icon: '🌊', color: '#1a9fd4' },
-  forest: { label: 'Forest', icon: '🌳', color: '#27a35a' },
-  cave: { label: 'Cave/Land', icon: '🏔️', color: '#8b5cf6' },
-  land: { label: 'Land', icon: '🌾', color: '#e0a800' },
-};
-// Simplify to 3 zones
-const ZONES = [
-  { key: 'sea', label: 'Sea 🌊' },
-  { key: 'forest', label: 'Forest 🌳' },
-  { key: 'land', label: 'Land 🌾' },
+// ═══════════════════════════════════════════════════════════
+//  GAME 3 — HABITAT HUNT  (Ocean · Jungle · Ice — straight from book vocab)
+// ═══════════════════════════════════════════════════════════
+const ZONES=[
+  {key:'ocean',  label:'In the Ocean',  icon:'🌊'},
+  {key:'jungle', label:'In the Jungle', icon:'🌿'},
+  {key:'ice',    label:'On the Ice',    icon:'❄️'},
 ];
-// Remap cave to land
-const G3_ANIMALS = ANIMALS.map(a => ({ ...a, habitat: a.habitat === 'cave' ? 'land' : a.habitat }));
-
-function initGame3() {
-  g3_placed = {};
-  g3_selected = null;
-  renderGame3();
-}
-
-function renderGame3() {
-  totalQ = G3_ANIMALS.length;
-  updateProgress(Object.keys(g3_placed).length, G3_ANIMALS.length);
-
-  const remaining = G3_ANIMALS.filter(a => !g3_placed[a.word]);
-  const allDone = remaining.length === 0;
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">🗺️ Habitat <span>Hunt</span></div>
-      <div class="game-instruction">Tap an animal, then tap its home!</div>
-    </div>
-    <div class="habitat-zones" id="habitat-zones">
-      ${ZONES.map(z => `
-        <div class="habitat-zone" id="zone-${z.key}" onclick="g3DropZone('${z.key}')">
-          <div class="zone-label">${z.label}</div>
-          <div class="zone-animals" id="zone-animals-${z.key}">
-            ${G3_ANIMALS.filter(a => g3_placed[a.word] === z.key).map(a => `
-              <div class="zone-chip">${a.emoji} ${a.word}</div>
-            `).join('')}
+function initG3(){g3placed={};g3sel=null;renderG3();}
+function renderG3(){
+  totalQ=ANIMALS.length;setProgress(Object.keys(g3placed).length,ANIMALS.length);
+  const allDone=ANIMALS.every(a=>g3placed[a.word]);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🗺️ Habitat <span>Hunt</span></div><div class="game-instr">Tap an animal → tap its home!</div></div>
+    <div class="habitat-zones">
+      ${ZONES.map(z=>`
+        <div class="h-zone" id="zone-${z.key}" onclick="g3drop('${z.key}')">
+          <div class="zone-lbl">${z.label}</div>
+          <span class="zone-icon">${z.icon}</span>
+          <div class="zone-chips">
+            ${ANIMALS.filter(a=>g3placed[a.word]===z.key).map(a=>`<div class="z-chip">${a.emoji} ${a.word}</div>`).join('')}
           </div>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>
-    <div class="drag-pool" id="drag-pool">
-      ${G3_ANIMALS.map(a => `
-        <div class="drag-chip ${g3_placed[a.word] ? 'placed' : ''} ${g3_selected === a.word ? 'selected' : ''}"
-             id="chip-${a.word}"
-             onclick="g3SelectAnimal('${a.word}')">
+    <div class="drag-pool">
+      ${ANIMALS.map(a=>`
+        <div class="drag-chip ${g3placed[a.word]?'placed':''} ${g3sel===a.word?'sel':''}" onclick="g3sel_fn('${a.word.replace(/'/g,"\\'")}')">
           ${a.emoji} ${a.word}
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>
-    <div class="feedback" id="feedback3"></div>
-    ${allDone ? `<div class="center-row"><button class="btn btn-primary" onclick="g3Finish()">Check & Continue! →</button></div>` : ''}
-  `;
+    <div class="feedback" id="fb3"></div>
+    ${allDone?`<div class="center-row" style="margin-top:12px"><button class="btn btn-primary" onclick="g3finish()">✅ All done! Continue →</button></div>`:''}`;
 }
-
-function g3SelectAnimal(word) {
-  if (g3_placed[word]) return;
-  g3_selected = g3_selected === word ? null : word;
-  renderGame3();
-}
-
-function g3DropZone(zoneKey) {
-  if (!g3_selected) {
-    showFeedback(document.getElementById('feedback3'), 'wrong', '👆 First tap an animal!');
-    return;
-  }
-  const animal = G3_ANIMALS.find(a => a.word === g3_selected);
-  const correct = animal.habitat === zoneKey;
-  if (correct) {
-    g3_placed[g3_selected] = zoneKey;
-    addScore(8);
-    correctQ++;
-    g3_selected = null;
-    renderGame3();
-    const fb = document.getElementById('feedback3');
-    if (fb) showFeedback(fb, 'correct', `✅ ${animal.word} lives in the ${zoneKey}!`);
-    confetti(window.innerWidth / 2, 150);
+function g3sel_fn(word){if(g3placed[word])return;g3sel=(g3sel===word?null:word);renderG3();}
+function g3drop(zoneKey){
+  if(!g3sel){feedback('fb3','wrong','👆 First tap an animal!');return;}
+  const an=ANIMALS.find(a=>a.word===g3sel);
+  if(an.habitat===zoneKey){
+    g3placed[g3sel]=zoneKey;addScore(8);g3sel=null;renderG3();
+    const fb=document.getElementById('fb3');
+    if(fb) feedback('fb3','correct',`✅ ${an.emoji} lives ${ZONES.find(z=>z.key===zoneKey).label.toLowerCase()}!`);
+    confetti(window.innerWidth/2,160);
   } else {
-    const fb = document.getElementById('feedback3');
-    showFeedback(fb, 'wrong', `❌ Not quite! Try another zone.`);
-    document.getElementById(`zone-${zoneKey}`).classList.add('drag-over');
-    setTimeout(() => document.getElementById(`zone-${zoneKey}`)?.classList.remove('drag-over'), 600);
+    const zone=document.getElementById(`zone-${zoneKey}`);
+    if(zone){zone.classList.add('highlight');setTimeout(()=>zone.classList.remove('highlight'),500);}
+    feedback('fb3','wrong','❌ Try another zone!');
   }
 }
+function g3finish(){totalQ=ANIMALS.length;showComplete();}
 
-function g3Finish() {
-  totalQ = G3_ANIMALS.length;
-  showComplete();
-}
+// ═══════════════════════════════════════════════════════════
+//  GAME 4 — SENTENCE BUILDER (comparatives — BOTH animals in pool)
+//
+//  Structure the student builds: [animalA] is [comparative] than a [animalB]
+//  Fixed label shows:  "A _____ is _____ than a _____"
+//  Pool contains: animalA name, comparative, "than", "a", animalB name + distractors
+// ═══════════════════════════════════════════════════════════
+function initG4(){g4d=shuffle(COMPARATIVES);g4i=0;renderG4();}
+function renderG4(){
+  if(g4i>=g4d.length){showComplete();return;}
+  totalQ++;setProgress(g4i,g4d.length);
+  const c=g4d[g4i];g4typed=[];
 
-// ══════════════════════════════════════════════════════════
-//  GAME 4 — SENTENCE BUILDER (comparatives)
-// ══════════════════════════════════════════════════════════
-function initGame4() {
-  g4_data = shuffle(COMPARATIVES);
-  g4_qIndex = 0;
-  renderGame4();
-}
+  // Required words the student must choose:
+  const required=[c.a, c.comp, 'than', 'a', c.b];
+  // Distractors: adj form, extra words
+  const distractors=shuffle([c.adj,'more','very','less','most','fast','big']).slice(0,3);
+  const pool=shuffle([...required,...distractors]);
 
-function renderGame4() {
-  if (g4_qIndex >= g4_data.length) { showComplete(); return; }
-  totalQ++;
-  updateProgress(g4_qIndex, g4_data.length);
-  const comp = g4_data[g4_qIndex];
-  g4_typed = [];
-
-  // Sentence: "A [animal] is [COMP] than a [animal]."
-  // Word bank: correct words + distractors
-  const correctWords = ['A', comp.ae + comp.a, 'is', comp.comp, 'than', 'a', comp.be + comp.b];
-  const distractors = [comp.adj, 'more', 'most', 'bigger', 'very', 'than', 'the'];
-  const pool = shuffle([...new Set([...correctWords.slice(1, -1), ...distractors.slice(0, 4)])]);
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">🏗️ Sentence <span>Builder</span></div>
-      <div class="game-instruction">Build the comparative sentence!</div>
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🏗️ <span>Comparatives</span></div><div class="game-instr">Tap words to build the sentence!</div></div>
+    <div class="q-counter">Sentence ${g4i+1} of ${g4d.length}</div>
+    <div class="comp-prompt">
+      <div class="comp-animals-row">${c.ae} vs ${c.be}</div>
+      <div class="comp-q">Use: <em>${c.adj} → ${c.comp}</em></div>
     </div>
-    <div class="q-counter">Sentence ${g4_qIndex + 1} of ${g4_data.length}</div>
-    <div class="comparative-prompt">
-      <div class="comp-animals">${comp.ae} vs ${comp.be}</div>
-      <div class="comp-question">Compare using: <em>${comp.adj}</em></div>
+    <div style="font-family:var(--font-main);font-size:13px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:8px;">
+      <span style="color:var(--text);">A</span> · _____ · <span style="color:var(--text);">is</span> · _____ · _____ · _____ · _____
     </div>
-    <div class="sentence-parts" id="sentence-parts">
-      <span style="font-family:var(--font-main);font-size:14px;color:var(--muted);">Tap words to build your sentence…</span>
-    </div>
-    <div class="word-bank" id="word-bank">
-      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">A</div>
-      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">${comp.ae} ${comp.a}</div>
-      <div class="word-chip" style="background:var(--surface2);border-color:var(--border);cursor:default;opacity:0.7">is</div>
-      ${pool.map((w, i) => `<button class="word-option" id="wo-${i}" onclick="g4Pick(this,'${w}')">${w}</button>`).join('')}
+    <div class="sentence-tray" id="stray"><span class="tray-placeholder">Tap words below…</span></div>
+    <div class="word-bank" id="wbank">
+      ${pool.map((w,i)=>`<button class="w-option" id="wo${i}" onclick="g4pick(this,${JSON.stringify(w)})">${w}</button>`).join('')}
     </div>
     <div class="center-row">
-      <button class="btn btn-sm" onclick="renderGame4()">🗑️ Clear</button>
-      <button class="btn btn-primary" onclick="g4Check('${comp.comp}','${comp.a}','${comp.b}')">✓ Check</button>
+      <button class="btn btn-sm" onclick="renderG4()">🗑️ Clear</button>
+      <button class="btn btn-primary" onclick="g4check()">✓ Check</button>
     </div>
-    <div class="feedback" id="feedback4"></div>
-    <div id="correct-sentence" style="display:none;text-align:center;margin-top:10px;font-family:var(--font-main);font-size:15px;font-weight:700;color:var(--leaf);"></div>
-  `;
-  g4_typed = [];
+    <div class="feedback" id="fb4"></div>
+    <div id="csent" class="correct-sent" style="display:none"></div>`;
 }
-
-function g4Pick(btn, word) {
-  btn.disabled = true;
-  btn.style.opacity = '0.35';
-  g4_typed.push(word);
-  const sp = document.getElementById('sentence-parts');
-  if (g4_typed.length === 1) sp.innerHTML = '';
-  const chip = document.createElement('div');
-  chip.className = 'word-chip';
-  chip.textContent = word;
-  chip.onclick = () => {
-    // remove on click
-    const idx = g4_typed.indexOf(word);
-    if (idx > -1) g4_typed.splice(idx, 1);
-    // re-enable button
-    btn.disabled = false; btn.style.opacity = '1';
-    chip.remove();
-    if (g4_typed.length === 0) sp.innerHTML = '<span style="font-family:var(--font-main);font-size:14px;color:var(--muted);">Tap words to build your sentence…</span>';
-    sp.classList.toggle('has-words', g4_typed.length > 0);
+function g4pick(btn,word){
+  btn.disabled=true;btn.style.opacity='0.3';
+  g4typed.push({word,btn});
+  const tray=document.getElementById('stray');
+  if(g4typed.length===1)tray.innerHTML='';
+  tray.classList.add('has-words');
+  const chip=document.createElement('div');
+  chip.className='w-chip';chip.textContent=word;
+  chip.onclick=()=>{
+    const idx=g4typed.findIndex(x=>x.btn===btn);
+    if(idx>-1)g4typed.splice(idx,1);
+    btn.disabled=false;btn.style.opacity='1';chip.remove();
+    if(g4typed.length===0){tray.classList.remove('has-words');tray.innerHTML='<span class="tray-placeholder">Tap words below…</span>';}
   };
-  sp.classList.add('has-words');
-  sp.appendChild(chip);
+  tray.appendChild(chip);
 }
-
-function g4Check(comp, animalA, animalB) {
-  // Expected: [comp, than, a/emoji+animalB]  (first 3 words are fixed)
-  const attempt = g4_typed.join(' ').toLowerCase();
-  const hasComp = attempt.includes(comp.toLowerCase());
-  const hasThan = attempt.includes('than');
-  const hasAnimalB = attempt.includes(animalB.toLowerCase());
-
-  if (hasComp && hasThan && hasAnimalB) {
-    addScore(20);
-    showFeedback(document.getElementById('feedback4'), 'correct', '🎉 Excellent!');
-    const cs = document.getElementById('correct-sentence');
-    cs.style.display = 'block';
-    cs.textContent = `✅ ${g4_data[g4_qIndex].sentence}`;
-    confetti(window.innerWidth / 2, 200);
-    g4_qIndex++;
-    setTimeout(renderGame4, 2000);
+function g4check(){
+  const c=g4d[g4i];
+  const attempt=g4typed.map(x=>x.word.toLowerCase()).join(' ');
+  const hasA   =attempt.includes(c.a.toLowerCase());
+  const hasComp=attempt.includes(c.comp.toLowerCase());
+  const hasThan=attempt.includes('than');
+  const hasB   =attempt.includes(c.b.toLowerCase());
+  const csent=document.getElementById('csent');csent.style.display='block';
+  if(hasA&&hasComp&&hasThan&&hasB){
+    addScore(20);feedback('fb4','correct','🎉 Brilliant!');
+    csent.style.color='var(--leaf)';csent.textContent=`✅ ${c.sentence}`;
+    confetti(window.innerWidth/2,200);
   } else {
-    showFeedback(document.getElementById('feedback4'), 'wrong', `❌ Check your word order!`);
-    const cs = document.getElementById('correct-sentence');
-    cs.style.display = 'block';
-    cs.style.color = 'var(--coral)';
-    cs.textContent = `💡 ${g4_data[g4_qIndex].sentence}`;
-    g4_qIndex++;
-    setTimeout(renderGame4, 2200);
+    feedback('fb4','wrong','❌ Check the order!');
+    csent.style.color='var(--coral)';csent.textContent=`💡 ${c.sentence}`;
   }
+  g4i++;setTimeout(renderG4,2100);
 }
 
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  GAME 5 — TRUE OR FALSE
-// ══════════════════════════════════════════════════════════
-function initGame5() {
-  g5_data = shuffle(TRUE_FALSE).slice(0, 8);
-  g5_qIndex = 0;
-  renderGame5();
+// ═══════════════════════════════════════════════════════════
+function initG5(){g5d=shuffle(TRUE_FALSE).slice(0,8);g5i=0;renderG5();}
+function renderG5(){
+  if(g5i>=g5d.length){showComplete();return;}
+  totalQ++;setProgress(g5i,g5d.length);
+  const f=g5d[g5i];
+  const dots=g5d.map((_,i)=>`<div class="dot ${i<g5i?'done':i===g5i?'current':''}"></div>`).join('');
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">✅ True or <span>False?</span></div><div class="game-instr">Is this fact true or false?</div></div>
+    <div class="dots-row">${dots}</div>
+    <div class="fact-card"><span class="fact-emojis">${f.emoji}</span><div class="fact-text">${f.text}</div></div>
+    <div class="tf-btns">
+      <button class="tf-btn true-btn"  onclick="g5ans(this,true)">✅ TRUE</button>
+      <button class="tf-btn false-btn" onclick="g5ans(this,false)">❌ FALSE</button>
+    </div>
+    <div class="feedback" id="fb5"></div>`;
 }
-
-function renderGame5() {
-  if (g5_qIndex >= g5_data.length) { showComplete(); return; }
-  totalQ++;
-  updateProgress(g5_qIndex, g5_data.length);
-  const fact = g5_data[g5_qIndex];
-
-  const dots = g5_data.map((_, i) => {
-    const cls = i < g5_qIndex ? 'done' : i === g5_qIndex ? 'current' : '';
-    return `<div class="dot ${cls}"></div>`;
-  }).join('');
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">✅ True or <span>False?</span></div>
-      <div class="game-instruction">Is this fact true or false?</div>
-    </div>
-    <div class="progress-dots">${dots}</div>
-    <div class="fact-card">
-      <span class="fact-animals">${fact.emoji}</span>
-      <div class="fact-text">${fact.text}</div>
-    </div>
-    <div class="tf-buttons">
-      <button class="tf-btn true-btn" onclick="g5Answer(this, true)">✅ TRUE</button>
-      <button class="tf-btn false-btn" onclick="g5Answer(this, false)">❌ FALSE</button>
-    </div>
-    <div class="feedback" id="feedback5"></div>
-  `;
-}
-
-function g5Answer(el, answer) {
-  const fact = g5_data[g5_qIndex];
-  document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
-  if (answer === fact.answer) {
-    addScore(12);
-    showFeedback(document.getElementById('feedback5'), 'correct', '🎉 That\'s right!');
-    confetti(el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top);
+function g5ans(btn,ans){
+  const f=g5d[g5i];
+  document.querySelectorAll('.tf-btn').forEach(b=>b.disabled=true);
+  if(ans===f.answer){
+    addScore(12);feedback('fb5','correct',"🎉 That's right!");
+    confetti(btn.getBoundingClientRect().left+60,btn.getBoundingClientRect().top);
   } else {
-    const correct = fact.answer ? 'TRUE ✅' : 'FALSE ❌';
-    showFeedback(document.getElementById('feedback5'), 'wrong', `❌ It's ${correct}!`);
+    feedback('fb5','wrong',`❌ It's ${f.answer?'TRUE ✅':'FALSE ❌'}!`);
   }
-  g5_qIndex++;
-  setTimeout(renderGame5, 1600);
+  g5i++;setTimeout(renderG5,1600);
 }
 
-// ══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  GAME 6 — SUPERLATIVES QUIZ
-// ══════════════════════════════════════════════════════════
-function initGame6() {
-  g6_data = shuffle(SUPERLATIVES_Q);
-  g6_qIndex = 0;
-  renderGame6();
+// ═══════════════════════════════════════════════════════════
+function initG6(){g6d=shuffle(SUPERLATIVES);g6i=0;renderG6();}
+function renderG6(){
+  if(g6i>=g6d.length){showComplete();return;}
+  totalQ++;setProgress(g6i,g6d.length);
+  const q=g6d[g6i];
+  const opts=shuffle(q.opts);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🏆 <span>Superlatives!</span></div><div class="game-instr">Choose the correct form!</div></div>
+    <div class="q-counter">Question ${g6i+1} of ${g6d.length}</div>
+    <div class="quiz-card"><span class="quiz-emoji">${q.emoji}</span><div class="quiz-q">${q.q}</div></div>
+    <div class="quiz-opts">
+      ${opts.map(o=>`<div class="q-opt" onclick="g6ans(this,${JSON.stringify(o)},${JSON.stringify(q.ans)})">${o}</div>`).join('')}
+    </div>
+    <div class="feedback" id="fb6"></div>`;
 }
-
-function renderGame6() {
-  if (g6_qIndex >= g6_data.length) { showComplete(); return; }
-  totalQ++;
-  updateProgress(g6_qIndex, g6_data.length);
-  const q = g6_data[g6_qIndex];
-
-  document.getElementById('game-content').innerHTML = `
-    <div class="game-title-bar">
-      <div class="game-name">🏆 <span>Superlatives!</span></div>
-      <div class="game-instruction">Choose the correct form!</div>
-    </div>
-    <div class="q-counter">Question ${g6_qIndex + 1} of ${g6_data.length}</div>
-    <div class="quiz-question">
-      <span class="quiz-animal-emoji">${q.emoji}</span>
-      <div class="quiz-q-text">${q.question}</div>
-    </div>
-    <div class="quiz-options">
-      ${q.options.map(opt => `
-        <div class="quiz-option" onclick="g6Answer(this, '${opt.replace(/'/g,"\\'")}', '${q.answer.replace(/'/g,"\\'")}')">
-          ${opt}
-        </div>
-      `).join('')}
-    </div>
-    <div class="feedback" id="feedback6"></div>
-  `;
-}
-
-function g6Answer(el, chosen, correct) {
-  document.querySelectorAll('.quiz-option').forEach(o => o.onclick = null);
-  if (chosen === correct) {
-    el.classList.add('correct-opt');
-    addScore(15);
-    showFeedback(document.getElementById('feedback6'), 'correct', '🎉 Correct!');
-    confetti(el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top);
+function g6ans(el,chosen,correct){
+  document.querySelectorAll('.q-opt').forEach(o=>o.onclick=null);
+  if(chosen===correct){
+    el.classList.add('correct-opt');addScore(15);feedback('fb6','correct','🎉 Correct!');
+    confetti(el.getBoundingClientRect().left+60,el.getBoundingClientRect().top);
   } else {
     el.classList.add('wrong-opt');
-    document.querySelectorAll('.quiz-option').forEach(o => {
-      if (o.textContent.trim() === correct) o.classList.add('correct-opt');
-    });
-    showFeedback(document.getElementById('feedback6'), 'wrong', `❌ "${correct}"`);
+    document.querySelectorAll('.q-opt').forEach(o=>{if(o.textContent.trim()===correct)o.classList.add('correct-opt');});
+    feedback('fb6','wrong',`❌ "${correct}"`);
   }
-  g6_qIndex++;
-  setTimeout(renderGame6, 1800);
+  g6i++;setTimeout(renderG6,1800);
 }
 </script>
 </body>
