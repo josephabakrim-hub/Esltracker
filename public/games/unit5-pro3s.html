@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 5 — Our Pets! 🐾</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --night:   #0d1b2a;
+  --navy:    #1b2d45;
+  --card:    #162235;
+  --border:  #253d5a;
+  --cyan:    #00d4ff;
+  --lime:    #a8ff3e;
+  --rose:    #ff6b9d;
+  --amber:   #ffbe0b;
+  --purple:  #c77dff;
+  --green:   #06d6a0;
+  --red:     #ef233c;
+  --white:   #f0f4f8;
+  --muted:   #6b8cae;
+  --shadow:  0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: var(--night);
+  min-height: 100vh;
+  color: var(--white);
+}
+
+/* ── STARS BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 45% 50%, rgba(255,255,255,0.3) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy);
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+}
+.header-title {
+  font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 900;
+  color: var(--cyan); text-shadow: 0 0 12px rgba(0,212,255,0.5);
+}
+.header-sub { font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 2px; margin-top: 1px; }
+.score-pill {
+  background: var(--amber); color: var(--night);
+  font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 900;
+  padding: 5px 14px; border-radius: 30px;
+  box-shadow: 0 0 12px rgba(255,190,11,0.4);
+}
+
+/* ── GAME SELECTOR (always visible) ── */
+.game-selector {
+  display: flex; gap: 6px; padding: 10px 16px 12px;
+  overflow-x: auto; background: var(--navy);
+}
+.game-selector::-webkit-scrollbar { display: none; }
+.gs-btn {
+  flex-shrink: 0;
+  background: transparent; border: 2px solid var(--border);
+  color: var(--muted); font-family: 'Baloo 2', sans-serif;
+  font-size: 10px; font-weight: 700; padding: 6px 13px; border-radius: 30px;
+  cursor: pointer; transition: all .18s; letter-spacing: .5px;
+  position: relative;
+}
+.gs-btn:hover  { border-color: var(--cyan); color: var(--cyan); }
+.gs-btn.active { background: var(--cyan); border-color: var(--cyan); color: var(--night); }
+.gs-btn.done   { border-color: var(--lime); color: var(--lime); }
+.gs-btn.done::after { content: '✓'; position: absolute; top: -5px; right: -5px; font-size: 9px; background: var(--lime); color: var(--night); width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+
+/* ── SCREENS ── */
+.screen { display: none; padding: 16px; max-width: 660px; margin: 0 auto; position: relative; z-index: 1; }
+.screen.active { display: block; animation: fadeUp .22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* ── GAME CARD ── */
+.card {
+  background: var(--card); border-radius: 20px;
+  padding: 20px; box-shadow: var(--shadow);
+  border: 1px solid var(--border); margin-bottom: 14px;
+}
+.game-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--border); border-radius: 30px; padding: 4px 12px;
+  font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.game-title { font-family: 'Baloo 2', sans-serif; font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+.game-instr { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+
+/* ── FEEDBACK ── */
+.feedback {
+  margin-top: 12px; padding: 10px 16px; border-radius: 11px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700;
+  text-align: center; display: none;
+}
+.feedback.ok  { background: rgba(6,214,160,.15); color: var(--green); border: 1px solid rgba(6,214,160,.3); display: block; }
+.feedback.bad { background: rgba(239,35,60,.12);  color: #ff6b6b;     border: 1px solid rgba(239,35,60,.3);  display: block; }
+
+/* ── SHARED BTN ── */
+.btn {
+  background: var(--cyan); color: var(--night); border: none; border-radius: 11px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 800;
+  padding: 10px 22px; cursor: pointer; transition: all .15s; display: inline-block;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(0,212,255,.3); }
+.btn-lime  { background: var(--lime); }
+.btn-rose  { background: var(--rose); color: #fff; }
+.btn-amber { background: var(--amber); }
+.btn-full  { width: 100%; text-align: center; }
+
+/* ── PROGRESS ── */
+.prog { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+
+/* ════════════════════════════════════
+   GAME 1 — PET SPOTTER (vocab)
+   Show emoji, type/tap the word
+════════════════════════════════════ */
+.pet-stage {
+  background: linear-gradient(135deg, var(--navy), #1a3050);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 28px; text-align: center; margin-bottom: 18px;
+  font-size: 72px; min-height: 130px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.pet-stage-counter {
+  position: absolute; top: 10px; right: 14px;
+  font-family: 'Baloo 2', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted);
+}
+.pet-choices { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+.pet-choice {
+  background: var(--navy); border: 2px solid var(--border); border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--white); padding: 12px 6px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.pet-choice:hover { border-color: var(--cyan); color: var(--cyan); }
+.pet-choice.p-ok  { border-color: var(--green); color: var(--green); background: rgba(6,214,160,.1); animation: popIn .28s ease; }
+.pet-choice.p-bad { border-color: var(--red);   color: #ff6b6b;     background: rgba(239,35,60,.1);  animation: shake .4s ease; }
+.pet-choice.p-locked { pointer-events: none; }
+
+/* ════════════════════════════════════
+   GAME 2 — ADJECTIVE PAINTER (vocab)
+   See the pet description, tap correct adjective
+════════════════════════════════════ */
+.painter-scene {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; margin-bottom: 18px;
+}
+.painter-pet  { font-size: 64px; }
+.painter-desc {
+  background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 18px; font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 800;
+  color: var(--white); text-align: center; width: 100%;
+}
+.painter-desc .hl { color: var(--amber); }
+.adj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+.adj-tile {
+  background: var(--navy); border: 2px solid var(--border); border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 800;
+  color: var(--white); padding: 14px 6px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.adj-tile:hover { border-color: var(--purple); color: var(--purple); }
+.adj-tile.a-ok  { border-color: var(--green); color: var(--green); background: rgba(6,214,160,.1); animation: popIn .28s ease; }
+.adj-tile.a-bad { border-color: var(--red);   color: #ff6b6b;     background: rgba(239,35,60,.1);  animation: shake .4s ease; }
+.adj-tile.a-locked { pointer-events: none; }
+
+/* ════════════════════════════════════
+   GAME 3 — PET DESCRIBER (communicative grammar)
+   Build a description sentence for a mystery pet
+════════════════════════════════════ */
+.mystery-pet {
+  background: linear-gradient(135deg, var(--navy), #1a3050);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; text-align: center; margin-bottom: 16px;
+}
+.mystery-emoji { font-size: 64px; margin-bottom: 8px; }
+.mystery-name {
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 900;
+  color: var(--cyan); margin-bottom: 4px;
+}
+.mystery-prompt { font-size: 12px; font-weight: 600; color: var(--muted); }
+.desc-slots {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  min-height: 46px; margin-bottom: 14px;
+}
+.desc-slot {
+  background: var(--border); border-radius: 8px; padding: 6px 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--white); transition: all .2s;
+}
+.desc-slot.filled { background: rgba(0,212,255,.2); border: 1px solid var(--cyan); color: var(--cyan); }
+.desc-slot.correct { background: rgba(6,214,160,.2); border: 1px solid var(--green); color: var(--green); }
+.desc-slot.wrong   { background: rgba(239,35,60,.15); border: 1px solid var(--red);   color: #ff6b6b; }
+.desc-options { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 14px; }
+.desc-opt {
+  background: var(--navy); border: 2px solid var(--border); border-radius: 30px;
+  font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--white); padding: 7px 14px; cursor: pointer; transition: all .15s;
+}
+.desc-opt:hover:not(.used) { border-color: var(--cyan); color: var(--cyan); }
+.desc-opt.used { opacity: .3; pointer-events: none; }
+.desc-controls { display: flex; gap: 8px; justify-content: center; }
+.desc-target {
+  font-size: 11px; font-weight: 600; color: var(--muted); text-align: center; margin-bottom: 10px;
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* ════════════════════════════════════
+   GAME 4 — SENTENCE SORT (grammar)
+   Drag-click words to order "It's got a long tail."
+════════════════════════════════════ */
+.sort-display {
+  background: var(--navy); border: 2px dashed var(--border); border-radius: 14px;
+  padding: 14px 18px; min-height: 56px; margin-bottom: 14px;
+  font-family: 'Baloo 2', sans-serif; font-size: 19px; font-weight: 800;
+  color: var(--white); text-align: center;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px;
+}
+.sort-placeholder { color: var(--muted); font-size: 13px; font-weight: 600; }
+.word-pool { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 12px; }
+.s-word {
+  background: var(--purple); color: #fff; font-family: 'Baloo 2', sans-serif;
+  font-size: 14px; font-weight: 700; padding: 7px 13px; border-radius: 10px;
+  cursor: pointer; transition: all .15s; user-select: none; border: 2px solid transparent;
+}
+.s-word:hover:not(.used) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(199,125,255,.4); }
+.s-word.used { opacity: .25; pointer-events: none; }
+.sort-row { display: flex; gap: 8px; justify-content: center; }
+
+/* ════════════════════════════════════
+   GAME 5 — HAS IT GOT? (grammar — timed)
+════════════════════════════════════ */
+.hig-scene {
+  background: linear-gradient(135deg, var(--navy), #1a2f4a);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px; text-align: center; margin-bottom: 14px;
+}
+.hig-pet   { font-size: 60px; margin-bottom: 6px; }
+.hig-name  { font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+.hig-question {
+  font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 900;
+  color: var(--white); line-height: 1.4;
+}
+.hig-question .q-hl { color: var(--amber); }
+.hig-timer-wrap { height: 6px; background: var(--border); border-radius: 3px; margin: 12px 0; overflow: hidden; }
+.hig-timer-bar  { height: 100%; background: var(--cyan); border-radius: 3px; transition: width linear; }
+.hig-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.hig-btn {
+  border: none; border-radius: 14px; font-family: 'Baloo 2', sans-serif;
+  font-size: 17px; font-weight: 900; padding: 16px; cursor: pointer; transition: all .15s;
+}
+.hig-yes { background: rgba(6,214,160,.2); color: var(--green); border: 2px solid rgba(6,214,160,.4); }
+.hig-no  { background: rgba(239,35,60,.15); color: #ff6b6b;     border: 2px solid rgba(239,35,60,.3);  }
+.hig-btn:hover    { transform: scale(1.04); }
+.hig-btn.h-ok     { background: var(--green); color: var(--night); animation: popIn .28s ease; border-color: var(--green); }
+.hig-btn.h-wrong  { background: var(--red);   color: #fff;         animation: shake .4s ease;   border-color: var(--red); }
+.hig-btn.h-locked { pointer-events: none; }
+.hig-tally { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+
+/* ════════════════════════════════════
+   GAME 6 — PET QUIZ (story facts)
+════════════════════════════════════ */
+.quiz-character {
+  font-size: 44px; text-align: center; margin-bottom: 6px;
+}
+.quiz-q {
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 900;
+  text-align: center; color: var(--white); line-height: 1.45; margin-bottom: 20px;
+  min-height: 62px; display: flex; align-items: center; justify-content: center;
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.quiz-opt {
+  background: var(--navy); border: 2px solid var(--border); border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--white); padding: 13px 16px; cursor: pointer; transition: all .15s; text-align: left;
+  display: flex; align-items: center; gap: 10px;
+}
+.quiz-opt .opt-letter {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--border);
+  font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--muted);
+}
+.quiz-opt:hover { border-color: var(--rose); }
+.quiz-opt.q-ok  { border-color: var(--green); background: rgba(6,214,160,.1);  animation: popIn .28s ease; }
+.quiz-opt.q-bad { border-color: var(--red);   background: rgba(239,35,60,.1);  animation: shake .4s ease; }
+.quiz-opt.q-ok  .opt-letter { background: var(--green); color: var(--night); }
+.quiz-opt.q-bad .opt-letter { background: var(--red);   color: #fff; }
+.quiz-opt.q-locked { pointer-events: none; }
+.quiz-score { font-family: 'Baloo 2', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; letter-spacing: 1px; }
+
+/* ════════════════════════════════════
+   COMPLETE SCREEN
+════════════════════════════════════ */
+.win-wrap { text-align: center; padding: 36px 16px 44px; position: relative; z-index: 1; }
+.win-emoji { font-size: 72px; animation: spinIn .6s ease; margin-bottom: 14px; display: block; }
+.win-title { font-family: 'Baloo 2', sans-serif; font-size: 30px; font-weight: 900; color: var(--cyan); margin-bottom: 6px; text-shadow: 0 0 20px rgba(0,212,255,.4); }
+.win-sub   { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 26px; }
+.win-ring  {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: conic-gradient(var(--cyan) 0%, var(--lime) 40%, var(--rose) 100%);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  margin: 0 auto 26px; box-shadow: 0 0 40px rgba(0,212,255,.3);
+}
+.win-num { font-family: 'Baloo 2', sans-serif; font-size: 32px; font-weight: 900; color: var(--night); line-height: 1; }
+.win-lbl { font-size: 9px; font-weight: 700; color: rgba(0,0,0,.6); letter-spacing: 1px; }
+.win-list { text-align: left; background: var(--card); border-radius: 14px; padding: 12px 18px; border: 1px solid var(--border); margin-bottom: 22px; }
+.win-list li { list-style: none; font-size: 13px; font-weight: 600; color: var(--white); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.win-list li:last-child { border: none; }
+
+/* CONFETTI */
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+.cp { position: absolute; opacity: 0; animation: fall linear forwards; }
+@keyframes fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ANIMATIONS */
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:none;opacity:1} }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">🐾 Our Pets!</div>
+      <div class="header-sub">UNIT 5 · KIDS BOX NG1 · PRO3_S</div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <!-- FREE NAVIGATION — all games always accessible -->
+  <div class="game-selector">
+    <button class="gs-btn active" data-go="0">1 · Pet Spotter</button>
+    <button class="gs-btn"        data-go="1">2 · Adjectives</button>
+    <button class="gs-btn"        data-go="2">3 · Describe It</button>
+    <button class="gs-btn"        data-go="3">4 · Word Order</button>
+    <button class="gs-btn"        data-go="4">5 · Has It Got?</button>
+    <button class="gs-btn"        data-go="5">6 · Pet Quiz</button>
+  </div>
+</div>
+
+<!-- ═══ GAME 1: PET SPOTTER ═══ -->
+<div class="screen active" id="sc0">
+  <div class="card">
+    <div class="game-badge">🎮 Game 1 · Vocabulary</div>
+    <div class="game-title" style="color:var(--cyan)">Pet Spotter! 🔍</div>
+    <div class="game-instr">Look at the animal. Tap the correct word!</div>
+    <div class="pet-stage" id="g1stage">
+      <div class="pet-stage-counter"><span id="g1qi">1</span>/6</div>
+    </div>
+    <div class="pet-choices" id="g1choices"></div>
+    <div class="feedback" id="g1fb"></div>
+    <div style="margin-top:12px;text-align:right;">
+      <button class="btn btn-amber" id="g1next" style="display:none" data-act="g1next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 2: ADJECTIVE PAINTER ═══ -->
+<div class="screen" id="sc1">
+  <div class="card">
+    <div class="game-badge">🎨 Game 2 · Vocabulary — Adjectives</div>
+    <div class="game-title" style="color:var(--purple)">Adjective Painter! 🖌️</div>
+    <div class="game-instr">Read the description. Tap the correct adjective word!</div>
+    <div class="prog"><div class="prog-fill" id="g2bar" style="width:0%;background:var(--purple)"></div></div>
+    <div class="painter-scene" id="g2scene"></div>
+    <div class="adj-grid" id="g2grid"></div>
+    <div class="feedback" id="g2fb"></div>
+    <div style="margin-top:12px;text-align:right;">
+      <button class="btn" style="background:var(--purple)" id="g2next" style="display:none" data-act="g2next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 3: PET DESCRIBER ═══ -->
+<div class="screen" id="sc2">
+  <div class="card">
+    <div class="game-badge">💬 Game 3 · Grammar — Describe!</div>
+    <div class="game-title" style="color:var(--lime)">Describe the Pet! 🌟</div>
+    <div class="game-instr">Put the words in the right boxes to describe the pet!</div>
+    <div class="mystery-pet" id="g3mystery"></div>
+    <div class="desc-target" id="g3target"></div>
+    <div class="desc-slots" id="g3slots"></div>
+    <div class="desc-options" id="g3options"></div>
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px;">
+      Round <span id="g3ri">1</span> of 6
+    </div>
+    <div class="desc-controls">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g3clear">Clear ✕</button>
+      <button class="btn btn-lime" style="color:var(--night)" data-act="g3check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g3fb"></div>
+    <div style="margin-top:10px;text-align:right;">
+      <button class="btn btn-lime" style="color:var(--night)" id="g3next" style="display:none" data-act="g3next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 4: WORD ORDER ═══ -->
+<div class="screen" id="sc3">
+  <div class="card">
+    <div class="game-badge">🔤 Game 4 · Grammar — Word Order</div>
+    <div class="game-title" style="color:var(--rose)">Word Order! ✏️</div>
+    <div class="game-instr">Tap the words in the correct order to make a sentence.</div>
+    <div class="sort-display" id="g4display">
+      <span class="sort-placeholder">Tap words to build the sentence…</span>
+    </div>
+    <div class="word-pool" id="g4pool"></div>
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px;">
+      Sentence <span id="g4qi">1</span> of 6
+    </div>
+    <div class="sort-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g4clear">Clear ✕</button>
+      <button class="btn btn-rose" data-act="g4check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g4fb"></div>
+    <div style="margin-top:10px;text-align:right;">
+      <button class="btn btn-rose" id="g4next" style="display:none" data-act="g4next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 5: HAS IT GOT? ═══ -->
+<div class="screen" id="sc4">
+  <div class="card">
+    <div class="game-badge">⚡ Game 5 · Grammar — Has it got?</div>
+    <div class="game-title" style="color:var(--amber)">Has It Got? ⚡</div>
+    <div class="game-instr">Answer before time runs out — Yes, it has! or No, it hasn't!</div>
+    <div class="hig-scene" id="g5scene"></div>
+    <div class="hig-timer-wrap"><div class="hig-timer-bar" id="g5bar"></div></div>
+    <div class="hig-btns">
+      <button class="hig-btn hig-yes" id="higYes" data-act="g5ans" data-val="yes">✅ Yes, it has!</button>
+      <button class="hig-btn hig-no"  id="higNo"  data-act="g5ans" data-val="no">❌ No, it hasn't!</button>
+    </div>
+    <div class="hig-tally" id="g5tally">0 / 0 correct</div>
+    <div class="feedback" id="g5fb"></div>
+    <div style="margin-top:10px;text-align:right;">
+      <button class="btn btn-amber" id="g5next" style="display:none" data-act="g5next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME 6: PET QUIZ ═══ -->
+<div class="screen" id="sc5">
+  <div class="card">
+    <div class="game-badge">🏆 Game 6 · Story Quiz</div>
+    <div class="game-title" style="color:var(--rose)">Pet Quiz! 🎯</div>
+    <div class="game-instr">What do you know about the story? Choose the correct answer!</div>
+    <div class="prog"><div class="prog-fill" id="g6bar" style="width:0%;background:var(--rose)"></div></div>
+    <div class="quiz-character" id="g6char"></div>
+    <div class="quiz-q" id="g6q"></div>
+    <div class="quiz-opts" id="g6opts"></div>
+    <div class="quiz-score" id="g6score">0 / 0 correct</div>
+    <div class="feedback" id="g6fb"></div>
+    <div style="margin-top:10px;text-align:right;">
+      <button class="btn btn-rose" id="g6next" style="display:none" data-act="g6next">Next ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETE ═══ -->
+<div class="screen" id="sc-win">
+  <div class="win-wrap">
+    <span class="win-emoji">🏆</span>
+    <div class="win-title">Incredible!</div>
+    <div class="win-sub">You completed all 6 pet games!</div>
+    <div class="win-ring">
+      <div class="win-num" id="winScore">0</div>
+      <div class="win-lbl">STARS</div>
+    </div>
+    <ul class="win-list">
+      <li>🔍 Pet Spotter — pet vocabulary</li>
+      <li>🖌️ Adjective Painter — big/small/long/short/clean/dirty</li>
+      <li>💬 Describe the Pet — It's got / It hasn't got</li>
+      <li>✏️ Word Order — sentence grammar</li>
+      <li>⚡ Has It Got? — Yes, it has / No, it hasn't</li>
+      <li>🎯 Pet Quiz — story facts</li>
+    </ul>
+    <button class="btn btn-full btn-amber" style="color:var(--night)" data-act="restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<script>
+'use strict';
+
+/* ──────────── DATA ──────────── */
+const PETS = [
+  { id:'cat',   word:'cat',   emoji:'🐱' },
+  { id:'dog',   word:'dog',   emoji:'🐶' },
+  { id:'fish',  word:'fish',  emoji:'🐟' },
+  { id:'bird',  word:'bird',  emoji:'🐦' },
+  { id:'horse', word:'horse', emoji:'🐴' },
+  { id:'mouse', word:'mouse', emoji:'🐭' },
+];
+
+const ADJS = [
+  { id:'big',   word:'big',   example:'a big dog',   emote:'🐶', adverb:'BIG' },
+  { id:'small', word:'small', example:'a small mouse',emote:'🐭', adverb:'SMALL' },
+  { id:'long',  word:'long',  example:'a long fish',  emote:'🐟', adverb:'LONG' },
+  { id:'short', word:'short', example:'a short bird', emote:'🐦', adverb:'SHORT' },
+  { id:'clean', word:'clean', example:'a clean cat',  emote:'🐱', adverb:'CLEAN' },
+  { id:'dirty', word:'dirty', example:'a dirty horse',emote:'🐴', adverb:'DIRTY' },
+];
+
+// Game 3 — describe the pet (grammar: It's got / It hasn't got)
+// Each round: pet + 2 attributes to fill in
+const G3_ROUNDS = [
+  { pet:{id:'cat',  emoji:'🐱',name:'the cat'},   target:["It's","got","a","long","tail","."],
+    correct:"It's got a long tail .",
+    options:["It's","got","a","long","short","tail",".","hair"] },
+  { pet:{id:'dog',  emoji:'🐶',name:'the dog'},   target:["It's","got","big","ears","."],
+    correct:"It's got big ears .",
+    options:["It's","got","big","small","ears","legs","."] },
+  { pet:{id:'fish', emoji:'🐟',name:'the fish'},  target:["It","hasn't","got","legs","."],
+    correct:"It hasn't got legs .",
+    options:["It","hasn't","has","got","legs","wings","."] },
+  { pet:{id:'horse',emoji:'🐴',name:'the horse'}, target:["It's","got","four","long","legs","."],
+    correct:"It's got four long legs .",
+    options:["It's","got","four","two","long","short","legs","."] },
+  { pet:{id:'bird', emoji:'🐦',name:'the bird'},  target:["It's","got","wings","."],
+    correct:"It's got wings .",
+    options:["It's","got","wings","legs","ears","."] },
+  { pet:{id:'mouse',emoji:'🐭',name:'the mouse'}, target:["It","hasn't","got","a","big","tail","."],
+    correct:"It hasn't got a big tail .",
+    options:["It","hasn't","has","got","a","big","small","tail","."] },
+];
+
+// Game 4 — word order sentences
+const G4_SENTENCES = [
+  { words:["It's","got","a","long","tail","."],          ans:"It's got a long tail ." },
+  { words:["It","hasn't","got","legs","."],              ans:"It hasn't got legs ." },
+  { words:["Has","it","got","big","ears","?"],            ans:"Has it got big ears ?" },
+  { words:["Yes",",","it","has","."],                    ans:"Yes , it has ." },
+  { words:["No",",","it","hasn't","."],                  ans:"No , it hasn't ." },
+  { words:["It's","a","clean","cat","."],                ans:"It's a clean cat ." },
+];
+
+// Game 5 — Has it got? (pet + feature, yes/no)
+const G5_QS = [
+  { pet:{emoji:'🐱',name:'cat'},   question:'Has it got a long tail?',  feature:'a long tail',  ans:true  },
+  { pet:{emoji:'🐟',name:'fish'},  question:'Has it got legs?',         feature:'legs',         ans:false },
+  { pet:{emoji:'🐶',name:'dog'},   question:'Has it got fur?',          feature:'fur',          ans:true  },
+  { pet:{emoji:'🐦',name:'bird'},  question:'Has it got wings?',        feature:'wings',        ans:true  },
+  { pet:{emoji:'🐴',name:'horse'}, question:'Has it got a short tail?', feature:'a short tail', ans:false },
+  { pet:{emoji:'🐭',name:'mouse'}, question:'Has it got big ears?',     feature:'big ears',     ans:true  },
+  { pet:{emoji:'🐟',name:'fish'},  question:'Has it got wings?',        feature:'wings',        ans:false },
+  { pet:{emoji:'🐱',name:'cat'},   question:'Has it got legs?',         feature:'legs',         ans:true  },
+];
+
+// Game 6 — Story-based multiple choice
+// Verified: Maskman likes big dogs, Marie likes cats (cleaner), Monty objects mice aren't dirty
+const G6_QS = [
+  { char:'🦸', q:"What is Maskman's favourite pet?",
+    opts:["big dogs","small cats","a bird","a fish"], correct:0 },
+  { char:'🧑‍🎨', q:"What does Marie say about cats?",
+    opts:["Cats are cleaner","Cats are ugly","Cats are dirty","Cats are short"], correct:0 },
+  { char:'🐭', q:"What does Monty say about mice?",
+    opts:["Mice aren't dirty","Mice are ugly","Mice are small","Mice are clean"], correct:0 },
+  { char:'🦸', q:"Maskman says dogs are what?",
+    opts:["big","small","dirty","short"], correct:0 },
+  { char:'🐭', q:"Monty is a mouse. What kind of pet is Monty?",
+    opts:["a mouse","a cat","a dog","a bird"], correct:0 },
+  { char:'🧸', q:"Who says different pets are everyone's favourite?",
+    opts:["All three toys","Only Maskman","Only Marie","Only Monty"], correct:0 },
+];
+
+/* ──────────── STATE ──────────── */
+let totalScore = 0;
+const done = [false,false,false,false,false,false];
+// g1
+let g1q=[], g1i=0, g1ans=false;
+// g2
+let g2q=[], g2i=0, g2ans=false;
+// g3
+let g3i=0, g3built=[], g3ans=false;
+// g4
+let g4q=[], g4i=0, g4built=[], g4ans=false;
+// g5
+let g5q=[], g5i=0, g5ans=false, g5correct=0, g5timer=null;
+// g6
+let g6q=[], g6i=0, g6ans=false, g6correct=0;
+
+/* ──────────── HELPERS ──────────── */
+function rnd(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];} return b; }
+function $(id){ return document.getElementById(id); }
+function addScore(n){ totalScore+=n; $('scoreNum').textContent=totalScore; }
+function fb(id,type,msg){ const e=$(id); e.className='feedback '+type; e.textContent=msg; }
+function hideFb(id){ $(id).className='feedback'; }
+function markDone(i){ done[i]=true; document.querySelectorAll('.gs-btn')[i].classList.add('done'); }
+
+function navTo(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(idx==='win'?'sc-win':'sc'+idx).classList.add('active');
+  if(idx!=='win'){
+    document.querySelectorAll('.gs-btn').forEach((b,i)=>{
+      b.classList.remove('active');
+      if(done[i]) b.classList.add('done');
+    });
+    document.querySelectorAll('.gs-btn')[idx].classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+/* ──────────── G1: PET SPOTTER ──────────── */
+function g1Init(){ g1q=rnd(PETS); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ markDone(0); return; }
+  const q=g1q[g1i];
+  $('g1stage').innerHTML=`<div class="pet-stage-counter">${g1i+1}/6</div>${q.emoji}`;
+  $('g1qi').textContent=g1i+1;
+  hideFb('g1fb'); $('g1next').style.display='none'; g1ans=false;
+  const others=rnd(PETS.filter(p=>p.id!==q.id)).slice(0,5);
+  const choices=rnd([q,...others]);
+  const box=$('g1choices'); box.innerHTML='';
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='pet-choice'; b.textContent=c.word;
+    b.setAttribute('data-g1id',c.id);
+    box.appendChild(b);
+  });
+}
+function g1Answer(id){
+  if(g1ans) return; g1ans=true;
+  const correct=g1q[g1i].id;
+  document.querySelectorAll('.pet-choice').forEach(b=>{
+    b.classList.add('p-locked');
+    if(b.getAttribute('data-g1id')===correct) b.classList.add('p-ok');
+    else if(b.getAttribute('data-g1id')===id)  b.classList.add('p-bad');
+  });
+  if(id===correct){ addScore(2); fb('g1fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g1fb','bad','The answer is: '+PETS.find(p=>p.id===correct).word); }
+  $('g1next').style.display='inline-block';
+}
+
+/* ──────────── G2: ADJECTIVE PAINTER ──────────── */
+function g2Init(){ g2q=rnd(ADJS); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ markDone(1); return; }
+  const q=g2q[g2i];
+  $('g2bar').style.width=(g2i/ADJS.length*100)+'%';
+  $('g2scene').innerHTML=`
+    <div class="painter-pet">${q.emote}</div>
+    <div class="painter-desc">Look — it's <span class="hl">${q.adverb}!</span></div>`;
+  hideFb('g2fb'); $('g2next').style.display='none'; g2ans=false;
+  // 3 choices: correct + 2 others
+  const others=rnd(ADJS.filter(a=>a.id!==q.id)).slice(0,5);
+  const choices=rnd([q,...others]);
+  const grid=$('g2grid'); grid.innerHTML='';
+  choices.forEach(a=>{
+    const t=document.createElement('div');
+    t.className='adj-tile'; t.textContent=a.word;
+    t.setAttribute('data-g2id',a.id);
+    grid.appendChild(t);
+  });
+}
+function g2Answer(id){
+  if(g2ans) return; g2ans=true;
+  const correct=g2q[g2i].id;
+  document.querySelectorAll('.adj-tile').forEach(t=>{
+    t.classList.add('a-locked');
+    if(t.getAttribute('data-g2id')===correct) t.classList.add('a-ok');
+    else if(t.getAttribute('data-g2id')===id)  t.classList.add('a-bad');
+  });
+  if(id===correct){ addScore(2); fb('g2fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g2fb','bad','The word is: '+ADJS.find(a=>a.id===correct).word); }
+  $('g2next').style.display='inline-block';
+}
+
+/* ──────────── G3: PET DESCRIBER ──────────── */
+function g3Init(){ g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=G3_ROUNDS.length){ markDone(2); return; }
+  const r=G3_ROUNDS[g3i];
+  g3built=[]; g3ans=false;
+  $('g3ri').textContent=g3i+1;
+  $('g3mystery').innerHTML=`<div class="mystery-emoji">${r.pet.emoji}</div><div class="mystery-name">${r.pet.name}</div><div class="mystery-prompt">Describe it!</div>`;
+  $('g3target').textContent='Build: '+r.correct;
+  hideFb('g3fb'); $('g3next').style.display='none';
+  // Slots
+  const slots=$('g3slots'); slots.innerHTML='';
+  r.target.forEach((_,i)=>{
+    const s=document.createElement('div');
+    s.className='desc-slot'; s.textContent='___';
+    s.setAttribute('data-si',i);
+    slots.appendChild(s);
+  });
+  // Options (shuffled)
+  const opts=$('g3options'); opts.innerHTML='';
+  rnd(r.options).forEach((w,i)=>{
+    const o=document.createElement('div');
+    o.className='desc-opt'; o.textContent=w;
+    o.setAttribute('data-g3w',w);
+    o.setAttribute('data-oi',i);
+    opts.appendChild(o);
+  });
+}
+function g3TapOpt(el){
+  if(g3ans||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g3built.push({word:el.getAttribute('data-g3w'), el});
+  // Fill next empty slot
+  const slots=document.querySelectorAll('.desc-slot');
+  const idx=g3built.length-1;
+  if(idx<slots.length){
+    slots[idx].textContent=g3built[idx].word;
+    slots[idx].classList.add('filled');
+  }
+}
+function g3Clear(){
+  g3built.forEach(x=>{ x.el.classList.remove('used'); });
+  g3built=[];
+  document.querySelectorAll('.desc-slot').forEach(s=>{
+    s.textContent='___'; s.classList.remove('filled','correct','wrong');
+  });
+  hideFb('g3fb');
+}
+function g3Check(){
+  if(g3ans||g3built.length===0) return;
+  g3ans=true;
+  const built=g3built.map(x=>x.word).join(' ');
+  const correct=G3_ROUNDS[g3i].correct;
+  const slots=document.querySelectorAll('.desc-slot');
+  const target=G3_ROUNDS[g3i].target;
+  slots.forEach((s,i)=>{
+    s.classList.remove('filled');
+    const w=g3built[i]?.word;
+    if(w===target[i]) s.classList.add('correct');
+    else if(w) s.classList.add('wrong');
+  });
+  if(built===correct){ addScore(3); fb('g3fb','ok','⭐ Perfect! +3 stars'); }
+  else { fb('g3fb','bad','Correct: '+correct); }
+  $('g3next').style.display='inline-block';
+}
+
+/* ──────────── G4: WORD ORDER ──────────── */
+function g4Init(){ g4q=rnd(G4_SENTENCES); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ markDone(3); return; }
+  const s=g4q[g4i];
+  g4built=[]; g4ans=false;
+  $('g4qi').textContent=g4i+1;
+  hideFb('g4fb'); $('g4next').style.display='none';
+  const disp=$('g4display'); disp.innerHTML='<span class="sort-placeholder">Tap words to build the sentence…</span>';
+  const pool=$('g4pool'); pool.innerHTML='';
+  rnd(s.words).forEach((w,i)=>{
+    const t=document.createElement('div');
+    t.className='s-word'; t.textContent=w;
+    t.setAttribute('data-g4w',w); t.setAttribute('data-g4i',i);
+    pool.appendChild(t);
+  });
+}
+function g4TapWord(el){
+  if(g4ans||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g4built.push({word:el.getAttribute('data-g4w'), el});
+  const disp=$('g4display');
+  disp.innerHTML='';
+  disp.textContent=g4built.map(x=>x.word).join(' ');
+}
+function g4Clear(){
+  g4built.forEach(x=>x.el.classList.remove('used'));
+  g4built=[];
+  $('g4display').innerHTML='<span class="sort-placeholder">Tap words to build the sentence…</span>';
+  hideFb('g4fb');
+}
+function g4Check(){
+  if(g4ans||g4built.length===0) return;
+  g4ans=true;
+  const built=g4built.map(x=>x.word).join(' ');
+  const correct=g4q[g4i].ans;
+  if(built===correct){ addScore(3); fb('g4fb','ok','⭐ Perfect! +3 stars'); }
+  else { fb('g4fb','bad','Correct: '+correct); }
+  $('g4next').style.display='inline-block';
+}
+
+/* ──────────── G5: HAS IT GOT? ──────────── */
+const HIG_TIME=5000;
+function g5Init(){ g5q=rnd(G5_QS); g5i=0; g5correct=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ markDone(4); return; }
+  const q=g5q[g5i];
+  g5ans=false;
+  $('g5scene').innerHTML=`
+    <div class="hig-pet">${q.pet.emoji}</div>
+    <div class="hig-name">a ${q.pet.name}</div>
+    <div class="hig-question">Has it got <span class="q-hl">${q.feature}</span>?</div>`;
+  hideFb('g5fb'); $('g5next').style.display='none';
+  $('g5tally').textContent=`${g5correct} / ${g5i} correct`;
+  // Reset buttons
+  ['higYes','higNo'].forEach(id=>{
+    const b=$(id); b.className='hig-btn '+(id==='higYes'?'hig-yes':'hig-no');
+  });
+  // Timer
+  const bar=$('g5bar');
+  bar.style.transition='none'; bar.style.width='100%';
+  bar.style.background='var(--cyan)';
+  requestAnimationFrame(()=>{
+    bar.style.transition=`width ${HIG_TIME}ms linear`;
+    bar.style.width='0%';
+  });
+  if(g5timer) clearTimeout(g5timer);
+  g5timer=setTimeout(()=>{ if(!g5ans) g5TimeUp(); }, HIG_TIME);
+}
+function g5Answer(val){
+  if(g5ans) return; g5ans=true;
+  clearTimeout(g5timer);
+  const bar=$('g5bar'); bar.style.transition='none';
+  const q=g5q[g5i];
+  const correct=(val==='yes')===q.ans;
+  $('higYes').classList.add('h-locked'); $('higNo').classList.add('h-locked');
+  if(q.ans) $('higYes').classList.add('h-ok'); else $('higNo').classList.add('h-ok');
+  if(!correct){ if(val==='yes') $('higYes').classList.add('h-wrong'); else $('higNo').classList.add('h-wrong'); }
+  if(correct){ g5correct++; addScore(2); fb('g5fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g5fb','bad','The answer is: '+(q.ans?'Yes, it has!':'No, it hasn\'t!')); }
+  $('g5tally').textContent=`${g5correct} / ${g5i+1} correct`;
+  $('g5next').style.display='inline-block';
+}
+function g5TimeUp(){
+  g5ans=true;
+  clearTimeout(g5timer);
+  $('higYes').classList.add('h-locked'); $('higNo').classList.add('h-locked');
+  const q=g5q[g5i];
+  if(q.ans) $('higYes').classList.add('h-ok'); else $('higNo').classList.add('h-ok');
+  fb('g5fb','bad','Too slow! Answer: '+(q.ans?'Yes, it has!':'No, it hasn\'t!'));
+  $('g5bar').style.background='var(--red)';
+  $('g5next').style.display='inline-block';
+}
+
+/* ──────────── G6: PET QUIZ ──────────── */
+function g6Init(){ g6q=rnd(G6_QS); g6i=0; g6correct=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ markDone(5); showWin(); return; }
+  const q=g6q[g6i];
+  $('g6bar').style.width=(g6i/g6q.length*100)+'%';
+  $('g6char').textContent=q.char;
+  $('g6q').textContent=q.q;
+  $('g6score').textContent=`${g6correct} / ${g6i} correct`;
+  hideFb('g6fb'); $('g6next').style.display='none'; g6ans=false;
+  const letters=['A','B','C','D'];
+  const opts=$('g6opts'); opts.innerHTML='';
+  // Shuffle options but track correct
+  const indices=rnd([0,1,2,3]);
+  const correctShuffled=indices.indexOf(0); // original correct was index 0
+  indices.forEach((orig,pos)=>{
+    const b=document.createElement('div');
+    b.className='quiz-opt';
+    b.setAttribute('data-g6pos',pos);
+    b.setAttribute('data-g6correct', pos===correctShuffled?'1':'0');
+    b.innerHTML=`<span class="opt-letter">${letters[pos]}</span>${q.opts[orig]}`;
+    opts.appendChild(b);
+  });
+}
+function g6Answer(el){
+  if(g6ans) return; g6ans=true;
+  const isCorrect=el.getAttribute('data-g6correct')==='1';
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    b.classList.add('q-locked');
+    if(b.getAttribute('data-g6correct')==='1') b.classList.add('q-ok');
+    else if(b===el) b.classList.add('q-bad');
+  });
+  if(isCorrect){ g6correct++; addScore(2); fb('g6fb','ok','⭐ Correct! +2 stars'); }
+  else { fb('g6fb','bad','Check the correct answer above!'); }
+  $('g6score').textContent=`${g6correct} / ${g6i+1} correct`;
+  $('g6next').style.display='inline-block';
+}
+
+/* ──────────── WIN ──────────── */
+function showWin(){
+  if(g5timer) clearTimeout(g5timer);
+  launchConfetti();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('sc-win').classList.add('active');
+  $('winScore').textContent=totalScore;
+  window.scrollTo(0,0);
+}
+
+function launchConfetti(){
+  const colors=['#00d4ff','#a8ff3e','#ff6b9d','#ffbe0b','#c77dff','#06d6a0','#ffffff'];
+  const shapes=['border-radius:50%','','clip-path:polygon(50% 0%,100% 100%,0% 100%)'];
+  const box=$('confetti');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');
+    p.className='cp';
+    const sz=6+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-20px;width:${sz}px;height:${sz}px;
+      background:${colors[0|Math.random()*colors.length]};${shapes[0|Math.random()*shapes.length]};
+      animation-delay:${Math.random()}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p);
+    setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ──────────── EVENT DELEGATION ──────────── */
+document.addEventListener('click', e=>{
+  const t=e.target;
+
+  // GAME SELECTOR nav
+  const gsBtn=t.closest('.gs-btn');
+  if(gsBtn){ navTo(+gsBtn.getAttribute('data-go')); return; }
+
+  // G1 pet choice
+  const pc=t.closest('.pet-choice');
+  if(pc){ g1Answer(pc.getAttribute('data-g1id')); return; }
+
+  // G2 adj tile
+  const at=t.closest('.adj-tile');
+  if(at){ g2Answer(at.getAttribute('data-g2id')); return; }
+
+  // G3 desc option
+  const do2=t.closest('.desc-opt');
+  if(do2){ g3TapOpt(do2); return; }
+
+  // G4 word tile
+  const sw=t.closest('.s-word');
+  if(sw){ g4TapWord(sw); return; }
+
+  // G6 quiz option
+  const qo=t.closest('.quiz-opt');
+  if(qo){ g6Answer(qo); return; }
+
+  // data-act
+  const act=t.getAttribute('data-act')||t.closest('[data-act]')?.getAttribute('data-act');
+  if(!act) return;
+
+  if     (act==='g1next')  { g1i++; g1Render(); }
+  else if(act==='g2next')  { g2i++; g2Render(); }
+  else if(act==='g3clear') g3Clear();
+  else if(act==='g3check') g3Check();
+  else if(act==='g3next')  { g3i++; g3Render(); }
+  else if(act==='g4clear') g4Clear();
+  else if(act==='g4check') g4Check();
+  else if(act==='g4next')  { g4i++; g4Render(); }
+  else if(act==='g5ans')   { g5Answer(t.getAttribute('data-val')||t.closest('[data-val]')?.getAttribute('data-val')); }
+  else if(act==='g5next')  { g5i++; g5Render(); }
+  else if(act==='g6next')  { g6i++; g6Render(); }
+  else if(act==='restart') { if(g5timer) clearTimeout(g5timer); location.reload(); }
+});
+
+/* ──────────── BOOT ──────────── */
+g1Init(); g2Init(); g3Init(); g4Init(); g5Init(); g6Init();
+</script>
+</body>
+</html>
