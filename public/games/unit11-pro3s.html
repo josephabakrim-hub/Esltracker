@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 11 — Our House! 🏠</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #1e1a2e;
+  --deep:   #2a2440;
+  --card:   #332d4d;
+  --border: #4a4270;
+  --violet: #9b72e8;
+  --mint:   #5de8b8;
+  --amber:  #f7c948;
+  --rose:   #f06292;
+  --sky:    #64c8e8;
+  --green:  #4ecb80;
+  --red:    #e85555;
+  --white:  #f2eeff;
+  --muted:  #8878b8;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Quicksand',sans-serif;
+  background:var(--bg); min-height:100vh; color:var(--white);
+}
+
+/* HEADER */
+.header {
+  background:var(--deep); border-bottom:3px solid var(--violet);
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 3px 20px rgba(0,0,0,.5);
+}
+.header-top { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; }
+.title-text  { font-family:'Baloo 2',sans-serif; font-size:21px; font-weight:900; color:var(--amber); }
+.title-sub   { font-size:9px; font-weight:700; color:var(--muted); letter-spacing:2px; margin-top:1px; }
+.score-pill  { background:var(--amber); color:var(--bg); font-family:'Baloo 2',sans-serif; font-size:15px; font-weight:900; padding:5px 14px; border-radius:30px; }
+
+/* NAV */
+.game-nav { display:flex; gap:6px; padding:10px 16px 12px; overflow-x:auto; background:var(--deep); }
+.game-nav::-webkit-scrollbar { display:none; }
+.nav-btn {
+  flex-shrink:0; background:transparent; border:2px solid var(--border);
+  color:var(--muted); font-family:'Baloo 2',sans-serif; font-size:10px; font-weight:700;
+  padding:6px 13px; border-radius:30px; cursor:pointer; transition:all .18s; letter-spacing:.5px;
+}
+.nav-btn:hover  { border-color:var(--amber); color:var(--amber); }
+.nav-btn.active { background:var(--amber); border-color:var(--amber); color:var(--bg); }
+.nav-btn.done   { border-color:var(--mint); color:var(--mint); }
+
+/* SCREENS */
+.screen { display:none; padding:16px; max-width:660px; margin:0 auto; }
+.screen.active { display:block; animation:fadeUp .22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* CARD */
+.card {
+  background:var(--card); border-radius:20px; padding:20px;
+  border:1px solid var(--border); box-shadow:0 4px 24px rgba(0,0,0,.4); margin-bottom:14px;
+}
+.game-badge {
+  display:inline-block; background:var(--border); border-radius:30px; padding:3px 12px;
+  font-size:9px; font-weight:700; letter-spacing:2px; color:var(--muted);
+  text-transform:uppercase; margin-bottom:10px;
+}
+.game-title { font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900; margin-bottom:4px; }
+.game-instr { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:18px; line-height:1.5; }
+
+/* FEEDBACK */
+.feedback {
+  margin-top:12px; padding:10px 16px; border-radius:11px;
+  font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:700;
+  text-align:center; display:none;
+}
+.feedback.ok  { display:block; background:rgba(78,203,128,.15); color:var(--green); border:1px solid rgba(78,203,128,.3); }
+.feedback.bad { display:block; background:rgba(232,85,85,.12);  color:#ff9090;      border:1px solid rgba(232,85,85,.3); }
+
+/* BUTTONS */
+.btn { border:none; border-radius:11px; font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:800; padding:10px 22px; cursor:pointer; transition:all .15s; display:inline-block; }
+.btn:hover { transform:translateY(-2px); }
+.btn-full  { width:100%; text-align:center; display:block; }
+.btn-right { display:block; margin-top:12px; margin-left:auto; width:fit-content; }
+.btn-row   { display:flex; gap:8px; justify-content:center; }
+
+/* PROGRESS */
+.prog { height:4px; background:var(--border); border-radius:2px; margin-bottom:16px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:2px; transition:width .4s ease; }
+
+/* ANIMATIONS */
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0deg) scale(1);opacity:1} }
+
+/* CONFETTI */
+.confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ══ G1: SPELLING ══ */
+.spell-word {
+  background:linear-gradient(135deg,var(--deep),#1a1630);
+  border:1px solid var(--border); border-radius:16px;
+  padding:24px 16px; text-align:center; margin-bottom:20px;
+}
+.spell-letters {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:8px;
+}
+.spell-letter {
+  width:42px; height:48px; border-radius:10px;
+  background:var(--deep); border:2px solid var(--border);
+  font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900;
+  color:var(--white); display:flex; align-items:center; justify-content:center;
+}
+.spell-letter.blank {
+  border-color:var(--amber); color:var(--amber); background:rgba(247,201,72,.1);
+  font-size:26px;
+}
+.spell-letter.filled-ok  { border-color:var(--green); color:var(--green); background:rgba(78,203,128,.15); animation:popIn .28s ease; }
+.spell-letter.filled-bad { border-color:var(--red);   color:#ff9090;     background:rgba(232,85,85,.12);  animation:shake .4s ease; }
+.spell-hint { font-size:12px; font-weight:600; color:var(--muted); }
+.letter-opts { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+.letter-opt {
+  width:52px; height:52px; border-radius:12px;
+  background:var(--violet); color:#fff;
+  font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900;
+  border:none; cursor:pointer; transition:all .15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.letter-opt:hover       { transform:scale(1.1); box-shadow:0 4px 14px rgba(155,114,232,.5); }
+.letter-opt.lo-ok       { background:var(--green); animation:popIn .28s ease; pointer-events:none; }
+.letter-opt.lo-bad      { background:var(--red);   animation:shake .4s ease; }
+.letter-opt.lo-lock     { pointer-events:none; opacity:.4; }
+.spell-counter { text-align:center; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
+
+/* ══ G2: MEMORY MATCH ══ */
+.mem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.m-card {
+  aspect-ratio:1; border-radius:13px;
+  background:var(--violet); border:2px solid rgba(255,255,255,.1);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-family:'Baloo 2',sans-serif; font-size:11px; font-weight:900;
+  color:transparent; transition:all .22s; user-select:none;
+  text-align:center; padding:4px; line-height:1.2;
+}
+.m-card.flipped  { background:var(--card); border-color:var(--violet); color:var(--white); }
+.m-card.matched  { background:rgba(78,203,128,.2); border-color:var(--green); color:var(--green); pointer-events:none; }
+.m-card.m-wrong  { animation:shake .38s ease; border-color:var(--red); background:rgba(232,85,85,.15); }
+.mem-stat { text-align:center; font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:10px; }
+
+/* ══ G3: SENTENCE BUILDER (I'm in the ___) ══ */
+.builder-display {
+  background:var(--deep); border:2px dashed var(--border); border-radius:14px;
+  padding:16px; min-height:56px; margin-bottom:16px;
+  font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:900;
+  color:var(--white); text-align:center;
+  display:flex; align-items:center; justify-content:center;
+}
+.builder-display.empty { font-size:13px; font-weight:600; color:var(--muted); font-family:'Quicksand',sans-serif; }
+.builder-stem {
+  text-align:center; font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800;
+  color:var(--amber); margin-bottom:14px;
+}
+.room-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.room-btn {
+  background:var(--deep); border:2px solid var(--border); border-radius:12px;
+  font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:800;
+  color:var(--white); padding:14px 6px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.room-btn:hover        { border-color:var(--mint); color:var(--mint); }
+.room-btn.rb-ok        { border-color:var(--green); color:var(--green); background:rgba(78,203,128,.1); animation:popIn .28s ease; pointer-events:none; }
+.room-btn.rb-bad       { border-color:var(--red);   color:#ff9090;     background:rgba(232,85,85,.1);  animation:shake .4s ease;  pointer-events:none; }
+.room-btn.rb-lock      { pointer-events:none; }
+
+/* ══ G4: FILL THE GAP (written sentence, no emoji) ══ */
+.gap-box {
+  background:linear-gradient(135deg,var(--deep),#1a1630);
+  border:1px solid var(--border); border-radius:16px;
+  padding:22px 18px; text-align:center; margin-bottom:16px;
+}
+.gap-context { font-size:13px; font-weight:600; color:var(--muted); margin-bottom:10px; }
+.gap-sentence {
+  font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:900;
+  color:var(--white); line-height:1.7;
+}
+.gap-blank { display:inline-block; min-width:110px; border-bottom:3px solid var(--amber); color:var(--amber); padding:0 6px; }
+.gap-opts { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.gap-opt {
+  background:var(--deep); border:2px solid var(--border); border-radius:12px;
+  font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:800;
+  color:var(--white); padding:14px 6px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.gap-opt:hover  { border-color:var(--sky); color:var(--sky); }
+.gap-opt.g-ok   { border-color:var(--green); color:var(--green); background:rgba(78,203,128,.1); animation:popIn .28s ease; pointer-events:none; }
+.gap-opt.g-bad  { border-color:var(--red);   color:#ff9090;     background:rgba(232,85,85,.1);  animation:shake .4s ease;  pointer-events:none; }
+.gap-opt.g-lock { pointer-events:none; }
+
+/* ══ G5: WORD ORDER ══ */
+.wo-display {
+  background:var(--deep); border:2px dashed var(--border); border-radius:14px;
+  padding:14px 18px; min-height:56px; margin-bottom:14px;
+  font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800;
+  color:var(--white); text-align:center;
+  display:flex; align-items:center; justify-content:center;
+}
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:'Quicksand',sans-serif; }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.w-tile {
+  background:var(--rose); color:#fff; font-family:'Baloo 2',sans-serif;
+  font-size:13px; font-weight:700; padding:7px 13px; border-radius:10px;
+  cursor:pointer; transition:all .15s; user-select:none;
+}
+.w-tile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 12px rgba(240,98,146,.4); }
+.w-tile.used { opacity:.25; pointer-events:none; }
+
+/* ══ G6: ROOM QUIZ (written clue → room name) ══ */
+.clue-box {
+  background:linear-gradient(135deg,var(--deep),#1a1630);
+  border:2px solid var(--border); border-radius:16px;
+  padding:22px 18px; text-align:center; margin-bottom:18px;
+}
+.clue-label { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; }
+.clue-text  { font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:900; color:var(--white); line-height:1.5; }
+.clue-sub   { font-size:12px; font-weight:600; color:var(--amber); margin-top:6px; }
+.quiz-opts  { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.quiz-opt {
+  background:var(--deep); border:2px solid var(--border); border-radius:12px;
+  font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:800;
+  color:var(--white); padding:14px 6px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.quiz-opt:hover  { border-color:var(--violet); color:var(--violet); }
+.quiz-opt.q-ok   { border-color:var(--green); color:var(--green); background:rgba(78,203,128,.1); animation:popIn .28s ease; pointer-events:none; }
+.quiz-opt.q-bad  { border-color:var(--red);   color:#ff9090;     background:rgba(232,85,85,.1);  animation:shake .4s ease;  pointer-events:none; }
+.quiz-opt.q-lock { pointer-events:none; }
+.quiz-tally { text-align:center; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:1px; }
+
+/* WIN */
+.win-wrap  { text-align:center; padding:36px 16px 44px; }
+.win-icon  { font-size:72px; display:block; animation:spinIn .6s ease; margin-bottom:14px; }
+.win-title { font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:900; color:var(--amber); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:26px; }
+.win-ring  {
+  width:120px; height:120px; border-radius:50%;
+  background:conic-gradient(var(--amber) 0%, var(--violet) 50%, var(--mint) 100%);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  margin:0 auto 26px; box-shadow:0 0 40px rgba(247,201,72,.3);
+}
+.win-num { font-family:'Baloo 2',sans-serif; font-size:34px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.55); letter-spacing:1px; }
+.win-list { text-align:left; background:var(--card); border-radius:14px; padding:12px 18px; border:1px solid var(--border); margin-bottom:22px; }
+.win-list li { list-style:none; font-size:13px; font-weight:600; padding:5px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.win-list li:last-child { border:none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="title-text">🏠 Our House!</div>
+      <div class="title-sub">UNIT 11 · KIDS BOX NG1 · PRO3_S & PRO3_1</div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <div class="game-nav">
+    <button class="nav-btn active" data-go="0">1 · Spelling</button>
+    <button class="nav-btn"        data-go="1">2 · Memory</button>
+    <button class="nav-btn"        data-go="2">3 · I'm in the…</button>
+    <button class="nav-btn"        data-go="3">4 · Fill the Gap</button>
+    <button class="nav-btn"        data-go="4">5 · Word Order</button>
+    <button class="nav-btn"        data-go="5">6 · Room Quiz</button>
+  </div>
+</div>
+
+<!-- G1: SPELLING -->
+<div class="screen active" id="sc0">
+  <div class="card">
+    <div class="game-badge">🔤 Game 1 · Vocabulary — Spelling</div>
+    <div class="game-title" style="color:var(--amber)">Spelling Time! 🔤</div>
+    <div class="game-instr">A letter is missing! Tap the correct letter to complete the word.</div>
+    <div class="spell-word" id="g1word"></div>
+    <div class="spell-counter"><span id="g1qi">1</span> / 11</div>
+    <div class="letter-opts" id="g1opts"></div>
+    <div class="feedback" id="g1fb"></div>
+    <button class="btn btn-right" id="g1next" style="display:none;background:var(--amber);color:var(--bg);" data-act="g1next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G2: MEMORY MATCH -->
+<div class="screen" id="sc1">
+  <div class="card">
+    <div class="game-badge">🃏 Game 2 · Vocabulary — Memory</div>
+    <div class="game-title" style="color:var(--violet)">Memory Match! 🃏</div>
+    <div class="game-instr">Find the two cards that say the same word!</div>
+    <div class="mem-stat" id="g2stat">Pairs found: 0 / 6</div>
+    <div class="mem-grid" id="g2grid"></div>
+    <div class="feedback" id="g2fb"></div>
+    <button class="btn btn-full" id="g2next" style="display:none;background:var(--violet);color:#fff;margin-top:12px;" data-act="g2next">All matched! Next ➜</button>
+  </div>
+</div>
+
+<!-- G3: I'M IN THE… -->
+<div class="screen" id="sc2">
+  <div class="card">
+    <div class="game-badge">📍 Game 3 · Grammar — Where?</div>
+    <div class="game-title" style="color:var(--mint)">I'm in the… 📍</div>
+    <div class="game-instr">Read the sentence. Tap the correct room to complete it!</div>
+    <div class="prog"><div class="prog-fill" id="g3bar" style="width:0%;background:var(--mint)"></div></div>
+    <div class="builder-stem" id="g3stem"></div>
+    <div class="room-btns" id="g3btns"></div>
+    <div class="feedback" id="g3fb"></div>
+    <button class="btn btn-right" id="g3next" style="display:none;background:var(--mint);color:var(--bg);" data-act="g3next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G4: FILL THE GAP -->
+<div class="screen" id="sc3">
+  <div class="card">
+    <div class="game-badge">✏️ Game 4 · Grammar — Present Continuous</div>
+    <div class="game-title" style="color:var(--sky)">Fill the Gap! ✏️</div>
+    <div class="game-instr">What are they doing? Tap the correct verb!</div>
+    <div class="prog"><div class="prog-fill" id="g4bar" style="width:0%;background:var(--sky)"></div></div>
+    <div class="gap-box" id="g4box"></div>
+    <div class="gap-opts" id="g4opts"></div>
+    <div class="feedback" id="g4fb"></div>
+    <button class="btn btn-right" id="g4next" style="display:none;background:var(--sky);color:var(--bg);" data-act="g4next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G5: WORD ORDER -->
+<div class="screen" id="sc4">
+  <div class="card">
+    <div class="game-badge">🔤 Game 5 · Grammar — Word Order</div>
+    <div class="game-title" style="color:var(--rose)">Word Order! ✏️</div>
+    <div class="game-instr">Tap the words in the correct order to make a sentence.</div>
+    <div id="g5display" class="wo-display empty">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g5pool"></div>
+    <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:1px;">
+      Sentence <span id="g5qi">1</span> of 6
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g5clear">Clear ✕</button>
+      <button class="btn" style="background:var(--rose);color:#fff;" data-act="g5check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g5fb"></div>
+    <button class="btn btn-right" id="g5next" style="display:none;background:var(--rose);color:#fff;" data-act="g5next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G6: ROOM QUIZ -->
+<div class="screen" id="sc5">
+  <div class="card">
+    <div class="game-badge">🏠 Game 6 · Vocabulary — Room Quiz</div>
+    <div class="game-title" style="color:var(--amber)">Room Quiz! 🏠</div>
+    <div class="game-instr">Read the clue. Which room is it?</div>
+    <div class="prog"><div class="prog-fill" id="g6bar" style="width:0%;background:var(--amber)"></div></div>
+    <div class="clue-box" id="g6clue"></div>
+    <div class="quiz-opts" id="g6opts"></div>
+    <div class="quiz-tally" id="g6tally">0 / 0 correct</div>
+    <div class="feedback"  id="g6fb"></div>
+    <button class="btn btn-right" id="g6next" style="display:none;background:var(--amber);color:var(--bg);" data-act="g6next">Next ➜</button>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="screen" id="sc-win">
+  <div class="win-wrap">
+    <span class="win-icon">🏡</span>
+    <div class="win-title">Welcome Home!</div>
+    <div class="win-sub">You finished all 6 games!</div>
+    <div class="win-ring">
+      <div class="win-num" id="winScore">0</div>
+      <div class="win-lbl">STARS</div>
+    </div>
+    <ul class="win-list">
+      <li>🔤 Spelling — rooms and furniture</li>
+      <li>🃏 Memory Match — word recognition</li>
+      <li>📍 I'm in the… — where grammar</li>
+      <li>✏️ Fill the Gap — present continuous</li>
+      <li>🔤 Word Order — sentence grammar</li>
+      <li>🏠 Room Quiz — clue-based vocabulary</li>
+    </ul>
+    <button class="btn btn-full" style="background:var(--amber);color:var(--bg);" data-act="restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<script>
+'use strict';
+
+/* ─── DATA ─── */
+const ROOMS = ['living room','bedroom','kitchen','bathroom','hall','dining room'];
+const FURNITURE = ['wardrobe','bookcase','lamp','toy box','window'];
+const ALL_WORDS = [...ROOMS, ...FURNITURE];
+
+// G1 — spelling: each entry is { word, blankIdx, correct, distractors }
+// Built at init time from ALL_WORDS
+function makeSpellQ(word) {
+  // pick a random non-space index
+  const indices = [];
+  for(let i=0; i<word.length; i++) if(word[i]!==' ') indices.push(i);
+  const blankIdx = indices[0|Math.random()*indices.length];
+  const correct = word[blankIdx].toLowerCase();
+  // generate 3 distractor letters (different from correct, a-z)
+  const alpha = 'abcdefghijklmnoprstuvwy';
+  const pool = alpha.split('').filter(c=>c!==correct);
+  const distractors = rnd(pool).slice(0,3);
+  return { word, blankIdx, correct, opts: rnd([correct,...distractors]) };
+}
+
+// G3 — "I'm in the ___" — clue sentence tells you which room to pick
+const G3_QS = [
+  { stem:"I sleep here.",                answer:'bedroom'     },
+  { stem:"I watch TV here.",             answer:'living room' },
+  { stem:"I eat breakfast here.",        answer:'kitchen'     },
+  { stem:"I have a bath here.",          answer:'bathroom'    },
+  { stem:"I walk through here first.",   answer:'hall'        },
+  { stem:"I have dinner here.",          answer:'dining room' },
+];
+
+// G4 — fill the gap: written context + sentence with verb blank
+const G4_QS = [
+  { context:"In the bedroom:", sentence:"He's ___ a book.",       blank:'reading',   opts:['reading','eating','watching']  },
+  { context:"In the living room:", sentence:"She's ___ TV.",      blank:'watching',  opts:['watching','reading','drawing'] },
+  { context:"In the kitchen:", sentence:"She's ___ lunch.",       blank:'eating',    opts:['eating','sitting','listening'] },
+  { context:"In the bathroom:", sentence:"He's ___ a bath.",      blank:'having',    opts:['having','eating','watching']   },
+  { context:"In the living room:", sentence:"He's ___ to music.", blank:'listening', opts:['listening','reading','drawing']},
+  { context:"In the bedroom:", sentence:"She's ___ a picture.",   blank:'drawing',   opts:['drawing','sitting','eating']   },
+];
+
+// G5 — word order
+const G5_SENTENCES = [
+  { words:["I'm","in","the","bedroom","."],          ans:"I'm in the bedroom ."         },
+  { words:["Where","are","you","?"],                  ans:"Where are you ?"              },
+  { words:["She's","in","the","kitchen","."],         ans:"She's in the kitchen ."       },
+  { words:["He's","reading","a","book","."],          ans:"He's reading a book ."        },
+  { words:["They're","in","the","living","room","."], ans:"They're in the living room ." },
+  { words:["What","are","you","doing","?"],            ans:"What are you doing ?"         },
+];
+
+// G6 — room quiz: written clue → tap the room
+const G6_QS = [
+  { clue:"You sleep here.",                    sub:"Which room is it?",  answer:'bedroom',     opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+  { clue:"You cook food here.",                sub:"Which room is it?",  answer:'kitchen',     opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+  { clue:"You have a bath here.",              sub:"Which room is it?",  answer:'bathroom',    opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+  { clue:"You watch TV and relax here.",       sub:"Which room is it?",  answer:'living room', opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+  { clue:"You eat dinner with your family here.", sub:"Which room?",     answer:'dining room', opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+  { clue:"You walk through this room first when you enter the house.", sub:"Which room?", answer:'hall', opts:['bedroom','kitchen','bathroom','hall','living room','dining room'] },
+];
+
+/* ─── STATE ─── */
+let totalScore=0;
+const done=[false,false,false,false,false,false];
+let g1q=[], g1i=0, g1locked=false;
+let g2flipped=[], g2matched=0, g2lock=false;
+let g3q=[], g3i=0, g3locked=false;
+let g4q=[], g4i=0, g4locked=false;
+let g5q=[], g5i=0, g5built=[], g5locked=false;
+let g6q=[], g6i=0, g6locked=false, g6correct=0;
+
+/* ─── HELPERS ─── */
+function rnd(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=0|Math.random()*(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function $(id){ return document.getElementById(id); }
+function score(n){ totalScore+=n; $('scoreNum').textContent=totalScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='feedback '+type; e.textContent=msg; }
+function hideFb(id){ $(id).className='feedback'; }
+function show(id){ $(id).style.display='inline-block'; }
+function hide(id){ $(id).style.display='none'; }
+function markDone(i){ done[i]=true; document.querySelectorAll('.nav-btn')[i].classList.add('done'); }
+function navTo(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(idx==='win'?'sc-win':'sc'+idx).classList.add('active');
+  if(idx!=='win'){
+    document.querySelectorAll('.nav-btn').forEach((b,i)=>{ b.classList.toggle('active',i===idx); if(done[i]) b.classList.add('done'); });
+  }
+  window.scrollTo(0,0);
+}
+
+/* ─── G1: SPELLING ─── */
+function g1Init(){ g1q=rnd(ALL_WORDS).map(w=>makeSpellQ(w)); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ markDone(0); return; }
+  const q=g1q[g1i];
+  g1locked=false; hideFb('g1fb'); hide('g1next');
+  $('g1qi').textContent=g1i+1;
+  // Build letter display
+  const lettersHtml=q.word.split('').map((ch,i)=>{
+    if(i===q.blankIdx) return '<div class="spell-letter blank">?</div>';
+    if(ch===' ') return '<div style="width:8px"></div>';
+    return '<div class="spell-letter">'+ch+'</div>';
+  }).join('');
+  $('g1word').innerHTML='<div class="spell-letters">'+lettersHtml+'</div><div class="spell-hint">'+q.word.replace(q.word[q.blankIdx],'_')+'</div>';
+  // Letter option buttons
+  const box=$('g1opts'); box.innerHTML='';
+  q.opts.forEach(letter=>{
+    const b=document.createElement('button');
+    b.className='letter-opt'; b.textContent=letter;
+    b.setAttribute('data-letter',letter);
+    box.appendChild(b);
+  });
+}
+function g1Answer(letter){
+  if(g1locked) return; g1locked=true;
+  const q=g1q[g1i];
+  const correct=letter===q.correct;
+  // Fill in the blank letter visually
+  const blanks=document.querySelectorAll('.spell-letter.blank');
+  if(blanks.length){ blanks[0].textContent=letter; blanks[0].classList.remove('blank'); blanks[0].classList.add(correct?'filled-ok':'filled-bad'); }
+  document.querySelectorAll('.letter-opt').forEach(b=>{
+    if(b.getAttribute('data-letter')===q.correct) b.classList.add('lo-ok');
+    else if(b.getAttribute('data-letter')===letter&&!correct) b.classList.add('lo-bad');
+    else b.classList.add('lo-lock');
+  });
+  if(correct){ score(2); showFb('g1fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g1fb','bad','The letter is: '+q.correct.toUpperCase()); }
+  show('g1next');
+}
+
+/* ─── G2: MEMORY MATCH ─── */
+function g2Init(){
+  g2flipped=[]; g2matched=0; g2lock=false;
+  $('g2stat').textContent='Pairs found: 0 / 6'; hide('g2next'); hideFb('g2fb');
+  // Use 6 room words — duplicate each for pairs
+  const words=rnd(ROOMS);
+  const cards=rnd([...words,...words]);
+  const grid=$('g2grid'); grid.innerHTML='';
+  cards.forEach((word,i)=>{
+    const el=document.createElement('div');
+    el.className='m-card';
+    el.setAttribute('data-word',word);
+    el.setAttribute('data-pos',i);
+    grid.appendChild(el);
+  });
+}
+function g2Flip(el){
+  if(g2lock||el.classList.contains('matched')||g2flipped.includes(el)) return;
+  el.classList.add('flipped');
+  el.textContent=el.getAttribute('data-word');
+  g2flipped.push(el);
+  if(g2flipped.length<2) return;
+  g2lock=true;
+  const [a,b]=g2flipped;
+  if(a.getAttribute('data-word')===b.getAttribute('data-word')&&a!==b){
+    setTimeout(()=>{
+      a.classList.add('matched'); b.classList.add('matched');
+      g2matched++; $('g2stat').textContent='Pairs found: '+g2matched+' / 6';
+      score(3); g2flipped=[]; g2lock=false;
+      if(g2matched===6){ showFb('g2fb','ok','⭐ All pairs found!'); show('g2next'); markDone(1); launchConfetti(); }
+    },350);
+  } else {
+    setTimeout(()=>{
+      a.classList.add('m-wrong'); b.classList.add('m-wrong');
+      setTimeout(()=>{
+        [a,b].forEach(c=>{ c.classList.remove('flipped','m-wrong'); c.textContent=''; });
+        g2flipped=[]; g2lock=false;
+      },500);
+    },300);
+  }
+}
+
+/* ─── G3: I'M IN THE… ─── */
+function g3Init(){ g3q=rnd(G3_QS); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ markDone(2); return; }
+  const q=g3q[g3i];
+  g3locked=false;
+  $('g3bar').style.width=(g3i/G3_QS.length*100)+'%';
+  $('g3stem').innerHTML='"'+q.stem+'"<br><span style="font-size:14px;color:var(--muted);font-family:Quicksand,sans-serif;font-weight:600;">I\'m in the ___</span>';
+  hideFb('g3fb'); hide('g3next');
+  const box=$('g3btns'); box.innerHTML='';
+  rnd(ROOMS).forEach(room=>{
+    const b=document.createElement('button');
+    b.className='room-btn'; b.textContent=room;
+    b.setAttribute('data-room',room);
+    box.appendChild(b);
+  });
+}
+function g3Answer(room){
+  if(g3locked) return; g3locked=true;
+  const correct=g3q[g3i].answer;
+  document.querySelectorAll('.room-btn').forEach(b=>{
+    const br=b.getAttribute('data-room');
+    if(br===correct) b.classList.add('rb-ok');
+    else if(br===room) b.classList.add('rb-bad');
+    else b.classList.add('rb-lock');
+  });
+  if(room===correct){ score(2); showFb('g3fb','ok','⭐ Correct! I\'m in the '+correct+'! +2 stars'); }
+  else { showFb('g3fb','bad','The answer is: '+correct); }
+  show('g3next');
+}
+
+/* ─── G4: FILL THE GAP ─── */
+function g4Init(){ g4q=rnd(G4_QS); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ markDone(3); return; }
+  const q=g4q[g4i];
+  g4locked=false;
+  $('g4bar').style.width=(g4i/G4_QS.length*100)+'%';
+  const parts=q.sentence.split('___ ');
+  $('g4box').innerHTML=
+    '<div class="gap-context">'+q.context+'</div>'+
+    '<div class="gap-sentence">'+parts[0]+'<span class="gap-blank" id="g4blank">___</span> '+parts[1]+'</div>';
+  hideFb('g4fb'); hide('g4next');
+  const box=$('g4opts'); box.innerHTML='';
+  rnd(q.opts).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='gap-opt'; b.textContent=opt;
+    b.setAttribute('data-opt',opt);
+    b.setAttribute('data-correct',opt===q.blank?'1':'0');
+    box.appendChild(b);
+  });
+}
+function g4Answer(el){
+  if(g4locked) return; g4locked=true;
+  const correct=el.getAttribute('data-correct')==='1';
+  const answer=el.getAttribute('data-opt');
+  document.querySelectorAll('.gap-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('g-ok');
+    else if(b===el) b.classList.add('g-bad');
+    else b.classList.add('g-lock');
+  });
+  const blank=$('g4blank');
+  if(blank){ blank.textContent=answer; blank.style.color=correct?'var(--green)':'var(--red)'; }
+  if(correct){ score(2); showFb('g4fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g4fb','bad','The answer is: '+g4q[g4i].blank); }
+  show('g4next');
+}
+
+/* ─── G5: WORD ORDER ─── */
+function g5Init(){ g5q=rnd(G5_SENTENCES); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ markDone(4); return; }
+  g5built=[]; g5locked=false;
+  $('g5qi').textContent=g5i+1;
+  hideFb('g5fb'); hide('g5next');
+  const disp=$('g5display'); disp.className='wo-display empty'; disp.textContent='Tap words to build the sentence…';
+  const pool=$('g5pool'); pool.innerHTML='';
+  rnd(g5q[g5i].words.map((w,i)=>({w,i}))).forEach(({w,i})=>{
+    const t=document.createElement('div');
+    t.className='w-tile'; t.textContent=w;
+    t.setAttribute('data-w',w); t.setAttribute('data-slot',i);
+    pool.appendChild(t);
+  });
+}
+function g5Tap(el){
+  if(g5locked||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g5built.push({word:el.getAttribute('data-w'),el});
+  const disp=$('g5display'); disp.className='wo-display';
+  disp.textContent=g5built.map(x=>x.word).join(' ');
+}
+function g5Clear(){
+  g5built.forEach(x=>x.el.classList.remove('used')); g5built=[];
+  const disp=$('g5display'); disp.className='wo-display empty'; disp.textContent='Tap words to build the sentence…';
+  hideFb('g5fb');
+}
+function g5Check(){
+  if(g5locked||g5built.length===0) return; g5locked=true;
+  const built=g5built.map(x=>x.word).join(' ');
+  if(built===g5q[g5i].ans){ score(3); showFb('g5fb','ok','⭐ Perfect! +3 stars'); }
+  else { showFb('g5fb','bad','Correct: '+g5q[g5i].ans); }
+  show('g5next');
+}
+
+/* ─── G6: ROOM QUIZ ─── */
+function g6Init(){ g6q=rnd(G6_QS); g6i=0; g6correct=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ markDone(5); showWin(); return; }
+  const q=g6q[g6i];
+  g6locked=false;
+  $('g6bar').style.width=(g6i/G6_QS.length*100)+'%';
+  $('g6clue').innerHTML='<div class="clue-label">Read the clue</div><div class="clue-text">'+q.clue+'</div><div class="clue-sub">'+q.sub+'</div>';
+  $('g6tally').textContent=g6correct+' / '+g6i+' correct';
+  hideFb('g6fb'); hide('g6next');
+  const box=$('g6opts'); box.innerHTML='';
+  rnd(q.opts).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='quiz-opt'; b.textContent=opt;
+    b.setAttribute('data-opt',opt);
+    b.setAttribute('data-correct',opt===q.answer?'1':'0');
+    box.appendChild(b);
+  });
+}
+function g6Answer(el){
+  if(g6locked) return; g6locked=true;
+  const correct=el.getAttribute('data-correct')==='1';
+  document.querySelectorAll('.quiz-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('q-ok');
+    else if(b===el) b.classList.add('q-bad');
+    else b.classList.add('q-lock');
+  });
+  if(correct){ g6correct++; score(2); showFb('g6fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g6fb','bad','The answer is: '+g6q[g6i].answer); }
+  $('g6tally').textContent=g6correct+' / '+(g6i+1)+' correct';
+  show('g6next');
+}
+
+/* ─── WIN ─── */
+function showWin(){
+  launchConfetti();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('sc-win').classList.add('active'); $('winScore').textContent=totalScore; window.scrollTo(0,0);
+}
+function launchConfetti(){
+  const colors=['#f7c948','#9b72e8','#5de8b8','#f06292','#64c8e8','#fff'];
+  const shapes=['border-radius:50%','','clip-path:polygon(50% 0%,100% 100%,0% 100%)'];
+  const box=$('confetti');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=6+Math.random()*9;
+    p.style.cssText='left:'+Math.random()*100+'%;top:-20px;width:'+sz+'px;height:'+sz+'px;'+
+      'background:'+colors[0|Math.random()*colors.length]+';'+shapes[0|Math.random()*shapes.length]+';'+
+      'animation-delay:'+Math.random()+'s;animation-duration:'+(2+Math.random()*1.5)+'s;';
+    box.appendChild(p); setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ─── EVENT DELEGATION ─── */
+document.addEventListener('click', function(e){
+  const t=e.target;
+
+  const nb=t.closest('.nav-btn');
+  if(nb){ navTo(+nb.getAttribute('data-go')); return; }
+
+  const lo=t.closest('.letter-opt');
+  if(lo){ g1Answer(lo.getAttribute('data-letter')); return; }
+
+  const mc=t.closest('.m-card');
+  if(mc){ g2Flip(mc); return; }
+
+  const rb=t.closest('.room-btn');
+  if(rb){ g3Answer(rb.getAttribute('data-room')); return; }
+
+  const go=t.closest('.gap-opt');
+  if(go){ g4Answer(go); return; }
+
+  const wt=t.closest('.w-tile');
+  if(wt){ g5Tap(wt); return; }
+
+  const qo=t.closest('.quiz-opt');
+  if(qo){ g6Answer(qo); return; }
+
+  const el=t.closest('[data-act]');
+  if(!el) return;
+  const act=el.getAttribute('data-act');
+  const val=el.getAttribute('data-val');
+
+  if     (act==='g1next')  { g1i++; g1Render(); }
+  else if(act==='g2next')  { navTo(2); }
+  else if(act==='g3next')  { g3i++; g3Render(); }
+  else if(act==='g4next')  { g4i++; g4Render(); }
+  else if(act==='g5clear') g5Clear();
+  else if(act==='g5check') g5Check();
+  else if(act==='g5next')  { g5i++; g5Render(); }
+  else if(act==='g6next')  { g6i++; g6Render(); }
+  else if(act==='restart') location.reload();
+});
+
+/* ─── BOOT ─── */
+g1Init(); g2Init(); g3Init(); g4Init(); g5Init(); g6Init();
+</script>
+</body>
+</html>
