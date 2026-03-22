@@ -389,48 +389,60 @@ const COMPARATIVES = [
   { a:'kangaroo', ae:'🦘', b:'panda',    be:'🐼', adj:'quick',  comp:'quicker',  sentence:'A kangaroo is quicker than a panda.' },
 ];
 
-// PRESENT CONTINUOUS — what is the animal doing RIGHT NOW?
-// Action + animal + -ing verb (no future reference)
+// PRESENT CONTINUOUS — sentence completion
+// Student sees: animal emoji + sentence with a gap → picks the correct IS/ARE + verb-ING form
+// Context words (Look!, Listen!, right now, at the moment) signal the present continuous clearly
+// No emoji used to convey an action — the sentence text does all the work
 const PRESENT_CONT = [
   {
-    scene:'🐻💧', q:'What is the bear doing?',
-    opts:['It\'s swimming.','It\'s sleeping.','It\'s eating.','It\'s running.'], ans:'It\'s swimming.',
-    rule:'We use IS + verb-ing for what\'s happening NOW.'
+    animal:'🐻', stem:'The bear _____ in the river right now.',
+    opts:['is swimming','are swimming','is swim','swims'], ans:'is swimming',
+    tip:'Singular → IS + verb-ING. "Right now" = present continuous.'
   },
   {
-    scene:'🦁😴', q:'What is the lion doing?',
-    opts:['It\'s swimming.','It\'s sleeping.','It\'s running.','It\'s eating.'], ans:'It\'s sleeping.',
-    rule:'The lion sleeps a lot — and right now it IS sleeping!'
+    animal:'🦁', stem:'Shh! The lion _____ under the tree.',
+    opts:['is sleeping','are sleeping','is sleep','sleeps'], ans:'is sleeping',
+    tip:'"Shh!" = it\'s happening NOW → IS + sleeping.'
   },
   {
-    scene:'🐬🐟', q:'What is the dolphin doing?',
-    opts:['It\'s sleeping.','It\'s running.','It\'s eating.','It\'s flying.'], ans:'It\'s eating.',
-    rule:'Dolphins eat fish — look, it\'s eating one right now!'
+    animal:'🐬', stem:'Look! The dolphin _____ a fish.',
+    opts:['is eating','are eating','is eat','eats'], ans:'is eating',
+    tip:'"Look!" = something is happening NOW → IS + eating.'
   },
   {
-    scene:'🦘🌿', q:'What is the kangaroo doing?',
-    opts:['It\'s swimming.','It\'s eating.','It\'s sleeping.','It\'s flying.'], ans:'It\'s eating.',
-    rule:'Kangaroos eat leaves — right now it IS eating!'
+    animal:'🦘', stem:'The kangaroo _____ some leaves at the moment.',
+    opts:['is eating','are eating','is eat','eating'], ans:'is eating',
+    tip:'"At the moment" = present continuous → IS + eating.'
   },
   {
-    scene:'🦜🗣️', q:'What is the parrot doing?',
-    opts:['It\'s sleeping.','It\'s eating.','It\'s swimming.','It\'s talking.'], ans:'It\'s talking.',
-    rule:'Parrots talk a lot — and right now it IS talking!'
+    animal:'🦜', stem:'Listen! The parrot _____ right now.',
+    opts:['is talking','are talking','is talk','talks'], ans:'is talking',
+    tip:'"Listen!" = happening NOW → IS + talking.'
   },
   {
-    scene:'🦈🌊', q:'What is the shark doing?',
-    opts:['It\'s flying.','It\'s sleeping.','It\'s swimming.','It\'s talking.'], ans:'It\'s swimming.',
-    rule:'Sharks live in the sea — right now it IS swimming!'
+    animal:'🦈', stem:'The shark _____ through the sea at the moment.',
+    opts:['is swimming','are swimming','is swim','swims'], ans:'is swimming',
+    tip:'"At the moment" = present continuous → IS + swimming.'
   },
   {
-    scene:'🦇🌙', q:'What is the bat doing?',
-    opts:['It\'s swimming.','It\'s sleeping.','It\'s flying.','It\'s eating.'], ans:'It\'s flying.',
-    rule:'Bats get food at night — right now it IS flying!'
+    animal:'🦇', stem:'It\'s night. The bat _____ to find food.',
+    opts:['is flying','are flying','is fly','flies'], ans:'is flying',
+    tip:'Something happening right now → IS + flying.'
   },
   {
-    scene:'🐼🌿', q:'What are the pandas doing?',
-    opts:['They\'re swimming.','They\'re flying.','They\'re eating.','They\'re running.'], ans:'They\'re eating.',
-    rule:'Pandas eat a lot — right now THEY\'RE eating!'
+    animal:'🐼🐼', stem:'Look at the two pandas. They _____ bamboo.',
+    opts:['are eating','is eating','are eat','eating'], ans:'are eating',
+    tip:'Two pandas = plural → ARE + verb-ING.'
+  },
+  {
+    animal:'🐋', stem:'The whale _____ slowly through the ocean right now.',
+    opts:['is swimming','are swimming','is swim','swims'], ans:'is swimming',
+    tip:'Singular + "right now" → IS + swimming.'
+  },
+  {
+    animal:'🦁🦁', stem:'The two lions _____ under the tree at the moment.',
+    opts:['are sleeping','is sleeping','are sleep','sleeps'], ans:'are sleeping',
+    tip:'Two lions = plural → ARE + sleeping.'
   },
 ];
 
@@ -695,7 +707,10 @@ function g3check(){
 }
 
 // ═══════════════════════════════════════════
-//  G4 — WHAT'S IT DOING? (Present Continuous — now, not future)
+//  G4 — SENTENCE COMPLETION: Present Continuous
+//  Student reads sentence with a gap, picks the correct IS/ARE + verb-ING form.
+//  Context clues (Look!, Listen!, right now, at the moment) signal the tense.
+//  Animal emoji is decoration only — meaning comes from the sentence text.
 // ═══════════════════════════════════════════
 function initG4(){ g4d=shuffle(PRESENT_CONT); g4i=0; renderG4(); }
 function renderG4(){
@@ -703,25 +718,29 @@ function renderG4(){
   totalQ++; setProgress(g4i,g4d.length);
   const q=g4d[g4i];
   g4opts=shuffle(q.opts);
+  const displayStem=q.stem.replace('_____','<span style="color:var(--sand);border-bottom:3px solid var(--sand);padding:0 6px;letter-spacing:2px;">_____</span>');
   document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🎬 What's It <span>Doing?</span></div><div class="game-instr">What is happening RIGHT NOW?</div></div>
+    <div class="game-title-bar">
+      <div class="game-name">🎬 Complete the <span>Sentence!</span></div>
+      <div class="game-instr">Choose IS/ARE + verb-ING for right now!</div>
+    </div>
     <div class="q-counter">Question ${g4i+1} of ${g4d.length}</div>
     <div class="action-card">
-      <span class="action-scene">${q.scene}</span>
-      <div class="action-q">${q.q}</div>
+      <span class="action-scene" style="font-size:2.6rem;">${q.animal}</span>
+      <div class="action-q" style="font-size:1.05rem;line-height:1.7;margin-top:10px;">${displayStem}</div>
     </div>
     <div class="mc-opts" id="mc-opts">
       ${g4opts.map((_,i)=>`<div class="mc-opt" data-i="${i}">${g4opts[i]}</div>`).join('')}
     </div>
     <div class="feedback" id="fb4"></div>
-    <div id="rule4" style="display:none;font-family:var(--font-main);font-size:12px;color:var(--sky-light);text-align:center;padding:8px;background:rgba(77,195,240,0.08);border-radius:10px;margin-top:8px;"></div>`;
+    <div id="rule4" style="display:none;font-family:var(--font-main);font-size:12px;color:var(--sky-light);text-align:center;padding:8px 12px;background:rgba(77,195,240,0.08);border-radius:10px;margin-top:8px;line-height:1.5;"></div>`;
   document.querySelectorAll('#mc-opts .mc-opt').forEach((el,i)=>{
-    el.addEventListener('click',()=>g4ans(el,g4opts[i],q.ans,q.rule));
+    el.addEventListener('click',()=>g4ans(el,g4opts[i],q.ans,q.tip));
   });
 }
-function g4ans(el,chosen,correct,rule){
+function g4ans(el,chosen,correct,tip){
   document.querySelectorAll('.mc-opt').forEach(o=>o.classList.add('locked'));
-  const ruleEl=document.getElementById('rule4'); ruleEl.style.display='block'; ruleEl.textContent='💡 '+rule;
+  const ruleEl=document.getElementById('rule4'); ruleEl.style.display='block'; ruleEl.textContent='💡 '+tip;
   if(chosen===correct){
     el.classList.add('correct-opt'); addScore(12); feedback('fb4','correct','🎉 Correct!');
     confetti(el.getBoundingClientRect().left+60,el.getBoundingClientRect().top);
@@ -730,7 +749,7 @@ function g4ans(el,chosen,correct,rule){
     document.querySelectorAll('.mc-opt').forEach(o=>{ if(o.textContent.trim()===correct) o.classList.add('correct-opt'); });
     feedback('fb4','wrong',`❌ "${correct}"`);
   }
-  g4i++; setTimeout(renderG4,2000);
+  g4i++; setTimeout(renderG4,2200);
 }
 
 // ═══════════════════════════════════════════
