@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 4 — At Home 🏠</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --indigo:       #4338ca;
+    --indigo-light: #818cf8;
+    --gold:         #d97706;
+    --gold-light:   #fbbf24;
+    --gold-pale:    rgba(217,119,6,0.12);
+    --warm-red:     #dc2626;
+    --teal:         #0d9488;
+    --teal-light:   #2dd4bf;
+    --leaf:         #22c55e;
+    --coral:        #f25c3d;
+    --bg:           #0d0b1e;
+    --surface:      #141228;
+    --surface2:     #1c1a35;
+    --border:       rgba(255,255,255,0.09);
+    --text:         #f0eeff;
+    --muted:        rgba(240,238,255,0.52);
+    --font-main:    'Baloo 2', cursive;
+    --font-body:    'Quicksand', sans-serif;
+    --radius:       20px;
+    --radius-sm:    12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:var(--font-body); background:var(--bg); color:var(--text);
+    min-height:100vh; overflow-x:hidden;
+    background-image:
+      radial-gradient(ellipse at 15% 10%, rgba(67,56,202,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(217,119,6,0.2) 0%, transparent 50%);
+  }
+  .screen { display:none; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
+
+  /* ══ HOME ══ */
+  #home { align-items:center; padding:24px 16px 48px; }
+  .home-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background:linear-gradient(135deg,var(--indigo),var(--gold));
+    color:#fff; font-family:var(--font-main); font-size:11px; font-weight:800;
+    letter-spacing:2px; padding:6px 18px; border-radius:30px; margin-bottom:12px; text-transform:uppercase;
+  }
+  .home-title {
+    font-family:var(--font-main); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+    line-height:1.05; text-align:center; margin-bottom:4px;
+  }
+  .home-title span { color:var(--gold-light); }
+  .home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:28px; text-align:center; }
+  .game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+  .game-card {
+    background:var(--surface2); border:2px solid var(--border); border-radius:var(--radius);
+    padding:18px 14px; cursor:pointer; transition:transform 0.15s, border-color 0.15s;
+    text-align:center; position:relative;
+  }
+  .game-card:hover { transform:translateY(-3px); border-color:var(--card-color,var(--indigo-light)); }
+  .game-card:active { transform:scale(0.97); }
+  .game-card.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--leaf); font-weight:900; font-size:14px; }
+  .card-icon  { font-size:2.2rem; margin-bottom:8px; display:block; }
+  .card-title { font-family:var(--font-main); font-size:14px; font-weight:800; }
+  .card-desc  { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+  .card-stars { font-size:11px; margin-top:6px; color:var(--gold-light); }
+
+  /* ══ SHELL ══ */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; background:rgba(0,0,0,0.45); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:10;
+  }
+  .back-btn {
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    font-family:var(--font-main); font-size:13px; font-weight:700;
+    padding:6px 14px; border-radius:30px; cursor:pointer; transition:border-color 0.15s;
+  }
+  .back-btn:hover { border-color:var(--gold-light); }
+  .score-pill { display:flex; align-items:center; gap:6px; font-family:var(--font-main); font-size:16px; font-weight:800; }
+  .prog-wrap { width:90px; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .prog-fill  { height:100%; background:linear-gradient(90deg,var(--indigo-light),var(--gold-light)); border-radius:3px; transition:width 0.35s ease; }
+  .game-content { flex:1; padding:22px 16px; max-width:600px; width:100%; margin:0 auto; }
+  .game-title-bar { text-align:center; margin-bottom:20px; }
+  .game-name  { font-family:var(--font-main); font-size:1.45rem; font-weight:900; }
+  .game-name span { color:var(--gold-light); }
+  .game-instr { font-size:13px; color:var(--muted); margin-top:3px; font-weight:600; }
+  .q-counter  { font-family:var(--font-main); font-size:12px; font-weight:700; color:var(--muted); text-align:center; margin-bottom:14px; }
+
+  /* ══ BUTTONS ══ */
+  .btn { font-family:var(--font-main); font-weight:800; border:none; border-radius:30px; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+  .btn:active { transform:scale(0.95); }
+  .btn-primary { background:linear-gradient(135deg,var(--indigo),var(--gold)); color:#fff; padding:13px 28px; font-size:15px; box-shadow:0 4px 16px rgba(67,56,202,0.4); }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(67,56,202,0.5); }
+  .btn-sm { padding:9px 18px; font-size:13px; background:var(--surface2); color:var(--text); border:1.5px solid var(--border); }
+  .btn-sm:hover { border-color:var(--gold-light); }
+  .center-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+
+  /* ══ FEEDBACK ══ */
+  .feedback {
+    text-align:center; font-family:var(--font-main); font-size:1.3rem; font-weight:900;
+    padding:12px; border-radius:var(--radius-sm); margin:14px 0;
+    opacity:0; transform:scale(0.85); transition:all 0.2s ease;
+  }
+  .feedback.show    { opacity:1; transform:scale(1); }
+  .feedback.correct { background:rgba(34,197,94,0.15); color:var(--leaf); border:2px solid rgba(34,197,94,0.3); }
+  .feedback.wrong   { background:rgba(242,92,61,0.15); color:var(--coral); border:2px solid rgba(242,92,61,0.3); }
+  .grammar-tip {
+    font-family:var(--font-main); font-size:12px; color:var(--teal-light); text-align:center;
+    padding:8px 12px; background:rgba(13,148,136,0.1); border-radius:10px;
+    margin-top:8px; line-height:1.5; display:none;
+  }
+
+  /* ══ G1: ROOM SERVICE — read clue, tap furniture/room word ══ */
+  .tag-card {
+    background:linear-gradient(160deg,var(--surface2),var(--surface));
+    border:2px solid rgba(251,191,36,0.2); border-radius:var(--radius);
+    padding:20px 16px; margin-bottom:18px; text-align:center; position:relative;
+  }
+  .tag-card::before { content:'🏷️'; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:1.6rem; }
+  .item-clue { font-family:var(--font-main); font-size:1rem; font-weight:800; line-height:1.7; margin-top:6px; }
+  .item-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .item-tile {
+    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:12px 6px; text-align:center; cursor:pointer; transition:border-color 0.15s, transform 0.12s;
+  }
+  .item-tile:hover { border-color:var(--gold-light); transform:scale(1.04); }
+  .item-tile.correct { border-color:var(--leaf); background:rgba(34,197,94,0.14); animation:pop 0.3s; }
+  .item-tile.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.12); animation:shake 0.4s; }
+  .item-word { font-family:var(--font-main); font-size:12px; font-weight:800; margin-top:2px; line-height:1.3; }
+
+  /* ══ G2: SPELL IT ══ */
+  .spell-clue-box {
+    background:var(--surface2); border-radius:var(--radius-sm); padding:14px 16px;
+    margin-bottom:14px; text-align:center; font-family:var(--font-main); font-size:1rem; font-weight:700; line-height:1.6;
+  }
+  .letter-boxes { display:flex; justify-content:center; gap:5px; flex-wrap:wrap; margin-bottom:16px; }
+  .l-box {
+    min-width:34px; height:44px; border:2.5px solid var(--border); border-radius:10px;
+    background:var(--surface2); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-main); font-size:18px; font-weight:900; color:var(--gold-light); padding:0 3px;
+  }
+  .l-box.filled  { border-color:var(--indigo-light); background:rgba(67,56,202,0.12); }
+  .l-box.correct { border-color:var(--leaf); background:rgba(34,197,94,0.14); color:var(--leaf); }
+  .l-box.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.1); }
+  .letter-pool { display:flex; flex-wrap:wrap; justify-content:center; gap:7px; margin-bottom:14px; }
+  .l-btn {
+    min-width:40px; height:44px; background:var(--surface2); border:2px solid var(--border);
+    border-radius:10px; font-family:var(--font-main); font-size:17px; font-weight:900;
+    color:var(--text); cursor:pointer; transition:border-color 0.15s, transform 0.12s;
+    display:flex; align-items:center; justify-content:center; padding:0 5px;
+  }
+  .l-btn:hover:not(:disabled) { border-color:var(--gold-light); transform:translateY(-2px); }
+  .l-btn:disabled { opacity:0.25; cursor:default; }
+
+  /* ══ G3: FURNITURE FINDER — where is it? room + preposition ══ */
+  /* Directly from the evaluation Part 1 recording script */
+  .room-card {
+    background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 16px; margin-bottom:16px; text-align:center;
+  }
+  .room-icon  { font-size:2.4rem; display:block; margin-bottom:8px; }
+  .room-stem  { font-family:var(--font-main); font-size:1.05rem; font-weight:800; line-height:1.6; }
+  .room-stem .gap { border-bottom:3px solid var(--gold-light); color:var(--gold-light); padding:0 8px; min-width:80px; display:inline-block; }
+  .room-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .room-opt {
+    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:13px 10px; font-family:var(--font-main); font-size:13px; font-weight:800;
+    color:var(--text); cursor:pointer; text-align:center; transition:border-color 0.15s, transform 0.1s; line-height:1.3;
+  }
+  .room-opt:hover:not(.locked) { border-color:var(--indigo-light); transform:scale(1.04); }
+  .room-opt.correct-opt { border-color:var(--leaf); background:rgba(34,197,94,0.14); color:var(--leaf); }
+  .room-opt.wrong-opt   { border-color:var(--coral); background:rgba(242,92,61,0.1); color:var(--coral); }
+  .room-opt.locked { cursor:default; }
+
+  /* ══ G4: WHOSE IS IT? — possessive pronouns ══ */
+  /* See an item, find out who it belongs to, tap mine/yours/his/hers */
+  .lost-card {
+    background:linear-gradient(160deg,var(--surface2),#0d0820);
+    border:2px solid rgba(129,140,248,0.25); border-radius:var(--radius);
+    padding:20px 16px; margin-bottom:16px; text-align:center;
+  }
+  .lost-label { font-family:var(--font-main); font-size:10px; font-weight:800; color:var(--indigo-light); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; }
+  .lost-scenario { font-family:var(--font-main); font-size:1rem; font-weight:800; line-height:1.7; color:var(--text); }
+  .lost-scenario em { color:var(--gold-light); font-style:normal; }
+  .lost-q { font-family:var(--font-main); font-size:0.95rem; color:var(--muted); margin-top:8px; font-weight:700; }
+  .poss-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  .poss-opt {
+    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px 10px; font-family:var(--font-main); font-size:18px; font-weight:900;
+    color:var(--text); cursor:pointer; text-align:center; transition:border-color 0.15s, transform 0.1s;
+  }
+  .poss-opt:hover:not(.locked) { border-color:var(--gold-light); transform:scale(1.04); }
+  .poss-opt.correct-opt { border-color:var(--leaf); background:rgba(34,197,94,0.14); color:var(--leaf); }
+  .poss-opt.wrong-opt   { border-color:var(--coral); background:rgba(242,92,61,0.1); color:var(--coral); }
+  .poss-opt.locked { cursor:default; }
+
+  /* ══ G5: TRUE / FALSE ══ */
+  .dots-row { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.25s; }
+  .dot.done    { background:var(--indigo-light); }
+  .dot.current { background:var(--gold-light); transform:scale(1.3); }
+  .fact-card {
+    background:var(--surface2); border:2px solid var(--border); border-radius:var(--radius);
+    padding:22px 18px; text-align:center; margin-bottom:18px;
+  }
+  .fact-icon { font-size:2.6rem; margin-bottom:10px; display:block; }
+  .fact-text { font-family:var(--font-main); font-size:1.05rem; font-weight:700; line-height:1.5; }
+  .tf-btns { display:flex; gap:12px; justify-content:center; }
+  .tf-btn {
+    flex:1; max-width:150px; padding:15px; font-family:var(--font-main); font-size:17px; font-weight:900;
+    border:none; border-radius:var(--radius); cursor:pointer; transition:transform 0.15s;
+  }
+  .tf-btn:hover  { transform:translateY(-3px); }
+  .tf-btn:active { transform:scale(0.95); }
+  .true-btn  { background:linear-gradient(135deg,#22c55e,#166534); color:#fff; box-shadow:0 4px 14px rgba(34,197,94,0.35); }
+  .false-btn { background:linear-gradient(135deg,#f25c3d,#c43d22); color:#fff; box-shadow:0 4px 14px rgba(242,92,61,0.35); }
+
+  /* ══ G6: BUILD THE DESCRIPTION — sentence builder ══ */
+  .blueprint {
+    background:linear-gradient(160deg,#080c28,#0d1035);
+    border:2px solid rgba(129,140,248,0.3); border-radius:var(--radius);
+    padding:16px; margin-bottom:14px;
+  }
+  .bp-label { font-family:var(--font-main); font-size:10px; font-weight:800; color:var(--indigo-light); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+  .bp-hint  { font-family:var(--font-main); font-size:1rem; font-weight:700; color:var(--muted); line-height:1.6; }
+  .bp-hint strong { color:var(--text); }
+  .sentence-tray {
+    display:flex; flex-wrap:wrap; gap:7px; align-items:center; min-height:52px;
+    padding:12px; background:var(--surface2); border:2px dashed var(--border);
+    border-radius:var(--radius-sm); margin-bottom:12px;
+  }
+  .sentence-tray.has-words { border-color:var(--indigo-light); }
+  .tray-placeholder { font-family:var(--font-main); font-size:13px; color:var(--muted); }
+  .word-bank { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:12px; }
+  .w-chip {
+    background:rgba(67,56,202,0.3); border:2px solid var(--indigo-light); color:var(--text);
+    font-family:var(--font-main); font-size:13px; font-weight:700; padding:8px 14px;
+    border-radius:20px; cursor:pointer; animation:popIn 0.18s ease;
+  }
+  .w-chip:hover { background:rgba(242,92,61,0.25); border-color:var(--coral); }
+  .w-option {
+    background:var(--surface2); border:2px solid var(--border); color:var(--text);
+    font-family:var(--font-main); font-size:13px; font-weight:700; padding:8px 14px;
+    border-radius:20px; cursor:pointer; transition:border-color 0.15s, transform 0.1s;
+  }
+  .w-option:hover:not(:disabled) { border-color:var(--indigo-light); transform:translateY(-2px); }
+  .w-option:disabled { opacity:0.25; cursor:default; }
+  .correct-sent {
+    text-align:center; font-family:var(--font-main); font-size:14px; font-weight:700;
+    padding:10px; border-radius:var(--radius-sm); margin-top:6px;
+  }
+
+  /* ══ COMPLETE ══ */
+  #complete { align-items:center; justify-content:center; text-align:center; padding:30px 20px; }
+  .c-emoji { font-size:4rem; margin-bottom:12px; animation:spinIn 0.6s ease; }
+  .c-title  { font-family:var(--font-main); font-size:2.2rem; font-weight:900; color:var(--gold-light); margin-bottom:6px; }
+  .c-sub    { font-size:14px; color:var(--muted); margin-bottom:20px; font-weight:600; }
+  .stars-big { font-size:2.6rem; margin-bottom:18px; letter-spacing:4px; }
+  .score-circle {
+    width:96px; height:96px; border-radius:50%;
+    background:linear-gradient(135deg,var(--indigo),var(--gold));
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    margin:0 auto 22px; box-shadow:0 8px 28px rgba(67,56,202,0.4);
+  }
+  .sc-num { font-family:var(--font-main); font-size:2rem; font-weight:900; color:#fff; }
+  .sc-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:1px; }
+  .sum-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:24px; }
+  .sum-item { background:var(--surface2); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; }
+  .si-icon { font-size:1.3rem; margin-bottom:4px; display:block; }
+  .si-lbl  { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .si-val  { font-family:var(--font-main); font-weight:800; font-size:14px; color:var(--leaf); }
+  .speaking-card {
+    background:var(--surface2); border:2px solid var(--indigo-light); border-radius:var(--radius);
+    padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left;
+  }
+  .sp-title { font-family:var(--font-main); font-weight:800; font-size:12px; color:var(--gold-light); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .sp-list  { list-style:none; font-size:13px; color:var(--text); line-height:1.8; font-weight:600; }
+  .sp-list li { padding-left:22px; position:relative; margin-bottom:4px; }
+  .sp-list li::before { content:'🏠'; position:absolute; left:0; font-size:11px; top:2px; }
+
+  /* ══ KEYFRAMES ══ */
+  @keyframes pop    { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+  @keyframes shake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  @keyframes popIn  { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes spinIn { from{transform:rotate(0) scale(0.4);opacity:0} to{transform:rotate(360deg) scale(1);opacity:1} }
+  .cp { position:fixed; width:9px; height:9px; border-radius:2px; pointer-events:none; z-index:9999; animation:cFall 1.1s ease-out forwards; }
+  @keyframes cFall  { 0%{opacity:1} 100%{transform:translateY(180px) rotate(540deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home" class="screen active">
+  <div style="text-align:center;padding:28px 16px 18px;">
+    <div class="home-badge">🏠 Kids Box NG2 · Unit 4</div>
+    <h1 class="home-title">At<br><span>Home!</span> 🛋️</h1>
+    <p class="home-sub">Someone left their things around the house — whose are they?</p>
+  </div>
+  <div class="game-grid">
+    <div class="game-card" style="--card-color:#fbbf24" onclick="startGame(1)">
+      <span class="card-icon">🏷️</span>
+      <div class="card-title">Room Service!</div>
+      <div class="card-desc">Name that room or furniture!</div>
+      <div class="card-stars" id="stars-1">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#818cf8" onclick="startGame(2)">
+      <span class="card-icon">✏️</span>
+      <div class="card-title">Spell It!</div>
+      <div class="card-desc">Build the word!</div>
+      <div class="card-stars" id="stars-2">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#2dd4bf" onclick="startGame(3)">
+      <span class="card-icon">🔍</span>
+      <div class="card-title">Furniture Finder!</div>
+      <div class="card-desc">Where is it in the house?</div>
+      <div class="card-stars" id="stars-3">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#f97316" onclick="startGame(4)">
+      <span class="card-icon">❓</span>
+      <div class="card-title">Whose Is It?</div>
+      <div class="card-desc">mine · yours · his · hers</div>
+      <div class="card-stars" id="stars-4">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#f25c3d" onclick="startGame(5)">
+      <span class="card-icon">✅</span>
+      <div class="card-title">True or False?</div>
+      <div class="card-desc">Home facts!</div>
+      <div class="card-stars" id="stars-5">⭐⭐⭐</div>
+    </div>
+    <div class="game-card" style="--card-color:#4338ca" onclick="startGame(6)">
+      <span class="card-icon">🗺️</span>
+      <div class="card-title">Describe the House!</div>
+      <div class="card-desc">Build the sentence!</div>
+      <div class="card-stars" id="stars-6">⭐⭐⭐</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GAME SHELL ══ -->
+<div id="game-screen" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">← Home</button>
+    <div class="score-pill">⭐ <span id="live-score">0</span></div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
+  </div>
+  <div class="game-content" id="game-content"></div>
+</div>
+
+<!-- ══ COMPLETE ══ -->
+<div id="complete" class="screen">
+  <div class="c-emoji">🏠</div>
+  <div class="c-title">Home Expert!</div>
+  <div class="c-sub">You know every room perfectly!</div>
+  <div class="stars-big" id="c-stars">⭐⭐⭐</div>
+  <div class="score-circle">
+    <div class="sc-num" id="final-score">0</div>
+    <div class="sc-lbl">POINTS</div>
+  </div>
+  <div class="sum-grid">
+    <div class="sum-item"><span class="si-icon">🎯</span><div class="si-lbl">Accuracy</div><div class="si-val" id="s-acc">—</div></div>
+    <div class="sum-item"><span class="si-icon">✅</span><div class="si-lbl">Correct</div><div class="si-val" id="s-cor">—</div></div>
+    <div class="sum-item"><span class="si-icon">🎮</span><div class="si-lbl">Game</div><div class="si-val" id="s-gname" style="color:var(--gold-light)">—</div></div>
+  </div>
+  <div class="speaking-card">
+    <div class="sp-title">🗣️ Speaking Challenge</div>
+    <ul class="sp-list" id="sp-prompts"></ul>
+  </div>
+  <div class="center-row">
+    <button class="btn btn-sm" onclick="goHome()">🏠 All Games</button>
+    <button class="btn btn-primary" onclick="replayGame()">▶ Play Again</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  DATA — confirmed from Kids Box 2 Unit 4 evaluation + Wordwall + teacher's book
+// ═══════════════════════════════════════
+
+// Furniture + rooms vocabulary — confirmed from Wordwall group sort + evaluation recording
+const HOME_ITEMS = [
+  { word:'lamp',       clue:'You turn this on when it\'s dark. It gives you light.',         sentence:'There\'s a lamp on the table in the bedroom.' },
+  { word:'chair',      clue:'You sit on this. It has four legs and a back.',                 sentence:'There\'s a chair next to the table in the kitchen.' },
+  { word:'armchair',   clue:'A big comfortable chair. You can relax in it.',                 sentence:'There\'s an armchair in the living room.' },
+  { word:'sofa',       clue:'A long, comfortable seat for two or three people.',             sentence:'There\'s a sofa next to the television in the living room.' },
+  { word:'mirror',     clue:'You look at yourself in this. It shows your reflection.',      sentence:'There\'s a mirror on the wall in the bathroom.' },
+  { word:'wardrobe',   clue:'You hang your clothes inside this tall cupboard.',              sentence:'There\'s a wardrobe in the bedroom.' },
+  { word:'cupboard',   clue:'You store things inside this. It has a door and shelves.',     sentence:'There\'s a cupboard in the kitchen.' },
+  { word:'table',      clue:'You eat your dinner on this. It has four legs.',               sentence:'There\'s a phone on the table in the kitchen.' },
+  { word:'phone',      clue:'You use this to call people. It can ring!',                    sentence:'There\'s a phone on the table in the kitchen.' },
+  { word:'clock',      clue:'You look at this to see what time it is.',                     sentence:'There\'s a clock next to the window in the bedroom.' },
+  { word:'mat',        clue:'You wipe your feet on this. It is on the floor near a door.',  sentence:'There\'s a mat under the window in the hall.' },
+  { word:'bed',        clue:'You sleep in this at night. It is soft and warm.',             sentence:'There\'s a bed in the bedroom.' },
+  { word:'bathroom',   clue:'You have a bath or shower in this room.',                      sentence:'There\'s a mirror on the wall in the bathroom.' },
+  { word:'living room',clue:'The family watches TV and relaxes in this room.',              sentence:'There\'s a sofa next to the television in the living room.' },
+  { word:'kitchen',    clue:'Mum and Dad cook food in this room.',                          sentence:'There\'s a phone on the table in the kitchen.' },
+  { word:'bedroom',    clue:'You sleep in this room. There is a bed here.',                 sentence:'There\'s a clock next to the window in the bedroom.' },
+  { word:'hall',       clue:'This is the room you enter first when you come into the house.', sentence:'There\'s a mat under the window in the hall.' },
+  { word:'dining room',clue:'The family sits and eats dinner together in this room.',        sentence:'The children are NOT in the dining room.' },
+];
+
+// FURNITURE FINDER — directly from the evaluation Part 1 recording script (5 exact sentences)
+// "There's a mirror on the wall in the bathroom."
+// "In the living room there's a sofa next to the television."
+// "There's a mat under the window in the hall."
+// "There's a phone on the table in the kitchen."
+// "There's a clock next to the window in the bedroom."
+const FURNITURE_QS = [
+  {
+    icon:'🪞', item:'mirror',
+    stem:'There\'s a mirror _____ the wall in the bathroom.',
+    opts:['on','under','next to','behind'],
+    ans:'on',
+    tip:'ON the wall — the mirror is attached TO the wall!'
+  },
+  {
+    icon:'🛋️', item:'sofa',
+    stem:'There\'s a sofa _____ the television in the living room.',
+    opts:['under','behind','next to','on'],
+    ans:'next to',
+    tip:'NEXT TO the television — they are side by side!'
+  },
+  {
+    icon:'🟫', item:'mat',
+    stem:'There\'s a mat _____ the window in the hall.',
+    opts:['on','next to','behind','under'],
+    ans:'under',
+    tip:'UNDER the window — the mat is on the floor, below the window!'
+  },
+  {
+    icon:'📱', item:'phone',
+    stem:'There\'s a phone _____ the table in the kitchen.',
+    opts:['under','behind','next to','on'],
+    ans:'on',
+    tip:'ON the table — sitting on top of the table!'
+  },
+  {
+    icon:'🕐', item:'clock',
+    stem:'There\'s a clock _____ the window in the bedroom.',
+    opts:['on','under','behind','next to'],
+    ans:'next to',
+    tip:'NEXT TO the window — right beside it on the wall!'
+  },
+  {
+    icon:'💡', item:'lamp',
+    stem:'There\'s a lamp _____ the table in the bedroom.',
+    opts:['next to','under','behind','on'],
+    ans:'on',
+    tip:'ON the table — the lamp stands on top of the table!'
+  },
+  {
+    icon:'🪑', item:'armchair',
+    stem:'There\'s an armchair _____ the living room.',
+    opts:['next to','in','under','on'],
+    ans:'in',
+    tip:'IN the living room — inside the room!'
+  },
+  {
+    icon:'🚿', item:'bathroom',
+    stem:'There\'s a mirror on the wall _____ the bathroom.',
+    opts:['on','next to','in','under'],
+    ans:'in',
+    tip:'IN the bathroom — the mirror is inside the bathroom!'
+  },
+];
+
+// WHOSE IS IT? — possessive pronouns
+// Confirmed from evaluation Part 2 story:
+// "Are those red shoes yours Suzy?" "No, they're not mine, they're Stella's."
+// "The blue shoes are mine." → mine, yours, his, hers
+const WHOSE_IS_IT = [
+  {
+    label:'Lost Property — Item 1',
+    scenario:'Simon is holding a blue book. He says: <em>"This book belongs to me."</em>',
+    q:'Whose is the book? It\'s ___.',
+    opts:['mine','yours','his','hers'],
+    ans:'his',
+    tip:'"He/Simon" → HIS. The book is HIS.'
+  },
+  {
+    label:'Lost Property — Item 2',
+    scenario:'Stella is looking at a red bag. She says: <em>"That bag belongs to me!"</em>',
+    q:'Whose is the bag? It\'s ___.',
+    opts:['mine','yours','his','hers'],
+    ans:'hers',
+    tip:'"She/Stella" → HERS. The bag is HERS.'
+  },
+  {
+    label:'Lost Property — Item 3',
+    scenario:'You are holding a pencil. Your friend asks: <em>"Is that pencil yours?"</em>',
+    q:'You answer: "Yes, it\'s ___."',
+    opts:['mine','yours','his','hers'],
+    ans:'mine',
+    tip:'"I/me" → MINE. It\'s MINE!'
+  },
+  {
+    label:'Lost Property — Item 4',
+    scenario:'Your friend left a hat on the sofa. You ask them: <em>"Is this hat yours?"</em>',
+    q:'Your friend says: "Yes, it\'s ___."',
+    opts:['mine','yours','his','hers'],
+    ans:'yours',
+    tip:'"You" → YOURS. It\'s YOURS!'
+  },
+  {
+    label:'The Star Family Shoes',
+    scenario:'<em>"Are those red shoes yours, Suzy?"</em> Suzy says: <em>"No, they\'re not mine, they\'re Stella\'s."</em>',
+    q:'Whose are the red shoes? They\'re ___.',
+    opts:['mine','yours','his','hers'],
+    ans:'hers',
+    tip:'They belong to Stella (she/her) → HERS!'
+  },
+  {
+    label:'The Star Family Shoes',
+    scenario:'Simon says: <em>"The blue shoes are mine."</em>',
+    q:'Whose are the blue shoes? They\'re ___.',
+    opts:['mine','yours','his','hers'],
+    ans:'his',
+    tip:'They belong to Simon (he/him) → HIS!'
+  },
+  {
+    label:'Lost Property — Item 5',
+    scenario:'Mum finds a camera in the living room. She asks: <em>"Is this camera yours, Simon?"</em>',
+    q:'Simon says: "Yes, it\'s ___."',
+    opts:['mine','yours','his','hers'],
+    ans:'mine',
+    tip:'Simon is speaking: "I" → MINE. It\'s mine!'
+  },
+  {
+    label:'Lost Property — Item 6',
+    scenario:'Dad finds a hat on the armchair. He asks Stella: <em>"Is this hat yours?"</em>',
+    q:'Stella says: "No, it\'s not ___, it\'s Suzy\'s."',
+    opts:['mine','yours','his','hers'],
+    ans:'mine',
+    tip:'Stella is speaking: "I" → MINE. It\'s not mine!'
+  },
+];
+
+// TRUE/FALSE — evaluation story + grammar
+const TRUE_FALSE = [
+  { icon:'🛋️', text:'There are three children sitting on the sofa.',                      answer:true  },
+  { icon:'🍽️', text:'The children are in the dining room.',                               answer:false },
+  { icon:'👟', text:'There are four shoes on the floor.',                                  answer:false },
+  { icon:'👟', text:'The red shoes are Suzy\'s.',                                          answer:false },
+  { icon:'👟', text:'The blue shoes are Simon\'s.',                                        answer:true  },
+  { icon:'🪞', text:'There\'s a mirror on the wall in the bathroom.',                     answer:true  },
+  { icon:'🛋️', text:'There\'s a sofa next to the television in the living room.',         answer:true  },
+  { icon:'🟫', text:'There\'s a mat under the window in the hall.',                       answer:true  },
+  { icon:'📱', text:'There\'s a phone on the table in the bedroom.',                      answer:false },
+  { icon:'🕐', text:'There\'s a clock next to the window in the bedroom.',                answer:true  },
+];
+
+// DESCRIBE THE HOUSE — sentence builder combining furniture + rooms + possessive pronouns
+const HOME_SENTENCES = [
+  {
+    hint:'Where is the mirror? On the wall in the bathroom.',
+    required:["There's","a","mirror","on","the","wall","in","the","bathroom"],
+    distractors:['sofa','bedroom','under','kitchen','clock','next'],
+    answer:"There's a mirror on the wall in the bathroom."
+  },
+  {
+    hint:'Where is the sofa? Next to the television in the living room.',
+    required:["There's","a","sofa","next","to","the","television","in","the","living","room"],
+    distractors:['mirror','under','bedroom','clock','hall','on'],
+    answer:"There's a sofa next to the television in the living room."
+  },
+  {
+    hint:'Where is the mat? Under the window in the hall.',
+    required:["There's","a","mat","under","the","window","in","the","hall"],
+    distractors:['mirror','sofa','next','bedroom','on','bathroom'],
+    answer:"There's a mat under the window in the hall."
+  },
+  {
+    hint:'Suzy says the red shoes are NOT hers — whose are they?',
+    required:["They're","not","mine","they're","Stella's"],
+    distractors:["his","hers","yours","mine","Simon's","Suzy's"],
+    answer:"They're not mine, they're Stella's."
+  },
+  {
+    hint:'Simon says the blue shoes belong to him.',
+    required:['The','blue','shoes','are','mine'],
+    distractors:['red','his','hers','yours','Suzy','Stella'],
+    answer:'The blue shoes are mine.'
+  },
+  {
+    hint:'Where is the clock? Next to the window in the bedroom.',
+    required:["There's","a","clock","next","to","the","window","in","the","bedroom"],
+    distractors:['mirror','mat','under','hall','bathroom','on'],
+    answer:"There's a clock next to the window in the bedroom."
+  },
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let currentGame=0, score=0, totalQ=0, correctQ=0;
+let g1i=0, g1d=[], g1choices=[];
+let g2i=0, g2d=[], g2typed=[], g2pool=[];
+let g3i=0, g3d=[], g3opts=[];
+let g4i=0, g4d=[], g4opts=[];
+let g5i=0, g5d=[];
+let g6i=0, g6d=[], g6typed=[];
+
+// ═══════════════════════════════════════
+//  NAV
+// ═══════════════════════════════════════
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function goHome(){ show('home'); }
+function replayGame(){ startGame(currentGame); }
+function startGame(n){
+  currentGame=n; score=0; totalQ=0; correctQ=0;
+  document.getElementById('live-score').textContent='0';
+  document.getElementById('prog-bar').style.width='0%';
+  show('game-screen');
+  [initG1,initG2,initG3,initG4,initG5,initG6][n-1]();
+}
+
+// ═══════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════
+const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
+function addScore(pts){score+=pts;correctQ++;document.getElementById('live-score').textContent=score;}
+function setProgress(cur,total){document.getElementById('prog-bar').style.width=`${Math.round((cur/total)*100)}%`;}
+function feedback(elId,type,msg){
+  const el=document.getElementById(elId); if(!el) return;
+  el.textContent=msg; el.className=`feedback ${type} show`;
+  setTimeout(()=>el&&el.classList.remove('show'),1600);
+}
+function confetti(x,y){
+  const cols=['#fbbf24','#818cf8','#f25c3d','#2dd4bf','#f97316','#fff'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div'); p.className='cp';
+    p.style.cssText=`left:${x+(Math.random()-.5)*70}px;top:${y}px;background:${cols[Math.floor(Math.random()*cols.length)]}`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),1200);
+  }
+}
+function showComplete(){
+  const pct=totalQ>0?Math.round((correctQ/totalQ)*100):100;
+  const stars=pct>=85?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
+  document.getElementById(`stars-${currentGame}`).textContent=stars;
+  document.querySelector(`.game-grid .game-card:nth-child(${currentGame})`)?.classList.add('done');
+  document.getElementById('final-score').textContent=score;
+  document.getElementById('c-stars').textContent=stars;
+  document.getElementById('s-acc').textContent=`${pct}%`;
+  document.getElementById('s-cor').textContent=`${correctQ}/${totalQ}`;
+  const names=['','Room Service!','Spell It!','Furniture Finder!','Whose Is It?','True/False','Describe the House!'];
+  document.getElementById('s-gname').textContent=names[currentGame];
+  const allPrompts=[
+    'Say: "There\'s a mirror on the wall in the bathroom."',
+    'Say: "There\'s a sofa next to the television in the living room."',
+    'Ask: "Whose is this? Is it yours?" — "No, it\'s not mine!"',
+    'Say: "The blue shoes are mine. The red ones are hers."',
+    'Say: "There\'s a clock next to the window in the bedroom."',
+    'Ask about your house: "In my bedroom there\'s a ___."',
+  ];
+  document.getElementById('sp-prompts').innerHTML=shuffle(allPrompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  show('complete');
+  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),100);
+  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),500);
+}
+
+// ═══════════════════════════════════════
+//  G1 — ROOM SERVICE! (clue → tap item/room word)
+// ═══════════════════════════════════════
+function initG1(){ g1d=shuffle(HOME_ITEMS); g1i=0; renderG1(); }
+function renderG1(){
+  if(g1i>=g1d.length){ showComplete(); return; }
+  totalQ++; setProgress(g1i,g1d.length);
+  const correct=g1d[g1i];
+  g1choices=shuffle([correct,...shuffle(HOME_ITEMS.filter(h=>h.word!==correct.word)).slice(0,5)]);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🏷️ Room <span>Service!</span></div><div class="game-instr">Read the clue — tap the correct word!</div></div>
+    <div class="q-counter">Question ${g1i+1} of ${g1d.length}</div>
+    <div class="tag-card"><div class="item-clue">"${correct.clue}"</div></div>
+    <div class="item-grid" id="ig">
+      ${g1choices.map((_,i)=>`<div class="item-tile" data-i="${i}"><div class="item-word">${g1choices[i].word}</div></div>`).join('')}
+    </div>
+    <div class="feedback" id="fb1"></div>`;
+  document.querySelectorAll('#ig .item-tile').forEach((tile,i)=>{
+    tile.addEventListener('click',()=>g1ans(tile,g1choices[i].word,correct.word));
+  });
+}
+function g1ans(el,chosen,correct){
+  document.querySelectorAll('.item-tile').forEach(t=>t.style.pointerEvents='none');
+  if(chosen===correct){
+    el.classList.add('correct'); addScore(10); feedback('fb1','correct','🎉 Correct!');
+    confetti(el.getBoundingClientRect().left+40,el.getBoundingClientRect().top);
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.item-tile').forEach(t=>{ if(t.querySelector('.item-word')?.textContent===correct) t.classList.add('correct'); });
+    feedback('fb1','wrong',`❌ It's "${correct}"!`);
+  }
+  g1i++; setTimeout(renderG1,1700);
+}
+
+// ═══════════════════════════════════════
+//  G2 — SPELL IT!
+// ═══════════════════════════════════════
+function initG2(){ g2d=shuffle(HOME_ITEMS).filter(h=>!h.word.includes(' ')).slice(0,9); g2i=0; renderG2(); }
+function renderG2(){
+  if(g2i>=g2d.length){ showComplete(); return; }
+  totalQ++; setProgress(g2i,g2d.length);
+  const h=g2d[g2i]; g2typed=[];
+  const wl=h.word.split('');
+  const extra='aeioulrnstbcdmpghkfwyvz'.split('').filter(l=>!wl.includes(l));
+  g2pool=shuffle([...wl,...shuffle(extra).slice(0,Math.max(4,10-wl.length))]);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">✏️ Spell <span>It!</span></div><div class="game-instr">Tap letters to spell the word!</div></div>
+    <div class="q-counter">Word ${g2i+1} of ${g2d.length}</div>
+    <div class="spell-clue-box">${h.sentence}</div>
+    <div class="letter-boxes" id="lboxes">${wl.map(()=>`<div class="l-box"></div>`).join('')}</div>
+    <div class="letter-pool" id="lpool">${g2pool.map((l,i)=>`<button class="l-btn" id="lb${i}">${l}</button>`).join('')}</div>
+    <div class="center-row"><button class="btn btn-sm" onclick="g2clear()">🗑️ Clear</button></div>
+    <div class="feedback" id="fb2"></div>`;
+  document.querySelectorAll('#lpool .l-btn').forEach((btn,i)=>{
+    btn.addEventListener('click',()=>g2pick(btn,g2pool[i],wl));
+  });
+}
+function g2pick(btn,letter,wl){
+  if(g2typed.length>=wl.length) return;
+  btn.disabled=true;
+  g2typed.push({letter,btn});
+  const boxes=document.querySelectorAll('.l-box');
+  boxes[g2typed.length-1].textContent=letter; boxes[g2typed.length-1].classList.add('filled');
+  if(g2typed.length===wl.length){
+    const ok=g2typed.map(x=>x.letter).join('')===wl.join('');
+    setTimeout(()=>{
+      if(ok){
+        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('correct');});
+        addScore(15); feedback('fb2','correct',`🎉 ${g2d[g2i].word.toUpperCase()}!`);
+        confetti(window.innerWidth/2,180);
+        g2i++; setTimeout(renderG2,1500);
+      } else {
+        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('wrong');});
+        feedback('fb2','wrong','❌ Try again!');
+        setTimeout(()=>{ g2typed.forEach(x=>x.btn.disabled=false); g2typed=[]; boxes.forEach(b=>{b.textContent='';b.className='l-box';}); },900);
+      }
+    },150);
+  }
+}
+function g2clear(){
+  g2typed.forEach(x=>x.btn.disabled=false); g2typed=[];
+  document.querySelectorAll('.l-box').forEach(b=>{b.textContent='';b.className='l-box';});
+}
+
+// ═══════════════════════════════════════
+//  G3 — FURNITURE FINDER (prepositions + rooms, from evaluation recording script)
+// ═══════════════════════════════════════
+function initG3(){ g3d=shuffle(FURNITURE_QS); g3i=0; renderG3(); }
+function renderG3(){
+  if(g3i>=g3d.length){ showComplete(); return; }
+  totalQ++; setProgress(g3i,g3d.length);
+  const q=g3d[g3i];
+  g3opts=shuffle(q.opts);
+  const displayStem=q.stem.replace('_____','<span class="gap">?????</span>');
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🔍 Furniture <span>Finder!</span></div><div class="game-instr">Choose the correct preposition!</div></div>
+    <div class="q-counter">Question ${g3i+1} of ${g3d.length}</div>
+    <div class="room-card">
+      <span class="room-icon">${q.icon}</span>
+      <div class="room-stem">${displayStem}</div>
+    </div>
+    <div class="room-opts" id="ropts">
+      ${g3opts.map((_,i)=>`<div class="room-opt" data-i="${i}">${g3opts[i]}</div>`).join('')}
+    </div>
+    <div class="feedback" id="fb3"></div>
+    <div class="grammar-tip" id="gtip3"></div>`;
+  document.querySelectorAll('#ropts .room-opt').forEach((el,i)=>{
+    el.addEventListener('click',()=>g3ans(el,g3opts[i],q.ans,q.tip));
+  });
+}
+function g3ans(el,chosen,correct,tip){
+  document.querySelectorAll('.room-opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=document.getElementById('gtip3'); tipEl.style.display='block'; tipEl.textContent='💡 '+tip;
+  if(chosen===correct){
+    el.classList.add('correct-opt'); addScore(12); feedback('fb3','correct','🎉 Correct!');
+    confetti(el.getBoundingClientRect().left+50,el.getBoundingClientRect().top);
+  } else {
+    el.classList.add('wrong-opt');
+    document.querySelectorAll('.room-opt').forEach(o=>{ if(o.textContent.trim()===correct) o.classList.add('correct-opt'); });
+    feedback('fb3','wrong',`❌ "${correct}"`);
+  }
+  g3i++; setTimeout(renderG3,2000);
+}
+
+// ═══════════════════════════════════════
+//  G4 — WHOSE IS IT? (possessive pronouns: mine/yours/his/hers)
+//  From the exact evaluation Part 2 story about Simon, Suzy and Stella's shoes
+// ═══════════════════════════════════════
+function initG4(){ g4d=shuffle(WHOSE_IS_IT); g4i=0; renderG4(); }
+function renderG4(){
+  if(g4i>=g4d.length){ showComplete(); return; }
+  totalQ++; setProgress(g4i,g4d.length);
+  const q=g4d[g4i];
+  g4opts=shuffle(q.opts);
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">❓ Whose <span>Is It?</span></div><div class="game-instr">Choose the correct possessive pronoun!</div></div>
+    <div class="q-counter">Question ${g4i+1} of ${g4d.length}</div>
+    <div class="lost-card">
+      <div class="lost-label">🏷️ ${q.label}</div>
+      <div class="lost-scenario">${q.scenario}</div>
+      <div class="lost-q">${q.q}</div>
+    </div>
+    <div class="poss-grid" id="popts">
+      ${g4opts.map((_,i)=>`<div class="poss-opt" data-i="${i}">${g4opts[i]}</div>`).join('')}
+    </div>
+    <div class="feedback" id="fb4"></div>
+    <div class="grammar-tip" id="gtip4"></div>`;
+  document.querySelectorAll('#popts .poss-opt').forEach((el,i)=>{
+    el.addEventListener('click',()=>g4ans(el,g4opts[i],q.ans,q.tip));
+  });
+}
+function g4ans(el,chosen,correct,tip){
+  document.querySelectorAll('.poss-opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=document.getElementById('gtip4'); tipEl.style.display='block'; tipEl.textContent='💡 '+tip;
+  if(chosen===correct){
+    el.classList.add('correct-opt'); addScore(12); feedback('fb4','correct','🎉 Correct!');
+    confetti(el.getBoundingClientRect().left+50,el.getBoundingClientRect().top);
+  } else {
+    el.classList.add('wrong-opt');
+    document.querySelectorAll('.poss-opt').forEach(o=>{ if(o.textContent.trim()===correct) o.classList.add('correct-opt'); });
+    feedback('fb4','wrong',`❌ "${correct}"!`);
+  }
+  g4i++; setTimeout(renderG4,2100);
+}
+
+// ═══════════════════════════════════════
+//  G5 — TRUE OR FALSE
+// ═══════════════════════════════════════
+function initG5(){ g5d=shuffle(TRUE_FALSE).slice(0,9); g5i=0; renderG5(); }
+function renderG5(){
+  if(g5i>=g5d.length){ showComplete(); return; }
+  totalQ++; setProgress(g5i,g5d.length);
+  const f=g5d[g5i];
+  const dots=g5d.map((_,i)=>`<div class="dot ${i<g5i?'done':i===g5i?'current':''}"></div>`).join('');
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">✅ True or <span>False?</span></div><div class="game-instr">Is this true or false?</div></div>
+    <div class="dots-row">${dots}</div>
+    <div class="fact-card"><span class="fact-icon">${f.icon}</span><div class="fact-text">${f.text}</div></div>
+    <div class="tf-btns">
+      <button class="tf-btn true-btn"  id="tbtn">✅ TRUE</button>
+      <button class="tf-btn false-btn" id="fbtn">❌ FALSE</button>
+    </div>
+    <div class="feedback" id="fb5"></div>`;
+  document.getElementById('tbtn').addEventListener('click',()=>g5ans(true,f.answer));
+  document.getElementById('fbtn').addEventListener('click',()=>g5ans(false,f.answer));
+}
+function g5ans(ans,correct){
+  document.getElementById('tbtn').disabled=true; document.getElementById('fbtn').disabled=true;
+  if(ans===correct){
+    addScore(12); feedback('fb5','correct',"🎉 That's right!");
+    confetti(window.innerWidth/2,window.innerHeight/3);
+  } else {
+    feedback('fb5','wrong',`❌ It's ${correct?'TRUE ✅':'FALSE ❌'}!`);
+  }
+  g5i++; setTimeout(renderG5,1600);
+}
+
+// ═══════════════════════════════════════
+//  G6 — DESCRIBE THE HOUSE! (sentence builder: furniture + rooms + possessive pronouns)
+// ═══════════════════════════════════════
+function initG6(){ g6d=shuffle(HOME_SENTENCES); g6i=0; renderG6(); }
+function renderG6(){
+  if(g6i>=g6d.length){ showComplete(); return; }
+  totalQ++; setProgress(g6i,g6d.length);
+  const s=g6d[g6i]; g6typed=[];
+  const pool=shuffle([...s.required,...s.distractors]);
+  g6d[g6i]._pool=pool;
+  document.getElementById('game-content').innerHTML=`
+    <div class="game-title-bar"><div class="game-name">🗺️ Describe the <span>House!</span></div><div class="game-instr">Tap the words to build the sentence!</div></div>
+    <div class="q-counter">Sentence ${g6i+1} of ${g6d.length}</div>
+    <div class="blueprint">
+      <div class="bp-label">💡 Hint</div>
+      <div class="bp-hint">${s.hint}</div>
+    </div>
+    <div class="sentence-tray" id="stray"><span class="tray-placeholder">Tap words below…</span></div>
+    <div class="word-bank" id="wbank">
+      ${pool.map((_,i)=>`<button class="w-option" id="wo${i}">${pool[i]}</button>`).join('')}
+    </div>
+    <div class="center-row">
+      <button class="btn btn-sm" onclick="renderG6()">🗑️ Clear</button>
+      <button class="btn btn-primary" onclick="g6check()">✓ Check</button>
+    </div>
+    <div class="feedback" id="fb6"></div>
+    <div id="csent6" class="correct-sent" style="display:none"></div>`;
+  document.querySelectorAll('#wbank .w-option').forEach((btn,i)=>{
+    btn.addEventListener('click',()=>g6pick(btn,pool[i]));
+  });
+}
+function g6pick(btn,word){
+  btn.disabled=true; btn.style.opacity='0.3';
+  g6typed.push({word,btn});
+  const tray=document.getElementById('stray');
+  if(g6typed.length===1) tray.innerHTML='';
+  tray.classList.add('has-words');
+  const chip=document.createElement('div'); chip.className='w-chip'; chip.textContent=word;
+  chip.addEventListener('click',()=>{
+    const idx=g6typed.findIndex(x=>x.btn===btn);
+    if(idx>-1) g6typed.splice(idx,1);
+    btn.disabled=false; btn.style.opacity='1'; chip.remove();
+    if(g6typed.length===0){ tray.classList.remove('has-words'); tray.innerHTML='<span class="tray-placeholder">Tap words below…</span>'; }
+  });
+  tray.appendChild(chip);
+}
+function g6check(){
+  const s=g6d[g6i];
+  const attempt=g6typed.map(x=>x.word.toLowerCase()).join(' ');
+  const allRequired=s.required.every(w=>attempt.includes(w.toLowerCase()));
+  const noDistractors=s.distractors.every(w=>!attempt.includes(w.toLowerCase()));
+  const cs=document.getElementById('csent6'); cs.style.display='block';
+  if(allRequired&&noDistractors){
+    addScore(20); feedback('fb6','correct','🎉 Brilliant!');
+    cs.style.color='var(--leaf)'; cs.textContent='✅ '+s.answer;
+    confetti(window.innerWidth/2,200);
+  } else {
+    feedback('fb6','wrong','❌ Check your words!');
+    cs.style.color='var(--coral)'; cs.textContent='💡 '+s.answer;
+  }
+  g6i++; setTimeout(renderG6,2200);
+}
+</script>
+</body>
+</html>
