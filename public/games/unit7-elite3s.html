@@ -398,7 +398,7 @@ body::after {
     <div class="line1">Sporting</div>
     <div class="line2">Life</div>
   </h1>
-  <p class="home-sub">Can / Can't &nbsp;·&nbsp; Sports Vocabulary &nbsp;·&nbsp; at/in/on &nbsp;·&nbsp; Suggestions &nbsp;·&nbsp; Spelling</p>
+  <p class="home-sub">Can / Can't &nbsp;·&nbsp; Sports Vocabulary &nbsp;·&nbsp; at/in/on &nbsp;·&nbsp; Months &amp; Seasons &nbsp;·&nbsp; Ordinal Numbers &nbsp;·&nbsp; Spelling</p>
 
   <div class="game-grid">
     <div class="gcard" style="--cc:#5b8cff" onclick="launch('vocab')">
@@ -431,11 +431,11 @@ body::after {
       <div class="gcard-sub">Why don't / Let's / How about</div>
       <div class="gcard-tag">Speaking</div>
     </div>
-    <div class="gcard" style="--cc:#ec4899" onclick="launch('reading')">
+    <div class="gcard" style="--cc:#ec4899" onclick="launch('calendar')">
       <div class="gcard-num">06 / 08</div>
-      <div class="gcard-name">The Other Final</div>
-      <div class="gcard-sub">True / False / Doesn't say</div>
-      <div class="gcard-tag">Reading</div>
+      <div class="gcard-name">Months, Seasons & Ordinals</div>
+      <div class="gcard-sub">3 rounds — months · seasons · ordinal numbers</div>
+      <div class="gcard-tag">Vocabulary</div>
     </div>
     <div class="gcard" style="--cc:#f59e0b" onclick="launch('speed')">
       <div class="gcard-num">07 / 08</div>
@@ -530,24 +530,18 @@ body::after {
   </div>
 </div>
 
-<!-- ═══ READING ═══ -->
-<div class="screen" id="screen-reading">
+<!-- ═══ CALENDAR ═══ -->
+<div class="screen" id="screen-calendar">
   <div class="shell">
     <div class="shell-header">
-      <div class="sh-left"><span class="sh-tag">Reading Comprehension</span><span class="sh-title">The Other Final</span></div>
-      <div class="sh-right"><span class="score-tag" id="r-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
+      <div class="sh-left"><span class="sh-tag">Vocabulary · Months · Seasons · Ordinals</span><span class="sh-title">Months, Seasons & Ordinals</span></div>
+      <div class="sh-right"><span class="score-tag" id="cal-score">0 pts</span><button class="back-link" onclick="goHome()">← back</button></div>
     </div>
     <div class="divider"></div>
-    <div class="reading-passage">
-      <strong style="color:var(--accent)">The Other Final</strong><br><br>
-      It's 30th June 2002. In the International Stadium in Yokohama, Japan, two great teams, Brazil and Germany, are ready to play in the World Cup final.<br><br>
-      4,500 kilometres away in the Changlimithang Stadium in Thimphu, Bhutan, there is another football match: Bhutan vs. Montserrat. Bhutan are number 202 in the world, Montserrat are 203. They are the bottom two teams in the world.<br><br>
-      It's Matthijs de Jongh's idea. He's a Dutch businessman. He can't watch his national team, the Netherlands, because they are not at this World Cup. He's sad but then he thinks about people from other countries. What about teams that never play in the World Cup? He organises 'the other final' and asks the national teams of Bhutan and Montserrat to play. The Montserrat team fly from the Caribbean to the Himalayan mountains of Bhutan. Thousands of people watch the match. Bhutan win 4–0, but everyone decides that football is the real winner.<br><br>
-      After their game, both teams sit down with the rest of the world and enjoy the real World Cup final.
-    </div>
-    <div class="true-false-grid" id="r-grid"></div>
-    <button class="check-all-btn" onclick="checkReading()">Check All Answers</button>
-    <div class="fb" id="r-fb"></div>
+    <div class="prog-bar"><div class="prog-fill" id="cal-prog" style="width:0%;background:#ec4899"></div></div>
+    <div class="q-box"><div class="q-tag" id="cal-tag"></div><div class="q-text" id="cal-text"></div></div>
+    <div class="opts" id="cal-opts"></div>
+    <div class="fb" id="cal-fb"></div>
   </div>
 </div>
 
@@ -755,6 +749,32 @@ const transformQs = [
   },
 ]
 
+const calendarQs = [
+  // ── MONTHS ──
+  { tag:'Round 1 — Months · What number is this month?', q:'Which month is number 3?', a:'March', opts:['March','May','February','April'] },
+  { tag:'Round 1 — Months · What number is this month?', q:'Which month comes after July?', a:'August', opts:['August','June','September','October'] },
+  { tag:'Round 1 — Months · What number is this month?', q:'Which month is number 11?', a:'November', opts:['November','October','December','September'] },
+  { tag:'Round 1 — Months · What number is this month?', q:'Which month comes between January and March?', a:'February', opts:['February','April','June','December'] },
+  { tag:'Round 1 — Months · Spelling', q:'How do you spell the 9th month?', a:'September', opts:['September','Septembre','Setember','Septembar'] },
+  { tag:'Round 1 — Months · Spelling', q:'How do you spell the 2nd month?', a:'February', opts:['February','Febuary','Feburary','Februray'] },
+  // ── SEASONS ──
+  { tag:'Round 2 — Seasons · Which season?', q:'December, January and February are in which season (UK)?', a:'Winter', opts:['Winter','Spring','Autumn','Summer'] },
+  { tag:'Round 2 — Seasons · Which season?', q:'June, July and August are in which season (UK)?', a:'Summer', opts:['Summer','Spring','Winter','Autumn'] },
+  { tag:'Round 2 — Seasons · Which months?', q:'Which months are in Spring (UK)?', a:'March, April, May', opts:['March, April, May','June, July, August','September, October, November','January, February, March'] },
+  { tag:'Round 2 — Seasons · Which season?', q:'The Australian Open Tennis is in January. What season is it in the UK then?', a:'Winter', opts:['Winter','Summer','Spring','Autumn'] },
+  { tag:'Round 2 — Seasons · Which months?', q:'Which months are in Autumn (UK)?', a:'September, October, November', opts:['September, October, November','June, July, August','December, January, February','March, April, May'] },
+  { tag:'Round 2 — Seasons · Spelling', q:'Which spelling is correct?', a:'Autumn', opts:['Autumn','Autum','Autmun','Auttumn'] },
+  // ── ORDINAL NUMBERS ──
+  { tag:'Round 3 — Ordinal Numbers · Write it out', q:'How do you say / write "3rd"?', a:'third', opts:['third','threeth','thirth','thrird'] },
+  { tag:'Round 3 — Ordinal Numbers · Write it out', q:'How do you say / write "12th"?', a:'twelfth', opts:['twelfth','twelveth','twelfeth','twelth'] },
+  { tag:'Round 3 — Ordinal Numbers · Write it out', q:'How do you say / write "20th"?', a:'twentieth', opts:['twentieth','twentyth','twentyeth','twentieath'] },
+  { tag:'Round 3 — Ordinal Numbers · Write it out', q:'How do you say / write "1st"?', a:'first', opts:['first','oneth','firth','firsth'] },
+  { tag:'Round 3 — Ordinal Numbers · Write it out', q:'How do you say / write "31st"?', a:'thirty-first', opts:['thirty-first','thirty-oneth','thirtieth-first','thirty-one'] },
+  { tag:'Round 3 — Ordinal Numbers · Dates in context', q:'"The World Cup final was on ___ June 2002." (30)', a:'30th', opts:['30th','30nd','30rd','30st'] },
+  { tag:'Round 3 — Ordinal Numbers · Dates in context', q:'Wimbledon starts on 1st July. How do you say "1st"?', a:'first', opts:['first','onest','firstly','once'] },
+  { tag:'Round 3 — Ordinal Numbers · Dates in context', q:'My birthday is ___ (5) May. Which is correct?', a:'on 5th May', opts:['on 5th May','in 5th May','at 5th May','on 5nd May'] },
+]
+
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
@@ -765,9 +785,6 @@ let spWord='', spGuessed=[], spLives=3, spScore=0, spIdx=0
 
 // Speed state
 let spdTimer=null, spdTimeLeft=60, spdScore=0, spdStreak=0, spdPool=[]
-
-// Reading state
-let rAnswers={}
 
 // ═══════════════════════════════════════
 // NAV
@@ -786,7 +803,7 @@ function launch(g){
   else if(g==='suggestion'){total=suggestionQs.length;show('suggestion');loadQ('sg',suggestionQs)}
   else if(g==='transform'){total=transformQs.length;show('transform'); loadTransform()}
   else if(g==='spell') {spScore=0;spIdx=0;         show('spell');       loadSpell()}
-  else if(g==='reading'){                          show('reading');     initReading()}
+  else if(g==='calendar'){total=calendarQs.length;  show('calendar');   loadQ('cal',calendarQs)}
   else if(g==='speed') {                           show('speed');       initSpeed()}
 }
 
@@ -907,66 +924,6 @@ function guessLetter(ch){
     renderSpell()
     setTimeout(()=>{spIdx++;loadSpell()},2500)
   }
-}
-
-// ═══════════════════════════════════════
-// READING — TRUE / FALSE / DOESN'T SAY
-// ═══════════════════════════════════════
-function initReading(){
-  rAnswers={}
-  el('r-score').textContent='0 pts'
-  el('r-fb').className='fb'
-  const grid=el('r-grid'); grid.innerHTML=''
-  readingQs.forEach((q,i)=>{
-    const row=document.createElement('div');row.className='tf-row'
-    row.innerHTML=`
-      <div class="tf-statement">${i+1}. ${q.s}</div>
-      <div class="tf-btns">
-        <button class="tf-btn" id="tf-${i}-true"  onclick="selectTF(${i},'true')">True</button>
-        <button class="tf-btn" id="tf-${i}-false" onclick="selectTF(${i},'false')">False</button>
-        <button class="tf-btn" id="tf-${i}-ds"    onclick="selectTF(${i},'doesnt say')">Doesn't say</button>
-      </div>`
-    grid.appendChild(row)
-  })
-}
-
-function selectTF(i,val){
-  rAnswers[i]=val
-  const classes={true:'sel-true',false:'sel-false','doesnt say':'sel-ds'}
-  ['true','false','ds'].forEach(t=>{
-    const btn=document.getElementById('tf-'+i+'-'+t)
-    btn.className='tf-btn'
-  })
-  const keyMap={'true':'true','false':'false','doesnt say':'ds'}
-  document.getElementById('tf-'+i+'-'+keyMap[val]).className='tf-btn '+classes[val]
-}
-
-function checkReading(){
-  let correct=0
-  readingQs.forEach((q,i)=>{
-    const chosen=rAnswers[i]
-    const isCorrect=chosen===q.a
-    if(isCorrect)correct++
-    // Show result on each button
-    const keyMap={'true':'true','false':'false','doesnt say':'ds'}
-    const correctKey=keyMap[q.a]
-    const correctBtn=document.getElementById('tf-'+i+'-'+correctKey)
-    if(isCorrect){
-      correctBtn.className='tf-btn correct-tf'
-    } else {
-      if(chosen){
-        const chosenKey=keyMap[chosen]
-        document.getElementById('tf-'+i+'-'+chosenKey).className='tf-btn wrong-tf'
-      }
-      correctBtn.className='tf-btn correct-tf'
-    }
-  })
-  score=correct; total=readingQs.length
-  el('r-score').textContent=correct+' pts'
-  if(correct===total)confetti(10)
-  el('r-fb').textContent=(correct===total?'✓ Perfect score! ':'✗ ')+correct+'/'+total+' correct. Review the highlighted answers above.'
-  el('r-fb').className='fb '+(correct>=total*0.7?'ok':'err')+' show'
-  setTimeout(()=>complete(),2500)
 }
 
 // ═══════════════════════════════════════
