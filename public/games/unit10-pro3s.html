@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 10 — At the Funfair! 🎡</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0a2a2a;
+  --teal:    #0d3b3b;
+  --card:    #0f3333;
+  --border:  #1a5555;
+  --yellow:  #ffd166;
+  --red:     #ef476f;
+  --cyan:    #06d6a0;
+  --white:   #f8f9fa;
+  --muted:   #5fa899;
+  --purple:  #c77dff;
+  --orange:  #ff9f1c;
+  --green:   #06d6a0;
+  --bad:     #ef476f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--white);
+}
+
+/* HEADER */
+.header {
+  background: var(--teal);
+  border-bottom: 3px solid var(--yellow);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 3px 20px rgba(0,0,0,.5);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+}
+.title-text {
+  font-family: 'Baloo 2', sans-serif; font-size: 21px; font-weight: 900;
+  color: var(--yellow);
+}
+.title-sub { font-size: 9px; font-weight: 700; color: var(--muted); letter-spacing: 2px; margin-top: 1px; }
+.score-pill {
+  background: var(--yellow); color: var(--bg);
+  font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 900;
+  padding: 5px 14px; border-radius: 30px;
+}
+
+/* FREE NAV */
+.game-nav {
+  display: flex; gap: 6px; padding: 10px 16px 12px;
+  overflow-x: auto; background: var(--teal);
+}
+.game-nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  background: transparent; border: 2px solid var(--border);
+  color: var(--muted); font-family: 'Baloo 2', sans-serif;
+  font-size: 10px; font-weight: 700; padding: 6px 13px; border-radius: 30px;
+  cursor: pointer; transition: all .18s; letter-spacing: .5px;
+}
+.nav-btn:hover  { border-color: var(--yellow); color: var(--yellow); }
+.nav-btn.active { background: var(--yellow); border-color: var(--yellow); color: var(--bg); }
+.nav-btn.done   { border-color: var(--cyan); color: var(--cyan); }
+
+/* SCREENS */
+.screen { display: none; padding: 16px; max-width: 660px; margin: 0 auto; }
+.screen.active { display: block; animation: fadeUp .22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* CARD */
+.card {
+  background: var(--card); border-radius: 20px;
+  padding: 20px; border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4); margin-bottom: 14px;
+}
+.game-badge {
+  display: inline-block; background: var(--border); border-radius: 30px;
+  padding: 3px 12px; font-size: 9px; font-weight: 700;
+  letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px;
+}
+.game-title { font-family: 'Baloo 2', sans-serif; font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+.game-instr { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+
+/* FEEDBACK */
+.feedback {
+  margin-top: 12px; padding: 10px 16px; border-radius: 11px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700;
+  text-align: center; display: none;
+}
+.feedback.ok  { display: block; background: rgba(6,214,160,.15);  color: var(--cyan); border: 1px solid rgba(6,214,160,.3); }
+.feedback.bad { display: block; background: rgba(239,71,111,.12);  color: #ff8fab;     border: 1px solid rgba(239,71,111,.3); }
+
+/* BUTTONS */
+.btn {
+  border: none; border-radius: 11px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 800;
+  padding: 10px 22px; cursor: pointer; transition: all .15s; display: inline-block;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-full  { width: 100%; text-align: center; display: block; }
+.btn-right { display: block; margin-top: 12px; margin-left: auto; width: fit-content; }
+
+/* PROGRESS */
+.prog { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 16px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width .4s ease; }
+
+/* ANIMATIONS */
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0deg) scale(1);opacity:1} }
+
+/* CONFETTI */
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+.cp { position: absolute; opacity: 0; animation: cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ══ G1: TRANSPORT FLASH ══ */
+.big-stage {
+  background: linear-gradient(135deg, var(--teal), #0a2f2f);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 24px; text-align: center; margin-bottom: 18px;
+  font-size: 80px; min-height: 140px;
+  display: flex; align-items: center; justify-content: center;
+}
+.choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.choice-btn {
+  background: var(--teal); border: 2px solid var(--border); border-radius: 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--white); padding: 13px 6px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.choice-btn:hover       { border-color: var(--yellow); color: var(--yellow); }
+.choice-btn.c-ok        { border-color: var(--cyan); color: var(--cyan); background: rgba(6,214,160,.1); animation: popIn .28s ease; pointer-events: none; }
+.choice-btn.c-bad       { border-color: var(--bad);  color: #ff8fab;     background: rgba(239,71,111,.1); animation: shake .4s ease;  pointer-events: none; }
+.choice-btn.c-lock      { pointer-events: none; }
+
+/* ══ G2: FLYING RIDING DRIVING SORT ══ */
+.sort-pool  { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 50px; margin-bottom: 16px; }
+.sort-chip  {
+  background: var(--teal); border: 2.5px solid var(--border);
+  font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--white); padding: 8px 14px; border-radius: 30px;
+  cursor: pointer; transition: all .15s;
+}
+.sort-chip:hover  { border-color: var(--yellow); }
+.sort-chip.sel    { border-color: var(--yellow); background: rgba(255,209,102,.15); }
+.sort-chip.placed { opacity: 0; pointer-events: none; }
+.sort-zones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.sort-zone  {
+  border-radius: 14px; padding: 12px 8px; min-height: 110px;
+  border: 2.5px dashed;
+}
+.zone-fly   { border-color: var(--cyan);   background: rgba(6,214,160,.05); }
+.zone-ride  { border-color: var(--orange); background: rgba(255,159,28,.05); }
+.zone-drive { border-color: var(--purple); background: rgba(199,125,255,.05); }
+.zone-head  {
+  font-family: 'Baloo 2', sans-serif; font-size: 11px; font-weight: 900;
+  text-align: center; margin-bottom: 8px; letter-spacing: .5px;
+}
+.zone-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.zchip {
+  font-family: 'Baloo 2', sans-serif; font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 20px; color: var(--bg);
+  opacity: 0; transform: scale(.7); transition: all .22s;
+}
+.zchip.show     { opacity: 1; transform: scale(1); }
+.zchip.zc-ok    { background: var(--cyan); }
+.zchip.zc-wrong { background: var(--bad); color: #fff; }
+
+/* ══ G3: WHAT ARE YOU DOING — chip builder ══ */
+.character-scene {
+  background: linear-gradient(135deg, var(--teal), #0a2f2f);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px; text-align: center; margin-bottom: 14px;
+}
+.char-emoji  { font-size: 52px; margin-bottom: 6px; }
+.char-name   { font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 800; color: var(--yellow); margin-bottom: 4px; }
+.char-prompt { font-size: 12px; font-weight: 600; color: var(--muted); }
+.built-display {
+  background: var(--teal); border: 2px dashed var(--border); border-radius: 14px;
+  padding: 12px 16px; min-height: 52px; margin-bottom: 12px;
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 800;
+  color: var(--white); text-align: center;
+  display: flex; align-items: center; justify-content: center;
+}
+.built-display.empty { font-size: 12px; font-weight: 600; color: var(--muted); font-family: 'Quicksand', sans-serif; }
+.chip-pool { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 12px; }
+.chip {
+  background: var(--orange); color: var(--bg);
+  font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 800;
+  padding: 7px 13px; border-radius: 10px;
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.chip:hover:not(.used) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,159,28,.4); }
+.chip.used { opacity: .25; pointer-events: none; }
+.btn-row { display: flex; gap: 8px; justify-content: center; }
+
+/* ══ G4: WORD ORDER ══ */
+.wo-display {
+  background: var(--teal); border: 2px dashed var(--border); border-radius: 14px;
+  padding: 14px 18px; min-height: 56px; margin-bottom: 14px;
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 800;
+  color: var(--white); text-align: center;
+  display: flex; align-items: center; justify-content: center;
+}
+.wo-display.empty { font-size: 12px; font-weight: 600; color: var(--muted); font-family: 'Quicksand', sans-serif; }
+.word-pool { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 14px; }
+.w-tile {
+  background: var(--red); color: #fff;
+  font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
+  padding: 7px 13px; border-radius: 10px;
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.w-tile:hover:not(.used) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,71,111,.4); }
+.w-tile.used { opacity: .25; pointer-events: none; }
+
+/* ══ G5: SPEED MATCH (timed story) ══ */
+.speed-char {
+  background: linear-gradient(135deg, var(--teal), #0a2f2f);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 18px; text-align: center; margin-bottom: 12px;
+}
+.sp-emoji  { font-size: 60px; margin-bottom: 6px; }
+.sp-name   { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 900; color: var(--yellow); margin-bottom: 8px; }
+.sp-q      { font-family: 'Baloo 2', sans-serif; font-size: 17px; font-weight: 800; color: var(--white); line-height: 1.4; }
+.timer-wrap { height: 6px; background: var(--border); border-radius: 3px; margin: 12px 0; overflow: hidden; }
+.timer-bar  { height: 100%; border-radius: 3px; width: 100%; }
+.sp-opts  { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
+.sp-opt {
+  background: var(--teal); border: 2px solid var(--border); border-radius: 13px;
+  font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 800;
+  color: var(--white); padding: 16px 8px; cursor: pointer; transition: all .15s; text-align: center;
+}
+.sp-opt:hover   { border-color: var(--yellow); color: var(--yellow); }
+.sp-opt.s-ok    { border-color: var(--cyan); color: var(--cyan); background: rgba(6,214,160,.1); animation: popIn .28s ease; pointer-events: none; }
+.sp-opt.s-bad   { border-color: var(--bad);  color: #ff8fab;     background: rgba(239,71,111,.1); animation: shake .4s ease;  pointer-events: none; }
+.sp-opt.s-lock  { pointer-events: none; }
+.sp-tally { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+
+/* ══ G6: TRUE / FALSE ══ */
+.quiz-char { text-align: center; font-size: 44px; margin-bottom: 6px; }
+.quiz-q {
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 900;
+  text-align: center; color: var(--white); line-height: 1.45; margin-bottom: 20px;
+  min-height: 60px; display: flex; align-items: center; justify-content: center;
+}
+.tf-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.tf-btn {
+  border: 2px solid; border-radius: 14px;
+  font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 900;
+  padding: 18px; cursor: pointer; transition: all .15s;
+}
+.tf-t { background: rgba(6,214,160,.15);  color: var(--cyan); border-color: rgba(6,214,160,.4); }
+.tf-f { background: rgba(239,71,111,.12); color: #ff8fab;     border-color: rgba(239,71,111,.3); }
+.tf-btn:hover   { transform: scale(1.04); }
+.tf-btn.t-ok    { background: var(--cyan); color: var(--bg); border-color: var(--cyan); animation: popIn .3s ease;  pointer-events: none; }
+.tf-btn.t-wrong { background: var(--bad);  color: #fff;       border-color: var(--bad);  animation: shake .4s ease;  pointer-events: none; }
+.tf-btn.t-lock  { pointer-events: none; }
+.quiz-tally { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+
+/* WIN */
+.win-wrap  { text-align: center; padding: 36px 16px 44px; }
+.win-icon  { font-size: 72px; display: block; animation: spinIn .6s ease; margin-bottom: 14px; }
+.win-title { font-family: 'Baloo 2', sans-serif; font-size: 30px; font-weight: 900; color: var(--yellow); margin-bottom: 6px; }
+.win-sub   { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 26px; }
+.win-ring  {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: conic-gradient(var(--yellow) 0%, var(--orange) 40%, var(--red) 100%);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  margin: 0 auto 26px; box-shadow: 0 0 40px rgba(255,209,102,.3);
+}
+.win-num { font-family: 'Baloo 2', sans-serif; font-size: 34px; font-weight: 900; color: var(--bg); line-height: 1; }
+.win-lbl { font-size: 9px; font-weight: 700; color: rgba(0,0,0,.55); letter-spacing: 1px; }
+.win-list { text-align: left; background: var(--card); border-radius: 14px; padding: 12px 18px; border: 1px solid var(--border); margin-bottom: 22px; }
+.win-list li { list-style: none; font-size: 13px; font-weight: 600; padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.win-list li:last-child { border: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="title-text">🎡 At the Funfair!</div>
+      <div class="title-sub">UNIT 10 · KIDS BOX NG1 · PRO3_S</div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <div class="game-nav">
+    <button class="nav-btn active" data-go="0">1 · Transport</button>
+    <button class="nav-btn"        data-go="1">2 · Sort It</button>
+    <button class="nav-btn"        data-go="2">3 · I'm…ing!</button>
+    <button class="nav-btn"        data-go="3">4 · Word Order</button>
+    <button class="nav-btn"        data-go="4">5 · Speed Match</button>
+    <button class="nav-btn"        data-go="5">6 · True/False</button>
+  </div>
+</div>
+
+<!-- G1: TRANSPORT FLASH -->
+<div class="screen active" id="sc0">
+  <div class="card">
+    <div class="game-badge">🎮 Game 1 · Vocabulary</div>
+    <div class="game-title" style="color:var(--yellow)">Transport Flash! 🚗</div>
+    <div class="game-instr">Look at the vehicle. Tap the correct word!</div>
+    <div class="big-stage" id="g1stage"></div>
+    <div style="text-align:center;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;">
+      <span id="g1qi">1</span> / 9
+    </div>
+    <div class="choice-grid" id="g1choices"></div>
+    <div class="feedback" id="g1fb"></div>
+    <button class="btn btn-right" id="g1next" style="display:none;background:var(--yellow);color:var(--bg);" data-act="g1next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G2: SORT — FLYING / RIDING / DRIVING -->
+<div class="screen" id="sc1">
+  <div class="card">
+    <div class="game-badge">🗂️ Game 2 · Grammar — Verb Sort</div>
+    <div class="game-title" style="color:var(--cyan)">Flying, Riding or Driving? 🎯</div>
+    <div class="game-instr">Tap a vehicle, then tap the correct verb box!</div>
+    <div class="sort-pool" id="g2pool"></div>
+    <div class="sort-zones">
+      <div class="sort-zone zone-fly" id="zoneFly">
+        <div class="zone-head" style="color:var(--cyan)">✈️ FLYING</div>
+        <div class="zone-chips" id="zchipsFly"></div>
+      </div>
+      <div class="sort-zone zone-ride" id="zoneRide">
+        <div class="zone-head" style="color:var(--orange)">🚲 RIDING</div>
+        <div class="zone-chips" id="zchipsRide"></div>
+      </div>
+      <div class="sort-zone zone-drive" id="zoneDrive">
+        <div class="zone-head" style="color:var(--purple)">🚗 DRIVING</div>
+        <div class="zone-chips" id="zchipsDrive"></div>
+      </div>
+    </div>
+    <div class="feedback" id="g2fb"></div>
+    <button class="btn btn-full" id="g2next" style="display:none;background:var(--cyan);color:var(--bg);margin-top:10px;" data-act="g2next">All sorted! Next ➜</button>
+  </div>
+</div>
+
+<!-- G3: WHAT ARE YOU DOING -->
+<div class="screen" id="sc2">
+  <div class="card">
+    <div class="game-badge">💬 Game 3 · Grammar — Present Continuous</div>
+    <div class="game-title" style="color:var(--orange)">I'm…ing! 🎉</div>
+    <div class="game-instr">Tap the words to build the sentence — what are they doing?</div>
+    <div class="character-scene" id="g3scene"></div>
+    <div id="g3display" class="built-display empty">Tap words to build the sentence…</div>
+    <div class="chip-pool" id="g3pool"></div>
+    <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:1px;">
+      Round <span id="g3qi">1</span> of 6
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g3clear">Clear ✕</button>
+      <button class="btn" style="background:var(--orange);color:var(--bg);" data-act="g3check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g3fb"></div>
+    <button class="btn btn-right" id="g3next" style="display:none;background:var(--orange);color:var(--bg);" data-act="g3next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G4: WORD ORDER -->
+<div class="screen" id="sc3">
+  <div class="card">
+    <div class="game-badge">🔤 Game 4 · Grammar — Word Order</div>
+    <div class="game-title" style="color:var(--red)">Word Order! ✏️</div>
+    <div class="game-instr">Tap the words in the correct order to make a sentence.</div>
+    <div id="g4display" class="wo-display empty">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g4pool"></div>
+    <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:1px;">
+      Sentence <span id="g4qi">1</span> of 6
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g4clear">Clear ✕</button>
+      <button class="btn" style="background:var(--red);color:#fff;" data-act="g4check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g4fb"></div>
+    <button class="btn btn-right" id="g4next" style="display:none;background:var(--red);color:#fff;" data-act="g4next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G5: SPEED MATCH -->
+<div class="screen" id="sc4">
+  <div class="card">
+    <div class="game-badge">⚡ Game 5 · Story — Speed Match</div>
+    <div class="game-title" style="color:var(--yellow)">Speed Match! ⚡</div>
+    <div class="game-instr">Answer before time runs out — what is this character doing?</div>
+    <div class="speed-char" id="g5scene"></div>
+    <div class="timer-wrap"><div class="timer-bar" id="g5timerBar" style="background:var(--yellow)"></div></div>
+    <div class="sp-opts" id="g5opts"></div>
+    <div class="sp-tally" id="g5tally">0 / 0 correct</div>
+    <div class="feedback" id="g5fb"></div>
+    <button class="btn btn-right" id="g5next" style="display:none;background:var(--yellow);color:var(--bg);" data-act="g5next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G6: TRUE / FALSE -->
+<div class="screen" id="sc5">
+  <div class="card">
+    <div class="game-badge">🔍 Game 6 · Story Facts</div>
+    <div class="game-title" style="color:var(--red)">True or False? 🔍</div>
+    <div class="game-instr">Is the sentence about the story TRUE or FALSE?</div>
+    <div class="prog"><div class="prog-fill" id="g6bar" style="width:0%;background:var(--red)"></div></div>
+    <div class="quiz-char" id="g6char"></div>
+    <div class="quiz-q"    id="g6q"></div>
+    <div class="tf-btns">
+      <button class="tf-btn tf-t" id="tfTrue"  data-act="g6ans" data-val="true">✅ TRUE</button>
+      <button class="tf-btn tf-f" id="tfFalse" data-act="g6ans" data-val="false">❌ FALSE</button>
+    </div>
+    <div class="quiz-tally" id="g6tally">0 / 0 correct</div>
+    <div class="feedback"   id="g6fb"></div>
+    <button class="btn btn-right" id="g6next" style="display:none;background:var(--red);color:#fff;" data-act="g6next">Next ➜</button>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="screen" id="sc-win">
+  <div class="win-wrap">
+    <span class="win-icon">🎡</span>
+    <div class="win-title">Funfair Champion!</div>
+    <div class="win-sub">You finished all 6 games!</div>
+    <div class="win-ring">
+      <div class="win-num" id="winScore">0</div>
+      <div class="win-lbl">STARS</div>
+    </div>
+    <ul class="win-list">
+      <li>🚗 Transport Flash — vehicle vocabulary</li>
+      <li>🎯 Flying, Riding or Driving? — verb groups</li>
+      <li>🎉 I'm…ing! — present continuous sentences</li>
+      <li>✏️ Word Order — sentence grammar</li>
+      <li>⚡ Speed Match — story characters</li>
+      <li>🔍 True or False — story facts</li>
+    </ul>
+    <button class="btn btn-full" style="background:var(--yellow);color:var(--bg);" data-act="restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<script>
+'use strict';
+
+/* ─── DATA ─── */
+const VEHICLES = [
+  { id:'bus',        word:'bus',        emoji:'🚌', verb:'drive' },
+  { id:'plane',      word:'plane',      emoji:'✈️',  verb:'fly'   },
+  { id:'boat',       word:'boat',       emoji:'⛵',  verb:'ride'  },
+  { id:'lorry',      word:'lorry',      emoji:'🚛',  verb:'drive' },
+  { id:'train',      word:'train',      emoji:'🚂',  verb:'ride'  },
+  { id:'car',        word:'car',        emoji:'🚗',  verb:'drive' },
+  { id:'helicopter', word:'helicopter', emoji:'🚁',  verb:'fly'   },
+  { id:'motorbike',  word:'motorbike',  emoji:'🏍️',  verb:'ride'  },
+  { id:'bike',       word:'bike',       emoji:'🚲',  verb:'ride'  },
+];
+
+// Verified verb groups
+const FLYING  = ['plane','helicopter'];
+const RIDING  = ['bike','motorbike','boat','train'];
+const DRIVING = ['car','bus','lorry'];
+
+// G3 — sentence builder rounds (verified from story dialogue)
+const G3_ROUNDS = [
+  { charEmoji:'🦸', charName:'Maskman', vehicle:'helicopter', verb:'flying',
+    ans:"I'm flying my helicopter .",
+    words:["I'm","flying","my","helicopter",".",] },
+  { charEmoji:'🐭', charName:'Monty',   vehicle:'bike',       verb:'riding',
+    ans:"I'm riding my bike .",
+    words:["I'm","riding","my","bike","."] },
+  { charEmoji:'🧑‍🔧', charName:'Trevor',  vehicle:'lorry',      verb:'driving',
+    ans:"I'm driving my lorry .",
+    words:["I'm","driving","my","lorry","."] },
+  { charEmoji:'🧑‍🎨', charName:'Marie',   vehicle:'car',        verb:'driving',
+    ans:"I'm driving my car .",
+    words:["I'm","driving","my","car","."] },
+  { charEmoji:'🧒', charName:'Simon',   vehicle:'motorbike',  verb:'riding',
+    ans:"I'm riding my motorbike .",
+    words:["I'm","riding","my","motorbike","."] },
+  { charEmoji:'🚁', charName:'Sam',     vehicle:'helicopter', verb:'flying',
+    ans:"I'm flying my helicopter .",
+    words:["I'm","flying","my","helicopter","."] },
+];
+
+// G4 — word order sentences
+const G4_SENTENCES = [
+  { words:["I'm","flying","my","helicopter","."],       ans:"I'm flying my helicopter ."       },
+  { words:["What","are","you","doing","?"],             ans:"What are you doing ?"             },
+  { words:["I'm","riding","my","bike","."],             ans:"I'm riding my bike ."             },
+  { words:["She's","driving","a","car","."],            ans:"She's driving a car ."            },
+  { words:["He's","riding","a","motorbike","."],        ans:"He's riding a motorbike ."        },
+  { words:["They're","flying","a","plane","."],         ans:"They're flying a plane ."         },
+];
+
+// G5 — speed match (story character + 4 options)
+const G5_QS = [
+  { emoji:'🦸', name:'Maskman', q:'What is Maskman doing?',
+    correct:"flying his helicopter", opts:["flying his helicopter","riding his bike","driving his lorry","riding a horse"] },
+  { emoji:'🐭', name:'Monty',   q:'What is Monty doing?',
+    correct:"riding his bike",       opts:["flying a plane","riding his bike","driving a car","flying a helicopter"] },
+  { emoji:'🧑‍🔧', name:'Trevor',  q:'What is Trevor doing?',
+    correct:"driving his lorry",     opts:["riding a bus","flying a plane","driving his lorry","riding a motorbike"] },
+  { emoji:'🧑‍🎨', name:'Marie',   q:'What is Marie doing?',
+    correct:"driving her car",       opts:["driving her car","flying a helicopter","riding a bike","driving a bus"] },
+  { emoji:'🧒', name:'Simon',   q:'What does Simon want to ride?',
+    correct:"the black motorbike",   opts:["the red lorry","the yellow boat","the black motorbike","the blue helicopter"] },
+  { emoji:'🧒', name:'Sam',     q:"What can't Sam do?",
+    correct:"swim",                  opts:["swim","fly","ride","drive"] },
+];
+
+// G6 — True / False (verified from story script)
+const G6_QS = [
+  { char:'🦸', text:"Maskman is flying his helicopter.",            ans:true  },
+  { char:'🐭', text:"Monty is riding his bike.",                    ans:true  },
+  { char:'🧑‍🔧', text:"Trevor is driving his lorry.",                 ans:true  },
+  { char:'🧑‍🎨', text:"Marie is driving her car.",                    ans:true  },
+  { char:'🦸', text:"Maskman is driving a car.",                    ans:false },
+  { char:'🐭', text:"Monty is flying a plane.",                     ans:false },
+  { char:'🧒', text:"Sam can't swim.",                              ans:true  },
+  { char:'🐭', text:"Monty is Maskman's hero at the end.",         ans:true  },
+];
+
+/* ─── STATE ─── */
+let totalScore = 0;
+const done = [false,false,false,false,false,false];
+
+let g1q=[], g1i=0, g1locked=false;
+let g2sel=null, g2placed={}, g2done=false;
+let g3q=[], g3i=0, g3built=[], g3locked=false;
+let g4q=[], g4i=0, g4built=[], g4locked=false;
+let g5q=[], g5i=0, g5locked=false, g5correct=0, g5timer=null;
+let g6q=[], g6i=0, g6locked=false, g6correct=0;
+
+/* ─── HELPERS ─── */
+function rnd(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=0|Math.random()*(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function $(id){ return document.getElementById(id); }
+function score(n){ totalScore+=n; $('scoreNum').textContent=totalScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='feedback '+type; e.textContent=msg; }
+function hideFb(id){ $(id).className='feedback'; }
+function show(id){ $(id).style.display='inline-block'; }
+function hide(id){ $(id).style.display='none'; }
+function markDone(i){ done[i]=true; document.querySelectorAll('.nav-btn')[i].classList.add('done'); }
+
+function navTo(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(idx==='win'?'sc-win':'sc'+idx).classList.add('active');
+  if(idx!=='win'){
+    document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+      b.classList.toggle('active', i===idx);
+      if(done[i]) b.classList.add('done');
+    });
+  }
+  window.scrollTo(0,0);
+}
+
+/* ─── G1: TRANSPORT FLASH ─── */
+function g1Init(){ g1q=rnd(VEHICLES); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ markDone(0); return; }
+  const q=g1q[g1i];
+  $('g1stage').textContent=q.emoji;
+  $('g1qi').textContent=g1i+1;
+  hideFb('g1fb'); hide('g1next'); g1locked=false;
+  const choices=rnd([q,...rnd(VEHICLES.filter(v=>v.id!==q.id)).slice(0,5)]);
+  const box=$('g1choices'); box.innerHTML='';
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='choice-btn'; b.textContent=c.word;
+    b.setAttribute('data-id',c.id);
+    box.appendChild(b);
+  });
+}
+function g1Answer(id){
+  if(g1locked) return; g1locked=true;
+  const correct=g1q[g1i].id;
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    const bid=b.getAttribute('data-id');
+    if(bid===correct) b.classList.add('c-ok');
+    else if(bid===id) b.classList.add('c-bad');
+    else b.classList.add('c-lock');
+  });
+  if(id===correct){ score(2); showFb('g1fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g1fb','bad','The answer is: '+VEHICLES.find(v=>v.id===correct).word); }
+  show('g1next');
+}
+
+/* ─── G2: FLYING / RIDING / DRIVING SORT ─── */
+function g2Init(){
+  g2sel=null; g2placed={}; g2done=false;
+  hideFb('g2fb'); hide('g2next');
+  ['zchipsFly','zchipsRide','zchipsDrive'].forEach(id=>$(id).innerHTML='');
+  const pool=$('g2pool'); pool.innerHTML='';
+  rnd(VEHICLES).forEach(v=>{
+    const c=document.createElement('div');
+    c.className='sort-chip';
+    c.textContent=v.emoji+' '+v.word;
+    c.setAttribute('data-vid',v.id);
+    pool.appendChild(c);
+  });
+}
+function g2SelectChip(el){
+  if(g2done) return;
+  document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('sel'));
+  if(g2sel===el){ g2sel=null; return; }
+  g2sel=el; el.classList.add('sel');
+}
+function g2Drop(zone){
+  if(!g2sel||g2done) return;
+  const vid=g2sel.getAttribute('data-vid');
+  const v=VEHICLES.find(x=>x.id===vid);
+  let correct=false;
+  if(zone==='fly')   correct=FLYING.includes(vid);
+  if(zone==='ride')  correct=RIDING.includes(vid);
+  if(zone==='drive') correct=DRIVING.includes(vid);
+  const chip=document.createElement('div');
+  chip.className='zchip '+(correct?'zc-ok':'zc-wrong');
+  chip.textContent=v.emoji+' '+v.word;
+  const zoneId={fly:'zchipsFly',ride:'zchipsRide',drive:'zchipsDrive'}[zone];
+  $(zoneId).appendChild(chip);
+  requestAnimationFrame(()=>chip.classList.add('show'));
+  g2sel.classList.remove('sel'); g2sel.classList.add('placed');
+  g2sel=null; g2placed[vid]=correct;
+  if(correct) score(2);
+  if(Object.keys(g2placed).length===VEHICLES.length){
+    g2done=true;
+    const allOk=Object.values(g2placed).every(v=>v);
+    showFb('g2fb',allOk?'ok':'bad',allOk?'⭐ All sorted correctly!':'Some were wrong — check again!');
+    show('g2next'); markDone(1);
+  }
+}
+
+/* ─── G3: I'M…ING BUILDER ─── */
+function g3Init(){ g3q=rnd(G3_ROUNDS); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ markDone(2); return; }
+  const r=g3q[g3i];
+  g3built=[]; g3locked=false;
+  $('g3qi').textContent=g3i+1;
+  hideFb('g3fb'); hide('g3next');
+  $('g3scene').innerHTML=
+    '<div class="char-emoji">'+r.charEmoji+'</div>'+
+    '<div class="char-name">'+r.charName+'</div>'+
+    '<div class="char-prompt">What are they doing?</div>';
+  const disp=$('g3display');
+  disp.className='built-display empty';
+  disp.textContent='Tap words to build the sentence…';
+  const pool=$('g3pool'); pool.innerHTML='';
+  // Build a distractor set: correct words + 2 distractors
+  const distractors=["driving","riding","flying","bus","plane","train","car","bike","lorry"]
+    .filter(w=>!r.words.includes(w)).slice(0,2);
+  const allWords=[...r.words,...distractors];
+  rnd(allWords.map((w,i)=>({w,i}))).forEach(({w,i})=>{
+    const c=document.createElement('div');
+    c.className='chip'; c.textContent=w;
+    c.setAttribute('data-w',w); c.setAttribute('data-slot',i);
+    pool.appendChild(c);
+  });
+}
+function g3Tap(el){
+  if(g3locked||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g3built.push({word:el.getAttribute('data-w'),el});
+  const disp=$('g3display');
+  disp.className='built-display';
+  disp.textContent=g3built.map(x=>x.word).join(' ');
+}
+function g3Clear(){
+  g3built.forEach(x=>x.el.classList.remove('used'));
+  g3built=[];
+  const disp=$('g3display');
+  disp.className='built-display empty';
+  disp.textContent='Tap words to build the sentence…';
+  hideFb('g3fb');
+}
+function g3Check(){
+  if(g3locked||g3built.length===0) return;
+  g3locked=true;
+  const built=g3built.map(x=>x.word).join(' ');
+  if(built===g3q[g3i].ans){ score(3); showFb('g3fb','ok','⭐ Perfect! +3 stars'); }
+  else { showFb('g3fb','bad','Correct: '+g3q[g3i].ans); }
+  show('g3next');
+}
+
+/* ─── G4: WORD ORDER ─── */
+function g4Init(){ g4q=rnd(G4_SENTENCES); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ markDone(3); return; }
+  g4built=[]; g4locked=false;
+  $('g4qi').textContent=g4i+1;
+  hideFb('g4fb'); hide('g4next');
+  const disp=$('g4display');
+  disp.className='wo-display empty';
+  disp.textContent='Tap words to build the sentence…';
+  const pool=$('g4pool'); pool.innerHTML='';
+  rnd(g4q[g4i].words.map((w,i)=>({w,i}))).forEach(({w,i})=>{
+    const t=document.createElement('div');
+    t.className='w-tile'; t.textContent=w;
+    t.setAttribute('data-w',w); t.setAttribute('data-slot',i);
+    pool.appendChild(t);
+  });
+}
+function g4Tap(el){
+  if(g4locked||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g4built.push({word:el.getAttribute('data-w'),el});
+  const disp=$('g4display');
+  disp.className='wo-display';
+  disp.textContent=g4built.map(x=>x.word).join(' ');
+}
+function g4Clear(){
+  g4built.forEach(x=>x.el.classList.remove('used'));
+  g4built=[];
+  const disp=$('g4display');
+  disp.className='wo-display empty';
+  disp.textContent='Tap words to build the sentence…';
+  hideFb('g4fb');
+}
+function g4Check(){
+  if(g4locked||g4built.length===0) return;
+  g4locked=true;
+  const built=g4built.map(x=>x.word).join(' ');
+  if(built===g4q[g4i].ans){ score(3); showFb('g4fb','ok','⭐ Perfect! +3 stars'); }
+  else { showFb('g4fb','bad','Correct: '+g4q[g4i].ans); }
+  show('g4next');
+}
+
+/* ─── G5: SPEED MATCH ─── */
+const SP_TIME=6000;
+function g5Init(){ g5q=rnd(G5_QS); g5i=0; g5correct=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ markDone(4); return; }
+  const q=g5q[g5i];
+  g5locked=false;
+  $('g5scene').innerHTML=
+    '<div class="sp-emoji">'+q.emoji+'</div>'+
+    '<div class="sp-name">'+q.name+'</div>'+
+    '<div class="sp-q">'+q.q+'</div>';
+  hideFb('g5fb'); hide('g5next');
+  $('g5tally').textContent=g5correct+' / '+g5i+' correct';
+  // Options — shuffled, track correct via data attribute
+  const shuffled=rnd(q.opts);
+  const box=$('g5opts'); box.innerHTML='';
+  shuffled.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='sp-opt'; b.textContent=opt;
+    b.setAttribute('data-opt',opt);
+    b.setAttribute('data-correct',opt===q.correct?'1':'0');
+    box.appendChild(b);
+  });
+  // Timer
+  const bar=$('g5timerBar');
+  bar.style.transition='none'; bar.style.width='100%'; bar.style.background='var(--yellow)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition='width '+SP_TIME+'ms linear';
+    bar.style.width='0%';
+  }));
+  clearTimeout(g5timer);
+  g5timer=setTimeout(()=>{ if(!g5locked) g5TimeUp(); }, SP_TIME);
+}
+function g5Answer(el){
+  if(g5locked) return; g5locked=true;
+  clearTimeout(g5timer);
+  $('g5timerBar').style.transition='none';
+  const correct=el.getAttribute('data-correct')==='1';
+  document.querySelectorAll('.sp-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('s-ok');
+    else if(b===el) b.classList.add('s-bad');
+    else b.classList.add('s-lock');
+  });
+  if(correct){ g5correct++; score(2); showFb('g5fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g5fb','bad','Check the correct answer above!'); }
+  $('g5tally').textContent=g5correct+' / '+(g5i+1)+' correct';
+  show('g5next');
+}
+function g5TimeUp(){
+  g5locked=true;
+  $('g5timerBar').style.background='var(--red)';
+  document.querySelectorAll('.sp-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('s-ok');
+    else b.classList.add('s-lock');
+  });
+  showFb('g5fb','bad','Too slow! Check the correct answer above.');
+  $('g5tally').textContent=g5correct+' / '+(g5i+1)+' correct';
+  show('g5next');
+}
+
+/* ─── G6: TRUE / FALSE ─── */
+function g6Init(){ g6q=rnd(G6_QS); g6i=0; g6correct=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ markDone(5); showWin(); return; }
+  const q=g6q[g6i];
+  $('g6bar').style.width=(g6i/g6q.length*100)+'%';
+  $('g6char').textContent=q.char;
+  $('g6q').textContent='"'+q.text+'"';
+  $('g6tally').textContent=g6correct+' / '+g6i+' correct';
+  hideFb('g6fb'); hide('g6next'); g6locked=false;
+  $('tfTrue').className='tf-btn tf-t';
+  $('tfFalse').className='tf-btn tf-f';
+}
+function g6Answer(val){
+  if(g6locked) return; g6locked=true;
+  const q=g6q[g6i];
+  const correct=(val==='true')===q.ans;
+  $('tfTrue').classList.add('t-lock'); $('tfFalse').classList.add('t-lock');
+  if(q.ans) $('tfTrue').classList.add('t-ok'); else $('tfFalse').classList.add('t-ok');
+  if(!correct){ if(val==='true') $('tfTrue').classList.add('t-wrong'); else $('tfFalse').classList.add('t-wrong'); }
+  if(correct){ g6correct++; score(2); showFb('g6fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g6fb','bad','The answer is: '+(q.ans?'TRUE ✅':'FALSE ❌')); }
+  $('g6tally').textContent=g6correct+' / '+(g6i+1)+' correct';
+  show('g6next');
+}
+
+/* ─── WIN ─── */
+function showWin(){
+  clearTimeout(g5timer);
+  launchConfetti();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('sc-win').classList.add('active');
+  $('winScore').textContent=totalScore;
+  window.scrollTo(0,0);
+}
+function launchConfetti(){
+  const colors=['#ffd166','#ef476f','#06d6a0','#ff9f1c','#c77dff','#ffffff'];
+  const shapes=['border-radius:50%','','clip-path:polygon(50% 0%,100% 100%,0% 100%)'];
+  const box=$('confetti');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=6+Math.random()*9;
+    p.style.cssText=
+      'left:'+Math.random()*100+'%;top:-20px;width:'+sz+'px;height:'+sz+'px;'+
+      'background:'+colors[0|Math.random()*colors.length]+';'+
+      shapes[0|Math.random()*shapes.length]+';'+
+      'animation-delay:'+Math.random()+'s;animation-duration:'+(2+Math.random()*1.5)+'s;';
+    box.appendChild(p);
+    setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ─── EVENT DELEGATION ─── */
+document.addEventListener('click', function(e){
+  const t=e.target;
+
+  // Nav
+  const nb=t.closest('.nav-btn');
+  if(nb){ navTo(+nb.getAttribute('data-go')); return; }
+
+  // G1 choices
+  const cb=t.closest('.choice-btn');
+  if(cb){ g1Answer(cb.getAttribute('data-id')); return; }
+
+  // G2 sort chips
+  const sc=t.closest('.sort-chip');
+  if(sc){ g2SelectChip(sc); return; }
+
+  // G2 drop zones (guard against chip inside zone)
+  const zFly=t.closest('.zone-fly');
+  if(zFly&&!t.closest('.sort-chip')){ g2Drop('fly'); return; }
+  const zRide=t.closest('.zone-ride');
+  if(zRide&&!t.closest('.sort-chip')){ g2Drop('ride'); return; }
+  const zDrive=t.closest('.zone-drive');
+  if(zDrive&&!t.closest('.sort-chip')){ g2Drop('drive'); return; }
+
+  // G3 chips
+  const ch=t.closest('.chip');
+  if(ch){ g3Tap(ch); return; }
+
+  // G4 word tiles
+  const wt=t.closest('.w-tile');
+  if(wt){ g4Tap(wt); return; }
+
+  // G5 speed options
+  const so=t.closest('.sp-opt');
+  if(so){ g5Answer(so); return; }
+
+  // data-act buttons
+  const el=t.closest('[data-act]');
+  if(!el) return;
+  const act=el.getAttribute('data-act');
+  const val=el.getAttribute('data-val');
+
+  if     (act==='g1next')  { g1i++; g1Render(); }
+  else if(act==='g2next')  { navTo(2); }
+  else if(act==='g3clear') g3Clear();
+  else if(act==='g3check') g3Check();
+  else if(act==='g3next')  { g3i++; g3Render(); }
+  else if(act==='g4clear') g4Clear();
+  else if(act==='g4check') g4Check();
+  else if(act==='g4next')  { g4i++; g4Render(); }
+  else if(act==='g5next')  { g5i++; g5Render(); }
+  else if(act==='g6ans')   g6Answer(val);
+  else if(act==='g6next')  { g6i++; g6Render(); }
+  else if(act==='restart') { clearTimeout(g5timer); location.reload(); }
+});
+
+/* ─── BOOT ─── */
+g1Init(); g2Init(); g3Init(); g4Init(); g5Init(); g6Init();
+</script>
+</body>
+</html>
