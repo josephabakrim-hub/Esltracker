@@ -637,10 +637,11 @@ function g3Render(){
   g3built=[]; g3locked=false;
   $('g3qi').textContent=g3i+1;
   hideFb('g3fb'); hide('g3next');
+  const vEmoji = VEHICLES.find(v=>v.id===r.vehicle)?.emoji || r.charEmoji;
   $('g3scene').innerHTML=
-    '<div class="char-emoji">'+r.charEmoji+'</div>'+
+    '<div class="char-emoji">'+vEmoji+'</div>'+
     '<div class="char-name">'+r.charName+'</div>'+
-    '<div class="char-prompt">What are they doing?</div>';
+    '<div class="char-prompt">What is '+r.charName+' doing?</div>';
   const disp=$('g3display');
   disp.className='built-display empty';
   disp.textContent='Tap words to build the sentence…';
