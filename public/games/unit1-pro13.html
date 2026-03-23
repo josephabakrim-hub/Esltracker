@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 1 — Family Matters!</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0c0800;
+  --deep:   #140f00;
+  --card:   #1c1500;
+  --card2:  #241b00;
+  --border: #3c2c00;
+  --gold:   #ffc840;
+  --amber:  #ff9f20;
+  --rose:   #ff5c8a;
+  --teal:   #28d0c0;
+  --lime:   #98f028;
+  --green:  #28f878;
+  --red:    #ff2850;
+  --white:  #fff5d8;
+  --muted:  #5c4000;
+  --ok:     #28f878;
+  --bad:    #ff2850;
+  --font-h: 'Baloo 2', cursive;
+  --font-b: 'Quicksand', sans-serif;
+  --r:      16px;
+  --r-sm:   10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 15%, rgba(255,200,64,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(255,92,138,.06) 0%, transparent 55%);
+}
+
+/* ══ FX ══ */
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#140f00,#241b00);
+  border:1px solid var(--border); color:var(--gold);
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2.5px;
+  padding:5px 16px; border-radius:30px; margin-bottom:14px; text-transform:uppercase;
+  box-shadow:0 0 18px rgba(255,200,64,.15);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow:0 0 28px rgba(255,200,64,.35);
+}
+.home-title span { color:var(--gold); }
+.home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:10px; text-align:center; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:6px 16px; margin-bottom:28px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--gold); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+.gc { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:18px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 20px color-mix(in srgb, var(--gc-col) 25%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:10px; left:12px; font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--gc-col); letter-spacing:1px; opacity:.7; }
+.gc-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--gold); font-family:var(--font-h); font-weight:700; min-height:15px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(12,8,0,.92); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--gold); color:var(--gold); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:900; }
+.tb-score { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:4px 14px; border-radius:20px; }
+.prog-bar-wrap { height:3px; background:var(--border); overflow:hidden; }
+.prog-bar-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:900; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; }
+.qcard-text .hl  { color:var(--gold); }
+.qcard-text .hl2 { color:var(--teal); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--gold)); color:var(--opt-col,var(--gold)); transform:scale(1.03); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(40,248,120,.1); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,40,80,.1); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.fb { padding:10px 16px; border-radius:10px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(40,248,120,.1); color:var(--ok); border:1px solid rgba(40,248,120,.25); }
+.fb.bad { display:block; background:rgba(255,40,80,.1); color:#ff7090; border:1px solid rgba(255,40,80,.25); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:800; border:none; border-radius:10px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--gold); transform:scale(1.4); }
+
+/* ══ G1: FAMILY TREE QUIZ ══ */
+/* A clear text-based family relationship question with the
+   tree context written out so no ambiguity at all */
+.tree-card {
+  background:linear-gradient(160deg,var(--card2),#180e00);
+  border:2px solid rgba(255,200,64,.25); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.tree-header {
+  font-family:var(--font-h); font-size:10px; font-weight:800;
+  letter-spacing:2px; color:var(--gold); text-transform:uppercase; margin-bottom:12px;
+}
+.tree-context {
+  background:rgba(255,200,64,.06); border:1px solid rgba(255,200,64,.15);
+  border-radius:10px; padding:12px 14px; margin-bottom:12px;
+  font-size:13px; font-weight:600; color:var(--white); line-height:1.7;
+}
+.tree-context .name { color:var(--gold); font-weight:800; }
+.tree-question {
+  font-family:var(--font-h); font-size:1.1rem; font-weight:900; line-height:1.6;
+}
+
+/* ══ G2: DESCRIPTION CHALLENGE ══ */
+/* Read a written description → pick the correct name.
+   No emojis — all text boxes with hair/appearance descriptions. */
+.desc-card {
+  background:linear-gradient(160deg,var(--card2),#100800);
+  border:2px solid rgba(255,159,32,.25); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.desc-badge {
+  display:inline-block; background:var(--amber); color:var(--bg);
+  font-family:var(--font-h); font-size:9px; font-weight:900;
+  padding:3px 12px; border-radius:20px; letter-spacing:2px;
+  text-transform:uppercase; margin-bottom:12px;
+}
+.desc-text {
+  font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.8;
+}
+.desc-text .clue { color:var(--amber); }
+/* Name buttons for G2 — text only, no avatar images */
+.name-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.name-btn {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white);
+  padding:16px 10px; cursor:pointer; text-align:center; transition:all .15s; line-height:1.4;
+}
+.name-btn:hover:not(.locked) { border-color:var(--amber); color:var(--amber); transform:scale(1.03); }
+.name-btn .tag { display:block; font-size:10px; font-weight:600; color:var(--muted); margin-top:4px; line-height:1.4; }
+.name-btn.nb-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(40,248,120,.1); animation:popIn .28s; pointer-events:none; }
+.name-btn.nb-wrong { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,40,80,.1); animation:shake .4s; pointer-events:none; }
+.name-btn.locked   { pointer-events:none; }
+
+/* ══ G3: PRONOUN SWAP ══ */
+.swap-card {
+  background:linear-gradient(160deg,var(--card2),#081410);
+  border:2px solid rgba(40,208,192,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.swap-label { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:8px; }
+.swap-original { font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.8; margin-bottom:10px; }
+.swap-original .name-hl { color:var(--gold); text-decoration:underline wavy rgba(255,200,64,.5); }
+.swap-result { font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.8; color:var(--teal); min-height:28px; margin-bottom:8px; }
+.grammar-rule { background:rgba(40,208,192,.07); border:1px solid rgba(40,208,192,.2); border-radius:10px; padding:10px 14px; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--teal); line-height:1.6; display:none; }
+
+/* ══ G4: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:900; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,159,32,.1); border:1px solid rgba(255,159,32,.3); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:900; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:58px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.35; }
+.timer-track { height:8px; background:var(--border); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:4px; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:900; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* ══ G5: STREAK CHALLENGE — correct/wrong sentences ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-big { font-family:var(--font-h); font-size:2.2rem; font-weight:900; color:var(--amber); }
+.streak-lbl { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag   { font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--gold); }
+.rule-card { background:linear-gradient(160deg,var(--card2),#0c0800); border:2px solid var(--border); border-radius:var(--r); padding:22px 18px; text-align:center; margin-bottom:14px; }
+.rule-text { font-family:var(--font-h); font-size:1.05rem; font-weight:900; line-height:1.7; }
+.rule-text .hl  { color:var(--gold); }
+.rule-text .hl2 { color:var(--rose); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.tf-btn { border:2px solid; border-radius:var(--r); font-family:var(--font-h); font-size:15px; font-weight:900; padding:18px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(40,248,120,.1); color:var(--ok); border-color:rgba(40,248,120,.35); }
+.tf-no  { background:rgba(255,40,80,.08); color:#ff7090; border-color:rgba(255,40,80,.28); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--gold); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-b); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--amber); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; box-shadow:0 2px 8px rgba(255,159,32,.3); }
+.wtile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(255,159,32,.5); }
+.wtile.used { opacity:.2; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:14px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:800; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:900; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.4rem; font-weight:900; color:var(--gold); text-shadow:0 0 30px rgba(255,200,64,.45); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--gold) 0%, var(--amber) 40%, var(--rose) 80%, var(--gold) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(255,200,64,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:800; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:900; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:18px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--gold); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--amber),var(--gold)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:14px 36px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 4px 20px rgba(255,200,64,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(255,200,64,.5); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-badge">Kids Box NG3 · Unit 1 · Pro1_3 &amp; Pro6_2</div>
+  <h1 class="home-title">Family<br><span>Matters!</span></h1>
+  <p class="home-sub">Stella's doing her family tree project — can you help?</p>
+  <div class="total-stars">⭐ Total stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#ffc840" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🌳</span>
+      <div class="gc-title">Family Tree Quiz</div>
+      <div class="gc-desc">Who is who in the Star family?</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff9f20" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">🔎</span>
+      <div class="gc-title">Who Is It?</div>
+      <div class="gc-desc">Read the description — which person is it?</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#28d0c0" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">🔄</span>
+      <div class="gc-title">Pronoun Swap</div>
+      <div class="gc-desc">Replace the name with the right pronoun!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff9f20" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">True or false — beat the fuse!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff5c8a" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong sentence? Build your streak!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffc840" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the family sentence!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Home</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <span class="win-icon">⭐</span>
+  <div class="win-title">Brilliant!</div>
+  <div class="win-sub">You know every member of the Star family!</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">🎤 Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again ↺</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — 100% verified from:
+   · KB3 Teacher's Book Unit 1 (Cambridge excerpt PDF — exact family tree, exact sentences)
+   · KB3 Activity Book pp.8-16 (studylib scan — exact exercises and answer keys)
+   · KB3 Tests Unit 1 Evaluation (dokumen.pub — Part 1 answer key, Part 4 appearance questions)
+   · KB3 Review Units 1-2 AB (studylib — exact "pet thief" description text)
+   · Wordwall KB3 Unit 1 hangman (confirmed: Aunt May has straight black hair, Uncle Fred has a short beard)
+   · Baamboozle KB3 Unit 1 (confirmed relationship questions: Mr Star is Grandpa Star's son, Fred is Simon's uncle, etc.)
+
+   CONFIRMED STAR FAMILY TREE:
+   Grandma Star + Grandpa Star
+     ├── Mr Star (their son)  +  Mrs Star  (her brother = Uncle Fred)
+     │       ├── Stella  (granddaughter, clever)
+     │       ├── Simon   (grandson, can be naughty)
+     │       └── Suzy    (granddaughter)
+     └── Aunt May (their daughter, Mr Star's sister, a doctor)
+   Uncle Fred = Mrs Star's brother, Simon's uncle
+═══════════════════════════════════════════ */
+
+// G1 — FAMILY TREE QUIZ
+// Each question gives full relationship context in plain text, then asks for the family word.
+// All questions verified from Teacher's Book key sentences and AB activity 2 answer key.
+const G1 = [
+  {
+    context:"Grandma and Grandpa Star have three grandchildren. Simon is a boy.",
+    q:"Simon is Grandma and Grandpa Star's ___.",
+    ans:"grandson",
+    opts:["grandson","granddaughter","son","nephew"],
+    fact:"A boy grandchild = grandson."
+  },
+  {
+    context:"Grandma and Grandpa Star have three grandchildren. Stella and Suzy are girls.",
+    q:"Stella and Suzy are Grandpa Star's ___.",
+    ans:"granddaughters",
+    opts:["granddaughters","daughters","grandsons","cousins"],
+    fact:"Girl grandchildren = granddaughters."
+  },
+  {
+    context:"Mr Star is Grandma and Grandpa Star's child. He is a man.",
+    q:"Mr Star is Grandpa Star's ___.",
+    ans:"son",
+    opts:["son","daughter","grandson","nephew"],
+    fact:"A male child = son."
+  },
+  {
+    context:"Aunt May is Grandma and Grandpa Star's child. She is a woman.",
+    q:"Aunt May is Grandma Star's ___.",
+    ans:"daughter",
+    opts:["daughter","son","granddaughter","niece"],
+    fact:"A female child = daughter."
+  },
+  {
+    context:"Aunt May is Mr Star's sister. She is married to Uncle Fred.",
+    q:"Aunt May is Simon's ___.",
+    ans:"aunt",
+    opts:["aunt","uncle","grandmother","mother"],
+    fact:"Your parent's sister = your aunt."
+  },
+  {
+    context:"Uncle Fred is Mrs Star's brother. He lives on a farm.",
+    q:"Uncle Fred is Stella's ___.",
+    ans:"uncle",
+    opts:["uncle","aunt","grandfather","father"],
+    fact:"Your parent's brother = your uncle."
+  },
+  {
+    context:"Mr Star and Mrs Star are Stella, Simon and Suzy's mum and dad.",
+    q:"Mr Star and Mrs Star are the children's ___.",
+    ans:"parents",
+    opts:["parents","grandparents","children","cousins"],
+    fact:"Mum and dad together = parents."
+  },
+  {
+    context:"Grandma and Grandpa Star are Mr Star's mum and dad.",
+    q:"Grandma and Grandpa Star are Mr Star's ___.",
+    ans:"parents",
+    opts:["parents","grandparents","children","cousins"],
+    fact:"Mr Star's mum and dad = his parents."
+  },
+  {
+    context:"Grandma and Grandpa Star are Stella, Simon and Suzy's grandma and grandpa.",
+    q:"Grandma and Grandpa Star are Simon's ___.",
+    ans:"grandparents",
+    opts:["grandparents","parents","uncle and aunt","cousins"],
+    fact:"Grandma and grandpa together = grandparents."
+  },
+  {
+    context:"Stella, Simon and Suzy are Grandma and Grandpa Star's grandchildren.",
+    q:"Stella, Simon and Suzy are Grandma Star's ___.",
+    ans:"grandchildren",
+    opts:["grandchildren","children","sons","cousins"],
+    fact:"All the grandkids together = grandchildren."
+  },
+];
+
+// G2 — WHO IS IT?
+// Read a written description → pick the correct Star family member by name.
+// Appearance data verified from:
+//   · Wordwall hangman: "Aunt May has got straight black hair", "Uncle Fred has got a short beard"
+//   · AB Review 1-2 (studylib): "He's got short straight hair. He isn't fair. He's got a big black beard."
+//   · Teacher's Book AB16 Listen and colour audio script: fair hair (girl), orange beard (uncle),
+//     curly hair (girl on bike)
+//   · AB Part 4 evaluation: brown beard, curly black hair, long curly hair, short straight hair, straight fair hair
+// Each question has 4 NAME-ONLY buttons + a short appearance tag beneath each to help students compare.
+// NO emojis used for meaning — only the text description matters.
+const G2 = [
+  {
+    desc:"She's got <span class='clue'>straight black hair</span>. She's a doctor. She's Mr Star's sister.",
+    people:[
+      { name:"Aunt May",      tag:"straight black hair, doctor",           correct:true  },
+      { name:"Mrs Star",      tag:"fair hair, Mr Star's wife",             correct:false },
+      { name:"Stella",        tag:"fair hair, clever girl",                correct:false },
+      { name:"Grandma Star",  tag:"short white hair, grandmother",         correct:false },
+    ]
+  },
+  {
+    desc:"He's got a <span class='clue'>short beard</span>. He isn't fair. He's a farmer. He's Mrs Star's brother.",
+    people:[
+      { name:"Mr Star",       tag:"short dark hair, no beard",             correct:false },
+      { name:"Grandpa Star",  tag:"white hair, tall grandfather",          correct:false },
+      { name:"Uncle Fred",    tag:"short beard, farmer, Mrs Star's brother", correct:true },
+      { name:"Simon",         tag:"short dark hair, naughty boy",          correct:false },
+    ]
+  },
+  {
+    desc:"She's got <span class='clue'>fair hair</span>. She's clever. She's Grandpa Star's granddaughter.",
+    people:[
+      { name:"Stella",        tag:"fair hair, clever, granddaughter",      correct:true  },
+      { name:"Suzy",          tag:"fair hair, youngest girl",              correct:false },
+      { name:"Aunt May",      tag:"straight black hair, doctor",           correct:false },
+      { name:"Mrs Star",      tag:"fair hair, Stella's mum",               correct:false },
+    ]
+  },
+  {
+    desc:"He's got <span class='clue'>short straight dark hair</span>. He's got <span class='clue'>no beard</span>. He can be naughty. He's Grandpa Star's grandson.",
+    people:[
+      { name:"Uncle Fred",    tag:"has a beard, farmer",                   correct:false },
+      { name:"Mr Star",       tag:"Stella's dad, not a child",             correct:false },
+      { name:"Grandpa Star",  tag:"white hair, grandfather",               correct:false },
+      { name:"Simon",         tag:"short dark hair, naughty, grandson",    correct:true  },
+    ]
+  },
+];
+
+// G3 — PRONOUN SWAP
+// Exact sentences from Teacher's Book (PB12, board activity) + AB exercises.
+// my/your/his/her/their — verified from Teacher's book grammar focus.
+const G3 = [
+  {
+    original:"<span class='name-hl'>Grandma and Grandpa Star's</span> grandchildren are Stella, Simon and Suzy.",
+    result:"<span style='color:var(--teal)'>Their</span> grandchildren are Stella, Simon and Suzy.",
+    pronoun:"Their",
+    opts:["His","Her","Their","Our"],
+    rule:"Grandma and Grandpa = two people → THEIR"
+  },
+  {
+    original:"<span class='name-hl'>Mr Star's</span> son is on the bike.",
+    result:"<span style='color:var(--teal)'>His</span> son is on the bike.",
+    pronoun:"His",
+    opts:["His","Her","Their","Its"],
+    rule:"Mr Star = he → HIS"
+  },
+  {
+    original:"<span class='name-hl'>Suzy's</span> aunt is in the helicopter.",
+    result:"<span style='color:var(--teal)'>Her</span> aunt is in the helicopter.",
+    pronoun:"Her",
+    opts:["His","Her","Their","My"],
+    rule:"Suzy = she → HER"
+  },
+  {
+    original:"I'm Stella. <span class='name-hl'>Stella's</span> family is very big!",
+    result:"I'm Stella. <span style='color:var(--teal)'>My</span> family is very big!",
+    pronoun:"My",
+    opts:["My","Her","His","Our"],
+    rule:"I (= Stella speaking) → MY"
+  },
+  {
+    original:"<span class='name-hl'>Aunt May's</span> hair is straight and black.",
+    result:"<span style='color:var(--teal)'>Her</span> hair is straight and black.",
+    pronoun:"Her",
+    opts:["His","Her","Their","Its"],
+    rule:"Aunt May = she → HER"
+  },
+  {
+    original:"<span class='name-hl'>Uncle Fred's</span> beard is short.",
+    result:"<span style='color:var(--teal)'>His</span> beard is short.",
+    pronoun:"His",
+    opts:["His","Her","Their","Its"],
+    rule:"Uncle Fred = he → HIS"
+  },
+  {
+    original:"<span class='name-hl'>Grandpa Star's</span> granddaughters are in the boat.",
+    result:"<span style='color:var(--teal)'>His</span> granddaughters are in the boat.",
+    pronoun:"His",
+    opts:["His","Her","Their","Our"],
+    rule:"Grandpa Star = he → HIS"
+  },
+  {
+    original:"<span class='name-hl'>Mr and Mrs Star's</span> children are Stella, Simon and Suzy.",
+    result:"<span style='color:var(--teal)'>Their</span> children are Stella, Simon and Suzy.",
+    pronoun:"Their",
+    opts:["His","Her","Their","Our"],
+    rule:"Mr and Mrs Star = two people → THEIR"
+  },
+];
+
+// G4 — BOMB DEFUSE: true/false facts about the Star family + appearance vocab
+// Verified from AB activity 2 answer key + Teacher's Book sentences + Wordwall hangman data
+const G4 = [
+  { q:"Grandma and Grandpa Star have got three grandchildren.",         ans:true,  t:5 },
+  { q:"Aunt May is Mrs Star's sister.",                                 ans:false, t:4 }, // Aunt May is MR Star's sister
+  { q:"Uncle Fred is a farmer.",                                        ans:true,  t:5 },
+  { q:"Simon is Grandpa Star's grandson.",                              ans:true,  t:5 },
+  { q:"Stella and Suzy are Grandpa Star's granddaughters.",            ans:true,  t:4 },
+  { q:"Mr Star is Grandpa Star's son.",                                 ans:true,  t:5 },
+  { q:"Uncle Fred is Mr Star's brother.",                               ans:false, t:4 }, // Uncle Fred = MRS Star's brother
+  { q:"Aunt May has got straight black hair.",                          ans:true,  t:5 },
+  { q:"Uncle Fred has got a beard.",                                    ans:true,  t:4 },
+  { q:"'Fair' means you have got dark hair.",                           ans:false, t:4 }, // fair = light/blonde
+  { q:"Curly hair is the opposite of straight hair.",                   ans:true,  t:4 },
+  { q:"A grandson is a girl grandchild.",                               ans:false, t:4 }, // grandson = boy
+];
+
+// G5 — STREAK CHALLENGE: correct/wrong sentences
+// Tests possessive 's, has got, family vocabulary — exact errors from AB exercises
+const G5 = [
+  { rule:"Suzy is Stella's sister.",                                     correct:true  },
+  { rule:"Mr Star's son are on the bike.",                               correct:false }, // is, not are
+  { rule:"Grandpa Star's granddaughters are in the boat.",               correct:true  },
+  { rule:"Simon is Grandpa Star's grandson.",                            correct:true  },
+  { rule:"Uncle Fred have got a beard.",                                 correct:false }, // has got
+  { rule:"Aunt May is Mr Star's sister.",                                correct:true  },
+  { rule:"Mrs Star brother is Uncle Fred.",                              correct:false }, // missing possessive 's
+  { rule:"Stella is clever.",                                            correct:true  },
+  { rule:"Their children are Stella, Simon and Suzy.",                  correct:true  },
+  { rule:"He's got short straight hair and he isn't fair.",             correct:true  },
+  { rule:"Her hair are long and curly.",                                 correct:false }, // is, not are
+  { rule:"Grandma and Grandpa Star are Mr Star's grandparents.",        correct:false }, // parents, not grandparents
+];
+
+// G6 — WORD ORDER: exact sentences from Teacher's Book + AB exercises (verified)
+const G6 = [
+  { words:["Suzy's","Stella's","sister","."],                                      ans:"Suzy's Stella's sister ."                                    },
+  { words:["Mr","Star's","son","is","on","the","bike","."],                        ans:"Mr Star's son is on the bike ."                              },
+  { words:["Grandpa","Star's","granddaughters","are","in","the","boat","."],       ans:"Grandpa Star's granddaughters are in the boat ."             },
+  { words:["He's","got","short","straight","hair","and","a","big","black","beard","."], ans:"He's got short straight hair and a big black beard ."   },
+  { words:["Aunt","May","is","Mr","Star's","sister","."],                          ans:"Aunt May is Mr Star's sister ."                              },
+  { words:["Uncle","Fred","is","Mrs","Star's","brother","."],                      ans:"Uncle Fred is Mrs Star's brother ."                          },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g4bombScore=0, g5streak=0, g5best=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#ffc840','#ff9f20','#ff5c8a','#28d0c0','#98f028'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#ffc840','#ff9f20','#28d0c0','#98f028'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Family Tree Quiz','Who Is It?','Pronoun Swap','Bomb Defuse!','Streak Challenge','Word Order'];
+  const cols=['var(--gold)','var(--amber)','var(--teal)','var(--amber)','var(--rose)','var(--gold)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .22s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"Who\'s Mr Star\'s dad? Grandpa Star is!"',
+    '"Aunt May is Mr Star\'s sister and she\'s a doctor."',
+    '"He\'s got short straight hair and a big black beard."',
+    '"What does she look like? She\'s got straight black hair."',
+    '"Their grandchildren are Stella, Simon and Suzy."',
+    'Describe someone in your family using: has got / hasn\'t got.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — FAMILY TREE QUIZ
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Family Relationships</div>
+      <div class="gh-name" style="color:var(--gold)">Family Tree Quiz</div>
+      <div class="gh-instr">Read the information — fill in the missing family word.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="tree-card">
+      <div class="tree-header">Context — Question ${g1i+1} of ${g1q.length}</div>
+      <div class="tree-context">${q.context}</div>
+      <div class="tree-question">${q.q.replace('___','<span style="color:var(--gold)">___</span>')}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok',`${q.ans} — ${q.fact} +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+q.ans+'. '+q.fact); }
+    show('g1next');
+  }));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G2 — WHO IS IT?
+   Read description → pick the correct name.
+   Name buttons show the person's name + a brief appearance tag beneath.
+   No emojis used for meaning — all text.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const people=rnd([...q.people]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Vocabulary · Appearance Descriptions</div>
+      <div class="gh-name" style="color:var(--amber)">Who Is It?</div>
+      <div class="gh-instr">Read the description carefully — which Star family member is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="desc-card">
+      <div class="desc-badge">Description ${g2i+1} of ${g2q.length}</div>
+      <div class="desc-text">${q.desc}</div>
+    </div>
+    <div class="name-grid" id="nameGrid">
+      ${people.map(p=>`
+        <div class="name-btn" data-correct="${p.correct}">
+          ${p.name}
+          <span class="tag">${p.tag}</span>
+        </div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.name-btn').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('.name-btn').forEach(b=>b.classList.add('locked'));
+    if(el.dataset.correct==='true'){ el.classList.add('nb-ok'); addScore(2); showFb('g2fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('nb-wrong'); document.querySelectorAll('.name-btn').forEach(b=>{ if(b.dataset.correct==='true')b.classList.add('nb-ok'); }); showFb('g2fb','bad','Not quite — read the description again!'); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G3 — PRONOUN SWAP
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Possessive Pronouns</div>
+      <div class="gh-name" style="color:var(--teal)">Pronoun Swap</div>
+      <div class="gh-instr">The underlined name needs a pronoun. Which one fits?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="swap-card">
+      <div class="swap-label">Original sentence</div>
+      <div class="swap-original">${q.original}</div>
+      <div class="swap-label">Rewritten with a pronoun:</div>
+      <div class="swap-result" id="swapResult">???</div>
+      <div class="grammar-rule" id="g3rule"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const rule=$('g3rule'); rule.style.display='block'; rule.textContent='💡 '+q.rule;
+    $('swapResult').innerHTML=q.result;
+    if(el.dataset.a===q.pronoun){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.pronoun)o.classList.add('opt-ok'); }); showFb('g3fb','bad','It\'s: '+q.pronoun); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Family Facts · Timed True/False</div>
+      <div class="gh-name" style="color:var(--amber)">Bomb Defuse!</div>
+      <div class="gh-instr">True or false — answer before the fuse burns!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+  g4Render();
+}
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`; hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">✅ True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">❌ False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++; g4bombScore+=3;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g4fb','bad',ans?'It\'s TRUE!':'It\'s FALSE!');
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was '+(ans?'TRUE':'FALSE'));
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — STREAK CHALLENGE
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--rose)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div><div class="streak-big" id="s5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g5best}</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-text">${q.rule}</div>
+    </div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">Question ${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--rose);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g5Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best)g5best=g5streak;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    $('s5num').textContent=g5streak;
+    addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('s5num').textContent=0;
+    showFb('g5fb','bad',correct?'That sentence IS correct!':'That sentence is WRONG!');
+  }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Family Sentences</div>
+      <div class="gh-name" style="color:var(--gold)">Word Order</div>
+      <div class="gh-instr">Tap the tiles in the correct order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--gold);color:var(--bg)">Check ✓</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 ⭐'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
