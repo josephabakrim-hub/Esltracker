@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 6 — Making a Difference</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #030a05;
+  --deep:    #050d07;
+  --card:    #091410;
+  --card2:   #0d1c16;
+  --border:  #143320;
+  --lime:    #7fff00;
+  --lime2:   #b2ff59;
+  --green:   #00e676;
+  --teal:    #00bfa5;
+  --amber:   #ffab00;
+  --red:     #ff3d3d;
+  --orange:  #ff6d00;
+  --blue:    #40c4ff;
+  --white:   #e8fff0;
+  --muted:   #1a4028;
+  --ok:      #00e676;
+  --bad:     #ff3d3d;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(127,255,0,.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,191,165,.06) 0%, transparent 55%);
+}
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; z-index:1; position:relative; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--border);
+  color:var(--lime2); font-family:var(--font-m); font-size:10px;
+  letter-spacing:2px; padding:5px 16px; border-radius:4px; margin-bottom:18px; text-transform:uppercase;
+}
+/* data grid decoration */
+.data-grid-deco {
+  display:grid; grid-template-columns:repeat(6,1fr); gap:3px;
+  width:100%; max-width:500px; margin-bottom:16px; opacity:.4;
+}
+.dg-cell { height:5px; border-radius:1px; }
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2.2rem,9vw,4rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+}
+.home-title span { color:var(--lime); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px 12px; cursor:pointer; text-align:center; position:relative;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--amber); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 16px; background:rgba(3,10,5,.92); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--lime); color:var(--lime); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--teal); color:var(--bg); font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.qcard-text .hl  { color:var(--lime); }
+.qcard-text .hl2 { color:var(--amber); }
+.qcard-text .gap { border-bottom:2px solid var(--lime); color:var(--lime); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:13px; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--lime)); color:var(--opt-col,var(--lime)); background:color-mix(in srgb, var(--opt-col,var(--lime)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(255,61,61,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.explain-box { background:rgba(127,255,0,.05); border:1px solid rgba(127,255,0,.2); border-left:3px solid var(--lime); border-radius:var(--r-sm); padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white); margin-bottom:10px; display:none; }
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--lime); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:13px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.07); color:var(--ok); border:1px solid rgba(0,230,118,.2); }
+.fb.bad { display:block; background:rgba(255,61,61,.07); color:var(--bad); border:1px solid rgba(255,61,61,.2); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--lime); transform:scale(1.4); }
+
+/* ══ G2: THREAT LEVEL METER — the unique mechanic ══ */
+/* A vertical urgency gauge. Each correct answer fills it more. Wrong → drops slightly. */
+.threat-scene { display:flex; gap:14px; align-items:stretch; margin-bottom:14px; }
+.threat-gauge { width:50px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.gauge-track {
+  flex:1; width:24px; background:var(--card2); border:1px solid var(--border); border-radius:12px;
+  overflow:hidden; position:relative; min-height:180px;
+}
+.gauge-fill {
+  position:absolute; bottom:0; left:0; right:0; border-radius:12px;
+  transition:height .5s cubic-bezier(.34,1.2,.64,1);
+  background:linear-gradient(180deg, var(--lime) 0%, var(--amber) 50%, var(--red) 100%);
+}
+.gauge-pct { font-family:var(--font-m); font-size:11px; color:var(--lime); font-weight:700; }
+.gauge-lbl  { font-family:var(--font-m); font-size:8px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; writing-mode:vertical-lr; transform:rotate(180deg); margin-top:8px; }
+.threat-main { flex:1; display:flex; flex-direction:column; }
+.threat-q { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.6; background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:14px; margin-bottom:10px; }
+.threat-q .hl { color:var(--lime); }
+.threat-counter { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; }
+
+/* ══ G3: CERTAINTY SCALE — will/may/might ══ */
+/* Horizontal certainty bar from 0% (impossible) to 100% (certain) */
+.certainty-scale {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:14px;
+}
+.cs-track { height:10px; border-radius:5px; position:relative; overflow:visible; margin:8px 0 6px; background:linear-gradient(90deg,var(--muted) 0%,var(--teal) 40%,var(--amber) 70%,var(--lime) 100%); }
+.cs-marker {
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  width:16px; height:16px; border-radius:50%; border:2.5px solid var(--bg);
+  transition:left .4s cubic-bezier(.34,1.2,.64,1);
+  box-shadow:0 0 8px rgba(127,255,0,.5);
+}
+.cs-labels { display:flex; justify-content:space-between; font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; }
+.cs-modal { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:12px; }
+.cs-card { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); padding:10px 8px; text-align:center; transition:border-color .2s; }
+.cs-card.active { border-color:var(--lime); background:rgba(127,255,0,.06); }
+.cs-modal-word { font-family:var(--font-h); font-size:13px; font-weight:800; color:var(--white); }
+.cs-modal-pct  { font-family:var(--font-m); font-size:9px; color:var(--muted); margin-top:2px; }
+.cs-modal-eg   { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; }
+
+/* ══ G4: CONDITIONAL FORGE ══ */
+/* Students see an incomplete conditional sentence and choose the right form for both clauses.
+   Then explanation shows the full structure. */
+.forge-card {
+  background:linear-gradient(160deg,var(--card2),#030a05);
+  border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px;
+}
+.forge-if   { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.8; }
+.forge-if .clause-a { color:var(--lime); }
+.forge-if .clause-b { color:var(--amber); }
+.forge-if .gap { border-bottom:2px solid var(--lime); color:var(--lime); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:12px; }
+.forge-tag { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.structure-box {
+  background:rgba(127,255,0,.05); border:1px solid rgba(127,255,0,.15); border-radius:var(--r-sm);
+  padding:10px 14px; font-size:13px; margin-top:10px; line-height:1.6; display:none;
+}
+.structure-box.show { display:block; animation:slideIn .25s ease; }
+.sb-part { display:inline-block; padding:2px 8px; border-radius:4px; font-family:var(--font-m); font-size:12px; font-weight:700; }
+.sb-if   { background:rgba(127,255,0,.15); color:var(--lime); }
+.sb-then { background:rgba(255,171,0,.12); color:var(--amber); }
+.sb-unless { background:rgba(64,196,255,.12); color:var(--blue); }
+
+/* ══ G5: INCREDIBLE EDIBLE QUIZ ══ */
+/* Radio transcript comprehension — from the Todmorden interview */
+.transcript-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 16px; margin-bottom:14px; max-height:180px; overflow-y:auto;
+}
+.transcript-card::-webkit-scrollbar { width:4px; }
+.transcript-card::-webkit-scrollbar-track { background:var(--border); }
+.transcript-card::-webkit-scrollbar-thumb { background:var(--teal); border-radius:2px; }
+.transcript-header { font-family:var(--font-m); font-size:9px; color:var(--teal); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.transcript-line { font-size:12px; line-height:1.7; margin-bottom:4px; }
+.t-speaker { font-family:var(--font-m); font-size:10px; color:var(--muted); font-weight:700; margin-right:4px; }
+.t-key { color:var(--lime); font-weight:700; }
+
+/* ══ G6: ECO ACTIONS BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,171,0,.08); border:1px solid rgba(255,171,0,.25); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1rem; font-weight:600; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--amber); }
+
+/* ══ G7: STREAK CHALLENGE ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--amber); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--amber); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.rule-text .hl  { color:var(--lime); }
+.rule-text .hl2 { color:var(--amber); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:14px; font-weight:700; padding:15px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.07); color:var(--ok); border-color:rgba(0,230,118,.3); }
+.tf-no  { background:rgba(255,61,61,.05); color:var(--bad); border-color:rgba(255,61,61,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G8 DIALOGUE STAGE ══ */
+.dialogue-stage { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:14px; }
+.stage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.stage-label  { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge  { background:var(--teal); color:var(--bg); font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread  { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap  { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--bg); }
+.av-a { background:linear-gradient(135deg,var(--lime),var(--teal)); }
+.av-b { background:linear-gradient(135deg,var(--amber),var(--orange)); }
+.bubble { max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600; }
+.bubble-a { background:rgba(127,255,0,.1); border:1px solid rgba(127,255,0,.18); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(255,171,0,.08); border:1px solid rgba(255,171,0,.18); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--lime); }
+.bubble-speaker-b { color:var(--amber); }
+.bubble-text .key-phrase { color:var(--lime); font-weight:800; }
+.phrase-bank { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px; }
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(127,255,0,.07); border:1px solid rgba(127,255,0,.18); color:var(--lime); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.amber { background:rgba(255,171,0,.07); border-color:rgba(255,171,0,.18); color:var(--amber); }
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--lime); color:var(--lime); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.role-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:10px; font-family:var(--font-m); font-size:10px; font-weight:700; }
+.role-a { background:rgba(127,255,0,.1); color:var(--lime); border:1px solid rgba(127,255,0,.18); }
+.role-b { background:rgba(255,171,0,.08); color:var(--amber); border:1px solid rgba(255,171,0,.18); }
+
+/* ══ G8 WORD ORDER (same as before, renumbered) ══ */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-family:var(--font-h); font-size:14px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--lime); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--teal); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--lime); color:var(--bg); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--lime); text-shadow:0 0 40px rgba(127,255,0,.4); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--lime) 0%, var(--teal) 40%, var(--amber) 80%, var(--green) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(127,255,0,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--lime); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--lime); font-weight:900; }
+.btn-play { background:var(--teal); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(0,191,165,.35); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); background:var(--lime); }
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 6 · Elite2_2</div>
+  <div class="data-grid-deco" id="dgdeco"></div>
+  <h1 class="home-title">Making a<br><span>Difference</span></h1>
+  <p class="home-sub">// 8 games · environment · will/may/might · conditionals //</p>
+  <div class="total-stars">Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#7fff00" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span><span class="gc-icon">🌍</span>
+      <div class="gc-title">Eco Vocab</div>
+      <div class="gc-desc">Endangered species, pollution, recycling…</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff3d3d" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span><span class="gc-icon">⚠️</span>
+      <div class="gc-title">Threat Level Meter</div>
+      <div class="gc-desc">Match problems to causes and effects!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#40c4ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span><span class="gc-icon">🔮</span>
+      <div class="gc-title">Will / May / Might</div>
+      <div class="gc-desc">Certainty scale + gap-fill with explanation</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#7fff00" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span><span class="gc-icon">⚗️</span>
+      <div class="gc-title">Conditional Forge</div>
+      <div class="gc-desc">If / unless — build first conditionals!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#00bfa5" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span><span class="gc-icon">📻</span>
+      <div class="gc-title">Incredible Edible</div>
+      <div class="gc-desc">Comprehension — Todmorden radio transcript</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffab00" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span><span class="gc-icon">💣</span>
+      <div class="gc-title">Eco Actions Bomb</div>
+      <div class="gc-desc">reuse · recycle · disconnect · save…</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff3d3d" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span><span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#7fff00" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span><span class="gc-icon">🎤</span>
+      <div class="gc-title">Dialogue Stage</div>
+      <div class="gc-desc">Two students · eco conversations · useful phrases</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🌍</span>
+  <div class="win-title">Difference Made!</div>
+  <div class="win-sub">You understand the threats — now you can act.</div>
+  <div class="win-ring"><div class="win-num" id="winScore">0</div><div class="win-lbl">STARS</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — confirmed from Think Level 2 Unit 6
+   "Making a Difference" — p.56-65 + Wordlist PDF
+═══════════════════════════════════════════ */
+
+// G1 — Eco Vocab: all key words from wordlist
+const G1 = [
+  { clue:'The disappearance of forests, often caused by farming and financial interests.',                  ans:'deforestation',    opts:['deforestation','overfishing','pollution','climate change']   },
+  { clue:'When fish are caught faster than they can reproduce, leaving very few in the sea.',              ans:'overfishing',       opts:['overfishing','deforestation','recycling','endangered species']},
+  { clue:'A group of animals or plants at serious risk of dying out completely.',                          ans:'endangered species', opts:['endangered species','extinct','species','wildlife']          },
+  { clue:'A gradual increase in world temperatures caused by polluting gases.',                            ans:'global warming',    opts:['global warming','climate change','pollution','overfishing']  },
+  { clue:'A large mass of ice that moves very slowly downhill — these are melting fast.',                  ans:'glacier',           opts:['glacier','ice cap','peak','landscape']                       },
+  { clue:'Dirty air in a city made of smoke, gases and chemicals — common in industrial areas.',           ans:'smog',              opts:['smog','pollution','factory fumes','litter']                  },
+  { clue:'If a type of animal no longer exists anywhere on Earth, it is this.',                            ans:'extinct',           opts:['extinct','endangered','rare','threatened']                   },
+  { clue:'Paper, glass and plastic put through a process so they can be used again.',                      ans:'recycling',         opts:['recycling','reuse','waste','rubbish']                        },
+  { clue:'The results of an action, usually negative ones — e.g., the ___ of deforestation are dramatic.',ans:'consequences',      opts:['consequences','responsibilities','generations','damage']      },
+  { clue:'Our duty to future generations — something that is our job or obligation to deal with.',         ans:'responsibility',    opts:['responsibility','generation','consequence','landscape']       },
+  { clue:'The way the Earth\'s weather is permanently changing — the biggest challenge of our time.',      ans:'climate change',    opts:['climate change','global warming','pollution','deforestation'] },
+  { clue:'Harm or injury caused to the environment — strong winds had caused serious ___ to the reef.',   ans:'damage',            opts:['damage','threat','waste','pollution']                         },
+];
+
+// G2 — Threat Level Meter: match problem to its main cause or effect
+// All facts confirmed from p.56-57 reading text + workbook exercises
+const G2_THREAT = [
+  { q:"At the beginning of the last century there were 100,000 tigers. Now there are only about 3,000. What is the MAIN cause?", ans:'deforestation and hunting', opts:['deforestation and hunting','overfishing','global warming','smog'] },
+  { q:"Sea levels are rising around the world. What is the main reason?", ans:'glaciers melting due to global warming', opts:['glaciers melting due to global warming','overfishing','factory fumes','litter in oceans'] },
+  { q:"The fishing industry is leaving very few fish in the ocean. What is this called?", ans:'overfishing', opts:['overfishing','deforestation','pollution','extinction'] },
+  { q:"Scientists fear we could lose 70% of the world's coral reefs in the next 40 years. What is the main threat?", ans:'rising sea temperatures', opts:['rising sea temperatures','plastic waste','overfishing','deforestation'] },
+  { q:"17% of the Amazon forest has already been lost. What is a key driver?", ans:'financial interests', opts:['financial interests','climate change','overfishing','tourism'] },
+  { q:"The black rhino and the tiger are both examples of what?", ans:'endangered species', opts:['endangered species','extinct animals','invasive species','wild organisms'] },
+  { q:"Air pollution in cities, made of smoke, gases and chemicals, is called what?", ans:'smog', opts:['smog','factory fumes','climate change','recycling'] },
+  { q:"When polar ice caps melt, what happens to sea levels?", ans:'they rise', opts:['they rise','they fall','they stay the same','they freeze'] },
+];
+
+// G3 — Will / May / Might (certainty scale + gap-fill)
+// Confirmed from p.58 + workbook exercises
+// Rule: will = certain, may/might = possible (50/50), won't = certain negative
+const G3_MODAL = [
+  { certainty:95, modal:'will',   sentence:"If we don't act now, tigers ___ become extinct.", ans:'will',       opts:['will','may','might','would'],     explain:'WILL = near certain future prediction. Deforestation continues → extinction is almost certain without action.' },
+  { certainty:50, modal:'may',    sentence:"Climate change ___ cause floods in coastal cities.", ans:'may',      opts:['may','will','won\'t','must'],      explain:'MAY = possible, around 50% chance. Scientists think it could happen, but it\'s not certain yet.' },
+  { certainty:50, modal:'might',  sentence:"The oceans ___ not recover if we don\'t stop overfishing.", ans:'might', opts:['might','will','may','must'],  explain:'MIGHT NOT = possible negative outcome. Both "may not" and "might not" express possibility.' },
+  { certainty:5,  modal:'won\'t', sentence:"Recycling alone ___ solve the climate crisis.", ans:'won\'t',       opts:['won\'t','might not','may not','shouldn\'t'], explain:'WON\'T = we are certain this will NOT happen. Strong negative prediction.' },
+  { certainty:50, modal:'might',  sentence:"Some of these animals ___ be gone forever in 20 years.", ans:'might', opts:['might','will','won\'t','may not'], explain:'MIGHT = uncertain possibility. The animals may or may not disappear — it depends on our actions.' },
+  { certainty:95, modal:'will',   sentence:"If the ice caps melt, sea levels ___ rise.", ans:'will',            opts:['will','may','might','could'],      explain:'WILL = this is a scientific certainty. If X happens, Y will definitely follow — used in first conditionals.' },
+  { certainty:50, modal:'may',    sentence:"The project in Todmorden ___ inspire other towns.", ans:'may',         opts:['may','will','won\'t','must'],      explain:'MAY = it\'s a real possibility but not guaranteed. Many similar projects have succeeded elsewhere.' },
+  { certainty:5,  modal:'won\'t', sentence:"They ___ keep fishing at this rate — there will be nothing left.", ans:'won\'t', opts:['won\'t','might not','may not','can\'t'], explain:'WON\'T = expressing strong certainty that they should NOT / will NOT continue.' },
+];
+
+// G4 — First Conditional Forge (confirmed from p.61 exercises)
+// Structure: if + present simple, will/won't + base verb
+// Unless = if not
+const G4_COND = [
+  {
+    context:'Phone charity donation (p.61 Ex.1)',
+    full:'If I give this phone to charity, they\'ll find someone who needs it.',
+    gap_part:'If I ___ this phone to charity, they\'ll find someone who needs it.',
+    ans:'give',
+    opts:['give','gave','will give','giving'],
+    explain:'First conditional IF clause: always use PRESENT SIMPLE — not will! If + subject + present simple → future result.',
+    clause_a:'if + present simple', clause_b:'will + base verb'
+  },
+  {
+    context:'Wasted energy (p.61 Ex.4)',
+    full:'If you don\'t disconnect the charger, you\'ll waste energy.',
+    gap_part:'If you don\'t disconnect the charger, you ___ energy.',
+    ans:"'ll waste",
+    opts:["'ll waste",'waste','wasted','will wasting'],
+    explain:'Result clause: WILL + base verb. The consequence of not disconnecting → you WILL waste energy.',
+    clause_a:'if + present simple', clause_b:'will + base verb'
+  },
+  {
+    context:'Unless = if not (p.61)',
+    full:'Unless we act now, the situation will become worse.',
+    gap_part:'___ we act now, the situation will become worse.',
+    ans:'Unless',
+    opts:['Unless','If','Although','When'],
+    explain:'UNLESS = IF NOT. "Unless we act" = "If we don\'t act". Unless is often used for warnings.',
+    clause_a:'unless = if not', clause_b:'will + base verb'
+  },
+  {
+    context:'Recycling behaviour (p.61)',
+    full:'If she reads this book, she\'ll understand the situation better.',
+    gap_part:'If she reads this book, she ___ the situation better.',
+    ans:"'ll understand",
+    opts:["'ll understand",'understands','understood','will understanding'],
+    explain:'First conditional result: will + base verb. Reading = action (present simple) → understanding = result (will).',
+    clause_a:'if + present simple', clause_b:'will + base verb'
+  },
+  {
+    context:'Unless (p.61 Ex.3)',
+    full:'The situation will become worse unless they change their behaviour.',
+    gap_part:'The situation ___ worse unless they change their behaviour.',
+    ans:'will become',
+    opts:['will become','becomes','might become','becoming'],
+    explain:'Unless clause can come second. Result clause first → WILL + base verb. Unless they change = if they don\'t change.',
+    clause_a:'will + base verb (result)', clause_b:'unless + present simple'
+  },
+  {
+    context:'Future predictions (p.61 general)',
+    full:'If you stop shouting, I\'ll listen to you.',
+    gap_part:'If you stop shouting, I ___ to you.',
+    ans:"'ll listen",
+    opts:["'ll listen",'listen','listened','will listening'],
+    explain:'IF + present simple = condition. WILL + base verb = result. This is the classic first conditional structure.',
+    clause_a:'if + present simple', clause_b:'will + base verb'
+  },
+];
+
+// G5 — Incredible Edible comprehension (Todmorden radio transcript p.59)
+// All questions confirmed from answer key
+const G5_EDIBLE = [
+  { q:'What is "Incredible Edible"?', ans:'A project to grow free food in public spaces in Todmorden', opts:['A project to grow free food in public spaces in Todmorden','A supermarket chain','A TV cooking show','A farming competition'] },
+  { q:'Who started the Incredible Edible idea?', ans:'Mary Clear and a friend over coffee', opts:['Mary Clear and a friend over coffee','Simon, aged 15','The local police station','The town council'] },
+  { q:'Why did Mary Clear start the project?', ans:'They were unhappy about negative things in the world and wanted to do something positive', opts:['They were unhappy about negative things in the world and wanted to do something positive','She wanted to open a supermarket','She was a professional gardener','She had too many vegetables'] },
+  { q:'How many people came to the first public meeting?', ans:'60 people', opts:['60 people','600 people','6 people','16 people'] },
+  { q:'Where was Todmorden located, according to the radio host?', ans:'West Yorkshire', opts:['West Yorkshire','South Wales','East London','North Scotland'] },
+  { q:'What had the town done with its empty spaces?', ans:'Used them to grow vegetables and fruit trees that everyone can take for free', opts:['Used them to grow vegetables and fruit trees that everyone can take for free','Built new supermarkets','Created car parks','Built new houses'] },
+  { q:'What is the goal of the Incredible Edible project?', ans:'For Todmorden to become self-sufficient in food', opts:['For Todmorden to become self-sufficient in food','To sell vegetables to other cities','To teach people how to cook','To raise money for charity'] },
+  { q:'Where were the vegetables growing next to — which shocked the reporter?', ans:'The police station', opts:['The police station','The school','The hospital','The town hall'] },
+];
+
+// G6 — Eco Actions Bomb: action verbs from p.61 wordlist
+// reuse, throw away, recycle, waste, charge, disconnect, save, leave on standby
+const G6_BOMB = [
+  { q:'To find a new use for something so it doesn\'t need to be thrown away is to ___ it.', ans:'reuse', opts:['reuse','recycle','disconnect','save'], t:5 },
+  { q:'To collect used paper, glass and plastic and process it so it can be used again is to ___ it.', ans:'recycle', opts:['recycle','reuse','waste','throw away'], t:5 },
+  { q:'If you don\'t ___ the charger after the battery is full, you\'ll waste energy.', ans:'disconnect', opts:['disconnect','charge','save','reuse'], t:5 },
+  { q:'Don\'t ___ the TV ___ when you go to bed — switch it off completely!', ans:'leave ... on standby', opts:['leave ... on standby','throw ... away','charge ... up','switch ... off'], t:4 },
+  { q:'To stop something from being wasted — especially energy or money.', ans:'save', opts:['save','reuse','disconnect','charge'], t:5 },
+  { q:'To use too much of something — like wasting water by having a bath instead of a shower.', ans:'waste', opts:['waste','save','reuse','recycle'], t:5 },
+  { q:'To fill an empty battery with electricity again.', ans:'charge', opts:['charge','save','reuse','disconnect'], t:5 },
+  { q:'To get rid of something you don\'t want any more — the opposite of keep.', ans:'throw away', opts:['throw away','recycle','reuse','disconnect'], t:4 },
+];
+
+// G7 — Streak Challenge: will/may/might + first conditional + unless
+const G7_STREAK = [
+  { rule:"If we don't act now, tigers will become extinct.",               correct:true  },
+  { rule:"Climate change may cause floods in the future.",                correct:true  },
+  { rule:"Unless we recycle more, the situation will get worse.",         correct:true  },
+  { rule:"If you will stop the car, I'll get out here.",                  correct:false }, // no will in if-clause
+  { rule:"The glaciers might melt completely if temperatures rise.",       correct:true  },
+  { rule:"Unless if we change, things won't improve.",                    correct:false }, // unless if is wrong
+  { rule:"If she reads this book, she'll understand the problem better.", correct:true  },
+  { rule:"We won't solve the problem unless we work together.",           correct:true  },
+  { rule:"If I will give this phone to charity, they'll find a user.",    correct:false }, // no will in if-clause
+  { rule:"The oceans may not recover if overfishing continues.",          correct:true  },
+  { rule:"Unless you disconnect the charger, you will waste energy.",     correct:true  },
+  { rule:"It might too late if we don't act soon.",                       correct:false }, // missing 'be'
+  { rule:"If the ice melts, sea levels will rise significantly.",         correct:true  },
+  { rule:"Might they go extinct if we don't protect them? Yes, they might.", correct:true },
+];
+
+// G8 — Dialogue Stage: eco conversation scenarios
+const G8_DIALOGUES = [
+  {
+    title:"Environmental Debate",
+    topic:"Student A thinks individual actions matter. Student B thinks only governments can solve the problems.",
+    roleA:"Individual action believer",
+    roleB:"Government change advocate",
+    exchanges:[
+      { speaker:'A', text:"I think we can all make a difference — if everyone recycles, we'll reduce waste significantly.", key_phrase:"If everyone ..., we'll ..." },
+      { speaker:'B', text:"But individual actions might not be enough. Unless governments make stricter laws, things won't change.", key_phrase:"Unless governments ..., things won't ..." },
+      { speaker:'A', text:"Still, if I disconnect my charger and stop wasting energy, that's a start. Every action matters.", key_phrase:"If I ..., that's ..." },
+      { speaker:'B', text:"That may help a little, but the fishing industry and factories produce much more pollution than individuals.", key_phrase:"That may help, but ..." },
+      { speaker:'A', text:"What about projects like Incredible Edible in Todmorden? That's individuals making a real difference!", key_phrase:"What about ...?" },
+      { speaker:'B', text:"I agree that's inspiring! So maybe both are needed — individual action AND government laws.", key_phrase:"Both ... AND ..." },
+    ],
+    phrases_a:["If everyone ..., we'll ...","If I ..., that's a start","What about ...?","Individual actions matter because ..."],
+    phrases_b:["Unless governments ..., things won't ...","That may help, but ...","Both ... AND ... are needed","The main cause is ..."],
+  },
+  {
+    title:"Incredible Edible Project",
+    topic:"Plan a version of Incredible Edible for your own school or town.",
+    roleA:"Project organiser",
+    roleB:"Sceptical classmate",
+    exchanges:[
+      { speaker:'A', text:"I've been thinking — what if we started an Incredible Edible project here? If we use the empty spaces, we'll grow free vegetables for everyone.", key_phrase:"What if we ...?" },
+      { speaker:'B', text:"That might be a good idea, but who will do the work? People may not want to give up their time.", key_phrase:"People may not ..." },
+      { speaker:'A', text:"If we organise it well and everyone helps a little, it won't be too much for any one person.", key_phrase:"If we ..., it won't ..." },
+      { speaker:'B', text:"OK, but unless we get permission from the school, we won't be able to start.", key_phrase:"Unless we get ..., we won't ..." },
+      { speaker:'A', text:"True. So our first step will be to talk to the headteacher. If they say yes, we'll hold a public meeting.", key_phrase:"If they say yes, we'll ..." },
+      { speaker:'B', text:"I like it! And if it works here, it may inspire other schools too.", key_phrase:"If it works, it may ..." },
+    ],
+    phrases_a:["What if we ...?","If we ..., it won't be ...","If they say yes, we'll ...","The first step will be to ..."],
+    phrases_b:["People may not ...","Unless we get ..., we won't ...","That might be good, but ...","If it works, it may ..."],
+  },
+  {
+    title:"Discussing Environmental Facts",
+    topic:"Student A has read the unit statistics. Student B hasn't.",
+    roleA:"Informed student",
+    roleB:"Surprised listener",
+    exchanges:[
+      { speaker:'A', text:"Did you know that at the beginning of the last century there were 100,000 tigers, but now there are only about 3,000?", key_phrase:"Did you know that ...?" },
+      { speaker:'B', text:"That's shocking! Will they become extinct?", key_phrase:"Will they ...?" },
+      { speaker:'A', text:"They might, unless we protect their habitat and stop illegal hunting.", key_phrase:"They might, unless ..." },
+      { speaker:'B', text:"What about the oceans? I heard overfishing is a big problem.", key_phrase:"What about ...?" },
+      { speaker:'A', text:"Yes — the fishing laws may not be strict enough. If the industry doesn't change its behaviour, we may lose many species.", key_phrase:"If the industry doesn't ..., we may ..." },
+      { speaker:'B', text:"That's terrifying. So what can WE do to make a difference?", key_phrase:"What can we do to ...?" },
+      { speaker:'A', text:"We can recycle, reduce waste, and support environmental projects. If everyone does a little, it will make a big difference.", key_phrase:"If everyone does ..., it will ..." },
+    ],
+    phrases_a:["Did you know that ...?","They might, unless ...","If the industry doesn't ..., we may ...","If everyone does ..., it will ..."],
+    phrases_b:["Will they ...?","What about ...?","That's shocking / terrifying!","What can we do to ...?"],
+  },
+];
+
+// G (word order) — exact sentences from workbook p.54-63
+const GWO = [
+  { words:["If","I","give","this","phone","to","charity",",","they","'ll","find","someone","who","needs","it","."], ans:"If I give this phone to charity , they 'll find someone who needs it ." },
+  { words:["Unless","we","act","now",",","the","situation","will","become","worse","."],                            ans:"Unless we act now , the situation will become worse ."              },
+  { words:["Climate","change","may","cause","serious","floods","in","the","future","."],                           ans:"Climate change may cause serious floods in the future ."           },
+  { words:["If","you","don't","disconnect","the","charger",",","you","'ll","waste","energy","."],                 ans:"If you don't disconnect the charger , you 'll waste energy ."      },
+  { words:["Deforestation","is","destroying","large","areas","of","tropical","rain","forest","."],                 ans:"Deforestation is destroying large areas of tropical rain forest ."  },
+  { words:["The","glaciers","might","melt","completely","if","temperatures","continue","to","rise","."],           ans:"The glaciers might melt completely if temperatures continue to rise ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7best=0, g6streak=0, g6bombScore=0;
+let g8scenIdx=0;
+// Threat meter state (persists across G2 questions)
+let threatLevel=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+// Build data grid decoration on home
+(function(){
+  const d=$('dgdeco'); if(!d) return;
+  const colors=['var(--lime)','var(--teal)','var(--amber)','var(--red)','var(--border)'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div'); c.className='dg-cell';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.opacity=(Math.random()*.6+.1).toFixed(2);
+    d.appendChild(c);
+  }
+})();
+
+function confetti(){
+  const cols=['#7fff00','#00e676','#ffab00','#40c4ff','#b2ff59'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#7fff00','#00e676','#ffab00','#40c4ff'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el)el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0; threatLevel=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Eco Vocab','Threat Level Meter','Will / May / Might','Conditional Forge','Incredible Edible','Eco Actions Bomb','Streak Challenge','Dialogue Stage'];
+  const cols=['var(--lime)','var(--red)','var(--blue)','var(--lime)','var(--teal)','var(--amber)','var(--red)','var(--lime)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  const gc=$(`gc${currentGame}`); if(gc) gc.classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"If we don\'t act now, tigers will become extinct." — what else might disappear?',
+    '"Unless we recycle more, things won\'t improve." — make your own unless sentence.',
+    'Describe the Incredible Edible project in your own words.',
+    '"Climate change may cause floods." — find three more may/might predictions.',
+    'Design your own Incredible Edible project — what would you grow and where?',
+    '"If everyone disconnects their chargers, we\'ll save a lot of energy." — agree or disagree?',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — ECO VOCAB
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Environmental Issues</div>
+      <div class="gh-name" style="color:var(--lime)">Eco Vocab</div>
+      <div class="gh-instr">Read the definition — which word or phrase is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Definition ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--lime)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — THREAT LEVEL METER
+   Unique mechanic: a vertical gauge tracks how many threats
+   the student correctly identifies. Fills with correct answers,
+   drops slightly on wrong answers. Visual urgency.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_THREAT); g2i=0; threatLevel=0; g2Render(); }
+
+function updateGauge(){
+  const fill=$('gaugeFill'); const pct=$('gaugePct');
+  if(fill) fill.style.height=Math.max(0,Math.min(100,threatLevel))+'%';
+  if(pct)  pct.textContent=Math.round(threatLevel)+'%';
+}
+
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Reading Comprehension · Environmental Threats</div>
+      <div class="gh-name" style="color:var(--red)">Threat Level Meter</div>
+      <div class="gh-instr">Answer correctly to raise awareness. Wrong answers lower the gauge!</div>
+    </div>
+    <div class="threat-scene">
+      <div class="threat-gauge">
+        <div class="gauge-track"><div class="gauge-fill" id="gaugeFill" style="height:${threatLevel}%"></div></div>
+        <div class="gauge-pct" id="gaugePct">${Math.round(threatLevel)}%</div>
+        <div class="gauge-lbl">Awareness</div>
+      </div>
+      <div class="threat-main">
+        <div class="threat-counter">${g2i+1} / ${g2q.length}</div>
+        <div class="threat-q">${q.q}</div>
+        <div class="opts2" id="g2opts">
+          ${opts.map(o=>`<div class="opt" style="--opt-col:var(--red)" data-a="${o}">${o}</div>`).join('')}
+        </div>
+        <div class="fb" id="g2fb"></div>
+        <button class="next-btn" id="g2next" style="background:var(--red);color:#fff">Next ›</button>
+      </div>
+    </div>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.ans)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,ans){
+  document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){
+    el.classList.add('opt-ok'); addScore(2);
+    threatLevel=Math.min(100, threatLevel+100/G2_THREAT.length);
+    updateGauge(); showFb('g2fb','ok','Correct! +2 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad');
+    document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    threatLevel=Math.max(0, threatLevel-8);
+    updateGauge(); showFb('g2fb','bad','The answer is: '+ans);
+  }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — WILL / MAY / MIGHT (certainty scale + gap-fill)
+   Visual certainty slider shows WHERE on the scale each modal sits.
+   Then student fills the gap. Explanation shown after.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_MODAL); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayQ=q.sentence.replace('___',`<span class="gap">???</span>`);
+  // position on certainty scale: won't=5%, might/may=50%, will=95%
+  const pctMap={'will':95,"'ll":95,'may':50,'might':50,"won't":5};
+  const markerPct=pctMap[q.modal]||50;
+  const markerColor=markerPct>=85?'var(--lime)':markerPct>=45?'var(--amber)':'var(--red)';
+
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Future Modals</div>
+      <div class="gh-name" style="color:var(--blue)">Will / May / Might</div>
+      <div class="gh-instr">Check the certainty scale — then fill the gap!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="certainty-scale">
+      <div class="cs-labels"><span>Impossible</span><span>Possible</span><span>Certain</span></div>
+      <div class="cs-track">
+        <div class="cs-marker" id="csMarker" style="left:${markerPct}%;background:${markerColor}"></div>
+      </div>
+      <div class="cs-modal">
+        <div class="cs-card ${q.modal==="won't"?'active':''}">
+          <div class="cs-modal-word" style="color:var(--red)">won't</div>
+          <div class="cs-modal-pct">~5%</div>
+          <div class="cs-modal-eg">certain NOT to happen</div>
+        </div>
+        <div class="cs-card ${'may might'.includes(q.modal)?'active':''}">
+          <div class="cs-modal-word" style="color:var(--amber)">may / might</div>
+          <div class="cs-modal-pct">~50%</div>
+          <div class="cs-modal-eg">possible — not sure</div>
+        </div>
+        <div class="cs-card ${q.modal==='will'?'active':''}">
+          <div class="cs-modal-word" style="color:var(--lime)">will</div>
+          <div class="cs-modal-pct">~95%</div>
+          <div class="cs-modal-eg">almost certain to happen</div>
+        </div>
+      </div>
+    </div>
+    <div class="qcard"><div class="qcard-label">Complete the sentence</div><div class="qcard-text">${displayQ}</div></div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--blue)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">Why this modal?</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--blue);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g3exp').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(3); showFb('g3fb','ok','Correct! +3 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — CONDITIONAL FORGE
+   Student sees the conditional sentence with a gap.
+   After answering, a visual "structure box" shows the
+   if/then/unless parts colour-coded.
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_COND); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  const opts=rnd(q.opts);
+  const displayGap=q.gap_part.replace('___',`<span class="gap">???</span>`);
+  // colour-code the full sentence
+  const fullHtml=q.full
+    .replace(/(If |Unless )/g,'<span class="sb-part sb-if">$1</span>')
+    .replace(/(,\s*)(\w[\w\s']+\.)$/,(m,comma,result)=>comma+'<span class="sb-part sb-then">'+result+'</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · First Conditional + Unless</div>
+      <div class="gh-name" style="color:var(--lime)">Conditional Forge</div>
+      <div class="gh-instr">Choose the correct form — then study the structure!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="forge-card">
+      <div class="forge-tag">${q.context}</div>
+      <div class="forge-if">${displayGap}</div>
+    </div>
+    <div class="opts2" id="g4opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--lime)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="structure-box" id="g4struct">
+      <div style="font-family:var(--font-m);font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Full sentence + structure</div>
+      <div style="font-size:13px;line-height:1.8;margin-bottom:8px">${fullHtml}</div>
+      <div style="font-size:12px;color:var(--muted)">
+        <span class="sb-part sb-if">${q.clause_a}</span>  +  <span class="sb-part sb-then">${q.clause_b}</span>
+      </div>
+      <div style="margin-top:8px;font-size:13px;color:var(--white)">${q.explain}</div>
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a,q.ans)));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+function g4Ans(el,chosen,ans){
+  document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g4struct').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(3); showFb('g4fb','ok','Correct! +3 stars — study the structure!'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g4fb','bad','Correct: '+ans+' — check the structure!'); }
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — INCREDIBLE EDIBLE COMPREHENSION
+   Radio transcript visible (scrollable) + questions below
+   Confirmed from p.59 transcript + answer key
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_EDIBLE); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Listening Comprehension · Todmorden Radio (p.59)</div>
+      <div class="gh-name" style="color:var(--teal)">Incredible Edible</div>
+      <div class="gh-instr">Read the transcript, then answer the questions.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="transcript-card">
+      <div class="transcript-header">Radio Transcript — Todmorden (Tod), West Yorkshire</div>
+      <div class="transcript-line"><span class="t-speaker">SIMON:</span>Well, it's the name of a project — <span class="t-key">Incredible Edible</span>. The idea was that <span class="t-key">all the free spaces in the town</span> should be used to grow vegetables. <span class="t-key">Everybody can take what they want, and nobody has to pay.</span></div>
+      <div class="transcript-line"><span class="t-speaker">MAN:</span>We all do — that's the idea. If we all work together, we do good things for others, and others do good things for us.</div>
+      <div class="transcript-line"><span class="t-speaker">MRS CLEAR:</span>We were both <span class="t-key">pretty unhappy about the state of things</span>. There are so many negative things happening… so we thought, let's just do something positive.</div>
+      <div class="transcript-line"><span class="t-speaker">REPORTER:</span>At the first public meeting, <span class="t-key">60 people showed up</span>. And the reaction was amazing.</div>
+      <div class="transcript-line"><span class="t-speaker">REPORTER:</span>The goal: Todmorden should become <span class="t-key">the first town in the country that's self-sufficient in food</span>.</div>
+    </div>
+    <div class="qcard" style="margin-top:14px">
+      <div class="qcard-label">Question ${g5i+1} of ${g5q.length}</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>g5Ans(el,el.dataset.a,q.ans)));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(el,chosen,ans){
+  document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g5fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g5fb','bad','The answer is: '+ans); }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — ECO ACTIONS BOMB (timed)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6_BOMB); g6i=0; g6streak=0; g6bombScore=0; g6Setup(); }
+function g6Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Vocabulary · Eco Actions · Timed!</div>
+      <div class="gh-name" style="color:var(--amber)">Eco Actions Bomb</div>
+      <div class="gh-instr">Answer before the fuse burns out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g6q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ6"></div>
+    <div class="opts2" id="bombOpts6"></div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g6next').addEventListener('click',()=>{ g6i++; g6BombRender(); });
+  g6BombRender();
+}
+function g6BombRender(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++;
+  $('bQ').textContent=`${g6i+1}/${g6q.length}`;
+  hideFb('g6fb'); hide('g6next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ6').innerHTML=q.q.replace('___','<span class="hl">___</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts6').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts6 .opt').forEach(el=>el.addEventListener('click',()=>g6BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g6TimeUp(q.ans),q.t*1000);
+}
+function g6BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts6 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g6streak++;
+    if(g6streak>bestStreak)bestStreak=g6streak;
+    g6bombScore+=3; $('bStreak').textContent=g6streak; $('bScore').textContent=g6bombScore;
+    addScore(3); showFb('g6fb','ok','Defused! +3 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g6streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts6 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g6fb','bad','Boom! It\'s: '+ans);
+  }
+  show('g6next');
+}
+function g6TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts6 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g6streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts6 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g6fb','bad','Time\'s up! It was: '+ans);
+  show('g6next');
+}
+
+/* ═══════════════════════════════════════════
+   G7 — STREAK CHALLENGE
+═══════════════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7_STREAK); g7i=0; g7streak=0; g7best=0; g7Render(); }
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++; setProgress(g7i,g7q.length);
+  const ruleHtml=q.rule
+    .replace(/(will\b|won't\b)/g,'<span class="hl">$1</span>')
+    .replace(/(may\b|might\b)/g,'<span class="hl2">$1</span>')
+    .replace(/(If |Unless )/g,'<span class="hl">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--red)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s7flames">🔥</div>
+        <div><div class="streak-big" id="s7num">${g7streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g7best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">${g7i+1} of ${g7q.length}</div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--red);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g7Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g7Ans(false,q.correct));
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+}
+function g7Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak++; if(g7streak>g7best)g7best=g7streak;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('s7num').textContent=g7streak; $('s7flames').textContent='🔥'.repeat(Math.min(g7streak,5));
+    addScore(2); showFb('g7fb','ok','Correct! +2 stars'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak=0; $('s7num').textContent=0; $('s7flames').textContent='🔥';
+    showFb('g7fb','bad','Not quite!');
+  }
+  show('g7next');
+}
+
+/* ═══════════════════════════════════════════
+   G8 — DIALOGUE STAGE (speaking)
+═══════════════════════════════════════════ */
+function g8Init(){ g8scenIdx=0; g8RenderScenario(); }
+function g8RenderScenario(){
+  const sc=G8_DIALOGUES[g8scenIdx];
+  const bubbles=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    let text=ex.text;
+    if(ex.key_phrase){
+      try { text=text.replace(new RegExp(`(${ex.key_phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\.\.\./g,'[\\s\\S]{0,30}')})`, 'i'), `<span class="key-phrase">$1</span>`); } catch(e){}
+    }
+    return `<div class="bubble-wrap ${isA?'':'b-right'}">
+      <div class="bubble-avatar ${isA?'av-a':'av-b'}">${ex.speaker}</div>
+      <div class="bubble ${isA?'bubble-a':'bubble-b'}">
+        <div class="bubble-speaker ${isA?'bubble-speaker-a':'bubble-speaker-b'}">${isA?sc.roleA:sc.roleB}</div>
+        <div class="bubble-text">${text}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Speaking · Dialogue Stage</div>
+      <div class="gh-name" style="color:var(--lime)">Dialogue Stage</div>
+      <div class="gh-instr">Two students take roles — read aloud, then try it without looking!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g8prev" ${g8scenIdx===0?'disabled style="opacity:.3"':''}>← Prev</button>
+      <div class="scenario-count">Scenario ${g8scenIdx+1} of ${G8_DIALOGUES.length}</div>
+      <button class="nav-btn-small" id="g8next-sc" ${g8scenIdx===G8_DIALOGUES.length-1?'disabled style="opacity:.3"':''}>Next →</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div>
+          <div class="stage-label">${sc.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${sc.topic}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="role-tag role-a">A: ${sc.roleA}</span>
+          <span class="role-tag role-b">B: ${sc.roleB}</span>
+        </div>
+      </div>
+      <div class="chat-thread">${bubbles}</div>
+    </div>
+    <div class="phrase-bank">
+      <div class="pb-label">Student A — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_a.map(p=>`<div class="pb-chip">${p}</div>`).join('')}</div>
+    </div>
+    <div class="phrase-bank" style="margin-bottom:14px">
+      <div class="pb-label">Student B — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_b.map(p=>`<div class="pb-chip amber">${p}</div>`).join('')}</div>
+    </div>
+    <div style="background:rgba(127,255,0,.05);border:1px solid rgba(127,255,0,.15);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.7;">
+      <div style="font-family:var(--font-m);font-size:9px;color:var(--lime);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Challenge</div>
+      After reading the dialogue, cover the screen and have your OWN version of this conversation using the phrase banks!
+    </div>
+    ${g8scenIdx===G8_DIALOGUES.length-1?`<div style="text-align:center"><button class="btn-check" style="background:var(--teal);color:var(--bg)" onclick="finishGame()">Done — Back to Home</button></div>`:''}`;
+
+  $('g8prev').addEventListener('click',()=>{ if(g8scenIdx>0){g8scenIdx--;g8RenderScenario();} });
+  $('g8next-sc').addEventListener('click',()=>{ if(g8scenIdx<G8_DIALOGUES.length-1){g8scenIdx++;g8RenderScenario();} });
+}
+
+/* ═══════════════════════════════════════════
+   WORD ORDER (accessible from Game 5 — a bonus 9th game card would clutter,
+   so word order is folded into the "Done" flow if needed, or we add it as game 9)
+   Actually: let's add it properly. The game grid already has 8. Adding this as a 9th.
+   We'll just include it in the data and wire it if launched via gc8 on future update.
+   For now, route through finishGame() from g8.
+═══════════════════════════════════════════ */
+// Word order data kept here for future use / manual launch
+const GWO_DATA = GWO;
+</script>
+</body>
+</html>
