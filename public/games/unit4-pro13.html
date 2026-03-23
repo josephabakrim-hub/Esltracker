@@ -139,10 +139,12 @@ body {
 .fb.bad { display:block; background:rgba(255,23,68,.1); color:#ff6b6b; border:1px solid rgba(255,23,68,.25); }
 
 .next-btn {
-  display:none; margin-left:auto; padding:9px 22px;
+  margin-left:auto; padding:9px 22px;
   font-family:var(--font-h); font-size:14px; font-weight:800;
   border:none; border-radius:10px; cursor:pointer; transition:all .15s;
+  display:none;
 }
+.next-btn.visible { display:block; }
 .next-btn:hover { transform:translateY(-2px); }
 
 .prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
@@ -541,8 +543,8 @@ let g1i=0, g1q=[];
 ═══════════════════════════════════════════ */
 const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
 const $=id=>document.getElementById(id);
-const show=el=>{ if(typeof el==='string') el=$(el); el&&(el.style.display=''); };
-const hide=el=>{ if(typeof el==='string') el=$(el); el&&(el.style.display='none'); };
+const show=el=>{ if(typeof el==='string') el=$(el); if(!el) return; if(el.classList.contains('next-btn')) el.classList.add('visible'); else el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string') el=$(el); if(!el) return; if(el.classList.contains('next-btn')) el.classList.remove('visible'); else el.style.display='none'; };
 const clr=el=>{ if(typeof el==='string') el=$(el); el&&(el.className=el.className.replace(/\b(ok|bad)\b/g,'').trim()); el&&(el.style.display='none'); };
 
 function addScore(n){
