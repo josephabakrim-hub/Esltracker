@@ -1,865 +1,1240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Unit 5 — My Life in Music 🎵</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 5 — My Life in Music</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2a2a2a;
-  --text:#f0ede6;--muted:#666;--accent:#f59e0b;--accent2:#3b82f6;
-  --green:#10b981;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;
-  --font:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+:root {
+  --bg:      #070b0f;
+  --deep:    #0a0f14;
+  --card:    #0d1520;
+  --card2:   #111c2a;
+  --border:  #1a2e44;
+  --teal:    #00d4aa;
+  --teal2:   #00a88a;
+  --amber:   #f59e0b;
+  --amber2:  #fde68a;
+  --blue:    #3b82f6;
+  --purple:  #8b5cf6;
+  --green:   #00e676;
+  --red:     #ff3d5a;
+  --white:   #e0f0ff;
+  --muted:   #1e3a50;
+  --ok:      #00e676;
+  --bad:     #ff3d5a;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
 }
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-
-/* Animated bg */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse at 20% 50%,rgba(245,158,11,0.06) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 20%,rgba(59,130,246,0.06) 0%,transparent 60%),
-             radial-gradient(ellipse at 60% 80%,rgba(139,92,246,0.05) 0%,transparent 60%);
-  pointer-events:none;z-index:0;
-}
-
-#app{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px}
-
-/* HEADER */
-.header{text-align:center;padding:32px 20px 24px;margin-bottom:8px}
-.header-tag{
-  display:inline-block;
-  font-family:var(--mono);font-size:10px;letter-spacing:3px;
-  color:var(--accent);background:rgba(245,158,11,0.1);
-  border:1px solid rgba(245,158,11,0.3);
-  padding:5px 14px;border-radius:20px;margin-bottom:14px;
-  text-transform:uppercase;
-}
-.header h1{font-size:clamp(26px,5vw,42px);font-weight:900;line-height:1.1;letter-spacing:-1px}
-.header h1 span{color:var(--accent)}
-.header-sub{font-size:13px;color:var(--muted);margin-top:8px;font-family:var(--mono)}
-
-/* GAME SELECTOR */
-.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:32px}
-.game-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  padding:22px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
-}
-.game-card::before{
-  content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;
-}
-.game-card:hover{transform:translateY(-3px);border-color:var(--accent)}
-.game-card:hover::before{opacity:1}
-.game-card.c1::before{background:linear-gradient(135deg,rgba(245,158,11,0.08),transparent)}
-.game-card.c2::before{background:linear-gradient(135deg,rgba(59,130,246,0.08),transparent)}
-.game-card.c3::before{background:linear-gradient(135deg,rgba(139,92,246,0.08),transparent)}
-.game-card.c4::before{background:linear-gradient(135deg,rgba(16,185,129,0.08),transparent)}
-.game-card.c5::before{background:linear-gradient(135deg,rgba(236,72,153,0.08),transparent)}
-.game-icon{font-size:32px;margin-bottom:10px}
-.game-title{font-size:15px;font-weight:800;margin-bottom:4px}
-.game-desc{font-size:11px;color:var(--muted);line-height:1.5}
-.game-count{
-  position:absolute;top:14px;right:14px;
-  font-family:var(--mono);font-size:9px;color:var(--muted);
-  background:var(--surface2);padding:3px 8px;border-radius:10px;
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(0,212,170,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(245,158,11,.06) 0%, transparent 55%);
 }
 
-/* GAME SCREEN */
-.game-screen{display:none}
-.game-screen.active{display:block}
-
-.game-header{
-  display:flex;align-items:center;gap:14px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:16px 20px;margin-bottom:20px;
-}
-.game-header-title{flex:1;font-size:16px;font-weight:800}
-.game-header-sub{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
-.btn-back{
-  background:none;border:1px solid var(--border);color:var(--muted);
-  padding:8px 14px;border-radius:9px;cursor:pointer;
-  font-family:var(--mono);font-size:10px;letter-spacing:1px;
-  transition:all 0.15s;
-}
-.btn-back:hover{color:var(--text);border-color:var(--text)}
-
-/* SCORE BAR */
-.score-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface2);border-radius:10px;padding:10px 16px;
-  margin-bottom:20px;
-}
-.score-item{text-align:center}
-.score-val{font-size:20px;font-weight:800;font-family:var(--mono)}
-.score-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
-.score-green{color:var(--green)}
-.score-red{color:var(--red)}
-.score-amber{color:var(--accent)}
-
-/* QUESTION CARD */
-.q-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:18px;padding:28px;margin-bottom:18px;
-  position:relative;overflow:hidden;
-}
-.q-card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--accent),var(--purple));
-}
-.q-num{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px}
-.q-text{font-size:18px;font-weight:700;line-height:1.5;margin-bottom:20px}
-.q-text em{color:var(--accent);font-style:normal}
-
-/* OPTIONS */
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.option{
-  background:#2a2a2a;border:2px solid #444;
-  border-radius:12px;padding:14px 16px;cursor:pointer;
-  font-size:14px;font-weight:700;transition:all 0.15s;
-  display:flex;align-items:center;gap:10px;
-  text-align:left;color:#f0ede6;
-}
-.option:hover:not([disabled]){border-color:var(--accent);background:rgba(245,158,11,0.14);transform:translateY(-1px)}
-.option.correct{border-color:var(--green)!important;background:rgba(16,185,129,0.1)!important;color:var(--green)}
-.option.wrong{border-color:var(--red)!important;background:rgba(239,68,68,0.1)!important;color:var(--red)}
-.option.revealed{border-color:var(--green)!important;background:rgba(16,185,129,0.08)!important}
-.option-letter{
-  width:28px;height:28px;border-radius:7px;
-  background:#555;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;color:#fff;
-}
-.option.correct .option-letter{background:var(--green);color:#fff}
-.option.wrong .option-letter{background:var(--red);color:#fff}
-
-/* TRUE/FALSE */
-.tf-options{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.tf-btn{
-  background:var(--surface2);border:2px solid var(--border);
-  border-radius:14px;padding:20px;cursor:pointer;
-  font-size:20px;font-weight:900;text-align:center;
-  transition:all 0.2s;
-}
-.tf-btn:hover:not([disabled]){transform:scale(1.03)}
-.tf-btn.true-btn:hover:not([disabled]){border-color:var(--green);color:var(--green)}
-.tf-btn.false-btn:hover:not([disabled]){border-color:var(--red);color:var(--red)}
-.tf-btn.correct{border-color:var(--green);background:rgba(16,185,129,0.1);color:var(--green)}
-.tf-btn.wrong{border-color:var(--red);background:rgba(239,68,68,0.1);color:var(--red)}
-
-/* FILL IN BLANK */
-.blank-input{
-  width:100%;background:var(--surface2);border:2px solid var(--border);
-  border-radius:10px;padding:12px 16px;color:var(--text);
-  font-family:var(--font);font-size:15px;outline:none;
-  transition:border-color 0.15s;margin-bottom:10px;
-}
-.blank-input:focus{border-color:var(--accent)}
-.blank-input.correct{border-color:var(--green);background:rgba(16,185,129,0.08)}
-.blank-input.wrong{border-color:var(--red);background:rgba(239,68,68,0.08)}
-
-/* FEEDBACK */
-.feedback{
-  border-radius:12px;padding:14px 18px;margin-top:14px;
-  font-size:13px;font-weight:600;display:none;
-  animation:slideUp 0.2s ease;
-}
-.feedback.show{display:flex;align-items:flex-start;gap:10px}
-.feedback.correct-fb{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green)}
-.feedback.wrong-fb{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
-
-/* NEXT BTN */
-.btn-next{
-  background:linear-gradient(135deg,var(--accent),#f97316);
-  color:#000;font-weight:800;border:none;
-  padding:14px 28px;border-radius:12px;cursor:pointer;
-  font-family:var(--font);font-size:13px;width:100%;margin-top:14px;
-  transition:all 0.15s;display:none;
-}
-.btn-next.show{display:block}
-.btn-next:hover{filter:brightness(1.1);transform:translateY(-1px)}
-
-/* RESULTS */
-.results{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:20px;padding:36px;text-align:center;
-}
-.results-emoji{font-size:64px;margin-bottom:16px}
-.results-score{font-size:48px;font-weight:900;font-family:var(--mono);color:var(--accent)}
-.results-label{font-size:14px;color:var(--muted);margin-bottom:24px}
-.results-msg{font-size:18px;font-weight:700;margin-bottom:8px}
-.results-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
-.results-btns{display:flex;gap:10px;justify-content:center}
-
-/* WORD MATCH */
-.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
-.match-col{display:flex;flex-direction:column;gap:8px}
-.match-item{
-  background:var(--surface2);border:2px solid var(--border);
-  border-radius:10px;padding:12px 14px;cursor:pointer;
-  font-size:13px;font-weight:600;transition:all 0.15s;
-}
-.match-item:hover:not([disabled]){border-color:var(--accent2)}
-.match-item.selected{border-color:var(--accent);background:rgba(245,158,11,0.1)}
-.match-item.matched{border-color:var(--green);background:rgba(16,185,129,0.1);color:var(--green);cursor:default}
-.match-item.wrong-match{border-color:var(--red);background:rgba(239,68,68,0.1)}
-
-/* SPEAKING CARD */
-.speaking-card{
-  background:linear-gradient(135deg,var(--surface),var(--surface2));
-  border:1px solid var(--border);border-radius:18px;padding:28px;
-  margin-bottom:14px;text-align:center;
-}
-.speaking-icon{font-size:48px;margin-bottom:14px}
-.speaking-prompt{font-size:17px;font-weight:700;margin-bottom:10px;line-height:1.5}
-.speaking-hint{font-size:12px;color:var(--muted);margin-bottom:20px;font-style:italic}
-.speaking-tips{
-  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;
-}
-.speaking-tip{
-  background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);
-  color:var(--accent2);padding:6px 12px;border-radius:20px;
-  font-size:11px;font-family:var(--mono);
+/* VU meter decorative bars */
+.vu-bar {
+  position:fixed; bottom:0; left:0; right:0; height:3px; z-index:0; pointer-events:none;
+  background:linear-gradient(90deg, var(--teal) 0%, var(--amber) 40%, var(--red) 80%);
+  opacity:.4;
 }
 
-/* TIMER */
-.timer-ring{
-  width:48px;height:48px;position:relative;flex-shrink:0;
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--border);
+  color:var(--teal); font-family:var(--font-m); font-size:10px;
+  letter-spacing:2px; padding:5px 16px; border-radius:4px; margin-bottom:20px; text-transform:uppercase;
 }
-.timer-ring svg{transform:rotate(-90deg)}
-.timer-ring circle{fill:none;stroke:var(--border);stroke-width:3}
-.timer-ring .progress{stroke:var(--accent);stroke-width:3;stroke-dasharray:126;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke 0.3s}
-.timer-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700}
-
-/* PROGRESS BAR */
-.progress-bar{
-  height:4px;background:var(--border);border-radius:2px;
-  margin-bottom:20px;overflow:hidden;
+/* waveform decoration */
+.waveform {
+  display:flex; align-items:center; gap:3px; height:32px; margin-bottom:16px;
 }
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:2px;transition:width 0.3s ease}
+.wv-bar {
+  width:3px; border-radius:2px; background:var(--teal);
+  opacity:.5;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3.5rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+}
+.home-title span { color:var(--teal); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px 12px; cursor:pointer; text-align:center; position:relative;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--amber2); min-height:13px; }
 
-@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
-.pop{animation:pop 0.3s cubic-bezier(.34,1.56,.64,1)}
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:11px 16px; background:rgba(7,11,15,.92); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:20; backdrop-filter:blur(12px);
+}
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--teal); color:var(--teal); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--teal2); color:var(--bg); font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+
+/* question card */
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:700; line-height:1.7; }
+.qcard-text .hl  { color:var(--teal); }
+.qcard-text .hl2 { color:var(--amber); }
+.qcard-text .gap { border-bottom:2px solid var(--teal); color:var(--teal); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:13px; }
+
+/* options */
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--teal)); color:var(--opt-col,var(--teal)); background:color-mix(in srgb, var(--opt-col,var(--teal)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(255,61,90,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+
+/* explain box — the key upgrade: shows why an answer is right */
+.explain-box {
+  background:rgba(0,212,170,.06); border:1px solid rgba(0,212,170,.2);
+  border-left:3px solid var(--teal); border-radius:var(--r-sm);
+  padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white);
+  margin-bottom:10px; display:none;
+}
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--teal); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:13px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.07); color:var(--ok); border:1px solid rgba(0,230,118,.2); }
+.fb.bad { display:block; background:rgba(255,61,90,.07); color:var(--bad); border:1px solid rgba(255,61,90,.2); }
+
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--teal); transform:scale(1.4); }
+
+/* ══ G2: INSTRUMENT SHOWROOM ══ */
+.instrument-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.inst-card {
+  background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s;
+}
+.inst-card:hover:not(.locked) { border-color:var(--amber); transform:scale(1.04); }
+.inst-card.opt-ok  { border-color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s; pointer-events:none; }
+.inst-card.opt-bad { border-color:var(--bad)!important; background:rgba(255,61,90,.08); animation:shake .4s; pointer-events:none; }
+.inst-card.locked  { pointer-events:none; }
+.inst-name { font-family:var(--font-h); font-size:12px; font-weight:700; margin-top:4px; color:var(--white); }
+.inst-desc { font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* ══ G3: PRESENT PERFECT VISUAL EXPLAINER ══ */
+/* Shows a timeline / "intensity bar" to explain ongoing vs completed */
+.tense-visual {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:14px;
+}
+.tense-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tense-panel {
+  border:1.5px solid var(--border); border-radius:var(--r-sm); padding:12px;
+  text-align:center; transition:border-color .2s;
+}
+.tense-panel.active-panel { border-color:var(--teal); background:rgba(0,212,170,.06); }
+.tp-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.tp-sentence { font-family:var(--font-h); font-size:12px; font-weight:700; line-height:1.5; }
+.tp-meaning  { font-size:11px; color:var(--muted); margin-top:4px; }
+/* ongoing bar */
+.ongoing-bar { height:6px; background:var(--border); border-radius:3px; margin-top:8px; overflow:hidden; position:relative; }
+.ongoing-fill { height:100%; border-radius:3px; }
+.ongoing-dot  { position:absolute; right:2px; top:50%; transform:translateY(-50%); width:8px; height:8px; border-radius:50%; }
+
+/* ══ G5: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:600; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--amber); }
+
+/* ══ G6: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--amber); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--amber2); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.rule-text .hl  { color:var(--teal); }
+.rule-text .hl2 { color:var(--amber); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:14px; font-weight:700; padding:15px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.07); color:var(--ok); border-color:rgba(0,230,118,.3); }
+.tf-no  { background:rgba(255,61,90,.05); color:var(--bad); border-color:rgba(255,61,90,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G7: DIALOGUE STAGE — the speaking game ══ */
+/* Two chat bubbles, one left (Student A) one right (Student B).
+   Useful phrases shown below. Students read aloud together. */
+.dialogue-stage {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:14px; position:relative;
+}
+.stage-header {
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
+  padding-bottom:10px; border-bottom:1px solid var(--border);
+}
+.stage-label { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge { background:var(--teal2); color:var(--bg); font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--bg);
+}
+.av-a { background:linear-gradient(135deg,var(--teal),var(--blue)); }
+.av-b { background:linear-gradient(135deg,var(--amber),var(--red)); }
+.bubble {
+  max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600;
+}
+.bubble-a { background:rgba(0,212,170,.12); border:1px solid rgba(0,212,170,.2); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.2); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--teal); }
+.bubble-speaker-b { color:var(--amber); }
+.bubble-text { color:var(--white); }
+.bubble-text .key-phrase { color:var(--teal); font-weight:800; }
+
+/* phrase bank */
+.phrase-bank {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:12px 14px; margin-bottom:10px;
+}
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(0,212,170,.08); border:1px solid rgba(0,212,170,.2); color:var(--teal); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.amber { background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.2); color:var(--amber); }
+
+/* scenario nav */
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--teal); color:var(--teal); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.role-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:10px; font-family:var(--font-m); font-size:10px; font-weight:700; }
+.role-a { background:rgba(0,212,170,.12); color:var(--teal); border:1px solid rgba(0,212,170,.2); }
+.role-b { background:rgba(245,158,11,.1); color:var(--amber); border:1px solid rgba(245,158,11,.2); }
+
+/* ══ G8: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-family:var(--font-h); font-size:14px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--teal); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--teal2); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--teal); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--teal); text-shadow:0 0 40px rgba(0,212,170,.4); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--teal) 0%, var(--amber) 40%, var(--purple) 80%, var(--blue) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(0,212,170,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--teal); font-weight:900; }
+.btn-play { background:var(--teal2); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(0,212,170,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); background:var(--teal); }
+
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
 </style>
 </head>
 <body>
-<div id="app">
+<div class="vu-bar"></div>
 
-<!-- HOME -->
-<div id="home-screen">
-  <div class="header">
-    <div class="header-tag">Think B1 · Level 2 · Elite 2.2</div>
-    <h1>Unit 5 — <span>My Life in Music</span> 🎵</h1>
-    <div class="header-sub">6 games · vocabulary · grammar · speaking · writing</div>
-  </div>
-
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 5 · Elite2_2</div>
+  <div class="waveform" id="waveform"></div>
+  <h1 class="home-title">My Life<br><span>in Music</span></h1>
+  <p class="home-sub">// 8 games · vocab · grammar · speaking · phrasal verbs //</p>
+  <div class="total-stars">Stars: <span id="totalStars">0</span></div>
   <div class="game-grid">
-    <div class="game-card c1" onclick="startGame('vocab')">
-      <div class="game-count">10 rounds</div>
-      <div class="game-icon">🎸</div>
-      <div class="game-title">Music Vocab Blitz</div>
-      <div class="game-desc">Music genres, instruments, and industry vocabulary from Unit 5</div>
+    <div class="gc" style="--gc-col:#00d4aa" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🎵</span>
+      <div class="gc-title">Genre & Vocab</div>
+      <div class="gc-desc">Genres, music industry phrases, busking</div>
+      <div class="gc-best" id="best0"></div>
     </div>
-    <div class="game-card c2" onclick="startGame('grammar')">
-      <div class="game-count">10 rounds</div>
-      <div class="game-icon">⚡</div>
-      <div class="game-title">Present Perfect Showdown</div>
-      <div class="game-desc">Simple vs continuous — choose the correct form fast!</div>
+    <div class="gc" style="--gc-col:#f59e0b" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">🎸</span>
+      <div class="gc-title">Instrument Showroom</div>
+      <div class="gc-desc">Name all 8 instruments from p.53!</div>
+      <div class="gc-best" id="best1"></div>
     </div>
-    <div class="game-card c3" onclick="startGame('truefalse')">
-      <div class="game-count">10 rounds</div>
-      <div class="game-icon">🎯</div>
-      <div class="game-title">True or False?</div>
-      <div class="game-desc">Reading comprehension — Justin Bieber, John Otway, Rodriguez & more</div>
+    <div class="gc" style="--gc-col:#3b82f6" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">⚡</span>
+      <div class="gc-title">Perfect Continuous</div>
+      <div class="gc-desc">Understand + drill have been doing</div>
+      <div class="gc-best" id="best2"></div>
     </div>
-    <div class="game-card c4" onclick="startGame('phrasals')">
-      <div class="game-count">8 rounds</div>
-      <div class="game-icon">🔗</div>
-      <div class="game-title">Phrasal Verb Match</div>
-      <div class="game-desc">start out, find out, run out, come out, sort out, go out</div>
+    <div class="gc" style="--gc-col:#8b5cf6" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">🔀</span>
+      <div class="gc-title">Simple vs Continuous</div>
+      <div class="gc-desc">Which tense fits — and why?</div>
+      <div class="gc-best" id="best3"></div>
     </div>
-    <div class="game-card c5" onclick="startGame('speaking')">
-      <div class="game-count">6 prompts</div>
-      <div class="game-icon">🗣️</div>
-      <div class="game-title">Speaking Hot Seat</div>
-      <div class="game-desc">Conversation prompts about music — for when you finish early!</div>
+    <div class="gc" style="--gc-col:#f59e0b" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Phrasal Verb Bomb</div>
+      <div class="gc-desc">start out · find out · run out…</div>
+      <div class="gc-best" id="best4"></div>
     </div>
-    <div class="game-card c1" onclick="startGame('writing')">
-      <div class="game-count">4 tasks</div>
-      <div class="game-icon">✍️</div>
-      <div class="game-title">Writing Challenge</div>
-      <div class="game-desc">Mini writing tasks inspired by Unit 5 topics</div>
+    <div class="gc" style="--gc-col:#ff3d5a" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best5"></div>
     </div>
-  </div>
-</div>
-
-<!-- GAME SCREEN -->
-<div id="game-screen" class="game-screen">
-  <div class="game-header">
-    <button class="btn-back" onclick="goHome()">← Back</button>
-    <div>
-      <div class="game-header-title" id="game-title"></div>
-      <div class="game-header-sub" id="game-subtitle"></div>
+    <div class="gc" style="--gc-col:#00d4aa" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span>
+      <span class="gc-icon">🎤</span>
+      <div class="gc-title">Dialogue Stage</div>
+      <div class="gc-desc">Two students · real conversations · useful phrases</div>
+      <div class="gc-best" id="best6"></div>
     </div>
-    <div class="timer-ring" id="timer-ring" style="display:none">
-      <svg width="48" height="48" viewBox="0 0 48 48">
-        <circle cx="24" cy="24" r="20"/>
-        <circle class="progress" id="timer-circle" cx="24" cy="24" r="20"/>
-      </svg>
-      <div class="timer-val" id="timer-val">20</div>
-    </div>
-  </div>
-
-  <div class="score-bar">
-    <div class="score-item"><div class="score-val score-green" id="score-correct">0</div><div class="score-label">Correct</div></div>
-    <div class="score-item"><div class="score-val score-amber" id="score-q">1/10</div><div class="score-label">Question</div></div>
-    <div class="score-item"><div class="score-val score-red" id="score-wrong">0</div><div class="score-label">Wrong</div></div>
-  </div>
-
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-
-  <div id="question-area"></div>
-</div>
-
-<!-- RESULTS SCREEN -->
-<div id="results-screen" class="game-screen">
-  <div class="results pop">
-    <div class="results-emoji" id="results-emoji">🎉</div>
-    <div class="results-score" id="results-score">8/10</div>
-    <div class="results-label">Score</div>
-    <div class="results-msg" id="results-msg">Amazing!</div>
-    <div class="results-sub" id="results-sub">You really know your music vocab!</div>
-    <div class="results-btns">
-      <button class="btn-back" onclick="goHome()">← All Games</button>
-      <button class="btn-next" style="display:inline-block;width:auto;margin:0" onclick="restartGame()">🔄 Play Again</button>
+    <div class="gc" style="--gc-col:#3b82f6" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the perfect sentence!</div>
+      <div class="gc-best" id="best7"></div>
     </div>
   </div>
 </div>
 
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
 </div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🎵</span>
+  <div class="win-title">Studio Session Complete!</div>
+  <div class="win-sub">All 8 tracks recorded. You're ready for the charts.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+<div class="cfx" id="cfx"></div>
 
 <script>
-// ════════════════════════════════════════
-// GAME DATA
-// ════════════════════════════════════════
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — confirmed from Think Level 2 Unit 5
+   Source: f.eba.gov.tr Student's book p.48-55
+   + Wordlist PDF + Workbook p.46-53
+═══════════════════════════════════════════ */
 
-const GAMES = {
+// G1 — Genre & Vocab: music genres + industry phrases from wordlist + p.48-50
+const G1 = [
+  { clue:'Music with a strong beat where the words are spoken rapidly, often rhyming.', ans:'rap', opts:['rap','jazz','opera','rock'] },
+  { clue:'Often performed in a theatre. The singers perform the story — no spoken dialogue.', ans:'opera', opts:['opera','jazz','rap','rock'] },
+  { clue:'Spontaneous musical performances in public spaces, often improvised.', ans:'jazz', opts:['jazz','opera','pop','dance music'] },
+  { clue:'You do this when you play music in a public place for money from passers-by.', ans:'busking', opts:['busking','touring','recording','performing'] },
+  { clue:'To travel and perform your music in many different cities and countries.', ans:'go on tour', opts:['go on tour','play a gig','start a band','win a competition'] },
+  { clue:'A single performance by a band or artist, usually at a small venue.', ans:'play a gig', opts:['play a gig','go on tour','record a single','release a single'] },
+  { clue:'To take part in a competition to find the best new performing talent.', ans:'enter a talent show', opts:['enter a talent show','win a competition','record a single','enter the charts'] },
+  { clue:'To make a song available for people to buy for the first time.', ans:'release a single', opts:['release a single','record a single','download a song','enter the charts'] },
+  { clue:'To get onto the weekly lists showing which songs have the highest sales.', ans:'enter the charts', opts:['enter the charts','release a single','win a competition','go on tour'] },
+  { clue:'The words of a song — what you read along with when you know a track well.', ans:'lyrics', opts:['lyrics','melody','rhythm','chorus'] },
+  { clue:'The tune of a song — the series of musical notes that forms the main theme.', ans:'melody', opts:['melody','lyrics','rhythm','chord'] },
+  { clue:'What Sara does to hear new music — she pays for two or three songs per month.', ans:'download a song', opts:['download a song','record a single','release a single','buy a CD'] },
+];
 
-  vocab: {
-    title: '🎸 Music Vocab Blitz',
-    subtitle: 'Choose the correct answer',
-    type: 'mcq',
-    questions: [
-      { q: 'Which music genre features a strong beat, rhyming lyrics, and is often spoken rather than sung?', options: ['Jazz','Opera','Rap','Classical'], answer: 'Rap' },
-      { q: 'What do you call it when a musician performs in a public place for money?', options: ['Touring','Busking','Recording','Downloading'], answer: 'Busking' },
-      { q: 'A musician\'s first chart appearance is called <em>entering ___</em>.', options: ['the stage','the studio','the charts','the tour'], answer: 'the charts' },
-      { q: 'What is the name for a musician\'s live performance event?', options: ['A single','A gig','A chart','A label'], answer: 'A gig' },
-      { q: 'Which instrument has black and white keys and is NOT electronic?', options: ['Keyboard','Saxophone','Piano','Trumpet'], answer: 'Piano' },
-      { q: 'What do you call a group of people who support a musician loyally?', options: ['A following','A record','A tour','A label'], answer: 'A following' },
-      { q: 'What is a "single"?', options: ['A musician who performs alone','One song released officially','A type of concert','A music award'], answer: 'One song released officially' },
-      { q: 'Which word means to copy music from the internet to your device?', options: ['Upload','Stream','Download','Record'], answer: 'Download' },
-      { q: 'What does a "talent scout" do?', options: ['Teaches music','Finds talented people for record labels','Organises concerts','Writes song lyrics'], answer: 'Finds talented people for record labels' },
-      { q: 'Justin Bieber\'s mum put videos of him on which website?', options: ['MySpace','Instagram','YouTube','TikTok'], answer: 'YouTube' },
-    ]
+// G2 — Instrument Showroom: 8 instruments from p.53 + wordlist
+// Each question: clue description → student taps the correct instrument card
+const G2_INSTRUMENTS = [
+  { clue:'You hold it against your neck and move a bow across four strings.', ans:'violin', opts:['violin','guitar','cello','bass guitar'] },
+  { clue:'You blow into this metal instrument and press buttons to change notes.', ans:'trumpet', opts:['trumpet','saxophone','flute','trombone'] },
+  { clue:'A metal wind instrument with a curved body and keys. Common in jazz.', ans:'saxophone', opts:['saxophone','trumpet','clarinet','flute'] },
+  { clue:'You hit these with sticks or your hands. They set the rhythm in a band.', ans:'drums', opts:['drums','keyboard','bass guitar','violin'] },
+  { clue:'You press black and white keys to produce notes. Classical and popular.', ans:'piano', opts:['piano','keyboard','organ','synthesizer'] },
+  { clue:'An electronic version of the piano — used in modern bands and pop music.', ans:'keyboard', opts:['keyboard','piano','synthesizer','organ'] },
+  { clue:'A six-stringed instrument, played with fingers or a plectrum. Electric or acoustic.', ans:'guitar', opts:['guitar','bass guitar','violin','ukulele'] },
+  { clue:'This electric guitar has four thicker strings and plays the very low notes.', ans:'bass guitar', opts:['bass guitar','guitar','double bass','cello'] },
+];
+
+// G3 — Present Perfect Continuous: understand + gap-fill
+// Confirmed from p.50 exercises + workbook p.46-48
+// Key rule: have/has been + verb-ing = ongoing action that started in the past, still happening now
+const G3_PP_CONT = [
+  {
+    ongoing:true,
+    a_sentence:"She has been writing songs since she was 13.",
+    b_sentence:"She has written three songs.",
+    a_meaning:"Started writing songs at age 13 — STILL happening now.",
+    b_meaning:"Finished result: three completed songs exist.",
+    q:"I ___ songs since I was a teenager. (write — ongoing)",
+    ans:"'ve been writing",
+    opts:["'ve been writing","'ve written","wrote","write"],
+    explain:"Use present perfect CONTINUOUS for an ongoing action that started in the past and is STILL happening now. Since = starting point.",
+    for_since:'since'
   },
-
-  grammar: {
-    title: '⚡ Present Perfect Showdown',
-    subtitle: 'Simple or Continuous — choose the correct form!',
-    type: 'mcq',
-    questions: [
-      { q: 'She ___ more than 200 poems in her life. (completed action, result matters)', options: ['has been writing','has written','wrote','is writing'], answer: 'has written' },
-      { q: 'I ___ songs since I was a teenager. (ongoing activity, still happening)', options: ['wrote','have written','have been writing','am writing'], answer: 'have been writing' },
-      { q: 'He ___ music for more than 40 years. (ongoing situation)', options: ['has been playing','has played','played','plays'], answer: 'has been playing' },
-      { q: 'We ___ a lot of busking. Look, we have £50! (activity with visible result)', options: ['have been doing','have done','did','are doing'], answer: 'have been doing' },
-      { q: 'She ___ three albums. (completed, countable result)', options: ['has been recording','has recorded','recorded','is recording'], answer: 'has recorded' },
-      { q: 'I\'m tired because I ___ the piano all day. (explains current state)', options: ['have played','played','have been playing','am playing'], answer: 'have been playing' },
-      { q: 'He ___ hundreds of concerts. (completed past actions)', options: ['has been playing','has played','is playing','was playing'], answer: 'has played' },
-      { q: 'We ___ together very long — just 3 months. (duration to now)', options: ['haven\'t played','haven\'t been playing','didn\'t play','weren\'t playing'], answer: 'haven\'t been playing' },
-      { q: 'Look at her eyes — she ___! What happened? (recent activity with visible result)', options: ['has cried','was crying','has been crying','cried'], answer: 'has been crying' },
-      { q: 'They ___ famous since their first album. (state from past to now)', options: ['have been being','have been','are being','were'], answer: 'have been' },
-    ]
+  {
+    ongoing:false,
+    a_sentence:"They have been recording their album for six months.",
+    b_sentence:"They have recorded their first album.",
+    a_meaning:"Recording is STILL in progress — not finished yet.",
+    b_meaning:"Album is complete — focus on the result.",
+    q:"Tom says: 'I ___ to the radio for years!' (not / listen — he stopped completely)",
+    ans:"haven't listened",
+    opts:["haven't listened","haven't been listening","didn't listen","don't listen"],
+    explain:"Use present perfect SIMPLE when the action has a completed result or a focus on how many times. Tom stopped completely — the action is over.",
+    for_since:null
   },
-
-  truefalse: {
-    title: '🎯 True or False?',
-    subtitle: 'Based on Unit 5 texts — read carefully!',
-    type: 'truefalse',
-    questions: [
-      { q: 'Justin Bieber\'s mum put videos of him singing on YouTube in 2007 when he was 12.', answer: true, explanation: 'True! In 2007, when he was just 12, his mum filmed him at a local competition and posted the videos on YouTube.' },
-      { q: 'One Direction won The X Factor in 2010.', answer: false, explanation: 'False! One Direction came THIRD in 2010 — but they became much more famous than the winner.' },
-      { q: 'John Otway has been making music for more than 40 years.', answer: true, explanation: 'True! He released his first record in 1972 and has continued making music ever since.' },
-      { q: 'Rodriguez knew he was famous in South Africa during the 1970s and 80s.', answer: false, explanation: 'False! Rodriguez had absolutely no idea his music had become hugely popular in South Africa. He had been doing manual labour jobs to survive.' },
-      { q: 'Lily Allen became famous by posting music on MySpace.', answer: true, explanation: 'True! Her record label was too busy with bigger artists, so she posted her music on MySpace. Soon she had tens of thousands of fans.' },
-      { q: 'John Otway\'s second hit "Bunsen Burner" reached number 9 in the UK charts.', answer: true, explanation: 'True! His loyal fans all bought the single and it reached number 9 — 25 years after his first hit!' },
-      { q: 'Eric Clapton busked on the streets of Paris when he was starting out.', answer: false, explanation: 'False! Eric Clapton busked on the streets of LONDON, not Paris.' },
-      { q: 'Lorde is from Australia.', answer: false, explanation: 'False! Lorde grew up in New Zealand. Her real name is Ella Marija Lani Yelich-O\'Connor.' },
-      { q: 'Tom never listens to music while doing his homework.', answer: true, explanation: 'True! Tom says "The only time I don\'t listen to music is when I\'m doing my homework. I just can\'t do that."' },
-      { q: 'Rodriguez attended the Oscar ceremony for the documentary "Searching for Sugar Man".', answer: false, explanation: 'False! Rodriguez REFUSED to attend because he didn\'t want attention to be on him instead of the film makers.' },
-    ]
+  {
+    ongoing:true,
+    a_sentence:"I've been trying to phone you all morning.",
+    b_sentence:"I've tried to phone you three times.",
+    a_meaning:"I was trying repeatedly — focus on duration and effort.",
+    b_meaning:"Three specific completed attempts.",
+    q:"Tom: 'I ___ music since I stopped listening to the radio.' (download — ongoing habit)",
+    ans:"'ve been downloading",
+    opts:["'ve been downloading","'ve downloaded","download","downloaded"],
+    explain:"Ongoing habit started in the past and STILL continues → present perfect CONTINUOUS.",
+    for_since:'since'
   },
-
-  phrasals: {
-    title: '🔗 Phrasal Verb Match',
-    subtitle: 'Match the phrasal verb to its meaning',
-    type: 'match',
-    pairs: [
-      { term: 'start out', definition: 'begin your working life or career' },
-      { term: 'find out', definition: 'discover information or the truth' },
-      { term: 'run out (of)', definition: 'use all of something so none is left' },
-      { term: 'come out', definition: 'be released or published' },
-      { term: 'sort out', definition: 'solve a problem or organise something' },
-      { term: 'go out', definition: 'leave your house to do something social' },
-      { term: 'went out and bought', definition: 'left immediately to purchase something' },
-      { term: 'entered the charts', definition: 'appeared in the music rankings for the first time' },
-    ]
+  {
+    ongoing:true,
+    a_sentence:"How long has she been speaking to the teacher?",
+    b_sentence:"Has she spoken to the teacher yet?",
+    a_meaning:"How long = asking about duration of ongoing action.",
+    b_meaning:"'Yet' = asking if a completed event has happened.",
+    q:"'How long ___ you ___ to phone me?' (try — duration question)",
+    ans:"have / been trying",
+    opts:["have / been trying","did / try","have / tried","are / trying"],
+    explain:"'How long + present perfect continuous' asks about an ongoing action's duration. Structure: How long + have/has + subject + been + verb-ing?",
+    for_since:'for'
   },
-
-  speaking: {
-    title: '🗣️ Speaking Hot Seat',
-    subtitle: 'Pick a card — answer for 1-2 minutes!',
-    type: 'speaking',
-    prompts: [
-      {
-        icon: '🎵',
-        prompt: 'Talk about your music taste.',
-        hint: 'What genres do you like? Who is your favourite artist? When do you listen to music?',
-        tips: ['I\'m really into...','I\'m not crazy about... but I like...','I mostly listen to...','It makes me feel...']
-      },
-      {
-        icon: '📱',
-        prompt: 'How do you discover new music? Is it better to find music yourself or through a talent show like The X Factor?',
-        hint: 'Think about YouTube, social media, friends, radio, talent shows...',
-        tips: ['In my opinion...','On the one hand... On the other hand...','I think talent shows are... because...','Personally, I prefer...']
-      },
-      {
-        icon: '🎸',
-        prompt: 'If you could play any musical instrument perfectly, which would you choose and why?',
-        hint: 'Think about guitar, piano, violin, drums, saxophone... Why that one?',
-        tips: ['I would choose... because...','I\'ve always been fascinated by...','It\'s the kind of instrument that...','I think it would help me...']
-      },
-      {
-        icon: '🌟',
-        prompt: 'Describe a time when music made you feel a strong emotion.',
-        hint: 'Happy? Sad? Energetic? Nostalgic? What song? When was it?',
-        tips: ['I remember when...','The song that always makes me feel... is...','It was a moment when...','Ever since I heard it...']
-      },
-      {
-        icon: '💭',
-        prompt: 'Would you rather be a famous musician who had only ONE hit, or an unknown musician who made great music for 40 years like John Otway?',
-        hint: 'Think about fame, money, passion, loyalty, happiness...',
-        tips: ['I would definitely rather...','Fame isn\'t everything because...','There\'s no point in... if you can\'t...','On balance, I think...']
-      },
-      {
-        icon: '🚀',
-        prompt: 'How has the internet changed the music industry? Is it better or worse for new musicians today?',
-        hint: 'Think about streaming, YouTube, social media, record labels, busking...',
-        tips: ['Before the internet, musicians had to...','Nowadays, it\'s much easier to...','However, the downside is...','Artists like Justin Bieber show that...']
-      },
-    ]
+  {
+    ongoing:true,
+    a_sentence:"She's been collecting vinyl records since she was 15.",
+    b_sentence:"She's collected over 200 vinyl records.",
+    a_meaning:"Started at 15, STILL collecting today.",
+    b_meaning:"Focus on the result: 200 records exist.",
+    q:"How long ___ Bob ___ the piano? (practise — ongoing)",
+    ans:"has / been practising",
+    opts:["has / been practising","did / practise","has / practised","is / practising"],
+    explain:"Ongoing action (still practising now) + 'how long' → present perfect continuous.",
+    for_since:'for'
   },
+  {
+    ongoing:false,
+    a_sentence:"She's written lyrics for 20 songs.",
+    b_sentence:"She's been writing lyrics all morning.",
+    a_meaning:"Completed result: 20 songs have lyrics.",
+    b_meaning:"She was writing for hours — still going or just finished.",
+    q:"They won a competition and ___ a single called 'Love Me Never'. (record — completed)",
+    ans:"recorded",
+    opts:["recorded","have been recording","were recording","had recorded"],
+    explain:"A specific completed past event → past simple. The recording is finished and released.",
+    for_since:null
+  },
+];
 
-  writing: {
-    title: '✍️ Writing Challenge',
-    subtitle: 'Read the task and write your best response!',
-    type: 'writing',
-    tasks: [
-      {
-        icon: '📝',
-        title: 'Music Survey Response',
-        task: 'Imagine you are Sara or Tom from the listening exercise. Write a short paragraph (60-80 words) describing YOUR relationship with music. Use at least 3 of these words: download, listen to, concentrate, feel, rhythm, mood.',
-        example: 'I\'m not crazy about music, but I do like it. I mostly download two or three songs a month...',
-        focus: 'Vocabulary from Unit 5 + present simple'
-      },
-      {
-        icon: '🌟',
-        title: 'Online Review: Rate a Musician',
-        task: 'Write a short online review (70-90 words) of your favourite musician. Include: their genre, how they became famous, what you love about their music, and how long you have been a fan. Use present perfect!',
-        example: 'I have been listening to... ever since I first heard them... They started out as...',
-        focus: 'Present perfect simple + continuous'
-      },
-      {
-        icon: '🎤',
-        title: 'Advice Post',
-        task: 'You are answering "Paulie" from the forum post in Unit 5. Write your advice (70-90 words) for an aspiring singer-songwriter. Use at least 2 phrasal verbs from the unit (start out, find out, run out, sort out, come out, go out).',
-        example: 'My advice is to start out small. Don\'t run out of patience...',
-        focus: 'Phrasal verbs + giving advice (should, could, why don\'t you)'
-      },
-      {
-        icon: '💬',
-        title: 'Write a Dialogue',
-        task: 'Write a 6-line dialogue between two friends. One person has just discovered an amazing new band and is excited. Use at least 3 expressions from Unit 5: "What\'s up?", "Tell me about it!", "No way!", "I can\'t wait", "There\'s no point in...", "If you say so".',
-        example: 'A: What\'s up? You look excited!\nB: No way — you won\'t believe this...',
-        focus: 'Functional expressions from the unit'
-      }
-    ]
+// G4 — Simple vs Continuous contrast (from p.53 pairs + workbook)
+// Each question shows both tenses in context — student must pick the right one
+// AND see the explanation of why
+const G4_CONTRAST = [
+  {
+    context:"Luke is talking about playing guitar:",
+    sa:"(a) He has played guitar since he was 10.",
+    sb:"(b) He has been playing guitar since he was 10.",
+    correct:'b',
+    explain_a:"has played = completed fact / result. Fine but less natural here.",
+    explain_b:"has been playing = ONGOING activity from a point in the past to now. This is the natural choice to emphasise duration.",
+    q:"Which sentence emphasises that he is STILL playing guitar now?",
+    ans_label:'(b) has been playing'
+  },
+  {
+    context:"Olivia has just finished a painting:",
+    sa:"(a) She's been painting a picture.",
+    sb:"(b) She's painted a picture.",
+    correct:'b',
+    explain_a:"has been painting = focus on the process, still ongoing or just finished with emphasis on effort.",
+    explain_b:"has painted = completed result. The painting IS DONE. Natural when the result matters.",
+    q:"Which sentence focuses on the COMPLETED RESULT?",
+    ans_label:'(b) has painted'
+  },
+  {
+    context:"From the workbook exercise:",
+    sa:"(a) We've been playing in a band for two years.",
+    sb:"(b) We've played hundreds of gigs.",
+    correct:'a',
+    explain_a:"has been playing + for/since = duration of an ongoing activity. TWO YEARS = duration clue → continuous.",
+    explain_b:"has played + number = completed actions counted. Hundreds = completed count → simple.",
+    q:"Which sentence uses 'for two years' — a duration clue for an ongoing activity?",
+    ans_label:'(a) has been playing'
+  },
+  {
+    context:"Sara talking in her interview:",
+    sa:"(a) I've been downloading two songs.",
+    sb:"(b) I probably download two or three songs a month.",
+    correct:'b',
+    explain_a:"'I've been downloading two songs' sounds odd — you wouldn't use continuous with a specific small number of items as the object.",
+    explain_b:"Simple present is used for habitual/regular actions. Sara describes her monthly habit.",
+    q:"Sara describes her regular monthly habit. Which form is correct?",
+    ans_label:'(b) download (present simple)'
+  },
+  {
+    context:"From workbook p.47:",
+    sa:"(a) She's taken a lot of photos.",
+    sb:"(b) She's been taking a lot of photos.",
+    correct:'b',
+    explain_a:"has taken = completed collection of photos as a result.",
+    explain_b:"has been taking = ongoing activity of photography, possibly still happening. 'A lot' with continuous suggests ongoing process.",
+    q:"Which emphasises the ONGOING ACTIVITY of taking photos?",
+    ans_label:'(b) has been taking'
+  },
+];
+
+// G5 — Phrasal Verb Bomb: all 6 from wordlist p.55
+// Confirmed: start out, go out, come out, sort out, run out, find out
+const G5_BOMB = [
+  { q:"When does their new album ___? I can't wait!", ans:'come out', opts:['come out','go out','run out','sort out'], t:5 },
+  { q:"I've ___ of ideas. I can't write another song today.", ans:'run out', opts:['run out','come out','sort out','find out'], t:5 },
+  { q:"My dad ___ as a sales assistant, but now he's a CEO.", ans:'started out', opts:['started out','went out','sorted out','found out'], t:4 },
+  { q:"Don't worry, I'm sure we can ___ something ___.", ans:'sort ... out', opts:['sort ... out','run ... out','find ... out','come ... out'], t:5 },
+  { q:"I must ___ the train times before we leave.", ans:'find out', opts:['find out','sort out','run out','come out'], t:5 },
+  { q:"Are you ___ tonight? I was thinking we could see that band.", ans:'going out', opts:['going out','coming out','running out','sorting out'], t:4 },
+  { q:"Have you ___ who won the talent show yet?", ans:'found out', opts:['found out','run out','sorted out','come out'], t:5 },
+  { q:"The band ___ in small local venues before they got famous.", ans:'started out', opts:['started out','went out','ran out','came out'], t:4 },
+];
+
+// G6 — Streak Challenge: correct or wrong?
+// Mix of PP continuous, simple vs continuous, phrasal verbs
+const G6_STREAK = [
+  { rule:"I've been writing songs since I was a teenager.", correct:true  },
+  { rule:"How long has she been play the violin?",          correct:false }, // should be playing
+  { rule:"They've been recording their album for six months.", correct:true },
+  { rule:"She has been collected 200 vinyl records.",        correct:false }, // collected not collect
+  { rule:"Tom hasn't listened to the radio for years.",      correct:true  },
+  { rule:"I've run out of money — can you lend me some?",   correct:true  },
+  { rule:"When does their new album come out?",              correct:true  },
+  { rule:"He has been played guitar since he was 10.",       correct:false }, // been played → been playing
+  { rule:"We've been having problems, but we haven't taken any action.", correct:true },
+  { rule:"How long have you been trying to phone me?",       correct:true  },
+  { rule:"She's been writing; she's written three songs already.", correct:true },
+  { rule:"My dad started out as a musician.",                correct:true  },
+  { rule:"I've been downloading music since I stop listening to the radio.", correct:false }, // stopped
+  { rule:"Have you found out who won the competition yet?",  correct:true  },
+];
+
+// G7 — Dialogue Stage: conversation scenarios for two students
+// All scenarios based on actual book content: Sara/Tom music interviews, Pop in the Park episode
+const G7_DIALOGUES = [
+  {
+    title:"Music Survey",
+    topic:"Student A is doing a survey about music habits. Student B answers.",
+    roleA:"Interviewer",
+    roleB:"Music fan",
+    exchanges:[
+      { speaker:'A', text:"Hi! I'm doing a short survey on music. Can I ask you a few questions?",        key_phrase: null },
+      { speaker:'B', text:"Sure, go ahead!",                                                               key_phrase: null },
+      { speaker:'A', text:"So, do you like music? What kind?",                                             key_phrase: null },
+      { speaker:'B', text:"I love music — especially pop and some jazz. I'm not really into rap though.", key_phrase:"I love ... / I'm not really into ..." },
+      { speaker:'A', text:"How do you usually listen to new music?",                                       key_phrase: null },
+      { speaker:'B', text:"Mostly from friends and online. I've been downloading a lot lately.",          key_phrase:"I've been + -ing lately" },
+      { speaker:'A', text:"How long have you been interested in music?",                                   key_phrase:"How long have you been ...?" },
+      { speaker:'B', text:"Since I was about 12 — so for around four years.",                             key_phrase:"since ... / for ..." },
+      { speaker:'A', text:"And do you play any instruments?",                                              key_phrase: null },
+      { speaker:'B', text:"I've been learning the guitar for about a year, but I haven't played any gigs yet!", key_phrase:"I've been learning ... for ..." },
+    ],
+    phrases_a:["How long have you been ...?","Do you enjoy ...?","What kind of ... do you like?","Have you ever ...?"],
+    phrases_b:["I've been + -ing lately","Since ... / For ...","I'm not really into ...","I love / I hate / I don't mind ..."],
+  },
+  {
+    title:"Pop in the Park — Helping a Friend",
+    topic:"One student has a problem. The other tries to help. Based on the episode.",
+    roleA:"Friend with a problem (like Luke)",
+    roleB:"Friend trying to help (like Olivia/Ryan)",
+    exchanges:[
+      { speaker:'A', text:"I really want to go to the concert but I've run out of money.",               key_phrase:"I've run out of ..." },
+      { speaker:'B', text:"Oh no! How long have you been saving up?",                                    key_phrase:"How long have you been ...?" },
+      { speaker:'A', text:"I've been trying to save for weeks but it's not enough.",                     key_phrase:"I've been trying to ..." },
+      { speaker:'B', text:"What about doing some extra work? Have you asked your parents?",               key_phrase:"What about + -ing?" },
+      { speaker:'A', text:"I do that anyway. They won't give me extra money.",                            key_phrase: null },
+      { speaker:'B', text:"Could you sell something? Or maybe sort something out with a part-time job?", key_phrase:"Could you ...? / Maybe you could ..." },
+      { speaker:'A', text:"That's a good idea. I haven't thought of that.",                               key_phrase: null },
+      { speaker:'B', text:"Come on — we'll find a way. I can't wait for you to come!",                   key_phrase:"I can't wait for ..." },
+    ],
+    phrases_a:["I've run out of ...","I've been trying to ...","I really want to ...","I haven't been able to ..."],
+    phrases_b:["What about + -ing?","Could you ...?","Have you tried ...?","Why don't you ...?","I can't wait for ..."],
+  },
+  {
+    title:"Starting a Band",
+    topic:"Two students discuss starting a music band together.",
+    roleA:"The enthusiastic one",
+    roleB:"The cautious one",
+    exchanges:[
+      { speaker:'A', text:"I've been thinking — we should start a band!",                                 key_phrase:"I've been thinking about ..." },
+      { speaker:'B', text:"Really? How long have you been playing guitar?",                               key_phrase:"How long have you been ...?" },
+      { speaker:'A', text:"I've been playing for about two years. I've already written a few songs.",     key_phrase:"I've been playing for ... / I've already ..." },
+      { speaker:'B', text:"Have you sorted out where we'd practise?",                                     key_phrase:"Have you sorted out ...?" },
+      { speaker:'A', text:"Not yet, but I'm sure we can find out about local rehearsal spaces.",         key_phrase:"find out about ..." },
+      { speaker:'B', text:"What about a name? And who plays what?",                                       key_phrase:"What about ...?" },
+      { speaker:'A', text:"I've started out with some ideas — I was thinking you could play keyboard.", key_phrase:"I've started out with ..." },
+      { speaker:'B', text:"OK, I'm in! When do we start?",                                               key_phrase: null },
+    ],
+    phrases_a:["I've been thinking about ...","I've been playing for ...","I've already ...","Why don't we ...?"],
+    phrases_b:["Have you sorted out ...?","What about ...?","How long have you been ...?","That sounds ..."],
+  },
+];
+
+// G8 — Word Order: exact sentences from workbook p.46-53 + student's book p.50-53
+const G8 = [
+  { words:["I","'ve","been","writing","songs","since","I","was","a","teenager","."],       ans:"I 've been writing songs since I was a teenager ."       },
+  { words:["How","long","has","she","been","speaking","to","the","teacher","?"],            ans:"How long has she been speaking to the teacher ?"         },
+  { words:["Tom","hasn't","listened","to","the","radio","for","years","."],                ans:"Tom hasn't listened to the radio for years ."            },
+  { words:["I","'ve","run","out","of","money","and","ideas",".",],                         ans:"I 've run out of money and ideas ."                      },
+  { words:["When","does","their","new","album","come","out","?"],                           ans:"When does their new album come out ?"                    },
+  { words:["She","'s","been","collecting","vinyl","records","since","she","was","15","."], ans:"She 's been collecting vinyl records since she was 15 ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g6streak=0, g6best=0, g5streak=0, g5bombScore=0;
+let g7scenIdx=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+// Build animated waveform on home
+(function buildWaveform(){
+  const w=$('waveform'); if(!w) return;
+  const heights=[10,18,26,32,20,28,36,28,20,32,26,18,10,22,30,22,10,18,26,32];
+  heights.forEach((h,i)=>{
+    const bar=document.createElement('div'); bar.className='wv-bar';
+    bar.style.height=h+'px'; bar.style.opacity=(0.3+h/50).toFixed(2);
+    w.appendChild(bar);
+  });
+})();
+
+function confetti(){
+  const cols=['#00d4aa','#f59e0b','#3b82f6','#8b5cf6','#00e676'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#00d4aa','#f59e0b','#00e676','#3b82f6'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
   }
 }
 
-// ════════════════════════════════════════
-// GAME ENGINE
-// ════════════════════════════════════════
-
-let currentGame = null
-let currentIndex = 0
-let correct = 0
-let wrong = 0
-let answered = false
-let timerInterval = null
-let timeLeft = 20
-
-function startGame(gameId) {
-  currentGame = gameId
-  currentIndex = 0
-  correct = 0
-  wrong = 0
-  answered = false
-
-  document.getElementById('home-screen').style.display = 'none'
-  document.getElementById('results-screen').style.display = 'none'
-  document.getElementById('game-screen').style.display = 'block'
-
-  const game = GAMES[gameId]
-  document.getElementById('game-title').textContent = game.title
-  document.getElementById('game-subtitle').textContent = game.subtitle
-  document.getElementById('score-correct').textContent = '0'
-  document.getElementById('score-wrong').textContent = '0'
-
-  renderQuestion()
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el) el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
 }
-
-function renderQuestion() {
-  const game = GAMES[currentGame]
-  answered = false
-  clearTimer()
-
-  const total = game.type === 'match' ? 1
-              : game.type === 'speaking' ? game.prompts.length
-              : game.type === 'writing' ? game.tasks.length
-              : game.questions.length
-
-  document.getElementById('score-q').textContent = `${currentIndex + 1}/${total}`
-  document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`
-
-  const area = document.getElementById('question-area')
-
-  if (game.type === 'mcq') renderMCQ(area)
-  else if (game.type === 'truefalse') renderTF(area)
-  else if (game.type === 'match') renderMatch(area)
-  else if (game.type === 'speaking') renderSpeaking(area)
-  else if (game.type === 'writing') renderWriting(area)
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Genre & Vocab','Instrument Showroom','Perfect Continuous','Simple vs Continuous','Phrasal Verb Bomb','Streak Challenge','Dialogue Stage','Word Order'];
+  const cols=['var(--teal)','var(--amber)','var(--blue)','var(--purple)','var(--amber)','var(--red)','var(--teal)','var(--blue)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
 }
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  const gc=$(`gc${currentGame}`); if(gc) gc.classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"How long have you been learning English?" — answer with for/since!',
+    '"I\'ve been writing songs since I was 13." — say something similar about yourself.',
+    'Describe a musician\'s journey using: started out → played gigs → entered the charts',
+    '"When does their new album come out?" — ask about something you\'re waiting for.',
+    'Tom hasn\'t listened to the radio for years — why? Discuss.',
+    '"I\'ve run out of ideas." — what do you do when that happens?',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
 
-// ── MCQ ──
-function renderMCQ(area) {
-  const game = GAMES[currentGame]
-  const q = game.questions[currentIndex]
-  const letters = ['A','B','C','D']
-
-  // Start timer
-  startTimer(20)
-
-  area.innerHTML = `
-    <div class="q-card">
-      <div class="q-num">QUESTION ${currentIndex + 1} OF ${game.questions.length}</div>
-      <div class="q-text">${q.q}</div>
-      <div class="options" id="options">
-        ${q.options.map((opt,i) => `
-          <button class="option" id="opt-${i}" onclick="selectMCQ(${i},'${opt.replace(/'/g,"\\'")}')">
-            <span class="option-letter">${letters[i]}</span>
-            ${opt}
-          </button>
-        `).join('')}
-      </div>
+/* ═══════════════════════════════════════════
+   G1 — GENRE & VOCAB
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Genres &amp; Music Industry</div>
+      <div class="gh-name" style="color:var(--teal)">Genre &amp; Vocab</div>
+      <div class="gh-instr">Read the definition — which word or phrase matches?</div>
     </div>
-    <div class="feedback" id="feedback"></div>
-    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
-  `
-}
-
-function selectMCQ(index, value) {
-  if (answered) return
-  answered = true
-  clearTimer()
-
-  const game = GAMES[currentGame]
-  const q = game.questions[currentIndex]
-  const isCorrect = value === q.answer
-
-  const opts = document.querySelectorAll('.option')
-  opts.forEach((opt, i) => {
-    opt.disabled = true
-    if (opt.textContent.trim().endsWith(q.answer) || opt.querySelector('.option-letter').nextSibling.textContent.trim() === q.answer) {
-      opt.classList.add('correct')
-    }
-  })
-  document.getElementById(`opt-${index}`).classList.add(isCorrect ? 'correct' : 'wrong')
-
-  showFeedback(isCorrect, `The correct answer is: ${q.answer}`)
-  updateScore(isCorrect)
-}
-
-// ── TRUE/FALSE ──
-function renderTF(area) {
-  const game = GAMES[currentGame]
-  const q = game.questions[currentIndex]
-
-  startTimer(15)
-
-  area.innerHTML = `
-    <div class="q-card">
-      <div class="q-num">QUESTION ${currentIndex + 1} OF ${game.questions.length}</div>
-      <div class="q-text">${q.q}</div>
-      <div class="tf-options">
-        <button class="tf-btn true-btn" id="tf-true" onclick="selectTF(true)">✅ TRUE</button>
-        <button class="tf-btn false-btn" id="tf-false" onclick="selectTF(false)">❌ FALSE</button>
-      </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Definition ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.clue}</div>
     </div>
-    <div class="feedback" id="feedback"></div>
-    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
-  `
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
 }
 
-function selectTF(value) {
-  if (answered) return
-  answered = true
-  clearTimer()
-
-  const game = GAMES[currentGame]
-  const q = game.questions[currentIndex]
-  const isCorrect = value === q.answer
-
-  document.getElementById('tf-true').disabled = true
-  document.getElementById('tf-false').disabled = true
-  document.getElementById(value ? 'tf-true' : 'tf-false').classList.add(isCorrect ? 'correct' : 'wrong')
-  document.getElementById(q.answer ? 'tf-true' : 'tf-false').classList.add('correct')
-
-  showFeedback(isCorrect, q.explanation)
-  updateScore(isCorrect)
+/* ═══════════════════════════════════════════
+   G2 — INSTRUMENT SHOWROOM
+   Shows description of instrument → tap correct name from grid
+   Grid shows 4 instrument name cards (not images — descriptions instead)
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_INSTRUMENTS); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Vocabulary · Musical Instruments (p.53)</div>
+      <div class="gh-name" style="color:var(--amber)">Instrument Showroom</div>
+      <div class="gh-instr">Read the description — which instrument is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="qcard" style="text-align:center">
+      <div class="qcard-label">Instrument ${g2i+1} of ${g2q.length}</div>
+      <div class="qcard-text" style="font-size:1rem">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.ans)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,ans){
+  document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','The answer is: '+ans); }
+  show('g2next');
 }
 
-// ── MATCH ──
-function renderMatch(area) {
-  const game = GAMES[currentGame]
-  const pairs = [...game.pairs].sort(() => Math.random() - 0.5)
-  const shuffledDefs = [...pairs].sort(() => Math.random() - 0.5)
+/* ═══════════════════════════════════════════
+   G3 — PRESENT PERFECT CONTINUOUS
+   UNIQUE MECHANIC: Shows a visual comparison of ONGOING vs COMPLETED
+   with an "intensity bar" animation before the question, then gap-fill.
+   After answering: full grammar explanation shown.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_PP_CONT); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayQ=q.q.replace('___',`<span class="gap">???</span>`);
 
-  let selectedTerm = null
-  let matched = 0
-  const matchedIds = new Set()
+  // Build the visual tense comparison
+  const contColor = q.ongoing ? 'var(--teal)' : 'var(--muted)';
+  const simpColor = q.ongoing ? 'var(--muted)' : 'var(--amber)';
+  const activeA   = q.ongoing ? 'active-panel' : '';
+  const activeB   = q.ongoing ? '' : 'active-panel';
 
-  area.innerHTML = `
-    <div class="q-card">
-      <div class="q-num">MATCH THE PHRASAL VERBS TO THEIR MEANINGS</div>
-      <div class="q-text">Click a word on the left, then click its meaning on the right.</div>
-      <div class="match-grid">
-        <div class="match-col" id="terms-col">
-          ${pairs.map((p,i) => `<div class="match-item" id="term-${i}" data-term="${p.term}" onclick="selectTerm(${i})">${p.term}</div>`).join('')}
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Present Perfect Continuous</div>
+      <div class="gh-name" style="color:var(--blue)">Perfect Continuous</div>
+      <div class="gh-instr">Study the contrast, then complete the gap.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="tense-visual">
+      <div class="tense-row">
+        <div class="tense-panel ${activeA}">
+          <div class="tp-label" style="color:var(--teal)">CONTINUOUS</div>
+          <div class="tp-sentence">${q.a_sentence}</div>
+          <div class="tp-meaning">${q.a_meaning}</div>
+          <div class="ongoing-bar"><div class="ongoing-fill" style="width:85%;background:var(--teal)"></div></div>
         </div>
-        <div class="match-col" id="defs-col">
-          ${shuffledDefs.map((p,i) => `<div class="match-item" id="def-${i}" data-def="${p.definition}" onclick="selectDef(${i})">${p.definition}</div>`).join('')}
+        <div class="tense-panel ${activeB}">
+          <div class="tp-label" style="color:var(--amber)">SIMPLE</div>
+          <div class="tp-sentence">${q.b_sentence}</div>
+          <div class="tp-meaning">${q.b_meaning}</div>
+          <div class="ongoing-bar"><div class="ongoing-fill" style="width:100%;background:var(--amber)"></div><div class="ongoing-dot" style="background:var(--amber)"></div></div>
         </div>
       </div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:8px" id="match-status">Matched: 0 / ${pairs.length}</div>
     </div>
-    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
-  `
+    <div class="qcard">
+      <div class="qcard-label">Complete the gap</div>
+      <div class="qcard-text">${displayQ}${q.for_since?` <span style="color:var(--muted);font-size:12px">(use <strong>${q.for_since}</strong>)</span>`:''}</div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--blue)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">Grammar Rule</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--blue);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  const expEl=$('g3exp'); expEl.classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(3); showFb('g3fb','ok','Correct! +3 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
 
-  let selectedTermIdx = null
+/* ═══════════════════════════════════════════
+   G4 — SIMPLE VS CONTINUOUS DECIDER
+   Student sees two sentences, picks the one that matches the focus.
+   Full explanation of WHY shown after every answer.
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_CONTRAST); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Simple vs Continuous Contrast</div>
+      <div class="gh-name" style="color:var(--purple)">Simple vs Continuous</div>
+      <div class="gh-instr">Read both sentences carefully. Tap the one that fits the focus.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Context</div>
+      <div class="qcard-text" style="font-size:.95rem">${q.context}</div>
+    </div>
+    <div class="qcard" style="margin-bottom:14px">
+      <div class="qcard-label">Focus</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g4opts">
+      <div class="opt" style="--opt-col:var(--teal)" data-a="a">${q.sa}</div>
+      <div class="opt" style="--opt-col:var(--amber)" data-a="b">${q.sb}</div>
+    </div>
+    <div class="explain-box" id="g4exp">
+      <span class="rule-tag">Why?</span>
+      <strong style="color:var(--teal)">Option A:</strong> ${q.explain_a}<br><br>
+      <strong style="color:var(--amber)">Option B:</strong> ${q.explain_b}
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--purple);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a,q.correct)));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+function g4Ans(el,chosen,correct){
+  document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g4exp').classList.add('show');
+  if(chosen===correct){ el.classList.add('opt-ok'); addScore(3); showFb('g4fb','ok','Correct! +3 stars — read the explanation to understand why.'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===correct)o.classList.add('opt-ok'); }); showFb('g4fb','bad','Not quite — check the explanation!'); }
+  show('g4next');
+}
 
-  window.selectTerm = function(i) {
-    if (matchedIds.has('t' + i)) return
-    document.querySelectorAll('#terms-col .match-item').forEach(el => el.classList.remove('selected'))
-    document.getElementById('term-' + i).classList.add('selected')
-    selectedTermIdx = i
+/* ═══════════════════════════════════════════
+   G5 — PHRASAL VERB BOMB (timed)
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_BOMB); g5i=0; g5streak=0; g5bombScore=0; g5Setup(); }
+function g5Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Phrasal Verbs · Timed!</div>
+      <div class="gh-name" style="color:var(--amber)">Phrasal Verb Bomb</div>
+      <div class="gh-instr">Answer before the fuse burns out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g5q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ5"></div>
+    <div class="opts2" id="bombOpts5"></div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g5next').addEventListener('click',()=>{ g5i++; g5BombRender(); });
+  g5BombRender();
+}
+function g5BombRender(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++;
+  $('bQ').textContent=`${g5i+1}/${g5q.length}`;
+  hideFb('g5fb'); hide('g5next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ5').innerHTML=q.q.replace('___','<span class="hl">___</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts5').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts5 .opt').forEach(el=>el.addEventListener('click',()=>g5BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g5TimeUp(q.ans),q.t*1000);
+}
+function g5BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g5streak++;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    g5bombScore+=3; $('bStreak').textContent=g5streak; $('bScore').textContent=g5bombScore;
+    addScore(3); showFb('g5fb','ok','Defused! +3 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g5streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts5 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g5fb','bad','Boom! It\'s: '+ans);
   }
+  show('g5next');
+}
+function g5TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g5streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g5fb','bad','Time\'s up! It was: '+ans);
+  show('g5next');
+}
 
-  window.selectDef = function(j) {
-    if (selectedTermIdx === null) return
-    if (matchedIds.has('d' + j)) return
-
-    const termEl = document.getElementById('term-' + selectedTermIdx)
-    const defEl  = document.getElementById('def-' + j)
-    const term = termEl.dataset.term
-    const def  = defEl.dataset.def
-    const correctDef = pairs[selectedTermIdx].definition
-
-    if (def === correctDef) {
-      termEl.classList.remove('selected')
-      termEl.classList.add('matched')
-      defEl.classList.add('matched')
-      termEl.onclick = null
-      defEl.onclick = null
-      matchedIds.add('t' + selectedTermIdx)
-      matchedIds.add('d' + j)
-      matched++
-      document.getElementById('match-status').textContent = `Matched: ${matched} / ${pairs.length}`
-      selectedTermIdx = null
-      correct++
-      document.getElementById('score-correct').textContent = correct
-
-      if (matched === pairs.length) {
-        document.getElementById('btn-next').classList.add('show')
-        document.getElementById('match-status').textContent = '🎉 All matched!'
-        document.getElementById('match-status').style.color = 'var(--green)'
-      }
-    } else {
-      termEl.classList.add('wrong-match')
-      defEl.classList.add('wrong-match')
-      setTimeout(() => {
-        termEl.classList.remove('wrong-match','selected')
-        defEl.classList.remove('wrong-match')
-      }, 600)
-      wrong++
-      document.getElementById('score-wrong').textContent = wrong
-      selectedTermIdx = null
-    }
+/* ═══════════════════════════════════════════
+   G6 — STREAK CHALLENGE (correct/wrong grammar)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6_STREAK); g6i=0; g6streak=0; g6best=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const ruleHtml=q.rule
+    .replace(/(have|has)\s(been\s\w+ing)/g,'<span class="hl">$1 $2</span>')
+    .replace(/(haven't|hasn't)\s(been\s\w+ing)/g,'<span class="hl2">$1 $2</span>')
+    .replace(/(run out|come out|sort out|find out|start out|go out|started out|found out|gone out)/g,'<span class="hl">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--red)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s6flames">🔥</div>
+        <div><div class="streak-big" id="s6num">${g6streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g6best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">${g6i+1} of ${g6q.length}</div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--red);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g6Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g6Ans(false,q.correct));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+function g6Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g6streak++; if(g6streak>g6best)g6best=g6streak;
+    if(g6streak>bestStreak)bestStreak=g6streak;
+    $('s6num').textContent=g6streak; $('s6flames').textContent='🔥'.repeat(Math.min(g6streak,5));
+    addScore(2); showFb('g6fb','ok','Correct! +2 stars'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g6streak=0; $('s6num').textContent=0; $('s6flames').textContent='🔥';
+    showFb('g6fb','bad','Not quite!');
   }
+  show('g6next');
 }
 
-// ── SPEAKING ──
-function renderSpeaking(area) {
-  const game = GAMES[currentGame]
-  const prompt = game.prompts[currentIndex]
+/* ═══════════════════════════════════════════
+   G7 — DIALOGUE STAGE (speaking game)
+   THREE scenarios. Each shows a full conversation between
+   Student A and Student B as chat bubbles.
+   Useful phrases shown in a phrase bank below.
+   Students take roles and read aloud together.
+   A "highlight" mode shows key phrases in context.
+   No scoring — this is teacher-facilitated.
+═══════════════════════════════════════════ */
+function g7Init(){ g7scenIdx=0; g7RenderScenario(); }
 
-  area.innerHTML = `
-    <div class="speaking-card">
-      <div class="speaking-icon">${prompt.icon}</div>
-      <div class="speaking-prompt">${prompt.prompt}</div>
-      <div class="speaking-hint">${prompt.hint}</div>
-      <div class="speaking-tips">
-        ${prompt.tips.map(t => `<div class="speaking-tip">${t}</div>`).join('')}
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:16px">
-      <button class="btn-next show" onclick="nextQuestion()" style="width:auto;display:inline-block">
-        Next Prompt →
-      </button>
-    </div>
-  `
-}
-
-// ── WRITING ──
-function renderWriting(area) {
-  const game = GAMES[currentGame]
-  const task = game.tasks[currentIndex]
-
-  area.innerHTML = `
-    <div class="q-card">
-      <div class="q-num">${task.icon} ${task.title.toUpperCase()}</div>
-      <div class="q-text" style="font-size:15px;line-height:1.6">${task.task}</div>
-      <div style="margin-top:14px;padding:12px 14px;background:var(--surface2);border-radius:10px;border-left:3px solid var(--accent)">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">FOCUS</div>
-        <div style="font-size:12px;color:var(--accent)">${task.focus}</div>
-      </div>
-      <div style="margin-top:12px;padding:12px 14px;background:rgba(59,130,246,0.06);border-radius:10px;border-left:3px solid var(--accent2)">
-        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px">STARTER</div>
-        <div style="font-size:12px;color:var(--accent2);font-style:italic">${task.example}</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:16px">
-      <button class="btn-next show" onclick="nextQuestion()" style="width:auto;display:inline-block">
-        Next Task →
-      </button>
-    </div>
-  `
-}
-
-// ════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════
-
-function showFeedback(isCorrect, msg) {
-  const fb = document.getElementById('feedback')
-  fb.className = `feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`
-  fb.innerHTML = `<span>${isCorrect ? '✅' : '❌'}</span><span>${isCorrect ? 'Correct! ' : 'Not quite. '}${msg}</span>`
-  document.getElementById('btn-next').classList.add('show')
-}
-
-function updateScore(isCorrect) {
-  if (isCorrect) { correct++; document.getElementById('score-correct').textContent = correct }
-  else { wrong++; document.getElementById('score-wrong').textContent = wrong }
-}
-
-function nextQuestion() {
-  const game = GAMES[currentGame]
-  const total = game.type === 'match' ? 1
-              : game.type === 'speaking' ? game.prompts.length
-              : game.type === 'writing' ? game.tasks.length
-              : game.questions.length
-  currentIndex++
-  if (currentIndex >= total) showResults()
-  else renderQuestion()
-}
-
-function showResults() {
-  document.getElementById('game-screen').style.display = 'none'
-  document.getElementById('results-screen').style.display = 'block'
-
-  const game = GAMES[currentGame]
-  const total = game.type === 'match' ? game.pairs.length
-              : game.type === 'speaking' || game.type === 'writing' ? 0
-              : game.questions.length
-
-  const pct = total > 0 ? Math.round((correct / total) * 100) : 100
-  let emoji, msg, sub
-
-  if (game.type === 'speaking') { emoji = '🗣️'; msg = 'Great speaking practice!'; sub = 'Every prompt you complete makes you more fluent.' }
-  else if (game.type === 'writing') { emoji = '✍️'; msg = 'Writing complete!'; sub = 'Review your work and check the focus grammar.' }
-  else if (pct === 100) { emoji = '🏆'; msg = 'Perfect Score!'; sub = 'Absolutely incredible — you know this unit inside out!' }
-  else if (pct >= 80) { emoji = '🎉'; msg = 'Amazing!'; sub = 'You really know your Unit 5 material. Well done!' }
-  else if (pct >= 60) { emoji = '👍'; msg = 'Good job!'; sub = 'Solid work. Review the ones you missed and try again!' }
-  else { emoji = '💪'; msg = 'Keep going!'; sub = 'Read through Unit 5 again and try once more. You\'ve got this!' }
-
-  document.getElementById('results-emoji').textContent = emoji
-  document.getElementById('results-score').textContent = total > 0 ? `${correct}/${total}` : '✓'
-  document.getElementById('results-msg').textContent = msg
-  document.getElementById('results-sub').textContent = sub
-}
-
-function restartGame() {
-  startGame(currentGame)
-}
-
-function goHome() {
-  clearTimer()
-  document.getElementById('game-screen').style.display = 'none'
-  document.getElementById('results-screen').style.display = 'none'
-  document.getElementById('home-screen').style.display = 'block'
-}
-
-// ── TIMER ──
-function startTimer(seconds) {
-  timeLeft = seconds
-  const ring = document.getElementById('timer-ring')
-  const circle = document.getElementById('timer-circle')
-  const val = document.getElementById('timer-val')
-  ring.style.display = 'flex'
-  val.textContent = timeLeft
-  circle.style.strokeDashoffset = 0
-  circle.style.stroke = 'var(--accent)'
-
-  timerInterval = setInterval(() => {
-    timeLeft--
-    val.textContent = timeLeft
-    const offset = 126 * (1 - timeLeft / seconds)
-    circle.style.strokeDashoffset = offset
-    if (timeLeft <= 5) circle.style.stroke = 'var(--red)'
-    if (timeLeft <= 0) {
-      clearTimer()
-      if (!answered) {
-        answered = true
-        showFeedback(false, 'Time\'s up!')
-        updateScore(false)
-      }
+function g7RenderScenario(){
+  const sc=G7_DIALOGUES[g7scenIdx];
+  const bubbles=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    const wrapClass=isA?'':'b-right';
+    const avClass=isA?'av-a':'av-b';
+    const bubClass=isA?'bubble-a':'bubble-b';
+    const spClass=isA?'bubble-speaker-a':'bubble-speaker-b';
+    const roleLabel=isA?sc.roleA:sc.roleB;
+    // highlight key phrases in the text
+    let text=ex.text;
+    if(ex.key_phrase){
+      const kp=ex.key_phrase.replace(/\.\.\./g,'[\\s\\S]*?');
+      try { text=text.replace(new RegExp(`(${ex.key_phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'i'), `<span class="key-phrase">$1</span>`); } catch(e){}
     }
-  }, 1000)
+    return `<div class="bubble-wrap ${wrapClass}">
+      <div class="bubble-avatar ${avClass}">${ex.speaker}</div>
+      <div class="bubble ${bubClass}">
+        <div class="bubble-speaker ${spClass}">${roleLabel}</div>
+        <div class="bubble-text">${text}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const phrasesA=sc.phrases_a.map(p=>`<div class="pb-chip">${p}</div>`).join('');
+  const phrasesB=sc.phrases_b.map(p=>`<div class="pb-chip amber">${p}</div>`).join('');
+
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Speaking · Dialogue Stage</div>
+      <div class="gh-name" style="color:var(--teal)">Dialogue Stage</div>
+      <div class="gh-instr">Two students take roles and read aloud. Use the phrase bank to help!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g7prev" ${g7scenIdx===0?'disabled style="opacity:.3"':''}>← Prev</button>
+      <div class="scenario-count">Scenario ${g7scenIdx+1} of ${G7_DIALOGUES.length}</div>
+      <button class="nav-btn-small" id="g7next-sc" ${g7scenIdx===G7_DIALOGUES.length-1?'disabled style="opacity:.3"':''}>Next →</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div>
+          <div class="stage-label">${sc.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${sc.topic}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="role-tag role-a">A: ${sc.roleA}</span>
+          <span class="role-tag role-b">B: ${sc.roleB}</span>
+        </div>
+      </div>
+      <div class="chat-thread">${bubbles}</div>
+    </div>
+    <div class="phrase-bank">
+      <div class="pb-label">Student A — useful phrases</div>
+      <div class="pb-grid">${phrasesA}</div>
+    </div>
+    <div class="phrase-bank" style="margin-bottom:14px">
+      <div class="pb-label">Student B — useful phrases</div>
+      <div class="pb-grid">${phrasesB}</div>
+    </div>
+    <div style="background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.15);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.7;color:var(--white)">
+      <div style="font-family:var(--font-m);font-size:9px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Challenge</div>
+      After reading the dialogue, try to have your OWN version of this conversation without looking at the screen! Use the phrase bank above for help.
+    </div>
+    ${g7scenIdx===G7_DIALOGUES.length-1 ? `<div style="text-align:center"><button class="btn-check" style="background:var(--teal);color:var(--bg)" onclick="finishGame()">Done — Back to Home</button></div>` : ''}`;
+
+  $('g7prev').addEventListener('click',()=>{ if(g7scenIdx>0){g7scenIdx--;g7RenderScenario();} });
+  $('g7next-sc').addEventListener('click',()=>{ if(g7scenIdx<G7_DIALOGUES.length-1){g7scenIdx++;g7RenderScenario();} });
 }
 
-function clearTimer() {
-  clearInterval(timerInterval)
-  const ring = document.getElementById('timer-ring')
-  if (ring) ring.style.display = 'none'
+/* ═══════════════════════════════════════════
+   G8 — WORD ORDER
+═══════════════════════════════════════════ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · PP Continuous + Phrasal Verbs</div>
+      <div class="gh-name" style="color:var(--blue)">Word Order</div>
+      <div class="gh-instr">Tap the tiles in the correct order!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">// tap words to start...</div>
+    <div class="word-pool" id="g8pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--blue);color:#fff">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--blue);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='// tap words to start...';
+    hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 stars'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
 }
 </script>
 </body>
