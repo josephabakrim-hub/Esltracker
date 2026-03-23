@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 5 — Fit and Well! 🏥</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #03100a;
+  --deep:   #061408;
+  --card:   #0a1e10;
+  --card2:  #0d2415;
+  --border: #153a20;
+  --green:  #2dff8a;
+  --mint:   #00e5b0;
+  --lime:   #b0ff30;
+  --gold:   #ffd040;
+  --red:    #ff3d5a;
+  --orange: #ff8c30;
+  --violet: #b060ff;
+  --sky:    #40d0ff;
+  --white:  #d8f5e8;
+  --muted:  #1a4028;
+  --ok:     #2dff8a;
+  --bad:    #ff3d5a;
+  --font-h: 'Baloo 2', cursive;
+  --font-b: 'Quicksand', sans-serif;
+  --r:      16px;
+  --r-sm:   10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white); }
+
+/* ══ CONFETTI — only fires on correct answer ══ */
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(540deg);opacity:0} }
+
+/* ══ MINIMAL KEYFRAMES ══ */
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@keyframes spinIn { 0%{transform:scale(0) rotate(-180deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#061408,#0d2415);
+  border:1px solid var(--border); color:var(--green);
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2.5px;
+  padding:5px 16px; border-radius:30px; margin-bottom:14px; text-transform:uppercase;
+  box-shadow:0 0 16px rgba(45,255,138,.12);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow:0 0 24px rgba(45,255,138,.3);
+}
+.home-title span { color:var(--green); }
+.home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:10px; text-align:center; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:6px 16px; margin-bottom:28px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--gold); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+.gc { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:18px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 18px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:10px; left:12px; font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--gc-col); letter-spacing:1px; opacity:.7; }
+.gc-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--gold); font-family:var(--font-h); font-weight:700; min-height:15px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(3,16,10,.95); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(8px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--green); color:var(--green); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:900; }
+.tb-score { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:4px 14px; border-radius:20px; }
+.prog-bar-wrap { height:3px; background:var(--border); }
+.prog-bar-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:900; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; }
+.qcard-text .hl  { color:var(--green); }
+.qcard-text .hl2 { color:var(--gold); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.opt { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:border-color .14s, color .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--green)); color:var(--opt-col,var(--green)); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(45,255,138,.08); animation:popIn .25s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,61,90,.08); animation:shake .35s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.fb { padding:10px 16px; border-radius:10px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(45,255,138,.08); color:var(--ok); border:1px solid rgba(45,255,138,.2); }
+.fb.bad { display:block; background:rgba(255,61,90,.08); color:#ff7090; border:1px solid rgba(255,61,90,.2); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:800; border:none; border-radius:10px; cursor:pointer; display:none; }
+.next-btn.visible { display:block; }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:background .2s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--green); transform:scale(1.3); }
+
+/* ══ G1: DOCTOR'S SURGERY — patient complaint clue → illness name ══ */
+/* THE UNIQUE MECHANIC: A patient speech bubble describes symptoms.
+   Student diagnoses the illness. Feels like being a real doctor! */
+.surgery-scene {
+  background:linear-gradient(160deg, var(--card2), var(--deep));
+  border:2px solid rgba(45,255,138,.18); border-radius:var(--r);
+  padding:20px 16px; margin-bottom:14px; text-align:center; position:relative;
+}
+.patient-emoji { font-size:3.5rem; display:block; margin-bottom:8px; }
+.speech-bubble {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:14px; padding:14px 16px; margin-bottom:4px; position:relative;
+  font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.6;
+  text-align:left;
+}
+.speech-bubble::before {
+  content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  border:8px solid transparent; border-bottom-color:var(--border);
+}
+.speech-bubble::after {
+  content:''; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  border:7px solid transparent; border-bottom-color:var(--card);
+}
+.doctor-badge {
+  display:inline-block; background:var(--green); color:var(--bg);
+  font-family:var(--font-h); font-size:9px; font-weight:900;
+  padding:3px 10px; border-radius:20px; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;
+}
+
+/* ══ G2: PRESCRIPTION PAD — must/mustn't advice matcher ══ */
+/* THE UNIQUE MECHANIC: A prescription card shows the illness.
+   Student picks the correct advice from the pad. */
+.prescription {
+  background:var(--deep); border:2px solid rgba(45,255,138,.2);
+  border-radius:var(--r); padding:18px 16px; margin-bottom:14px;
+  position:relative;
+}
+.rx-header {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+  padding-bottom:10px; border-bottom:1px solid var(--border);
+}
+.rx-icon { font-size:1.6rem; }
+.rx-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--green); text-transform:uppercase; }
+.rx-patient { font-family:var(--font-h); font-size:1.1rem; font-weight:900; color:var(--white); }
+.rx-illness { color:var(--gold); }
+.advice-opts { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.advice-btn {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:13px; font-weight:800; color:var(--white);
+  padding:12px 14px; cursor:pointer; text-align:left; transition:border-color .14s, color .14s;
+  display:flex; align-items:center; gap:10px;
+}
+.advice-btn .must-tag {
+  flex-shrink:0; font-size:9px; font-weight:900; letter-spacing:1.5px;
+  padding:3px 8px; border-radius:20px; text-transform:uppercase;
+}
+.must-tag.must   { background:rgba(45,255,138,.15); color:var(--ok); border:1px solid rgba(45,255,138,.3); }
+.must-tag.mustnt { background:rgba(255,61,90,.12); color:#ff7090; border:1px solid rgba(255,61,90,.25); }
+.advice-btn:hover:not(.locked) { border-color:var(--green); color:var(--green); }
+.advice-btn.ab-ok    { border-color:var(--ok)!important; background:rgba(45,255,138,.06); animation:popIn .25s; pointer-events:none; }
+.advice-btn.ab-wrong { border-color:var(--bad)!important; background:rgba(255,61,90,.06); animation:shake .35s; pointer-events:none; }
+.advice-btn.locked { pointer-events:none; }
+.grammar-strip {
+  background:rgba(45,255,138,.06); border:1px solid rgba(45,255,138,.18);
+  border-radius:8px; padding:9px 12px; font-size:12px; color:var(--mint);
+  font-family:var(--font-h); font-weight:700; line-height:1.6; margin-top:8px; display:none;
+}
+
+/* ══ G3: DIAGNOSIS DASH — rapid fire illness → correct must/mustn't rule ══ */
+/* THE UNIQUE MECHANIC: A fast-paced quiz where each "patient" arrives with an illness.
+   Student picks MUST or MUSTN'T, then sees the full rule. */
+.patient-card {
+  background:linear-gradient(160deg, var(--card2), var(--deep));
+  border:2px solid var(--border); border-radius:var(--r);
+  padding:20px 16px; text-align:center; margin-bottom:14px;
+}
+.patient-illness { font-size:2.8rem; display:block; margin-bottom:8px; }
+.patient-complaint { font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.5; }
+.patient-complaint .hl { color:var(--gold); }
+.mm-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.mm-btn {
+  border:2px solid; border-radius:var(--r); font-family:var(--font-h);
+  font-size:14px; font-weight:900; padding:16px 8px; cursor:pointer; transition:border-color .14s; text-align:center;
+}
+.mm-must   { background:rgba(45,255,138,.08); color:var(--ok); border-color:rgba(45,255,138,.3); }
+.mm-mustnt { background:rgba(255,61,90,.07); color:#ff7090; border-color:rgba(255,61,90,.25); }
+.mm-btn:hover:not(.locked) { transform:none; filter:brightness(1.2); }
+.mm-btn.mm-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .25s; pointer-events:none; }
+.mm-btn.mm-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .35s; pointer-events:none; }
+.mm-btn.locked { pointer-events:none; }
+.full-rule { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--white); line-height:1.6; text-align:center; display:none; margin-bottom:12px; }
+.full-rule .must-hl   { color:var(--ok); }
+.full-rule .mustnt-hl { color:var(--red); }
+
+/* ══ G4: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:900; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,140,48,.1); border:1px solid rgba(255,140,48,.3); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:900; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:52px; line-height:1; display:inline-block; }
+.timer-track { height:7px; background:var(--border); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:4px; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:900; text-align:center; line-height:1.55; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.bomb-q .hl { color:var(--orange); }
+
+/* ══ G5: TOM'S MORNING — dialogue fill-in-the-blank ══ */
+/* THE UNIQUE MECHANIC: A comic-strip style conversation between Tom and Mum.
+   Student fills blanks in the actual evaluation Part 4 dialogue. */
+.comic-strip { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.comic-bubble {
+  display:flex; align-items:flex-start; gap:10px;
+}
+.comic-bubble.right { flex-direction:row-reverse; }
+.comic-avatar { font-size:1.8rem; flex-shrink:0; }
+.bubble-box {
+  background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+  padding:10px 14px; font-family:var(--font-h); font-size:13px; font-weight:700;
+  line-height:1.7; flex:1; max-width:85%;
+}
+.bubble-box .blank-word {
+  display:inline-block; border-bottom:2px solid var(--gold);
+  color:var(--gold); min-width:70px; text-align:center; cursor:default;
+  font-weight:900; padding:0 4px;
+}
+.bubble-box .blank-word.active { border-color:var(--green); color:var(--green); }
+.bubble-box .blank-word.filled { border-color:var(--ok); color:var(--ok); }
+.bubble-box .blank-word.wrong  { border-color:var(--bad); color:var(--bad); }
+.speaker-tag { font-size:9px; font-weight:800; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; margin-bottom:3px; }
+.choice-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.choice-btn {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:13px; font-weight:800; color:var(--white);
+  padding:12px 8px; cursor:pointer; text-align:center; transition:border-color .14s;
+}
+.choice-btn:hover:not(.locked) { border-color:var(--green); color:var(--green); }
+.choice-btn.cb-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(45,255,138,.08); animation:popIn .25s; pointer-events:none; }
+.choice-btn.cb-wrong { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,61,90,.08); animation:shake .35s; pointer-events:none; }
+.choice-btn.locked { pointer-events:none; }
+
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--green); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-b); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--green); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; user-select:none; }
+.wtile:hover:not(.used) { filter:brightness(1.1); }
+.wtile.used { opacity:.2; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:800; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:900; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .5s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.4rem; font-weight:900; color:var(--green); text-shadow:0 0 24px rgba(45,255,138,.4); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--green) 0%, var(--mint) 40%, var(--lime) 80%, var(--green) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 36px rgba(45,255,138,.28); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:800; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:900; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--green); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:18px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--green); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--green),var(--mint)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:14px 36px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 4px 16px rgba(45,255,138,.28); }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Kids Box NG3 · Unit 5 · Pro6_2 &amp; Pro1_3</div>
+  <h1 class="home-title">Fit and<br><span>Well!</span> 🏥</h1>
+  <p class="home-sub">The doctor will see you now — let's learn about health!</p>
+  <div class="total-stars">⭐ Total stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#2dff8a" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🩺</span>
+      <div class="gc-title">Doctor's Surgery</div>
+      <div class="gc-desc">Hear the patient — name the illness!</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffd040" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">📋</span>
+      <div class="gc-title">Prescription Pad</div>
+      <div class="gc-desc">Pick the right must / mustn't advice!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#40d0ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">🏃</span>
+      <div class="gc-title">Diagnosis Dash</div>
+      <div class="gc-desc">Must or mustn't — fast and furious!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff8c30" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">True or false — beat the fuse!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#b060ff" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">💬</span>
+      <div class="gc-title">Tom's Morning</div>
+      <div class="gc-desc">Fill the gaps in the real dialogue!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#2dff8a" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the health sentence!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Home</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🏥</span>
+  <div class="win-title">Fit and Well!</div>
+  <div class="win-sub">The doctor says you're perfectly healthy — and very clever!</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">🎤 Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again ↺</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — verified from:
+   · KB3 Unit 5 Evaluation (Cambridge, photocopiable) × 3 sources
+   · Quizlet KB3 Unit 5 flashcards
+   · Wordwall community resources (Fit and Well, must/mustn't)
+   · Storyfun 3 content map (illness vocab, must/mustn't grammar)
+   · KB3 Tests answer key (must/mustn't pairs, Part 4 dialogue)
+═══════════════════════════════════════════ */
+
+// G1 — Doctor's Surgery: patient describes symptoms → name the illness
+// Vocab confirmed: headache, toothache, earache, stomach-ache, backache,
+// cold, cough, temperature (evaluation Part 1 word list)
+const G1 = [
+  { emoji:'😫', patient:"My head really hurts. It feels like someone is banging a drum inside!", ans:'a headache',   opts:['a headache','a toothache','an earache','a cough'] },
+  { emoji:'😬', patient:"My tooth hurts so much. I can't eat anything!",                         ans:'a toothache',  opts:['a toothache','a headache','a stomach-ache','a temperature'] },
+  { emoji:'🤧', patient:"My ear hurts. I don't want to listen to any music right now.",            ans:'an earache',   opts:['an earache','a toothache','a headache','a cold'] },
+  { emoji:'😩', patient:"My tummy hurts. I really don't want to eat a burger and chips.",          ans:'a stomach-ache',opts:['a stomach-ache','a headache','an earache','a backache'] },
+  { emoji:'😣', patient:"My back hurts. I can't pick up my school bag today.",                     ans:'a backache',   opts:['a backache','a stomach-ache','a temperature','a cough'] },
+  { emoji:'🤒', patient:"I feel very hot. My whole body is warm. I think I'm ill.",               ans:'a temperature', opts:['a temperature','a cold','a cough','a backache'] },
+  { emoji:'😤', patient:"I can't stop coughing! It's been happening all day.",                     ans:'a cough',      opts:['a cough','a cold','a temperature','an earache'] },
+  { emoji:'🤧', patient:"My nose is running and I feel cold. I don't feel well at all.",           ans:'a cold',       opts:['a cold','a cough','a temperature','a headache'] },
+];
+
+// G2 — Prescription Pad: illness shown → pick correct must/mustn't advice
+// All pairs verified directly from KB3 Unit 5 Evaluation Part 2 answer key
+const G2 = [
+  {
+    illness:'a backache', illnessEmoji:'😣',
+    correct:{ must:false, action:"pick up a big bag",           display:"mustn't pick up a big bag" },
+    wrong:[
+      { must:true,  action:"drink a lot of orange juice",     display:"must drink a lot of orange juice" },
+      { must:false, action:"eat a burger and chips",           display:"mustn't eat a burger and chips" },
+      { must:true,  action:"go to the dentist",               display:"must go to the dentist" },
+    ],
+    tip:'With a backache → mustn\'t pick up heavy things — it makes it worse!'
+  },
+  {
+    illness:'a toothache', illnessEmoji:'😬',
+    correct:{ must:true,  action:"go to the dentist",           display:"must go to the dentist" },
+    wrong:[
+      { must:false, action:"listen to loud music",             display:"mustn't listen to loud music" },
+      { must:false, action:"pick up a big bag",                display:"mustn't pick up a big bag" },
+      { must:true,  action:"do sport",                        display:"must do sport" },
+    ],
+    tip:'Toothache → must go to the dentist! That\'s the only solution.'
+  },
+  {
+    illness:'a stomach-ache', illnessEmoji:'😩',
+    correct:{ must:false, action:"eat a burger and chips",       display:"mustn't eat a burger and chips" },
+    wrong:[
+      { must:true,  action:"go to the dentist",               display:"must go to the dentist" },
+      { must:true,  action:"do sport",                        display:"must do sport" },
+      { must:false, action:"pick up a big bag",               display:"mustn't pick up a big bag" },
+    ],
+    tip:'Stomach-ache → mustn\'t eat heavy, greasy food like burgers!'
+  },
+  {
+    illness:'a cold', illnessEmoji:'🤧',
+    correct:{ must:true,  action:"drink a lot of orange juice",  display:"must drink a lot of orange juice" },
+    wrong:[
+      { must:false, action:"eat a burger and chips",           display:"mustn't eat a burger and chips" },
+      { must:false, action:"listen to loud music",             display:"mustn't listen to loud music" },
+      { must:true,  action:"go to the dentist",               display:"must go to the dentist" },
+    ],
+    tip:'Cold → must drink lots of orange juice — vitamin C helps!'
+  },
+  {
+    illness:'an earache', illnessEmoji:'🤫',
+    correct:{ must:false, action:"listen to loud music",         display:"mustn't listen to loud music" },
+    wrong:[
+      { must:true,  action:"drink a lot of orange juice",     display:"must drink a lot of orange juice" },
+      { must:true,  action:"do sport",                        display:"must do sport" },
+      { must:false, action:"eat a burger and chips",           display:"mustn't eat a burger and chips" },
+    ],
+    tip:'Earache → mustn\'t listen to loud music — it makes it worse!'
+  },
+];
+
+// G3 — Diagnosis Dash: illness shown → tap MUST or MUSTN'T, then see the full rule
+// All must/mustn't rules from evaluation — includes the extra "must do sport" and "must eat healthy"
+const G3 = [
+  { emoji:'😣', complaint:"You've got <span class='hl'>a backache</span>.", mustOrMustnt:'mustn\'t', fullRule:"You mustn't pick up a big bag." },
+  { emoji:'😬', complaint:"You've got <span class='hl'>a toothache</span>.", mustOrMustnt:'must',    fullRule:"You must go to the dentist." },
+  { emoji:'😩', complaint:"You've got <span class='hl'>a stomach-ache</span>.", mustOrMustnt:'mustn\'t', fullRule:"You mustn't eat a burger and chips." },
+  { emoji:'🤧', complaint:"You've got <span class='hl'>a cold</span>.", mustOrMustnt:'must',          fullRule:"You must drink a lot of orange juice." },
+  { emoji:'🤫', complaint:"You've got <span class='hl'>an earache</span>.", mustOrMustnt:'mustn\'t',  fullRule:"You mustn't listen to loud music." },
+  { emoji:'😫', complaint:"You've got <span class='hl'>a headache</span>.", mustOrMustnt:'mustn\'t',  fullRule:"You mustn't watch too much TV." },
+  { emoji:'🤒', complaint:"You've got <span class='hl'>a temperature</span>.", mustOrMustnt:'must',   fullRule:"You must go to bed and rest." },
+  { emoji:'😤', complaint:"You've got <span class='hl'>a cough</span>.", mustOrMustnt:'must',         fullRule:"You must drink hot water with honey." },
+  { emoji:'🏃', complaint:"You want to be <span class='hl'>fit and healthy</span>.", mustOrMustnt:'must', fullRule:"You must do sport every day." },
+  { emoji:'🍎', complaint:"You want to stay <span class='hl'>well</span>.", mustOrMustnt:'must',       fullRule:"You must eat healthy food." },
+];
+
+// G4 — Bomb Defuse: true/false health facts (timed)
+// All facts verified from evaluation content and must/mustn't pairs
+const G4 = [
+  { q:"When you've got a toothache, you must go to the dentist.",         ans:true,  t:5 },
+  { q:"When you've got a cold, you mustn't drink orange juice.",          ans:false, t:4 },
+  { q:"When you've got an earache, you mustn't listen to loud music.",    ans:true,  t:5 },
+  { q:"When you've got a backache, you must pick up a big bag.",          ans:false, t:4 },
+  { q:"When you've got a stomach-ache, you mustn't eat a burger.",       ans:true,  t:5 },
+  { q:"A doctor works in a hospital.",                                    ans:true,  t:5 },
+  { q:"When you've got a cough, you must eat ice cream.",                 ans:false, t:4 },
+  { q:"You must eat healthy food to stay fit and well.",                  ans:true,  t:5 },
+  { q:"When you've got a temperature, you must play football outside.",   ans:false, t:4 },
+  { q:"You must clean your teeth every day.",                             ans:true,  t:4 },
+];
+
+// G5 — Tom's Morning: the actual Part 4 dialogue from the KB3 Unit 5 Evaluation
+// Verified from Cambridge test (evaluation p.2, Part 4)
+// "Mum: Time to get up! Don't (forget/remember) to clean your teeth.
+//  Tom: But Mum! I (don't want/want) to clean my teeth.
+//  Mum: Tom! You (must/mustn't) clean your teeth! You (have/have got) a toothache!
+//  Tom: Yes, I do. And it hurts every (day/week)."
+const G5_DIALOGUE = [
+  {
+    speaker:'Mum', avatar:'👩', align:'left',
+    before:"Time to get up! Don't ",
+    blank:true, opts:["forget","remember"], ans:"forget",
+    after:" to clean your teeth.",
+    tip:'Mum says DON\'T forget — so the word is FORGET!'
+  },
+  {
+    speaker:'Tom', avatar:'👦', align:'right',
+    before:"But Mum! I ",
+    blank:true, opts:["don't want","want"], ans:"don't want",
+    after:" to clean my teeth.",
+    tip:'Tom doesn\'t like cleaning teeth → don\'t want!'
+  },
+  {
+    speaker:'Mum', avatar:'👩', align:'left',
+    before:"Tom! You must clean your teeth! You ",
+    blank:true, opts:["have","have got"], ans:"have",
+    after:" a toothache!",
+    tip:'In the evaluation: "Yes, I do." → simple present → HAVE (not have got).'
+  },
+  {
+    speaker:'Tom', avatar:'👦', align:'right',
+    before:"Yes, I do. And it hurts every ",
+    blank:true, opts:["day","week"], ans:"day",
+    after:".",
+    tip:'Mum says eat breakfast every day → DAY!'
+  },
+];
+
+// G6 — Word Order: exact sentences from evaluation and activity book
+const G6 = [
+  { words:["When","you've","got","a","toothache",",","you","must","go","to","the","dentist","."],      ans:"When you've got a toothache , you must go to the dentist ." },
+  { words:["When","you've","got","a","cold",",","you","must","drink","a","lot","of","orange","juice","."], ans:"When you've got a cold , you must drink a lot of orange juice ." },
+  { words:["When","you've","got","an","earache",",","you","mustn't","listen","to","loud","music","."],  ans:"When you've got an earache , you mustn't listen to loud music ." },
+  { words:["You","must","clean","your","teeth","every","day","."],                                     ans:"You must clean your teeth every day ." },
+  { words:["What's","the","matter","with","you","?"],                                                  ans:"What's the matter with you ?" },
+  { words:["I've","got","a","stomach-ache","and","a","temperature","."],                              ans:"I've got a stomach-ache and a temperature ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g3streak=0;
+let g5idx=0, g5locked=false;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#2dff8a','#ffd040','#40d0ff','#b060ff'];
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*80}px;top:${r.top+(Math.random()-.3)*20}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+function bigConfetti(){
+  const cols=['#2dff8a','#ffd040','#40d0ff','#b060ff','#ff8c30','#fff'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.7}s;animation-duration:${1.8+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=["Doctor's Surgery","Prescription Pad","Diagnosis Dash","Bomb Defuse!","Tom's Morning","Word Order"];
+  const cols=['var(--green)','var(--gold)','var(--sky)','var(--orange)','var(--violet)','var(--green)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"What\'s the matter with you?" — "I\'ve got a headache!"',
+    '"When you\'ve got a toothache, you must go to the dentist."',
+    '"When you\'ve got a cold, you must drink a lot of orange juice."',
+    '"When you\'ve got an earache, you mustn\'t listen to loud music."',
+    '"I\'ve got a stomach-ache and a temperature. I\'m not well!"',
+    'Tell your partner: one illness + one must + one mustn\'t.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  bigConfetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — DOCTOR'S SURGERY
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Illnesses</div>
+      <div class="gh-name" style="color:var(--green)">Doctor's Surgery 🩺</div>
+      <div class="gh-instr">Listen to the patient — what's the matter with them?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="surgery-scene">
+      <span class="patient-emoji">${q.emoji}</span>
+      <div class="doctor-badge">Patient ${g1i+1} of ${g1q.length}</div>
+      <div class="speech-bubble">"${q.patient}"</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--green)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--green);color:var(--bg)">Next patient ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct diagnosis! +2 ⭐'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','It\'s: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — PRESCRIPTION PAD
+   Illness shown on a prescription card → pick the correct advice.
+   The grammar tip reveals after each answer.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  // Build 4 options: the correct one + 3 wrong shuffled
+  const allOpts=rnd([q.correct, ...rnd(q.wrong).slice(0,3)]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · must / mustn't</div>
+      <div class="gh-name" style="color:var(--gold)">Prescription Pad 📋</div>
+      <div class="gh-instr">Pick the correct advice for this patient!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="prescription">
+      <div class="rx-header">
+        <div class="rx-icon">${q.illnessEmoji}</div>
+        <div>
+          <div class="rx-title">Rx — Doctor's Note</div>
+          <div class="rx-patient">Patient has got: <span class="rx-illness">${q.illness}</span></div>
+        </div>
+      </div>
+      <div style="font-family:var(--font-h);font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;">What does the doctor say?</div>
+    </div>
+    <div class="advice-opts" id="g2opts">
+      ${allOpts.map(o=>`
+        <button class="advice-btn" data-must="${o.must}" data-action="${o.action}">
+          <span class="must-tag ${o.must?'must':'mustnt'}">${o.must?'MUST':'MUSTN\'T'}</span>
+          <span>${o.action}</span>
+        </button>`).join('')}
+    </div>
+    <div class="grammar-strip" id="g2tip"></div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.advice-btn').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.must==='true',el.dataset.action,q)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosenMust,chosenAction,q){
+  document.querySelectorAll('.advice-btn').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g2tip'); tipEl.style.display='block'; tipEl.textContent='💡 '+q.tip;
+  const isCorrect=(chosenMust===q.correct.must && chosenAction===q.correct.action);
+  if(isCorrect){
+    el.classList.add('ab-ok'); addScore(2); showFb('g2fb','ok','Correct prescription! +2 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('ab-wrong');
+    document.querySelectorAll('.advice-btn').forEach(o=>{
+      if(o.dataset.must===(q.correct.must?'true':'false') && o.dataset.action===q.correct.action) o.classList.add('ab-ok');
+    });
+    showFb('g2fb','bad','Not quite — check the tip below!');
+  }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — DIAGNOSIS DASH
+   Patient arrives with an illness. Student taps MUST or MUSTN'T.
+   Then the full rule is revealed.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3streak=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · must / mustn't — Speed!</div>
+      <div class="gh-name" style="color:var(--sky)">Diagnosis Dash 🏃</div>
+      <div class="gh-instr">Tap MUST or MUSTN'T — which one fits?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="patient-card">
+      <span class="patient-illness">${q.emoji}</span>
+      <div class="patient-complaint">${q.complaint}</div>
+      <div style="font-family:var(--font-h);font-size:12px;font-weight:700;color:var(--muted);margin-top:8px;">You ___</div>
+    </div>
+    <div class="mm-row">
+      <button class="mm-btn mm-must" data-ans="must">✅ MUST</button>
+      <button class="mm-btn mm-mustnt" data-ans="mustn't">🚫 MUSTN'T</button>
+    </div>
+    <div class="full-rule" id="g3rule"></div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.mm-btn').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.ans,q)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,q){
+  document.querySelectorAll('.mm-btn').forEach(o=>o.classList.add('locked'));
+  const ruleEl=$('g3rule');
+  const isCorrect=(chosen===q.mustOrMustnt);
+  ruleEl.style.display='block';
+  ruleEl.innerHTML=q.fullRule.replace('must not','<span class="mustnt-hl">must not</span>').replace("mustn't",'<span class="mustnt-hl">mustn\'t</span>').replace('must ','<span class="must-hl">must </span>');
+  if(isCorrect){
+    el.classList.add('mm-ok'); g3streak++; if(g3streak>bestStreak)bestStreak=g3streak;
+    addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('mm-wrong');
+    document.querySelectorAll('.mm-btn').forEach(o=>{ if(o.dataset.ans===q.mustOrMustnt)o.classList.add('mm-ok'); });
+    g3streak=0; showFb('g3fb','bad','Check the full rule below!');
+  }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (health facts, true/false, timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0, g4bombScore=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Health Facts · Timed True/False</div>
+      <div class="gh-name" style="color:var(--orange)">Bomb Defuse! 💣</div>
+      <div class="gh-instr">True or false — defuse before time runs out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--orange)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+  g4Render();
+}
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').style.filter='none';
+  $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">✅ True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">❌ False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').style.filter='grayscale(1)';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++; g4bombScore+=3;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g4fb','bad',ans?'It\'s TRUE!':'It\'s FALSE!');
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+(ans?'TRUE':'FALSE'));
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — TOM'S MORNING
+   Comic-strip style dialogue. Each line appears.
+   The blank lights up and the student picks the right word.
+   One blank at a time — animated like a real conversation.
+═══════════════════════════════════════════ */
+function g5Init(){ g5idx=0; g5locked=false; g5DrawScene(); }
+
+function g5BuildComicHTML(upToIdx, filledAnswers){
+  return G5_DIALOGUE.map((line,i)=>{
+    if(i>upToIdx) return ''; // not yet revealed
+    const isCurrent=(i===upToIdx);
+    const isPast=(i<upToIdx);
+    let bubbleContent=line.before;
+    if(line.blank){
+      const val=isPast?(filledAnswers[i]||'?'):isCurrent?'???':'???';
+      const cls=isPast?'blank-word filled':isCurrent?'blank-word active':'blank-word';
+      bubbleContent+=`<span class="${cls}">${val}</span>`;
+    }
+    bubbleContent+=line.after;
+    return `
+      <div class="comic-bubble ${line.align==='right'?'right':''}">
+        <div class="comic-avatar">${line.avatar}</div>
+        <div>
+          <div class="speaker-tag">${line.speaker}</div>
+          <div class="bubble-box">${bubbleContent}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+let g5filled={};
+function g5DrawScene(){
+  if(g5idx>=G5_DIALOGUE.length){ finishGame(); return; }
+  const line=G5_DIALOGUE[g5idx]; totalQs++;
+  setProgress(g5idx,G5_DIALOGUE.length);
+  const comicHtml=g5BuildComicHTML(g5idx,g5filled);
+  const opts=rnd([...line.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Dialogue · Real Evaluation Text</div>
+      <div class="gh-name" style="color:var(--violet)">Tom's Morning 💬</div>
+      <div class="gh-instr">Complete the dialogue — pick the right word!</div>
+    </div>
+    <div class="comic-strip" id="comicStrip">${comicHtml}</div>
+    ${line.blank?`
+    <div class="choice-row" id="g5choices">
+      ${opts.map(o=>`<button class="choice-btn" data-a="${o}">${o}</button>`).join('')}
+    </div>
+    <div class="grammar-strip" id="g5tip" style="display:none"></div>
+    <div class="fb" id="g5fb"></div>`:''}
+    <button class="next-btn" id="g5next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  if(line.blank){
+    document.querySelectorAll('.choice-btn').forEach(el=>el.addEventListener('click',()=>g5Ans(el,el.dataset.a,line.ans,line.tip)));
+  } else {
+    show('g5next');
+  }
+  $('g5next').addEventListener('click',()=>{ g5idx++; g5DrawScene(); });
+}
+function g5Ans(el,chosen,ans,tip){
+  document.querySelectorAll('.choice-btn').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g5tip'); if(tipEl){ tipEl.style.display='block'; tipEl.textContent='💡 '+tip; }
+  g5filled[g5idx]=chosen;
+  if(chosen===ans){
+    el.classList.add('cb-ok'); addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('cb-wrong');
+    document.querySelectorAll('.choice-btn').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('cb-ok'); });
+    g5filled[g5idx]=ans;
+    showFb('g5fb','bad','It\'s: "'+ans+'"');
+  }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Health Sentences</div>
+      <div class="gh-name" style="color:var(--green)">Word Order 🔤</div>
+      <div class="gh-instr">Tap the tiles in order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--green);color:var(--bg)">Check ✓</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--green);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 ⭐'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
