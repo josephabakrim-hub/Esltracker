@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 8 — My Clothes! 👕</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0e0e1e;
+  --deep:   #161628;
+  --card:   #1e1e36;
+  --border: #38385a;
+  --indigo: #6060e0;
+  --pink:   #e060a0;
+  --yellow: #f0d020;
+  --mint:   #40d8a0;
+  --orange: #f08030;
+  --sky:    #40b0e8;
+  --ok:     #40d8a0;
+  --bad:    #e04040;
+  --white:  #f0f0ff;
+  --muted:  #6868a0;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Quicksand',sans-serif; background:var(--bg); min-height:100vh; color:var(--white); }
+
+/* HEADER */
+.header { background:var(--deep); border-bottom:3px solid var(--pink); position:sticky; top:0; z-index:100; box-shadow:0 3px 20px rgba(0,0,0,.6); }
+.header-top { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; }
+.title-text { font-family:'Baloo 2',sans-serif; font-size:21px; font-weight:900; color:var(--pink); }
+.title-sub  { font-size:9px; font-weight:700; color:var(--muted); letter-spacing:2px; margin-top:1px; }
+.score-pill { background:var(--pink); color:#fff; font-family:'Baloo 2',sans-serif; font-size:15px; font-weight:900; padding:5px 14px; border-radius:30px; }
+
+/* NAV */
+.game-nav { display:flex; gap:6px; padding:10px 16px 12px; overflow-x:auto; background:var(--deep); }
+.game-nav::-webkit-scrollbar { display:none; }
+.nav-btn { flex-shrink:0; background:transparent; border:2px solid var(--border); color:var(--muted); font-family:'Baloo 2',sans-serif; font-size:10px; font-weight:700; padding:6px 13px; border-radius:30px; cursor:pointer; transition:all .18s; letter-spacing:.5px; }
+.nav-btn:hover  { border-color:var(--pink); color:var(--pink); }
+.nav-btn.active { background:var(--pink); border-color:var(--pink); color:#fff; }
+.nav-btn.done   { border-color:var(--mint); color:var(--mint); }
+
+/* SCREENS */
+.screen { display:none; padding:16px; max-width:660px; margin:0 auto; }
+.screen.active { display:block; animation:fadeUp .22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+/* CARD */
+.card { background:var(--card); border-radius:20px; padding:20px; border:1px solid var(--border); box-shadow:0 4px 24px rgba(0,0,0,.5); margin-bottom:14px; }
+.game-badge { display:inline-block; background:var(--border); border-radius:30px; padding:3px 12px; font-size:9px; font-weight:700; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+.game-title { font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900; margin-bottom:4px; }
+.game-instr { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:18px; line-height:1.5; }
+
+/* FEEDBACK */
+.feedback { margin-top:12px; padding:10px 16px; border-radius:11px; font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:700; text-align:center; display:none; }
+.feedback.ok  { display:block; background:rgba(64,216,160,.15); color:var(--ok); border:1px solid rgba(64,216,160,.3); }
+.feedback.bad { display:block; background:rgba(224,64,64,.12); color:#ff8888;   border:1px solid rgba(224,64,64,.3); }
+
+/* BUTTONS */
+.btn { border:none; border-radius:11px; font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:800; padding:10px 22px; cursor:pointer; transition:all .15s; display:inline-block; }
+.btn:hover { transform:translateY(-2px); }
+.btn-full  { width:100%; text-align:center; display:block; }
+.btn-right { display:block; margin-top:12px; margin-left:auto; width:fit-content; }
+.btn-row   { display:flex; gap:8px; justify-content:center; }
+
+/* PROGRESS */
+.prog { height:4px; background:var(--border); border-radius:2px; margin-bottom:16px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:2px; transition:width .4s ease; }
+
+/* ANIMATIONS */
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0deg) scale(1);opacity:1} }
+
+/* CONFETTI */
+.confetti-layer { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* G1 — SPELLING */
+.spell-word { background:linear-gradient(135deg,var(--deep),#0a0a18); border:1px solid var(--border); border-radius:16px; padding:22px 16px; text-align:center; margin-bottom:16px; }
+.spell-letters { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
+.spell-letter { width:42px; height:48px; border-radius:10px; background:var(--deep); border:2px solid var(--border); font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900; color:var(--white); display:flex; align-items:center; justify-content:center; }
+.spell-letter.blank { border-color:var(--yellow); color:var(--yellow); background:rgba(240,208,32,.1); font-size:26px; }
+.spell-letter.filled-ok  { border-color:var(--ok); color:var(--ok); background:rgba(64,216,160,.15); animation:popIn .28s ease; }
+.spell-letter.filled-bad { border-color:var(--bad); color:#ff8888; background:rgba(224,64,64,.12); animation:shake .4s ease; }
+.letter-opts { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+.letter-opt { width:52px; height:52px; border-radius:12px; background:var(--indigo); color:#fff; font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:900; border:none; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; }
+.letter-opt:hover      { transform:scale(1.1); box-shadow:0 4px 14px rgba(96,96,224,.4); }
+.letter-opt.lo-ok      { background:var(--ok);  color:var(--bg); animation:popIn .28s ease; pointer-events:none; }
+.letter-opt.lo-bad     { background:var(--bad); color:#fff;      animation:shake .4s ease; }
+.letter-opt.lo-lock    { pointer-events:none; opacity:.4; }
+.spell-counter { text-align:center; font-size:11px; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
+
+/* G2 — COLOUR MATCH */
+.cm-sentence { background:linear-gradient(135deg,var(--deep),#0a0a18); border:1px solid var(--border); border-radius:16px; padding:22px 18px; text-align:center; margin-bottom:16px; font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:900; color:var(--white); line-height:1.6; }
+.cm-blank { display:inline-block; min-width:90px; border-bottom:3px solid var(--yellow); color:var(--yellow); padding:0 6px; }
+.colour-opts { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.colour-btn { border:3px solid; border-radius:12px; font-family:'Baloo 2',sans-serif; font-size:12px; font-weight:800; padding:16px 4px; cursor:pointer; transition:all .15s; text-align:center; color:var(--white); }
+.colour-btn:hover  { transform:scale(1.06); }
+.colour-btn.cb-ok  { animation:popIn .28s ease; pointer-events:none; opacity:1 !important; }
+.colour-btn.cb-bad { animation:shake .4s ease; }
+.colour-btn.cb-lock { pointer-events:none; opacity:.35; }
+
+/* G3 — FILL THE GAP */
+.gap-box { background:linear-gradient(135deg,var(--deep),#0a0a18); border:1px solid var(--border); border-radius:16px; padding:22px 18px; text-align:center; margin-bottom:16px; }
+.gap-sentence { font-family:'Baloo 2',sans-serif; font-size:20px; font-weight:900; color:var(--white); line-height:1.7; }
+.gap-blank { display:inline-block; min-width:80px; border-bottom:3px solid var(--yellow); color:var(--yellow); padding:0 6px; }
+.gap-opts { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.gap-opt { background:var(--deep); border:2px solid var(--border); border-radius:12px; font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:800; color:var(--white); padding:14px 6px; cursor:pointer; transition:all .15s; text-align:center; }
+.gap-opt:hover  { border-color:var(--pink); color:var(--pink); }
+.gap-opt.g-ok   { border-color:var(--ok); color:var(--ok); background:rgba(64,216,160,.1); animation:popIn .28s ease; pointer-events:none; }
+.gap-opt.g-bad  { border-color:var(--bad); color:#ff8888; background:rgba(224,64,64,.1); animation:shake .4s ease; pointer-events:none; }
+.gap-opt.g-lock { pointer-events:none; }
+
+/* G4 — BUILD IT */
+.built-display { background:var(--deep); border:2px dashed var(--border); border-radius:14px; padding:12px 16px; min-height:56px; margin-bottom:12px; font-family:'Baloo 2',sans-serif; font-size:17px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; }
+.built-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:'Quicksand',sans-serif; }
+.chip-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.chip { background:var(--orange); color:var(--bg); font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; }
+.chip:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 12px rgba(240,128,48,.4); }
+.chip.used { opacity:.25; pointer-events:none; }
+
+/* G5 — WORD ORDER */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:14px; padding:14px 18px; min-height:56px; margin-bottom:14px; font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:'Quicksand',sans-serif; }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.w-tile { background:var(--sky); color:var(--bg); font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; }
+.w-tile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 12px rgba(64,176,232,.4); }
+.w-tile.used { opacity:.25; pointer-events:none; }
+
+/* G6 — MEMORY MATCH */
+.mem-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.m-card { aspect-ratio:1; border-radius:13px; background:var(--indigo); border:2px solid rgba(255,255,255,.1); cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-size:11px; font-weight:900; color:transparent; transition:all .22s; user-select:none; text-align:center; padding:4px; line-height:1.2; }
+.m-card.flipped  { background:var(--card); border-color:var(--indigo); color:var(--white); }
+.m-card.matched  { background:rgba(64,216,160,.2); border-color:var(--ok); color:var(--ok); pointer-events:none; }
+.m-card.m-wrong  { animation:shake .38s ease; border-color:var(--bad); background:rgba(224,64,64,.15); }
+.mem-stat { text-align:center; font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:10px; }
+
+/* WIN */
+.win-wrap  { text-align:center; padding:36px 16px 44px; }
+.win-icon  { font-size:72px; display:block; animation:spinIn .6s ease; margin-bottom:14px; }
+.win-title { font-family:'Baloo 2',sans-serif; font-size:30px; font-weight:900; color:var(--pink); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:26px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--pink) 0%, var(--yellow) 40%, var(--mint) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 26px; box-shadow:0 0 40px rgba(224,96,160,.3); }
+.win-num { font-family:'Baloo 2',sans-serif; font-size:34px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.55); letter-spacing:1px; }
+.win-list { text-align:left; background:var(--card); border-radius:14px; padding:12px 18px; border:1px solid var(--border); margin-bottom:22px; }
+.win-list li { list-style:none; font-size:13px; font-weight:600; padding:5px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.win-list li:last-child { border:none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="title-text">👕 My Clothes!</div>
+      <div class="title-sub">UNIT 8 · KIDS BOX NG1 · PRO3_S & PRO3_1</div>
+    </div>
+    <div class="score-pill">⭐ <span id="scoreNum">0</span></div>
+  </div>
+  <div class="game-nav">
+    <button class="nav-btn active" data-go="0">1 · Spelling</button>
+    <button class="nav-btn"        data-go="1">2 · Colour Match</button>
+    <button class="nav-btn"        data-go="2">3 · Fill the Gap</button>
+    <button class="nav-btn"        data-go="3">4 · Build It</button>
+    <button class="nav-btn"        data-go="4">5 · Word Order</button>
+    <button class="nav-btn"        data-go="5">6 · Memory</button>
+  </div>
+</div>
+
+<!-- G1: SPELLING -->
+<div class="screen active" id="sc0">
+  <div class="card">
+    <div class="game-badge">🔤 Game 1 · Vocabulary — Spelling</div>
+    <div class="game-title" style="color:var(--yellow)">Spelling Time! 🔤</div>
+    <div class="game-instr">A letter is missing! Tap the correct letter to complete the word.</div>
+    <div class="spell-word" id="g1word"></div>
+    <div class="spell-counter"><span id="g1qi">1</span> / 7</div>
+    <div class="letter-opts" id="g1opts"></div>
+    <div class="feedback" id="g1fb"></div>
+    <button class="btn btn-right" id="g1next" style="display:none;background:var(--yellow);color:var(--bg);" data-act="g1next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G2: COLOUR MATCH -->
+<div class="screen" id="sc1">
+  <div class="card">
+    <div class="game-badge">🎨 Game 2 · Story + Grammar — Colour Match</div>
+    <div class="game-title" style="color:var(--pink)">Colour Match! 🎨</div>
+    <div class="game-instr">Read the sentence. Tap the correct colour!</div>
+    <div class="prog"><div class="prog-fill" id="g2bar" style="width:0%;background:var(--pink)"></div></div>
+    <div class="cm-sentence" id="g2sent"></div>
+    <div class="colour-opts" id="g2opts"></div>
+    <div class="feedback" id="g2fb"></div>
+    <button class="btn btn-right" id="g2next" style="display:none;background:var(--pink);color:#fff;" data-act="g2next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G3: FILL THE GAP -->
+<div class="screen" id="sc2">
+  <div class="card">
+    <div class="game-badge">✏️ Game 3 · Grammar — She's got / He's got</div>
+    <div class="game-title" style="color:var(--mint)">Fill the Gap! ✏️</div>
+    <div class="game-instr">Choose the correct word to complete the sentence!</div>
+    <div class="prog"><div class="prog-fill" id="g3bar" style="width:0%;background:var(--mint)"></div></div>
+    <div class="gap-box" id="g3box"></div>
+    <div class="gap-opts" id="g3opts"></div>
+    <div class="feedback" id="g3fb"></div>
+    <button class="btn btn-right" id="g3next" style="display:none;background:var(--mint);color:var(--bg);" data-act="g3next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G4: BUILD IT -->
+<div class="screen" id="sc3">
+  <div class="card">
+    <div class="game-badge">🏗️ Game 4 · Grammar — Build a Sentence</div>
+    <div class="game-title" style="color:var(--orange)">Build It! 🏗️</div>
+    <div class="game-instr">Tap the words in order to build the sentence!</div>
+    <div id="g4display" class="built-display empty">Tap words to build the sentence…</div>
+    <div class="chip-pool" id="g4pool"></div>
+    <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:1px;">
+      Round <span id="g4qi">1</span> of 6
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g4clear">Clear ✕</button>
+      <button class="btn" style="background:var(--orange);color:var(--bg);" data-act="g4check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g4fb"></div>
+    <button class="btn btn-right" id="g4next" style="display:none;background:var(--orange);color:var(--bg);" data-act="g4next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G5: WORD ORDER -->
+<div class="screen" id="sc4">
+  <div class="card">
+    <div class="game-badge">🔤 Game 5 · Grammar — Word Order</div>
+    <div class="game-title" style="color:var(--sky)">Word Order! ✏️</div>
+    <div class="game-instr">Tap the words in the correct order to make a sentence.</div>
+    <div id="g5display" class="wo-display empty">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g5pool"></div>
+    <div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);margin-bottom:12px;letter-spacing:1px;">
+      Sentence <span id="g5qi">1</span> of 6
+    </div>
+    <div class="btn-row">
+      <button class="btn" style="background:var(--border);color:var(--white);font-size:12px;padding:7px 16px;" data-act="g5clear">Clear ✕</button>
+      <button class="btn" style="background:var(--sky);color:var(--bg);" data-act="g5check">Check ✓</button>
+    </div>
+    <div class="feedback" id="g5fb"></div>
+    <button class="btn btn-right" id="g5next" style="display:none;background:var(--sky);color:var(--bg);" data-act="g5next">Next ➜</button>
+  </div>
+</div>
+
+<!-- G6: MEMORY MATCH -->
+<div class="screen" id="sc5">
+  <div class="card">
+    <div class="game-badge">🃏 Game 6 · Vocabulary — Memory</div>
+    <div class="game-title" style="color:var(--indigo)" style="color:#a0a0ff">Memory Match! 🃏</div>
+    <div class="game-instr">Find the two cards with the same clothing word!</div>
+    <div class="mem-stat" id="g6stat">Pairs found: 0 / 7</div>
+    <div class="mem-grid" id="g6grid"></div>
+    <div class="feedback" id="g6fb"></div>
+    <button class="btn btn-full" id="g6next" style="display:none;background:var(--indigo);color:#fff;margin-top:12px;" data-act="g6next">All matched! Finish ➜</button>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="screen" id="sc-win">
+  <div class="win-wrap">
+    <span class="win-icon">👗</span>
+    <div class="win-title">Fashion Star!</div>
+    <div class="win-sub">You finished all 6 games!</div>
+    <div class="win-ring">
+      <div class="win-num" id="winScore">0</div>
+      <div class="win-lbl">STARS</div>
+    </div>
+    <ul class="win-list">
+      <li>🔤 Spelling — clothes vocabulary</li>
+      <li>🎨 Colour Match — story colours + grammar</li>
+      <li>✏️ Fill the Gap — She's got / He's got / Has she got?</li>
+      <li>🏗️ Build It — clothes sentences</li>
+      <li>🔤 Word Order — sentence grammar</li>
+      <li>🃏 Memory Match — word recognition</li>
+    </ul>
+    <button class="btn btn-full" style="background:var(--pink);color:#fff;" data-act="restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<script>
+'use strict';
+
+/* ─── DATA ─── */
+const CLOTHES = ['jacket','shoes','skirt','socks','trousers','T-shirt','dress'];
+
+// Colours with their CSS values for the colour button display
+const COLOURS = [
+  { name:'red',    css:'#d03030' },
+  { name:'green',  css:'#30a030' },
+  { name:'black',  css:'#202020' },
+  { name:'yellow', css:'#c8b020' },
+  { name:'blue',   css:'#2060c0' },
+  { name:'pink',   css:'#d06090' },
+  { name:'brown',  css:'#805030' },
+  { name:'orange', css:'#d07020' },
+];
+
+// G2 — Colour Match (verified from Genially story script)
+const G2_QS = [
+  { sentence:"Simon's got a <span class='cm-blank'>___</span> jacket.",         answer:'red',    distractors:['blue','green','yellow'] },
+  { sentence:"Simon's got <span class='cm-blank'>___</span> trousers.",          answer:'green',  distractors:['red','blue','black']    },
+  { sentence:"Simon's got <span class='cm-blank'>___</span> shoes.",             answer:'black',  distractors:['brown','red','blue']    },
+  { sentence:"Stella's got a <span class='cm-blank'>___</span> T-shirt.",        answer:'yellow', distractors:['pink','orange','red']   },
+  { sentence:"Stella's got a <span class='cm-blank'>___</span> skirt.",          answer:'blue',   distractors:['pink','red','green']    },
+  { sentence:"Stella's got <span class='cm-blank'>___</span> socks.",            answer:'pink',   distractors:['yellow','blue','red']   },
+  { sentence:"Stella's got <span class='cm-blank'>___</span> shoes.",            answer:'brown',  distractors:['black','red','orange']  },
+  { sentence:"Suzy's got an <span class='cm-blank'>___</span> T-shirt.",         answer:'orange', distractors:['yellow','red','pink']   },
+];
+
+// G3 — fill the gap
+const G3_QS = [
+  { sentence:"She's ___ a blue skirt.",           blank:'got',      opts:['got','have','has']       },
+  { sentence:"He's ___ green trousers.",           blank:'got',      opts:['got','have','hasn\'t']   },
+  { sentence:"___ she got a jacket?",              blank:'Has',      opts:['Has','Have','Is']        },
+  { sentence:"No, she ___.",                       blank:'hasn\'t',  opts:['hasn\'t','has','haven\'t']},
+  { sentence:"___ he got a skirt?",               blank:'Has',      opts:['Has','Have','Is']        },
+  { sentence:"No, he ___.",                       blank:'hasn\'t',  opts:['hasn\'t','has','have']   },
+];
+
+// G4 — sentence builder (verified from story)
+const G4_ROUNDS = [
+  { ans:"She's got a yellow T-shirt .",      words:["She's","got","a","yellow","T-shirt","."]  },
+  { ans:"He's got a red jacket .",           words:["He's","got","a","red","jacket","."]       },
+  { ans:"Has she got a jacket ?",            words:["Has","she","got","a","jacket","?"]        },
+  { ans:"No , she hasn't .",                 words:["No",",","she","hasn't","."]               },
+  { ans:"She's got pink socks .",            words:["She's","got","pink","socks","."]          },
+  { ans:"He's got black shoes .",            words:["He's","got","black","shoes","."]          },
+];
+
+// G5 — word order
+const G5_SENTENCES = [
+  { words:["She's","got","a","blue","skirt","."],    ans:"She's got a blue skirt ."    },
+  { words:["He's","got","green","trousers","."],     ans:"He's got green trousers ."   },
+  { words:["Has","he","got","a","skirt","?"],        ans:"Has he got a skirt ?"        },
+  { words:["No",",","he","hasn't","."],              ans:"No , he hasn't ."            },
+  { words:["She's","got","brown","shoes","."],       ans:"She's got brown shoes ."     },
+  { words:["I've","got","a","red","jacket","."],     ans:"I've got a red jacket ."     },
+];
+
+/* ─── HELPERS ─── */
+function rnd(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=0|Math.random()*(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function $(id){ return document.getElementById(id); }
+function score(n){ let t=+$('scoreNum').textContent+n; $('scoreNum').textContent=t; }
+function showFb(id,type,msg){ const e=$(id); e.className='feedback '+type; e.textContent=msg; }
+function hideFb(id){ $(id).className='feedback'; }
+function show(id){ $(id).style.display='inline-block'; }
+function hide(id){ $(id).style.display='none'; }
+function markDone(i){ done[i]=true; document.querySelectorAll('.nav-btn')[i].classList.add('done'); }
+function navTo(idx){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(idx==='win'?'sc-win':'sc'+idx).classList.add('active');
+  if(idx!=='win') document.querySelectorAll('.nav-btn').forEach((b,i)=>{ b.classList.toggle('active',i===idx); if(done[i]) b.classList.add('done'); });
+  window.scrollTo(0,0);
+}
+function makeSpellQ(word){
+  const indices=[]; for(let i=0;i<word.length;i++) if(word[i]!=='-') indices.push(i);
+  const blankIdx=indices[0|Math.random()*indices.length];
+  const correct=word[blankIdx].toLowerCase();
+  const alpha='abcdefghijklmnoprstuvwy';
+  const pool=alpha.split('').filter(c=>c!==correct);
+  return { word, blankIdx, correct, opts:rnd([correct,...rnd(pool).slice(0,3)]) };
+}
+
+/* ─── STATE ─── */
+const done=[false,false,false,false,false,false];
+let g1q=[], g1i=0, g1locked=false;
+let g2q=[], g2i=0, g2locked=false;
+let g3q=[], g3i=0, g3locked=false;
+let g4q=[], g4i=0, g4built=[], g4locked=false;
+let g5q=[], g5i=0, g5built=[], g5locked=false;
+let g6flipped=[], g6matched=0, g6lock=false;
+
+/* ─── G1: SPELLING ─── */
+function g1Init(){ g1q=rnd(CLOTHES).map(w=>makeSpellQ(w)); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ markDone(0); return; }
+  const q=g1q[g1i]; g1locked=false; hideFb('g1fb'); hide('g1next');
+  $('g1qi').textContent=g1i+1;
+  const html=q.word.split('').map((ch,i)=>{
+    if(i===q.blankIdx) return '<div class="spell-letter blank">?</div>';
+    return '<div class="spell-letter">'+ch+'</div>';
+  }).join('');
+  $('g1word').innerHTML='<div class="spell-letters">'+html+'</div>';
+  const box=$('g1opts'); box.innerHTML='';
+  q.opts.forEach(letter=>{
+    const b=document.createElement('button');
+    b.className='letter-opt'; b.textContent=letter;
+    b.setAttribute('data-letter',letter);
+    box.appendChild(b);
+  });
+}
+function g1Answer(letter){
+  if(g1locked) return; g1locked=true;
+  const q=g1q[g1i]; const correct=letter===q.correct;
+  const blanks=document.querySelectorAll('.spell-letter.blank');
+  if(blanks.length){ blanks[0].textContent=letter; blanks[0].classList.remove('blank'); blanks[0].classList.add(correct?'filled-ok':'filled-bad'); }
+  document.querySelectorAll('.letter-opt').forEach(b=>{
+    if(b.getAttribute('data-letter')===q.correct) b.classList.add('lo-ok');
+    else if(b.getAttribute('data-letter')===letter&&!correct) b.classList.add('lo-bad');
+    else b.classList.add('lo-lock');
+  });
+  if(correct){ score(2); showFb('g1fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g1fb','bad','The letter is: '+q.correct.toUpperCase()); }
+  show('g1next');
+}
+
+/* ─── G2: COLOUR MATCH ─── */
+function g2Init(){ g2q=rnd(G2_QS); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ markDone(1); return; }
+  const q=g2q[g2i]; g2locked=false;
+  $('g2bar').style.width=(g2i/G2_QS.length*100)+'%';
+  $('g2sent').innerHTML=q.sentence;
+  hideFb('g2fb'); hide('g2next');
+  // Build 4 colour buttons: correct + 3 distractors
+  const choices=rnd([q.answer,...q.distractors]);
+  const box=$('g2opts'); box.innerHTML='';
+  choices.forEach(colName=>{
+    const colObj=COLOURS.find(c=>c.name===colName);
+    const b=document.createElement('button');
+    b.className='colour-btn';
+    b.textContent=colName;
+    b.style.background=colObj.css;
+    b.style.borderColor=colObj.css;
+    // Make text readable on dark colours
+    b.style.color=['black','brown','blue','green','red'].includes(colName)?'#fff':'#111';
+    b.setAttribute('data-col',colName);
+    b.setAttribute('data-correct',colName===q.answer?'1':'0');
+    box.appendChild(b);
+  });
+}
+function g2Answer(el){
+  if(g2locked) return; g2locked=true;
+  const correct=el.getAttribute('data-correct')==='1';
+  document.querySelectorAll('.colour-btn').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('cb-ok');
+    else if(b===el) b.classList.add('cb-bad');
+    else b.classList.add('cb-lock');
+  });
+  // Fill blank in sentence
+  const blank=$('g2sent').querySelector('.cm-blank');
+  if(blank){ blank.textContent=g2q[g2i].answer; blank.style.color=correct?'var(--ok)':'var(--bad)'; }
+  if(correct){ score(2); showFb('g2fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g2fb','bad','The answer is: '+g2q[g2i].answer); }
+  show('g2next');
+}
+
+/* ─── G3: FILL THE GAP ─── */
+function g3Init(){ g3q=rnd(G3_QS); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ markDone(2); return; }
+  const q=g3q[g3i]; g3locked=false;
+  $('g3bar').style.width=(g3i/G3_QS.length*100)+'%';
+  const parts=q.sentence.split('___ ');
+  const after=parts[1]||'';
+  $('g3box').innerHTML='<div class="gap-sentence">'+parts[0]+'<span class="gap-blank" id="g3blank">___</span> '+after+'</div>';
+  hideFb('g3fb'); hide('g3next');
+  const box=$('g3opts'); box.innerHTML='';
+  rnd(q.opts).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='gap-opt'; b.textContent=opt;
+    b.setAttribute('data-opt',opt);
+    b.setAttribute('data-correct',opt===q.blank?'1':'0');
+    box.appendChild(b);
+  });
+}
+function g3Answer(el){
+  if(g3locked) return; g3locked=true;
+  const correct=el.getAttribute('data-correct')==='1';
+  const answer=el.getAttribute('data-opt');
+  document.querySelectorAll('.gap-opt').forEach(b=>{
+    if(b.getAttribute('data-correct')==='1') b.classList.add('g-ok');
+    else if(b===el) b.classList.add('g-bad');
+    else b.classList.add('g-lock');
+  });
+  const blank=$('g3blank');
+  if(blank){ blank.textContent=answer; blank.style.color=correct?'var(--ok)':'var(--bad)'; }
+  if(correct){ score(2); showFb('g3fb','ok','⭐ Correct! +2 stars'); }
+  else { showFb('g3fb','bad','The answer is: '+g3q[g3i].blank); }
+  show('g3next');
+}
+
+/* ─── G4: BUILD IT ─── */
+function g4Init(){ g4q=rnd(G4_ROUNDS); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ markDone(3); return; }
+  g4built=[]; g4locked=false;
+  $('g4qi').textContent=g4i+1;
+  hideFb('g4fb'); hide('g4next');
+  const disp=$('g4display'); disp.className='built-display empty'; disp.textContent='Tap words to build the sentence…';
+  const pool=$('g4pool'); pool.innerHTML='';
+  const distractors=['skirt','trousers','socks','dress','orange','purple','white']
+    .filter(w=>!g4q[g4i].words.includes(w)).slice(0,2);
+  rnd([...g4q[g4i].words,...distractors].map((w,i)=>({w,i}))).forEach(({w,i})=>{
+    const c=document.createElement('div');
+    c.className='chip'; c.textContent=w;
+    c.setAttribute('data-w',w); c.setAttribute('data-slot',i);
+    pool.appendChild(c);
+  });
+}
+function g4Tap(el){
+  if(g4locked||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g4built.push({word:el.getAttribute('data-w'),el});
+  const disp=$('g4display'); disp.className='built-display';
+  disp.textContent=g4built.map(x=>x.word).join(' ');
+}
+function g4Clear(){
+  g4built.forEach(x=>x.el.classList.remove('used')); g4built=[];
+  const disp=$('g4display'); disp.className='built-display empty'; disp.textContent='Tap words to build the sentence…';
+  hideFb('g4fb');
+}
+function g4Check(){
+  if(g4locked||g4built.length===0) return; g4locked=true;
+  const built=g4built.map(x=>x.word).join(' ');
+  if(built===g4q[g4i].ans){ score(3); showFb('g4fb','ok','⭐ Perfect! +3 stars'); }
+  else { showFb('g4fb','bad','Correct: '+g4q[g4i].ans); }
+  show('g4next');
+}
+
+/* ─── G5: WORD ORDER ─── */
+function g5Init(){ g5q=rnd(G5_SENTENCES); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ markDone(4); return; }
+  g5built=[]; g5locked=false;
+  $('g5qi').textContent=g5i+1;
+  hideFb('g5fb'); hide('g5next');
+  const disp=$('g5display'); disp.className='wo-display empty'; disp.textContent='Tap words to build the sentence…';
+  const pool=$('g5pool'); pool.innerHTML='';
+  rnd(g5q[g5i].words.map((w,i)=>({w,i}))).forEach(({w,i})=>{
+    const t=document.createElement('div');
+    t.className='w-tile'; t.textContent=w;
+    t.setAttribute('data-w',w); t.setAttribute('data-slot',i);
+    pool.appendChild(t);
+  });
+}
+function g5Tap(el){
+  if(g5locked||el.classList.contains('used')) return;
+  el.classList.add('used');
+  g5built.push({word:el.getAttribute('data-w'),el});
+  const disp=$('g5display'); disp.className='wo-display';
+  disp.textContent=g5built.map(x=>x.word).join(' ');
+}
+function g5Clear(){
+  g5built.forEach(x=>x.el.classList.remove('used')); g5built=[];
+  const disp=$('g5display'); disp.className='wo-display empty'; disp.textContent='Tap words to build the sentence…';
+  hideFb('g5fb');
+}
+function g5Check(){
+  if(g5locked||g5built.length===0) return; g5locked=true;
+  const built=g5built.map(x=>x.word).join(' ');
+  if(built===g5q[g5i].ans){ score(3); showFb('g5fb','ok','⭐ Perfect! +3 stars'); }
+  else { showFb('g5fb','bad','Correct: '+g5q[g5i].ans); }
+  show('g5next');
+}
+
+/* ─── G6: MEMORY MATCH ─── */
+function g6Init(){
+  g6flipped=[]; g6matched=0; g6lock=false;
+  $('g6stat').textContent='Pairs found: 0 / 7'; hide('g6next'); hideFb('g6fb');
+  const cards=rnd([...CLOTHES,...CLOTHES]);
+  const grid=$('g6grid'); grid.innerHTML='';
+  cards.forEach((word,i)=>{
+    const el=document.createElement('div');
+    el.className='m-card';
+    el.setAttribute('data-word',word);
+    el.setAttribute('data-pos',i);
+    grid.appendChild(el);
+  });
+}
+function g6Flip(el){
+  if(g6lock||el.classList.contains('matched')||g6flipped.includes(el)) return;
+  el.classList.add('flipped'); el.textContent=el.getAttribute('data-word');
+  g6flipped.push(el);
+  if(g6flipped.length<2) return;
+  g6lock=true;
+  const [a,b]=g6flipped;
+  if(a.getAttribute('data-word')===b.getAttribute('data-word')&&a!==b){
+    setTimeout(()=>{
+      a.classList.add('matched'); b.classList.add('matched');
+      g6matched++; $('g6stat').textContent='Pairs found: '+g6matched+' / 7';
+      score(3); g6flipped=[]; g6lock=false;
+      if(g6matched===7){ showFb('g6fb','ok','⭐ All pairs found!'); show('g6next'); markDone(5); launchConfetti(); }
+    },350);
+  } else {
+    setTimeout(()=>{
+      a.classList.add('m-wrong'); b.classList.add('m-wrong');
+      setTimeout(()=>{
+        [a,b].forEach(c=>{ c.classList.remove('flipped','m-wrong'); c.textContent=''; });
+        g6flipped=[]; g6lock=false;
+      },500);
+    },300);
+  }
+}
+
+/* ─── WIN ─── */
+function showWin(){
+  launchConfetti();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('sc-win').classList.add('active');
+  $('winScore').textContent=$('scoreNum').textContent;
+  window.scrollTo(0,0);
+}
+function launchConfetti(){
+  const colors=['#e060a0','#f0d020','#40d8a0','#f08030','#40b0e8','#6060e0','#fff'];
+  const shapes=['border-radius:50%','','clip-path:polygon(50% 0%,100% 100%,0% 100%)'];
+  const box=$('confetti');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=6+Math.random()*9;
+    p.style.cssText='left:'+Math.random()*100+'%;top:-20px;width:'+sz+'px;height:'+sz+'px;'+
+      'background:'+colors[0|Math.random()*colors.length]+';'+shapes[0|Math.random()*shapes.length]+';'+
+      'animation-delay:'+Math.random()+'s;animation-duration:'+(2+Math.random()*1.5)+'s;';
+    box.appendChild(p); setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ─── EVENT DELEGATION ─── */
+document.addEventListener('click', function(e){
+  const t=e.target;
+
+  const nb=t.closest('.nav-btn');
+  if(nb){ navTo(+nb.getAttribute('data-go')); return; }
+
+  const lo=t.closest('.letter-opt');
+  if(lo){ g1Answer(lo.getAttribute('data-letter')); return; }
+
+  const cb=t.closest('.colour-btn');
+  if(cb){ g2Answer(cb); return; }
+
+  const go=t.closest('.gap-opt');
+  if(go){ g3Answer(go); return; }
+
+  const ch=t.closest('.chip');
+  if(ch){ g4Tap(ch); return; }
+
+  const wt=t.closest('.w-tile');
+  if(wt){ g5Tap(wt); return; }
+
+  const mc=t.closest('.m-card');
+  if(mc){ g6Flip(mc); return; }
+
+  const el=t.closest('[data-act]');
+  if(!el) return;
+  const act=el.getAttribute('data-act');
+
+  if     (act==='g1next')  { g1i++; g1Render(); }
+  else if(act==='g2next')  { g2i++; g2Render(); }
+  else if(act==='g3next')  { g3i++; g3Render(); }
+  else if(act==='g4clear') g4Clear();
+  else if(act==='g4check') g4Check();
+  else if(act==='g4next')  { g4i++; g4Render(); }
+  else if(act==='g5clear') g5Clear();
+  else if(act==='g5check') g5Check();
+  else if(act==='g5next')  { g5i++; g5Render(); }
+  else if(act==='g6next')  showWin();
+  else if(act==='restart') location.reload();
+});
+
+/* ─── BOOT ─── */
+g1Init(); g2Init(); g3Init(); g4Init(); g5Init(); g6Init();
+</script>
+</body>
+</html>
