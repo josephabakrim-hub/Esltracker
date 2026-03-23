@@ -3,876 +3,1018 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unit 8 — Weather Report 🌤️</title>
+<title>Unit 8 — Weather Report! ⛈️</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --sky-day:    #1a9fd4;
-    --sky-light:  #4dc3f0;
-    --sky-pale:   #c8ecf8;
-    --storm:      #3d4f6e;
-    --storm-dark: #1e2a3e;
-    --sun:        #f5c842;
-    --sun-dark:   #e0a800;
-    --rain:       #5b8dd9;
-    --snow:       #e8f4ff;
-    --leaf:       #5ec45a;
-    --coral:      #f25c3d;
-    --purple:     #8b5cf6;
-    --bg:         #0d1f35;
-    --surface:    #162840;
-    --surface2:   #1e3452;
-    --border:     rgba(255,255,255,0.10);
-    --text:       #eef6ff;
-    --muted:      rgba(238,246,255,0.55);
-    --font-main:  'Baloo 2', cursive;
-    --font-body:  'Quicksand', sans-serif;
-    --radius:     20px;
-    --radius-sm:  12px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:var(--font-body); background:var(--bg); color:var(--text);
-    min-height:100vh; overflow-x:hidden;
-    background-image:
-      radial-gradient(ellipse at 15% 10%, rgba(26,159,212,0.25) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 85%, rgba(61,79,110,0.4) 0%, transparent 55%);
-  }
+:root {
+  --bg:     #05080f;
+  --deep:   #080c18;
+  --card:   #0c1220;
+  --card2:  #101828;
+  --border: #1a2a44;
+  --sky:    #4dd8ff;
+  --gold:   #ffd060;
+  --lime:   #a8ff3e;
+  --pink:   #ff6eb4;
+  --violet: #a060ff;
+  --orange: #ff8c30;
+  --green:  #30ff90;
+  --red:    #ff3060;
+  --white:  #dceeff;
+  --muted:  #1e3454;
+  --ok:     #30ff90;
+  --bad:    #ff3060;
+  --font-h: 'Baloo 2', cursive;
+  --font-b: 'Quicksand', sans-serif;
+  --r:      16px;
+  --r-sm:   10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 25% 15%, rgba(77,216,255,.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(160,96,255,.06) 0%, transparent 55%);
+}
 
-  .screen { display:none; min-height:100vh; }
-  .screen.active { display:flex; flex-direction:column; }
+/* ══ CONFETTI / FX ══ */
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall  { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+@keyframes popIn   { 0%{transform:scale(.8)} 60%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn  { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes flash   { 0%,100%{opacity:1} 50%{opacity:.1} }
+@keyframes rain    { 0%{transform:translateY(-20px);opacity:0} 80%{opacity:1} 100%{transform:translateY(100px);opacity:0} }
+@keyframes drift   { 0%{transform:translateX(0) rotate(0)} 100%{transform:translateX(40px) rotate(15deg)} }
+@keyframes wiggle  { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
 
-  /* ══ HOME ══ */
-  #home { align-items:center; padding:24px 16px 48px; }
-  .tv-badge {
-    display:inline-flex; align-items:center; gap:8px;
-    background:var(--coral); color:#fff;
-    font-family:var(--font-main); font-size:11px; font-weight:800;
-    letter-spacing:2px; padding:5px 16px; border-radius:30px;
-    margin-bottom:12px; text-transform:uppercase;
-  }
-  .live-dot { width:8px; height:8px; border-radius:50%; background:#fff; animation:blink 1.2s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-  .home-title {
-    font-family:var(--font-main); font-size:clamp(2rem,8vw,3rem); font-weight:900;
-    line-height:1.05; text-align:center; margin-bottom:4px;
-  }
-  .home-title span { color:var(--sun); }
-  .home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:8px; text-align:center; }
-  .ticker {
-    font-family:var(--font-main); font-size:12px; font-weight:700;
-    color:var(--sun); background:rgba(245,200,66,0.1); border:1px solid rgba(245,200,66,0.2);
-    border-radius:30px; padding:5px 16px; margin-bottom:28px; text-align:center;
-  }
-  .game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
-  .game-card {
-    background:var(--surface2); border:2px solid var(--border); border-radius:var(--radius);
-    padding:18px 14px; cursor:pointer; transition:transform 0.15s, border-color 0.15s;
-    text-align:center; position:relative;
-  }
-  .game-card:hover { transform:translateY(-3px); border-color:var(--card-color,var(--sky-day)); }
-  .game-card:active { transform:scale(0.97); }
-  .game-card.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--leaf); font-weight:900; font-size:14px; }
-  .card-icon  { font-size:2.2rem; margin-bottom:8px; display:block; }
-  .card-title { font-family:var(--font-main); font-size:14px; font-weight:800; }
-  .card-desc  { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
-  .card-stars { font-size:11px; margin-top:6px; color:var(--sun); }
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#080c18,#101828);
+  border:1px solid var(--border); color:var(--sky);
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2.5px;
+  padding:5px 16px; border-radius:30px; margin-bottom:14px; text-transform:uppercase;
+  box-shadow:0 0 18px rgba(77,216,255,.15);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow:0 0 28px rgba(77,216,255,.35);
+}
+.home-title span { color:var(--sky); }
+.home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:10px; text-align:center; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:6px 16px; margin-bottom:28px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--gold); }
 
-  /* ══ SHELL ══ */
-  .topbar {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 18px; background:rgba(0,0,0,0.35); border-bottom:1px solid var(--border);
-    position:sticky; top:0; z-index:10;
-  }
-  .back-btn {
-    background:var(--surface2); border:1px solid var(--border); color:var(--text);
-    font-family:var(--font-main); font-size:13px; font-weight:700;
-    padding:6px 14px; border-radius:30px; cursor:pointer; transition:border-color 0.15s;
-  }
-  .back-btn:hover { border-color:var(--sky-day); }
-  .score-pill { display:flex; align-items:center; gap:6px; font-family:var(--font-main); font-size:16px; font-weight:800; }
-  .prog-wrap { width:90px; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
-  .prog-fill  { height:100%; background:linear-gradient(90deg,var(--sky-day),var(--sun)); border-radius:3px; transition:width 0.35s ease; }
-  .game-content { flex:1; padding:22px 16px; max-width:600px; width:100%; margin:0 auto; }
-  .game-title-bar { text-align:center; margin-bottom:20px; }
-  .game-name  { font-family:var(--font-main); font-size:1.45rem; font-weight:900; }
-  .game-name span { color:var(--sun); }
-  .game-instr { font-size:13px; color:var(--muted); margin-top:3px; font-weight:600; }
-  .q-counter  { font-family:var(--font-main); font-size:12px; font-weight:700; color:var(--muted); text-align:center; margin-bottom:14px; }
+/* Weather banner — animated rain/sun/snow across top */
+.wx-banner {
+  width:100%; max-width:500px; height:56px; overflow:hidden; position:relative;
+  background:linear-gradient(90deg,#08121f,#0c1a2e,#08121f);
+  border:1px solid var(--border); border-radius:14px; margin-bottom:18px;
+}
+.wx-icon { position:absolute; top:50%; transform:translateY(-50%); font-size:1.6rem; animation:drift 3s ease-in-out infinite alternate; }
 
-  /* ══ BUTTONS ══ */
-  .btn { font-family:var(--font-main); font-weight:800; border:none; border-radius:30px; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
-  .btn:active { transform:scale(0.95); }
-  .btn-primary { background:var(--sky-day); color:#fff; padding:13px 28px; font-size:15px; box-shadow:0 4px 14px rgba(26,159,212,0.35); }
-  .btn-primary:hover { background:var(--sky-light); transform:translateY(-2px); }
-  .btn-sm { padding:9px 18px; font-size:13px; background:var(--surface2); color:var(--text); border:1.5px solid var(--border); }
-  .btn-sm:hover { border-color:var(--sky-day); }
-  .center-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+.gc { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:18px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 20px color-mix(in srgb, var(--gc-col) 25%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:10px; left:12px; font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--gc-col); letter-spacing:1px; opacity:.7; }
+.gc-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--gold); font-family:var(--font-h); font-weight:700; min-height:15px; }
 
-  /* ══ FEEDBACK ══ */
-  .feedback {
-    text-align:center; font-family:var(--font-main); font-size:1.3rem; font-weight:900;
-    padding:12px; border-radius:var(--radius-sm); margin:14px 0;
-    opacity:0; transform:scale(0.85); transition:all 0.2s ease;
-  }
-  .feedback.show    { opacity:1; transform:scale(1); }
-  .feedback.correct { background:rgba(94,196,90,0.15); color:var(--leaf); border:2px solid rgba(94,196,90,0.3); }
-  .feedback.wrong   { background:rgba(242,92,61,0.15); color:var(--coral); border:2px solid rgba(242,92,61,0.3); }
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(5,8,15,.92); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--sky); color:var(--sky); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:900; }
+.tb-score { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:4px 14px; border-radius:20px; }
+.prog-bar-wrap { height:3px; background:var(--border); overflow:hidden; }
+.prog-bar-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
 
-  /* ══ G1: FORECAST BOARD — word → weather match ══ */
-  .forecast-question {
-    background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-    padding:20px; text-align:center; margin-bottom:18px;
-  }
-  .forecast-q { font-family:var(--font-main); font-size:1.3rem; font-weight:900; margin-bottom:4px; }
-  .forecast-sub { font-size:13px; color:var(--muted); font-weight:600; }
-  .weather-choices { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
-  .weather-tile {
-    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
-    padding:16px 8px; text-align:center; cursor:pointer; transition:border-color 0.15s, transform 0.12s;
-  }
-  .weather-tile:hover { border-color:var(--sky-light); transform:scale(1.04); }
-  .weather-tile.correct { border-color:var(--leaf); background:rgba(94,196,90,0.15); animation:pop 0.3s; }
-  .weather-tile.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.15); animation:shake 0.4s; }
-  .wt-word { font-family:var(--font-main); font-size:13px; font-weight:800; margin-top:4px; }
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:900; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; }
+.qcard-text .hl  { color:var(--sky); }
+.qcard-text .hl2 { color:var(--gold); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--sky)); color:var(--opt-col,var(--sky)); transform:scale(1.03); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(48,255,144,.1); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,48,96,.1); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.fb { padding:10px 16px; border-radius:10px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(48,255,144,.1); color:var(--ok); border:1px solid rgba(48,255,144,.25); }
+.fb.bad { display:block; background:rgba(255,48,96,.1); color:#ff7090; border:1px solid rgba(255,48,96,.25); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:800; border:none; border-radius:10px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--sky); transform:scale(1.4); }
 
-  /* ══ G2: SPELL THE FORECAST — typing with letter tiles ══ */
-  .spell-center { text-align:center; margin-bottom:18px; }
-  .weather-big  { font-size:3.5rem; display:block; margin-bottom:6px; }
-  .spell-clue   { font-family:var(--font-main); font-size:13px; color:var(--muted); font-weight:700; }
-  .letter-boxes { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
-  .l-box {
-    min-width:38px; height:46px; border:2.5px solid var(--border); border-radius:10px;
-    background:var(--surface2); display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-main); font-size:20px; font-weight:900; color:var(--sun);
-    padding:0 4px;
-  }
-  .l-box.filled  { border-color:var(--sky-day); background:rgba(26,159,212,0.1); }
-  .l-box.correct { border-color:var(--leaf); background:rgba(94,196,90,0.18); color:var(--leaf); }
-  .l-box.wrong   { border-color:var(--coral); background:rgba(242,92,61,0.13); }
-  .letter-pool { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:14px; }
-  .l-btn {
-    min-width:42px; height:46px; background:var(--surface2); border:2px solid var(--border);
-    border-radius:10px; font-family:var(--font-main); font-size:18px; font-weight:900;
-    color:var(--text); cursor:pointer; transition:border-color 0.15s, transform 0.12s;
-    display:flex; align-items:center; justify-content:center; padding:0 6px;
-  }
-  .l-btn:hover:not(:disabled) { border-color:var(--sky-light); transform:translateY(-2px); }
-  .l-btn:disabled { opacity:0.25; cursor:default; }
+/* ══ G1: WEATHER STATION — animated sky scene, tap the correct weather word ══ */
+/* THE UNIQUE MECHANIC: A live animated sky with moving clouds/rain/sun rays.
+   Student watches the animation and names what they see. */
+.sky-scene {
+  position:relative; width:100%; height:180px; border-radius:var(--r);
+  overflow:hidden; margin-bottom:16px;
+  background:linear-gradient(180deg, #0a1a3a 0%, #1a3060 60%, #0a1a3a 100%);
+  border:2px solid var(--border);
+}
+.sky-element { position:absolute; font-size:2.2rem; transition:all .5s; }
+.rain-drop {
+  position:absolute; width:2px; border-radius:2px;
+  background:linear-gradient(180deg, transparent, var(--sky));
+  animation:rain linear infinite;
+}
+.sun-ray {
+  position:absolute; width:3px; border-radius:2px;
+  background:linear-gradient(0deg, var(--gold), transparent);
+  transform-origin:bottom center;
+}
+.snow-flake { position:absolute; font-size:1rem; animation:rain 2s linear infinite; color:white; }
+.wx-label {
+  position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+  background:rgba(5,8,15,.7); border:1px solid var(--border);
+  font-family:var(--font-h); font-size:10px; font-weight:800;
+  color:var(--sky); letter-spacing:2px; padding:3px 12px; border-radius:20px; text-transform:uppercase;
+}
 
-  /* ══ G3: WAS / WERE — past tense fill-in ══ */
-  .was-card {
-    background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-    padding:20px 18px; margin-bottom:16px; text-align:center;
-  }
-  .was-scene { font-size:2.4rem; margin-bottom:10px; display:block; }
-  .was-stem  {
-    font-family:var(--font-main); font-size:1.05rem; font-weight:800; line-height:1.7;
-  }
-  .was-stem .gap {
-    display:inline-block; border-bottom:3px solid var(--sun); color:var(--sun);
-    padding:0 10px; letter-spacing:2px; min-width:60px;
-  }
-  .was-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
-  .was-opt {
-    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
-    padding:14px; font-family:var(--font-main); font-size:18px; font-weight:900;
-    color:var(--text); cursor:pointer; text-align:center; transition:border-color 0.15s, transform 0.1s;
-    letter-spacing:1px;
-  }
-  .was-opt:hover:not(.locked) { border-color:var(--sky-light); transform:scale(1.04); }
-  .was-opt.correct-opt { border-color:var(--leaf); background:rgba(94,196,90,0.18); color:var(--leaf); }
-  .was-opt.wrong-opt   { border-color:var(--coral); background:rgba(242,92,61,0.13); color:var(--coral); }
-  .was-opt.locked { cursor:default; }
-  .grammar-tip {
-    font-family:var(--font-main); font-size:12px; color:var(--sky-light); text-align:center;
-    padding:8px 12px; background:rgba(26,159,212,0.08); border-radius:10px;
-    margin-top:8px; line-height:1.5; display:none;
-  }
+/* ══ G2: MEERA'S DIARY — fill-in-the-blank past simple in context ══ */
+/* THE UNIQUE MECHANIC: A full diary entry with blanks that light up one at a time.
+   Students pick was/wasn't/were/weren't for each blank as the diary "types" itself. */
+.diary-card {
+  background:linear-gradient(160deg, #0c1828, #101830);
+  border:2px solid rgba(255,208,96,.2); border-radius:var(--r);
+  padding:20px 18px; margin-bottom:16px; position:relative;
+}
+.diary-card::before {
+  content:'📓'; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:1.6rem;
+}
+.diary-date {
+  font-family:var(--font-h); font-size:10px; font-weight:800;
+  color:var(--gold); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; margin-top:4px;
+}
+.diary-text { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.9; color:var(--white); }
+.diary-blank {
+  display:inline-block; min-width:80px; border-bottom:2px solid var(--sky);
+  color:var(--sky); text-align:center; cursor:default; font-weight:900;
+  padding:0 6px; margin:0 2px;
+}
+.diary-blank.active { border-color:var(--gold); color:var(--gold); animation:wiggle .6s infinite; }
+.diary-blank.filled { border-color:var(--ok); color:var(--ok); animation:none; }
+.diary-blank.wrong  { border-color:var(--bad); color:var(--bad); }
+.was-row { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+.was-btn { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; }
+.was-btn:hover:not(.locked) { border-color:var(--sky); color:var(--sky); transform:scale(1.03); }
+.was-btn.was-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(48,255,144,.1); animation:popIn .28s; pointer-events:none; }
+.was-btn.was-wrong { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,48,96,.1); animation:shake .4s; pointer-events:none; }
+.was-btn.locked { pointer-events:none; }
+.grammar-box {
+  background:rgba(77,216,255,.06); border:1px solid rgba(77,216,255,.2);
+  border-radius:10px; padding:10px 14px; font-size:12px; color:var(--sky);
+  font-family:var(--font-h); font-weight:700; line-height:1.6; margin-top:8px; display:none;
+}
 
-  /* ══ G4: DRESS FOR THE WEATHER — clothes + weather link ══ */
-  .weather-strip {
-    background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px; text-align:center; margin-bottom:16px;
-  }
-  .weather-strip .ws-label { font-family:var(--font-main); font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
-  .weather-strip .ws-cond  { font-family:var(--font-main); font-size:1.6rem; font-weight:900; color:var(--sun); }
-  .weather-strip .ws-ex    { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; }
-  .clothes-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
-  .clothes-opt {
-    background:var(--surface2); border:2.5px solid var(--border); border-radius:var(--radius-sm);
-    padding:14px 10px; font-family:var(--font-main); font-size:14px; font-weight:700;
-    color:var(--text); cursor:pointer; text-align:center; transition:border-color 0.15s, transform 0.1s; line-height:1.4;
-  }
-  .clothes-opt:hover:not(.locked) { border-color:var(--sky-light); transform:scale(1.03); }
-  .clothes-opt.correct-opt { border-color:var(--leaf); background:rgba(94,196,90,0.18); color:var(--leaf); }
-  .clothes-opt.wrong-opt   { border-color:var(--coral); background:rgba(242,92,61,0.13); color:var(--coral); }
-  .clothes-opt.locked { cursor:default; }
+/* ══ G3: LIGHTNING ROUND — rapid fire was/were choice, lightning strike if wrong ══ */
+/* THE UNIQUE MECHANIC: A storm meter fills up. Right = storm calms. Wrong = FLASH! */
+.storm-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.storm-meter-wrap { flex:1; height:16px; background:var(--border); border-radius:8px; overflow:hidden; margin:0 12px; }
+.storm-meter-fill { height:100%; border-radius:8px; transition:width .4s; }
+.storm-icon { font-size:2rem; transition:all .3s; }
+.lightning-flash { position:fixed; inset:0; background:rgba(255,255,255,.85); pointer-events:none; z-index:990; opacity:0; transition:opacity .08s; }
+.lightning-flash.boom { opacity:1; }
+.lightning-card {
+  background:linear-gradient(160deg,var(--card2),#080c18);
+  border:2px solid rgba(77,216,255,.25); border-radius:var(--r);
+  padding:24px 18px; text-align:center; margin-bottom:16px;
+}
+.lightning-q { font-family:var(--font-h); font-size:1.15rem; font-weight:900; line-height:1.6; }
+.lightning-q .blank { color:var(--gold); font-size:1.3rem; }
+.ww-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.ww-btn { background:var(--card); border:2px solid var(--border); border-radius:8px; font-family:var(--font-h); font-size:13px; font-weight:900; color:var(--white); padding:12px 4px; cursor:pointer; transition:all .14s; }
+.ww-btn:hover:not(.locked) { border-color:var(--sky); color:var(--sky); transform:scale(1.04); }
+.ww-btn.ww-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(48,255,144,.12); animation:popIn .28s; pointer-events:none; }
+.ww-btn.ww-wrong { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,48,96,.12); animation:shake .4s; pointer-events:none; }
+.ww-btn.locked { pointer-events:none; }
 
-  /* ══ G5: TRUE / FALSE ══ */
-  .dots-row { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
-  .dot { width:10px; height:10px; border-radius:50%; background:var(--border); transition:all 0.25s; }
-  .dot.done    { background:var(--sky-day); }
-  .dot.current { background:var(--sun); transform:scale(1.3); }
-  .fact-card {
-    background:var(--surface2); border:2px solid var(--border); border-radius:var(--radius);
-    padding:22px 18px; text-align:center; margin-bottom:18px;
-  }
-  .fact-icon  { font-size:2.6rem; margin-bottom:10px; display:block; }
-  .fact-text  { font-family:var(--font-main); font-size:1.05rem; font-weight:700; line-height:1.5; }
-  .tf-btns { display:flex; gap:12px; justify-content:center; }
-  .tf-btn {
-    flex:1; max-width:150px; padding:15px; font-family:var(--font-main); font-size:17px; font-weight:900;
-    border:none; border-radius:var(--radius); cursor:pointer; transition:transform 0.15s;
-  }
-  .tf-btn:hover  { transform:translateY(-3px); }
-  .tf-btn:active { transform:scale(0.95); }
-  .true-btn  { background:linear-gradient(135deg,#27a35a,#1a6b3c); color:#fff; box-shadow:0 4px 14px rgba(39,163,90,0.35); }
-  .false-btn { background:linear-gradient(135deg,#f25c3d,#c43d22); color:#fff; box-shadow:0 4px 14px rgba(242,92,61,0.35); }
+/* ══ G4: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:900; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,140,48,.1); border:1px solid rgba(255,140,48,.3); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:900; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:58px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:wiggle .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.35; }
+.timer-track { height:8px; background:var(--border); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:4px; }
+.bomb-q { font-family:var(--font-h); font-size:1.1rem; font-weight:900; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.bomb-q .hl { color:var(--orange); }
 
-  /* ══ G6: LIVE WEATHER BROADCAST — build the forecast sentence ══ */
-  .broadcast-screen {
-    background:linear-gradient(135deg,var(--storm-dark),var(--storm));
-    border:2px solid rgba(77,195,240,0.3); border-radius:var(--radius);
-    padding:18px 16px; margin-bottom:16px; position:relative; overflow:hidden;
-  }
-  .broadcast-screen::before {
-    content:'🔴 LIVE'; position:absolute; top:10px; right:12px;
-    font-family:var(--font-main); font-size:10px; font-weight:800;
-    color:var(--coral); letter-spacing:2px;
-  }
-  .bc-location { font-family:var(--font-main); font-size:12px; font-weight:800; color:var(--sky-light); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
-  .bc-prompt   { font-family:var(--font-main); font-size:1rem; font-weight:700; color:var(--text); line-height:1.6; }
-  .bc-prompt em { color:var(--sun); font-style:normal; }
-  .sentence-tray {
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-    min-height:52px; padding:12px; background:var(--surface2);
-    border:2px dashed var(--border); border-radius:var(--radius-sm); margin-bottom:12px;
-  }
-  .sentence-tray.has-words { border-color:var(--sky-day); }
-  .tray-placeholder { font-family:var(--font-main); font-size:13px; color:var(--muted); }
-  .word-bank { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:12px; }
-  .w-chip {
-    background:rgba(26,107,80,0.4); border:2px solid var(--sky-day); color:var(--text);
-    font-family:var(--font-main); font-size:13px; font-weight:700; padding:8px 14px;
-    border-radius:20px; cursor:pointer; animation:popIn 0.18s ease;
-  }
-  .w-chip:hover { background:rgba(242,92,61,0.2); border-color:var(--coral); }
-  .w-option {
-    background:var(--surface2); border:2px solid var(--border); color:var(--text);
-    font-family:var(--font-main); font-size:13px; font-weight:700; padding:8px 14px;
-    border-radius:20px; cursor:pointer; transition:border-color 0.15s, transform 0.1s;
-  }
-  .w-option:hover:not(:disabled) { border-color:var(--sky-light); transform:translateY(-2px); }
-  .w-option:disabled { opacity:0.25; cursor:default; }
-  .correct-sent {
-    text-align:center; font-family:var(--font-main); font-size:14px; font-weight:700;
-    padding:10px; border-radius:var(--radius-sm); margin-top:6px;
-  }
+/* ══ G5: FORECAST MACHINE — drag outfit items to match the weather ══ */
+/* THE UNIQUE MECHANIC: A TV weather forecast shows a location + weather.
+   Student taps the correct clothes you'd wear. Multiple select, then check. */
+.forecast-tv {
+  background:linear-gradient(160deg,#0c1828,#101830);
+  border:3px solid var(--border); border-radius:20px;
+  padding:0; margin-bottom:16px; overflow:hidden; position:relative;
+}
+.tv-screen-bar {
+  background:rgba(77,216,255,.08); border-bottom:2px solid var(--border);
+  padding:8px 16px; display:flex; align-items:center; gap:8px;
+}
+.tv-dot { width:8px; height:8px; border-radius:50%; }
+.tv-body { padding:18px; text-align:center; }
+.forecast-location {
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px;
+  color:var(--sky); text-transform:uppercase; margin-bottom:6px;
+}
+.forecast-wx { font-size:3rem; display:block; margin-bottom:8px; }
+.forecast-desc { font-family:var(--font-h); font-size:1rem; font-weight:900; color:var(--white); line-height:1.5; }
+.clothes-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.clothes-tile {
+  background:var(--card); border:2px solid var(--border); border-radius:12px;
+  padding:12px 8px; cursor:pointer; text-align:center;
+  transition:all .15s; user-select:none;
+}
+.clothes-tile:hover { border-color:var(--violet); }
+.clothes-tile.selected { border-color:var(--sky); background:rgba(77,216,255,.12); }
+.clothes-tile.correct  { border-color:var(--ok)!important; background:rgba(48,255,144,.12)!important; animation:popIn .3s; }
+.clothes-tile.wrong    { border-color:var(--bad)!important; background:rgba(255,48,96,.1)!important; animation:shake .4s; }
+.clothes-tile.locked   { pointer-events:none; }
+.clothes-emoji { font-size:1.8rem; display:block; margin-bottom:4px; }
+.clothes-name  { font-family:var(--font-h); font-size:11px; font-weight:800; color:var(--white); }
+.btn-row { display:flex; gap:8px; margin-bottom:14px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:800; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:900; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
 
-  /* ══ COMPLETE ══ */
-  #complete { align-items:center; justify-content:center; text-align:center; padding:30px 20px; }
-  .c-emoji { font-size:4rem; margin-bottom:12px; animation:spinIn 0.6s ease; }
-  .c-title  { font-family:var(--font-main); font-size:2.2rem; font-weight:900; color:var(--sun); margin-bottom:6px; }
-  .c-sub    { font-size:14px; color:var(--muted); margin-bottom:20px; font-weight:600; }
-  .stars-big { font-size:2.6rem; margin-bottom:18px; letter-spacing:4px; }
-  .score-circle {
-    width:96px; height:96px; border-radius:50%;
-    background:linear-gradient(135deg,var(--sky-day),var(--sun));
-    display:flex; align-items:center; justify-content:center; flex-direction:column;
-    margin:0 auto 22px; box-shadow:0 8px 28px rgba(26,159,212,0.4);
-  }
-  .sc-num { font-family:var(--font-main); font-size:2rem; font-weight:900; color:#fff; }
-  .sc-lbl { font-size:10px; font-weight:700; color:rgba(255,255,255,0.7); letter-spacing:1px; }
-  .sum-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:24px; }
-  .sum-item { background:var(--surface2); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; }
-  .si-icon { font-size:1.3rem; margin-bottom:4px; display:block; }
-  .si-lbl  { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-  .si-val  { font-family:var(--font-main); font-weight:800; font-size:14px; color:var(--leaf); }
-  .speaking-card {
-    background:var(--surface2); border:2px solid var(--sky-day); border-radius:var(--radius);
-    padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left;
-  }
-  .sp-title { font-family:var(--font-main); font-weight:800; font-size:12px; color:var(--sun); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
-  .sp-list  { list-style:none; font-size:13px; color:var(--text); line-height:1.8; font-weight:600; }
-  .sp-list li { padding-left:22px; position:relative; margin-bottom:4px; }
-  .sp-list li::before { content:'🎙️'; position:absolute; left:0; font-size:11px; top:2px; }
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-h); font-size:16px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--sky); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-b); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--sky); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; box-shadow:0 2px 8px rgba(77,216,255,.25); }
+.wtile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(77,216,255,.45); }
+.wtile.used { opacity:.2; pointer-events:none; }
 
-  /* ══ KEYFRAMES ══ */
-  @keyframes pop    { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
-  @keyframes shake  { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  @keyframes popIn  { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
-  @keyframes spinIn { from{transform:rotate(0) scale(0.4);opacity:0} to{transform:rotate(360deg) scale(1);opacity:1} }
-  .cp { position:fixed; width:9px; height:9px; border-radius:2px; pointer-events:none; z-index:9999; animation:cFall 1.1s ease-out forwards; }
-  @keyframes cFall { 0%{opacity:1} 100%{transform:translateY(180px) rotate(540deg);opacity:0} }
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.4rem; font-weight:900; color:var(--sky); text-shadow:0 0 30px rgba(77,216,255,.45); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--sky) 0%, var(--violet) 40%, var(--pink) 80%, var(--sky) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(77,216,255,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:800; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:900; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--sky); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:18px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--sky); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--sky),var(--violet)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:14px 36px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 4px 20px rgba(77,216,255,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(77,216,255,.5); }
 </style>
 </head>
 <body>
 
 <!-- ══ HOME ══ -->
-<div id="home" class="screen active">
-  <div style="text-align:center;padding:28px 16px 18px;">
-    <div class="tv-badge"><span class="live-dot"></span> LIVE · Kids Box NG3 · Unit 8</div>
-    <h1 class="home-title">Weather<br><span>Report</span> ⛅</h1>
-    <p class="home-sub">You're the weather reporter today!</p>
-    <div class="ticker">📡 Vocabulary · was/were · Clothes & Weather · Forecasts</div>
+<div id="home">
+  <div class="home-badge">Kids Box NG3 · Unit 8 · Pro6_2 &amp; Pro1_3</div>
+  <h1 class="home-title">Weather<br><span>Report!</span> ⛈️</h1>
+  <p class="home-sub">Welcome to the studio — tonight's forecast is full of surprises!</p>
+  <div class="total-stars">⭐ Total stars: <span id="totalStars">0</span></div>
+
+  <!-- animated weather banner -->
+  <div class="wx-banner" id="wxBanner">
+    <div class="wx-icon" style="left:8%">☀️</div>
+    <div class="wx-icon" style="left:24%;animation-delay:.4s">🌧️</div>
+    <div class="wx-icon" style="left:44%;animation-delay:.8s">❄️</div>
+    <div class="wx-icon" style="left:62%;animation-delay:.2s">🌈</div>
+    <div class="wx-icon" style="left:80%;animation-delay:1s">🌥️</div>
   </div>
+
   <div class="game-grid">
-    <div class="game-card" style="--card-color:#4dc3f0" onclick="startGame(1)">
-      <span class="card-icon">🌤️</span>
-      <div class="card-title">Forecast Board</div>
-      <div class="card-desc">Match the weather word!</div>
-      <div class="card-stars" id="stars-1">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#4dd8ff" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">📡</span>
+      <div class="gc-title">Sky Scan!</div>
+      <div class="gc-desc">Read the clue — name the weather!</div>
+      <div class="gc-best" id="best0"></div>
     </div>
-    <div class="game-card" style="--card-color:#f5c842" onclick="startGame(2)">
-      <span class="card-icon">🔤</span>
-      <div class="card-title">Spell the Forecast</div>
-      <div class="card-desc">Build the weather word</div>
-      <div class="card-stars" id="stars-2">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#ffd060" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">📓</span>
+      <div class="gc-title">Meera's Diary</div>
+      <div class="gc-desc">Fill the diary — was, wasn't, were or weren't?</div>
+      <div class="gc-best" id="best1"></div>
     </div>
-    <div class="game-card" style="--card-color:#8b5cf6" onclick="startGame(3)">
-      <span class="card-icon">🕐</span>
-      <div class="card-title">Yesterday's Weather</div>
-      <div class="card-desc">was or were?</div>
-      <div class="card-stars" id="stars-3">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#a8ff3e" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">⚡</span>
+      <div class="gc-title">Lightning Round!</div>
+      <div class="gc-desc">Was or were — before the storm hits!</div>
+      <div class="gc-best" id="best2"></div>
     </div>
-    <div class="game-card" style="--card-color:#27a35a" onclick="startGame(4)">
-      <span class="card-icon">🧥</span>
-      <div class="card-title">Dress for the Weather</div>
-      <div class="card-desc">Clothes + weather!</div>
-      <div class="card-stars" id="stars-4">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#ff8c30" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">True or false — beat the fuse!</div>
+      <div class="gc-best" id="best3"></div>
     </div>
-    <div class="game-card" style="--card-color:#f25c3d" onclick="startGame(5)">
-      <span class="card-icon">✅</span>
-      <div class="card-title">True or False?</div>
-      <div class="card-desc">Weather report facts!</div>
-      <div class="card-stars" id="stars-5">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#be4bff" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">📺</span>
+      <div class="gc-title">Forecast Machine</div>
+      <div class="gc-desc">Pick the right clothes for the weather!</div>
+      <div class="gc-best" id="best4"></div>
     </div>
-    <div class="game-card" style="--card-color:#ec4899" onclick="startGame(6)">
-      <span class="card-icon">🎙️</span>
-      <div class="card-title">Live Broadcast!</div>
-      <div class="card-desc">Build the forecast!</div>
-      <div class="card-stars" id="stars-6">⭐⭐⭐</div>
+    <div class="gc" style="--gc-col:#4dd8ff" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the weather sentence!</div>
+      <div class="gc-best" id="best5"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ GAME SHELL ══ -->
-<div id="game-screen" class="screen">
+<!-- ══ SHELL ══ -->
+<div id="shell">
   <div class="topbar">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <div class="score-pill">⭐ <span id="live-score">0</span></div>
-    <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
+    <button class="back-btn" id="backBtn">← Home</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
   </div>
-  <div class="game-content" id="game-content"></div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
 </div>
 
-<!-- ══ COMPLETE ══ -->
-<div id="complete" class="screen">
-  <div class="c-emoji">🎙️</div>
-  <div class="c-title">Great Broadcast!</div>
-  <div class="c-sub">You're a star weather reporter!</div>
-  <div class="stars-big" id="c-stars">⭐⭐⭐</div>
-  <div class="score-circle">
-    <div class="sc-num" id="final-score">0</div>
-    <div class="sc-lbl">POINTS</div>
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🌈</span>
+  <div class="win-title">Brilliant!</div>
+  <div class="win-sub">You've completed tonight's weather report!</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
   </div>
-  <div class="sum-grid">
-    <div class="sum-item"><span class="si-icon">🎯</span><div class="si-lbl">Accuracy</div><div class="si-val" id="s-acc">—</div></div>
-    <div class="sum-item"><span class="si-icon">✅</span><div class="si-lbl">Correct</div><div class="si-val" id="s-cor">—</div></div>
-    <div class="sum-item"><span class="si-icon">🎮</span><div class="si-lbl">Game</div><div class="si-val" id="s-gname" style="color:var(--sun)">—</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
   </div>
-  <div class="speaking-card">
-    <div class="sp-title">🗣️ Speaking Challenge</div>
-    <ul class="sp-list" id="sp-prompts"></ul>
+  <div class="win-speak">
+    <div class="ws-title">🎤 Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
   </div>
-  <div class="center-row">
-    <button class="btn btn-sm" onclick="goHome()">🏠 All Games</button>
-    <button class="btn btn-primary" onclick="replayGame()">▶ Play Again</button>
-  </div>
+  <button class="btn-play" id="replayBtn">Play Again ↺</button>
 </div>
+
+<!-- lightning flash overlay -->
+<div class="lightning-flash" id="lflash"></div>
+<div id="cfx"></div>
 
 <script>
-// ═══════════════════════════════════════════
-//  DATA — confirmed from Kids Box 3 Unit 8 sources
-// ═══════════════════════════════════════════
+'use strict';
 
-// Core weather vocabulary — confirmed from the unit
-const WEATHER = [
-  { word:'sunny',   desc:'The sun is shining. There are no clouds.',       clue:'Clear sky, bright sun' },
-  { word:'cloudy',  desc:'The sky is covered with clouds.',                clue:'No sun, grey sky' },
-  { word:'windy',   desc:'The wind is blowing strongly.',                  clue:'Trees are moving' },
-  { word:'rainy',   desc:'Water is falling from the clouds.',              clue:'You need an umbrella' },
-  { word:'snowy',   desc:'White snow is falling from the sky.',            clue:'Everything is white' },
-  { word:'stormy',  desc:'Strong wind and heavy rain. Thunder and lightning!', clue:'Stay inside!' },
-  { word:'foggy',   desc:'It is hard to see. Everything looks misty.',     clue:'Hard to see far' },
-  { word:'hot',     desc:'The temperature is very high.',                  clue:'Very warm day' },
-  { word:'cold',    desc:'The temperature is very low.',                   clue:'You need a coat' },
-  { word:'wet',     desc:'It has been raining. Everything is wet.',        clue:'Puddles everywhere' },
+/* ═══════════════════════════════════════════
+   DATA — verified from KB NG3 Activity Book pp.74-79,
+   KB3 Tests evaluation, Storyfun content map, Wordwall resources
+═══════════════════════════════════════════ */
+
+// G1 — SKY SCAN: weather vocabulary clue → word (verified from AB p.74 exercises)
+const G1 = [
+  { clue:"It's wet. It falls from clouds. You need an umbrella!",                  ans:'rain',    emoji:'🌧️', opts:['rain','snow','wind','cloud']             },
+  { clue:"It's cold and white. You can make a snowman!",                           ans:'snow',    emoji:'❄️', opts:['snow','rain','ice','cloud']              },
+  { clue:"It's beautiful and has got lots of colours. You see it when it's wet and sunny!", ans:'rainbow', emoji:'🌈', opts:['rainbow','sunshine','cloud','wind'] },
+  { clue:"It's hot and yellow. It shines in the sky.",                             ans:'sun',     emoji:'☀️', opts:['sun','rainbow','cloud','fire']            },
+  { clue:"It's white, grey or black. It floats in the sky. Rain comes from it.",  ans:'cloud',   emoji:'☁️', opts:['cloud','smoke','fog','rainbow']          },
+  { clue:"It's strong. It blows your hat away! Trees move a lot.",                ans:'wind',    emoji:'💨', opts:['wind','rain','cold','cloud']              },
+  { clue:"It's grey and wet. The sky is full of clouds. There's no sun.",        ans:'cloudy',  emoji:'🌥️', opts:['cloudy','windy','sunny','snowing']        },
+  { clue:"It's falling right now — white and cold. Look out the window!",         ans:'snowing', emoji:'🌨️', opts:['snowing','raining','sunny','cloudy']      },
+  { clue:"It's falling right now — drops of water from the sky.",                  ans:'raining', emoji:'🌧️', opts:['raining','snowing','windy','cloudy']      },
+  { clue:"No rain, no clouds, no snow. Everything is dry and warm.",               ans:'dry',     emoji:'🌞', opts:['dry','wet','cold','rainy']               },
 ];
 
-// WAS / WERE — past tense of BE in weather/location context (Unit 8 grammar)
-const WAS_WERE = [
-  { stem:"Yesterday it _____ very cold in the mountains.", ans:'was', tip:'Singular "it" → WAS' },
-  { stem:"The children _____ cold yesterday. They wore coats.", ans:'were', tip:'Plural subject → WERE' },
-  { stem:"Where _____ you yesterday? I was at school.", ans:'were', tip:'"You" always takes WERE' },
-  { stem:"It _____ stormy last night. There was thunder!", ans:'was', tip:'"It" → WAS (singular)' },
-  { stem:"Simon and Stella _____ wet after the rain.", ans:'were', tip:'Two people (plural) → WERE' },
-  { stem:"The weather _____ sunny last weekend.", ans:'was', tip:'"The weather" is singular → WAS' },
-  { stem:"Where _____ Stella yesterday? She was at the park.", ans:'was', tip:'"She/He/It" → WAS' },
-  { stem:"It _____ foggy this morning. I couldn't see the road!", ans:'was', tip:'"It" → WAS' },
-  { stem:"The boys _____ cold because it was snowy.", ans:'were', tip:'Plural → WERE' },
-  { stem:"I _____ outside when it started raining.", ans:'was', tip:'"I" → WAS (past)' },
-];
-
-// CLOTHES + WEATHER — "Why are you wearing...? Because it's..."
-// Confirmed from activity book: "Why are you wearing a sweater? Because it's cold today."
-const DRESS_WEATHER = [
+// G2 — MEERA'S DIARY: fill blanks with was/wasn't/were/weren't
+// Exact text verified from KB NG3 Activity Book p.76 (Meera's holiday story)
+const G2_DIARY = [
   {
-    condition:'It\'s very cold and snowy today.',
-    q:'What should you wear?',
-    opts:['a coat and boots','a T-shirt and sandals','shorts and flip-flops','a swimsuit'],
-    ans:'a coat and boots',
-    reason:'When it\'s cold and snowy, you wear a coat and boots to keep warm!'
+    date:"Last Weekend — Meera's Diary",
+    segments: [
+      { text:"Last weekend, Meera ", blank:true, ans:"was",     opts:["was","were","wasn't","weren't"], tip:"Meera = she → was (singular!)" },
+      { text:" in the mountains with her family. They ", blank:true, ans:"were", opts:["was","were","wasn't","weren't"], tip:"They = plural → were!" },
+      { text:" on holiday. There ", blank:true, ans:"was", opts:["was","were","wasn't","weren't"], tip:"There was = singular noun after it → was!" },
+      { text:" a lot of snow. It was brilliant! Meera ", blank:true, ans:"wasn't", opts:["was","were","wasn't","weren't"], tip:"She was NOT cold → wasn't!" },
+      { text:" cold because she was wearing a hat and a scarf. Everyone was wearing gloves so they ", blank:true, ans:"weren't", opts:["was","were","wasn't","weren't"], tip:"They were NOT cold → weren't!" },
+      { text:" cold.", blank:false },
+    ]
   },
   {
-    condition:'It\'s hot and sunny today.',
-    q:'What should you wear?',
-    opts:['a T-shirt and shorts','a raincoat and boots','a scarf and gloves','a thick jumper'],
-    ans:'a T-shirt and shorts',
-    reason:'When it\'s hot and sunny, wear light clothes like a T-shirt and shorts!'
-  },
-  {
-    condition:'It\'s rainy and wet today.',
-    q:'What should you wear?',
-    opts:['a raincoat and boots','a swimsuit','sandals and a T-shirt','a scarf only'],
-    ans:'a raincoat and boots',
-    reason:'When it\'s rainy, wear a raincoat and boots to stay dry!'
-  },
-  {
-    condition:'It\'s cold and windy today.',
-    q:'What should you wear?',
-    opts:['a scarf and gloves','shorts and sandals','a swimsuit','flip-flops'],
-    ans:'a scarf and gloves',
-    reason:'When it\'s cold and windy, a scarf and gloves keep you warm!'
-  },
-  {
-    condition:'It\'s stormy with thunder and lightning.',
-    q:'What should you do?',
-    opts:['stay inside!','go swimming','fly a kite','go for a picnic'],
-    ans:'stay inside!',
-    reason:'When it\'s stormy, it\'s dangerous outside — stay inside!'
-  },
-  {
-    condition:'It\'s a bit cold. Suzy is wearing a sweater.',
-    q:'Why is Suzy wearing a sweater?',
-    opts:['Because it\'s cold today.','Because it\'s raining.','Because it\'s sunny.','Because it\'s windy.'],
-    ans:'Because it\'s cold today.',
-    reason:'"Why are you wearing a sweater? Because it\'s cold today." — straight from the book!'
+    date:"Last Saturday — Beach Story",
+    segments: [
+      { text:"On Saturday I ", blank:true, ans:"was", opts:["was","were","wasn't","weren't"], tip:"I → was (singular!)" },
+      { text:" at the beach with my family. It ", blank:true, ans:"wasn't", opts:["was","were","wasn't","weren't"], tip:"It was NOT hot → wasn't!" },
+      { text:" hot and sunny — it was cold and windy! There ", blank:true, ans:"weren't", opts:["was","were","wasn't","weren't"], tip:"Many children = plural → weren't!" },
+      { text:" many children on the beach.", blank:false },
+    ]
   },
 ];
 
-// TRUE / FALSE — facts from the unit story and context
-const TRUE_FALSE = [
-  { icon:'☀️', text:'When it\'s sunny, you need an umbrella.',          answer:false },
-  { icon:'🧥', text:'When it\'s cold, you wear a coat.',                answer:true  },
-  { icon:'🌧️', text:'"What\'s the weather like?" is a question about the weather.', answer:true },
-  { icon:'❄️', text:'When it\'s snowy, the weather is very hot.',       answer:false },
-  { icon:'🌬️', text:'When it\'s windy, the trees and leaves move.',     answer:true  },
-  { icon:'🌫️', text:'When it\'s foggy, you can see very far away.',     answer:false },
-  { icon:'⛈️', text:'When it\'s stormy, there is strong wind and rain.', answer:true },
-  { icon:'☀️', text:'"It was sunny yesterday" is past tense.',           answer:true  },
-  { icon:'🌦️', text:'"It were cold" is correct English.',               answer:false },
-  { icon:'🧣', text:'"Why are you wearing a scarf? Because it\'s cold." is correct.', answer:true },
+// G3 — LIGHTNING ROUND: rapid-fire was/were/wasn't/weren't (with timed storm meter)
+// Based on verified grammar from AB p.76-77 and KB3 grammar patterns
+const G3 = [
+  { q:"Meera ___ in the mountains last weekend.", ans:"was",      opts:["was","were","wasn't","weren't"] },
+  { q:"They ___ on holiday.",                     ans:"were",     opts:["was","were","wasn't","weren't"] },
+  { q:"There ___ a lot of snow.",                  ans:"was",      opts:["was","were","wasn't","weren't"] },
+  { q:"Meera ___ cold — she had a scarf!",          ans:"wasn't",   opts:["was","were","wasn't","weren't"] },
+  { q:"Everyone ___ wearing gloves.",               ans:"was",      opts:["was","were","wasn't","weren't"] },
+  { q:"They ___ cold because of their gloves.",     ans:"weren't",  opts:["was","were","wasn't","weren't"] },
+  { q:"I ___ at the beach on Saturday.",             ans:"was",      opts:["was","were","wasn't","weren't"] },
+  { q:"It ___ hot — it was cold and windy!",         ans:"wasn't",   opts:["was","were","wasn't","weren't"] },
+  { q:"There ___ many children on the beach.",       ans:"weren't",  opts:["was","were","wasn't","weren't"] },
+  { q:"Where ___ you on Monday afternoon?",          ans:"were",     opts:["was","were","wasn't","weren't"] },
+  { q:"She ___ at school yesterday.",                ans:"was",      opts:["was","were","wasn't","weren't"] },
+  { q:"We ___ at home — we were in the park!",       ans:"weren't",  opts:["was","were","wasn't","weren't"] },
 ];
 
-// LIVE BROADCAST — build a forecast sentence from word chips
-// Format: "Tomorrow it will be [weather] in [place]. You should wear [clothes]."
-const BROADCASTS = [
+// G4 — BOMB DEFUSE: true/false weather facts (timed)
+// Verified from Activity Book p.74 reading exercises + story facts
+const G4 = [
+  { q:"You see a rainbow when it's wet AND sunny.",              ans:true,  t:5 },
+  { q:"Snow is hot and yellow.",                                 ans:false, t:4 },
+  { q:"Clouds can be white, grey or black.",                    ans:true,  t:5 },
+  { q:"Meera was cold in the mountains.",                        ans:false, t:4 },
+  { q:"Wind is strong — it can blow your hat away!",             ans:true,  t:5 },
+  { q:"When it's raining and sunny, you can see a rainbow.",    ans:true,  t:5 },
+  { q:"At the beach on Saturday, it was hot and sunny.",        ans:false, t:4 },
+  { q:"Meera was wearing a hat, a scarf and a sweater.",         ans:true,  t:4 },
+  { q:"You need a coat when it's hot.",                         ans:false, t:4 },
+  { q:"There are always two rainbows in the sky.",               ans:false, t:5 },
+  { q:"In the mountains it often snows when it's very cold.",   ans:true,  t:5 },
+];
+
+// G5 — FORECAST MACHINE: location + weather → pick correct clothes
+// Clothes vocab verified from AB p.76: coat, scarf, sweater, gloves, hat
+// + common clothes: swim shorts, t-shirt, umbrella, sunglasses
+const G5 = [
   {
-    location:'LONDON',
-    prompt:'Tomorrow it will be _____ in London. Take your _____!',
-    required:['cold','umbrella','and','rainy'],
-    distractors:['hot','sunny','sandals'],
-    answer:'Tomorrow it will be cold and rainy in London. Take your umbrella!'
+    location:"In the mountains", wx:"❄️🌨️", desc:"It's cold and snowing!",
+    correct:["coat","scarf","sweater","gloves","hat"],
+    wrong:["swim shorts","sunglasses","t-shirt"],
+    tip:"Cold + snowing → wear lots of warm clothes!"
   },
   {
-    location:'THE MOUNTAINS',
-    prompt:'It was _____ in the mountains yesterday. The children wore _____.',
-    required:['snowy','coats','and','boots'],
-    distractors:['sunny','T-shirts','hot'],
-    answer:'It was snowy in the mountains yesterday. The children wore coats and boots.'
+    location:"At the beach", wx:"☀️🌞", desc:"It's hot and sunny!",
+    correct:["swim shorts","sunglasses","t-shirt"],
+    wrong:["coat","scarf","sweater","gloves"],
+    tip:"Hot + sunny → light clothes for the beach!"
   },
   {
-    location:'THE BEACH',
-    prompt:'Yesterday it _____ hot and sunny at the beach. We wore _____.',
-    required:['was','T-shirts','and','shorts'],
-    distractors:['were','coats','cold'],
-    answer:'Yesterday it was hot and sunny at the beach. We wore T-shirts and shorts.'
+    location:"In the city", wx:"🌧️☁️", desc:"It's cloudy and raining!",
+    correct:["coat","umbrella"],
+    wrong:["swim shorts","sunglasses","gloves","scarf"],
+    tip:"Raining → bring your coat and umbrella!"
   },
   {
-    location:'THE CITY',
-    prompt:'It is _____ today. You should _____ inside.',
-    required:['stormy','stay'],
-    distractors:['sunny','go','hot','cold'],
-    answer:'It is stormy today. You should stay inside.'
-  },
-  {
-    location:'THE PARK',
-    prompt:'Where _____ you yesterday? I _____ at the park. It was windy!',
-    required:['were','was'],
-    distractors:['is','am','be','being'],
-    answer:'Where were you yesterday? I was at the park. It was windy!'
-  },
-  {
-    location:'THE SCHOOL',
-    prompt:'It _____ foggy this morning. The children _____ cold.',
-    required:['was','were'],
-    distractors:['is','am','are','be'],
-    answer:'It was foggy this morning. The children were cold.'
+    location:"In the countryside", wx:"💨🌥️", desc:"It's windy and cloudy!",
+    correct:["coat","scarf","hat"],
+    wrong:["swim shorts","sunglasses","umbrella","gloves"],
+    tip:"Windy → hat and scarf to stay warm!"
   },
 ];
 
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let currentGame=0, score=0, totalQ=0, correctQ=0;
-let g1i=0, g1d=[], g1choices=[];
-let g2i=0, g2d=[], g2typed=[], g2pool=[];
-let g3i=0, g3d=[];
-let g4i=0, g4d=[], g4opts=[];
-let g5i=0, g5d=[];
-let g6i=0, g6d=[], g6typed=[];
+// Clothes catalog for G5
+const CLOTHES = [
+  { id:"coat",       emoji:"🧥", name:"coat"        },
+  { id:"scarf",      emoji:"🧣", name:"scarf"       },
+  { id:"sweater",    emoji:"🧶", name:"sweater"     },
+  { id:"gloves",     emoji:"🧤", name:"gloves"      },
+  { id:"hat",        emoji:"🎩", name:"hat"         },
+  { id:"swim shorts",emoji:"🩳", name:"swim shorts" },
+  { id:"sunglasses", emoji:"😎", name:"sunglasses"  },
+  { id:"t-shirt",    emoji:"👕", name:"t-shirt"     },
+  { id:"umbrella",   emoji:"☂️", name:"umbrella"    },
+];
 
-// ═══════════════════════════════════════════
-//  NAV
-// ═══════════════════════════════════════════
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
-function goHome(){ show('home'); }
-function replayGame(){ startGame(currentGame); }
-function startGame(n){
-  currentGame=n; score=0; totalQ=0; correctQ=0;
-  document.getElementById('live-score').textContent='0';
-  document.getElementById('prog-bar').style.width='0%';
-  show('game-screen');
-  [initG1,initG2,initG3,initG4,initG5,initG6][n-1]();
-}
+// G6 — WORD ORDER: exact sentences from Activity Book pp.74-79 + evaluation
+const G6 = [
+  { words:["There","was","a","lot","of","snow","."],                  ans:"There was a lot of snow ."                  },
+  { words:["Meera","wasn't","cold","in","the","mountains","."],       ans:"Meera wasn't cold in the mountains ."       },
+  { words:["What's","the","weather","like","at","the","beach","?"],   ans:"What's the weather like at the beach ?"     },
+  { words:["It","was","cold","and","windy","at","the","beach","."],   ans:"It was cold and windy at the beach ."       },
+  { words:["There","weren't","many","children","on","the","beach","."], ans:"There weren't many children on the beach ." },
+  { words:["When","it's","raining","and","sunny","you","can","see","a","rainbow","."], ans:"When it's raining and sunny you can see a rainbow ." },
+];
 
-// ═══════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════
-const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;};
-function addScore(pts){score+=pts;correctQ++;document.getElementById('live-score').textContent=score;}
-function setProgress(cur,total){document.getElementById('prog-bar').style.width=`${Math.round((cur/total)*100)}%`;}
-function feedback(elId,type,msg){
-  const el=document.getElementById(elId); if(!el) return;
-  el.textContent=msg; el.className=`feedback ${type} show`;
-  setTimeout(()=>el&&el.classList.remove('show'),1600);
-}
-function confetti(x,y){
-  const cols=['#f5c842','#4dc3f0','#f25c3d','#5ec45a','#8b5cf6','#fff'];
-  for(let i=0;i<12;i++){
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g3streak=0, g4streak=0, g4bombScore=0;
+let g2entryIdx=0, g2segIdx=0, g2score=0;
+let g5selected=[];
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#4dd8ff','#ffd060','#a8ff3e','#ff6eb4','#a060ff','#ff8c30'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
     const p=document.createElement('div'); p.className='cp';
-    p.style.cssText=`left:${x+(Math.random()-.5)*70}px;top:${y}px;background:${cols[Math.floor(Math.random()*cols.length)]}`;
-    document.body.appendChild(p); setTimeout(()=>p.remove(),1200);
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
   }
 }
-function showComplete(){
-  const pct=totalQ>0?Math.round((correctQ/totalQ)*100):100;
-  const stars=pct>=85?'⭐⭐⭐':pct>=60?'⭐⭐':'⭐';
-  document.getElementById(`stars-${currentGame}`).textContent=stars;
-  document.querySelector(`.game-grid .game-card:nth-child(${currentGame})`)?.classList.add('done');
-  document.getElementById('final-score').textContent=score;
-  document.getElementById('c-stars').textContent=stars;
-  document.getElementById('s-acc').textContent=`${pct}%`;
-  document.getElementById('s-cor').textContent=`${correctQ}/${totalQ}`;
-  const names=['','Forecast Board','Spell the Forecast','Yesterday\'s Weather','Dress for the Weather','True/False','Live Broadcast'];
-  document.getElementById('s-gname').textContent=names[currentGame];
-  const allPrompts=[
-    'Say: "What\'s the weather like today? It\'s sunny!"',
-    'Say: "It was cold yesterday. I wore a coat."',
-    'Say: "Where were you yesterday? I was at school."',
-    'Say: "Why are you wearing a scarf? Because it\'s cold!"',
-    'Say: "It\'s stormy today. Stay inside!"',
-    'Say: "Yesterday it was snowy in the mountains."',
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#4dd8ff','#ffd060','#a8ff3e','#a060ff'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+function lightningFlash(){
+  const lf=$('lflash'); lf.classList.add('boom');
+  setTimeout(()=>lf.classList.remove('boom'),160);
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Sky Scan!','Meera\'s Diary','Lightning Round!','Bomb Defuse!','Forecast Machine','Word Order'];
+  const cols=['var(--sky)','var(--gold)','var(--lime)','var(--orange)','var(--violet)','var(--sky)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .22s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"What\'s the weather like at the beach? It\'s cold and windy!"',
+    '"There was a lot of snow in the mountains."',
+    '"Meera wasn\'t cold — she was wearing a scarf and a coat!"',
+    '"Were you at home on Saturday? No, I was at the beach!"',
+    '"There weren\'t many children on the beach."',
+    '"When it\'s raining and sunny you can see a rainbow!"',
   ];
-  document.getElementById('sp-prompts').innerHTML=shuffle(allPrompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
-  show('complete');
-  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),100);
-  setTimeout(()=>confetti(window.innerWidth/2,window.innerHeight/4),500);
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — SKY SCAN
+   Animated sky scene + clue → pick weather word
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Weather Words</div>
+      <div class="gh-name" style="color:var(--sky)">Sky Scan! 📡</div>
+      <div class="gh-instr">Read the description — what's the weather?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="sky-scene" id="skyScene">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:4rem">${q.emoji}</div>
+      <div class="wx-label">What is it?</div>
+    </div>
+    <div class="qcard">
+      <div class="qcard-label">Clue ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
 }
 
-// ═══════════════════════════════════════════
-//  G1 — FORECAST BOARD
-//  Read the description clue, tap the correct weather word
-// ═══════════════════════════════════════════
-function initG1(){ g1d=shuffle(WEATHER); g1i=0; renderG1(); }
-function renderG1(){
-  if(g1i>=g1d.length){ showComplete(); return; }
-  totalQ++; setProgress(g1i,g1d.length);
-  const correct=g1d[g1i];
-  g1choices=shuffle([correct,...shuffle(WEATHER.filter(w=>w.word!==correct.word)).slice(0,5)]);
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🌤️ Forecast <span>Board</span></div><div class="game-instr">Read the clue — tap the weather word!</div></div>
-    <div class="q-counter">Question ${g1i+1} of ${g1d.length}</div>
-    <div class="forecast-question">
-      <div class="forecast-q">"${correct.clue}"</div>
-      <div class="forecast-sub">${correct.desc}</div>
-    </div>
-    <div class="weather-choices" id="wc">
-      ${g1choices.map((_,i)=>`<div class="weather-tile" data-i="${i}"><div class="wt-word">${g1choices[i].word}</div></div>`).join('')}
-    </div>
-    <div class="feedback" id="fb1"></div>`;
-  document.querySelectorAll('#wc .weather-tile').forEach((tile,i)=>{
-    tile.addEventListener('click',()=>g1ans(tile,g1choices[i].word,correct.word));
+/* ═══════════════════════════════════════════
+   G2 — MEERA'S DIARY
+   A diary entry types itself on screen.
+   Each blank lights up gold. Students pick was/wasn't/were/weren't.
+   Only one blank is active at a time — feels like a typewriter!
+═══════════════════════════════════════════ */
+let g2entries=[], g2eIdx=0, g2sIdx=0, g2blanks=[], g2locked=false, g2pts=0;
+function g2Init(){
+  g2entries=rnd([...G2_DIARY]); g2eIdx=0; g2sIdx=0; g2pts=0;
+  setProgress(0, G2_DIARY.reduce((a,e)=>a+e.segments.filter(s=>s.blank).length,0));
+  g2RenderEntry();
+}
+
+function g2RenderEntry(){
+  if(g2eIdx>=g2entries.length){ finishGame(); return; }
+  const entry=g2entries[g2eIdx];
+  // find all blank segments
+  g2blanks=entry.segments.map((s,i)=>s.blank?i:null).filter(x=>x!==null);
+  g2sIdx=0; g2locked=false;
+  g2DrawDiary(entry);
+}
+
+function g2DrawDiary(entry){
+  // Build diary text HTML with blank spans
+  let html='';
+  entry.segments.forEach((seg,i)=>{
+    html+=seg.text;
+    if(seg.blank){
+      const blankIdx=g2blanks.indexOf(i);
+      const isCurrent=blankIdx===g2sIdx;
+      const isPast=blankIdx<g2sIdx;
+      html+=`<span class="diary-blank ${isCurrent?'active':isPast?'filled':''}" id="dblank${i}">${isPast?(entry.segments[i].filledWith||'???'):'???'}</span>`;
+    }
   });
-}
-function g1ans(el,chosen,correct){
-  document.querySelectorAll('.weather-tile').forEach(t=>t.style.pointerEvents='none');
-  if(chosen===correct){
-    el.classList.add('correct'); addScore(10); feedback('fb1','correct','🎉 Correct!');
-    confetti(el.getBoundingClientRect().left+40,el.getBoundingClientRect().top);
-  } else {
-    el.classList.add('wrong');
-    document.querySelectorAll('.weather-tile').forEach(t=>{ if(t.querySelector('.wt-word')?.textContent===correct) t.classList.add('correct'); });
-    feedback('fb1','wrong',`❌ It's "${correct}"!`);
+  // Get current blank's opts
+  const totalBlanks=g2blanks.reduce((a,e)=>a+e,0);
+  const curBlankSegIdx=g2sIdx<g2blanks.length?g2blanks[g2sIdx]:null;
+  const curSeg=curBlankSegIdx!==null?entry.segments[curBlankSegIdx]:null;
+  const opts=curSeg?rnd([...curSeg.opts]):[];
+
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Past Simple — was / were</div>
+      <div class="gh-name" style="color:var(--gold)">Meera's Diary 📓</div>
+      <div class="gh-instr">Fill in the diary! Pick was, wasn't, were or weren't.</div>
+    </div>
+    <div class="diary-card">
+      <div class="diary-date">${entry.date}</div>
+      <div class="diary-text" id="diaryText">${html}</div>
+    </div>
+    ${curSeg?`
+    <div class="was-row" id="wasRow">
+      ${opts.map(o=>`<button class="was-btn" data-a="${o}">${o}</button>`).join('')}
+    </div>
+    <div class="grammar-box" id="g2tip"></div>
+    <div class="fb" id="g2fb"></div>`:''}
+    <button class="next-btn" id="g2next" style="background:var(--gold);color:var(--bg)">Next Diary ›</button>`;
+
+  if(curSeg){
+    document.querySelectorAll('.was-btn').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,curSeg.ans,curBlankSegIdx,curSeg.tip,entry)));
   }
-  g1i++; setTimeout(renderG1,1700);
+  if(g2sIdx>=g2blanks.length){
+    // all blanks filled for this entry
+    show('g2next');
+    $('g2next').addEventListener('click',()=>{ g2eIdx++; g2sIdx=0; g2RenderEntry(); });
+  }
 }
 
-// ═══════════════════════════════════════════
-//  G2 — SPELL THE FORECAST
-//  See a weather description, spell the word
-// ═══════════════════════════════════════════
-function initG2(){ g2d=shuffle(WEATHER).slice(0,8); g2i=0; renderG2(); }
-function renderG2(){
-  if(g2i>=g2d.length){ showComplete(); return; }
-  totalQ++; setProgress(g2i,g2d.length);
-  const w=g2d[g2i]; g2typed=[];
-  const wl=w.word.split('');
-  const extra='aeioulrnstbcdmpghkfwyvz'.split('').filter(l=>!wl.includes(l));
-  g2pool=shuffle([...wl,...shuffle(extra).slice(0,Math.max(4,9-wl.length))]);
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🔤 Spell the <span>Forecast</span></div><div class="game-instr">Tap letters to spell the weather word!</div></div>
-    <div class="q-counter">Word ${g2i+1} of ${g2d.length}</div>
-    <div class="spell-center">
-      <span class="weather-big">⛅</span>
-      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:4px;">
-        <div style="font-family:var(--font-main);font-size:1rem;font-weight:700;line-height:1.5;">${w.desc}</div>
+function g2Ans(el,chosen,ans,segIdx,tip,entry){
+  document.querySelectorAll('.was-btn').forEach(o=>{ o.classList.add('locked'); });
+  const tipEl=$('g2tip'); if(tipEl){ tipEl.style.display='block'; tipEl.textContent='💡 '+tip; }
+  if(chosen===ans){
+    el.classList.add('was-ok');
+    entry.segments[segIdx].filledWith=chosen;
+    addScore(2); totalQs++; showFb('g2fb','ok','Correct! +2 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('was-wrong');
+    document.querySelectorAll('.was-btn').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('was-ok'); });
+    entry.segments[segIdx].filledWith=ans; totalQs++;
+    showFb('g2fb','bad','It\'s: '+ans+' — check the tip!');
+  }
+  setTimeout(()=>{
+    g2sIdx++;
+    g2DrawDiary(entry);
+  },1400);
+}
+
+/* ═══════════════════════════════════════════
+   G3 — LIGHTNING ROUND
+   A storm meter shows on screen. Correct answers calm the storm.
+   Wrong answers trigger a lightning flash + storm surges.
+   Was / wasn't / were / weren't — 4 buttons, rapid fire.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0, g3storm=80; // storm starts high
+function g3Init(){ g3q=rnd(G3); g3i=0; g3streak=0; g3storm=80; g3Render(); }
+
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const stormCol=g3storm>60?'var(--bad)':g3storm>30?'var(--orange)':'var(--lime)';
+  const stormIcon=g3storm>60?'⛈️':g3storm>30?'🌧️':'☀️';
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · was / wasn't / were / weren't</div>
+      <div class="gh-name" style="color:var(--lime)">Lightning Round! ⚡</div>
+      <div class="gh-instr">Calm the storm — answer fast and correctly!</div>
+    </div>
+    <div class="storm-hud">
+      <div class="storm-icon">${stormIcon}</div>
+      <div class="storm-meter-wrap">
+        <div class="storm-meter-fill" style="width:${g3storm}%;background:${stormCol}"></div>
       </div>
-      <div class="spell-clue">Clue: "${w.clue}"</div>
+      <div style="font-family:var(--font-h);font-size:11px;font-weight:800;color:var(--muted)">${g3i+1}/${g3q.length}</div>
     </div>
-    <div class="letter-boxes" id="lboxes">${wl.map(()=>`<div class="l-box"></div>`).join('')}</div>
-    <div class="letter-pool" id="lpool">${g2pool.map((l,i)=>`<button class="l-btn" id="lb${i}">${l}</button>`).join('')}</div>
-    <div class="center-row"><button class="btn btn-sm" onclick="g2clear()">🗑️ Clear</button></div>
-    <div class="feedback" id="fb2"></div>`;
-  document.querySelectorAll('#lpool .l-btn').forEach((btn,i)=>{
-    btn.addEventListener('click',()=>g2pick(btn,g2pool[i],wl));
-  });
+    <div class="lightning-card">
+      <div class="lightning-q">${q.q.replace('___','<span class="blank">___</span>')}</div>
+    </div>
+    <div class="ww-row" id="wwRow">
+      ${opts.map(o=>`<button class="ww-btn" data-a="${o}">${o}</button>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.ww-btn').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
 }
-function g2pick(btn,letter,wl){
-  if(g2typed.length>=wl.length) return;
-  btn.disabled=true;
-  g2typed.push({letter,btn});
-  const boxes=document.querySelectorAll('.l-box');
-  boxes[g2typed.length-1].textContent=letter;
-  boxes[g2typed.length-1].classList.add('filled');
-  if(g2typed.length===wl.length){
-    const ok=g2typed.map(x=>x.letter).join('')===wl.join('');
-    setTimeout(()=>{
-      if(ok){
-        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('correct');});
-        addScore(15); feedback('fb2','correct',`🎉 ${g2d[g2i].word.toUpperCase()}!`);
-        confetti(window.innerWidth/2,180);
-        g2i++; setTimeout(renderG2,1500);
-      } else {
-        boxes.forEach(b=>{b.classList.remove('filled');b.classList.add('wrong');});
-        feedback('fb2','wrong','❌ Try again!');
-        setTimeout(()=>{ g2typed.forEach(x=>x.btn.disabled=false); g2typed=[]; boxes.forEach(b=>{b.textContent='';b.className='l-box';}); },900);
-      }
-    },150);
+function g3Ans(el,chosen,ans){
+  document.querySelectorAll('.ww-btn').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){
+    el.classList.add('ww-ok'); g3streak++; if(g3streak>bestStreak)bestStreak=g3streak;
+    g3storm=Math.max(0,g3storm-12);
+    addScore(2); showFb('g3fb','ok','Storm calming! +2 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('ww-wrong'); document.querySelectorAll('.ww-btn').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('ww-ok'); });
+    g3streak=0; g3storm=Math.min(100,g3storm+15);
+    lightningFlash(); showFb('g3fb','bad','BOOM! It\'s: '+ans);
   }
-}
-function g2clear(){
-  g2typed.forEach(x=>x.btn.disabled=false); g2typed=[];
-  document.querySelectorAll('.l-box').forEach(b=>{b.textContent='';b.className='l-box';});
+  show('g3next');
 }
 
-// ═══════════════════════════════════════════
-//  G3 — YESTERDAY'S WEATHER (was / were)
-//  Student taps WAS or WERE to complete the sentence
-// ═══════════════════════════════════════════
-function initG3(){ g3d=shuffle(WAS_WERE); g3i=0; renderG3(); }
-function renderG3(){
-  if(g3i>=g3d.length){ showComplete(); return; }
-  totalQ++; setProgress(g3i,g3d.length);
-  const q=g3d[g3i];
-  const displayStem=q.stem.replace('_____','<span class="gap">?????</span>');
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🕐 Yesterday's <span>Weather</span></div><div class="game-instr">Choose WAS or WERE!</div></div>
-    <div class="q-counter">Question ${g3i+1} of ${g3d.length}</div>
-    <div class="was-card">
-      <span class="was-scene">🗓️</span>
-      <div class="was-stem">${displayStem}</div>
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (weather true/false, timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Weather Facts · Timed True/False</div>
+      <div class="gh-name" style="color:var(--orange)">Bomb Defuse! 💣</div>
+      <div class="gh-instr">True or false — defuse before time runs out!</div>
     </div>
-    <div class="was-opts" id="was-opts">
-      <div class="was-opt" data-v="was">WAS</div>
-      <div class="was-opt" data-v="were">WERE</div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--orange)" id="bQ">1/${g4q.length}</div></div>
     </div>
-    <div class="feedback" id="fb3"></div>
-    <div class="grammar-tip" id="gtip3"></div>`;
-  document.querySelectorAll('.was-opt').forEach(el=>{
-    el.addEventListener('click',()=>g3ans(el,el.dataset.v,q.ans,q.tip));
-  });
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ" style="color:var(--white)"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+  g4Render();
 }
-function g3ans(el,chosen,correct,tip){
-  document.querySelectorAll('.was-opt').forEach(o=>o.classList.add('locked'));
-  const tipEl=document.getElementById('gtip3'); tipEl.style.display='block'; tipEl.textContent='💡 '+tip;
-  if(chosen===correct){
-    el.classList.add('correct-opt'); addScore(12); feedback('fb3','correct','🎉 Correct!');
-    confetti(el.getBoundingClientRect().left+60,el.getBoundingClientRect().top);
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">✅ True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">❌ False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++; g4bombScore+=3;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐'); miniConfetti(el);
   } else {
-    el.classList.add('wrong-opt');
-    document.querySelectorAll('.was-opt').forEach(o=>{ if(o.dataset.v===correct) o.classList.add('correct-opt'); });
-    feedback('fb3','wrong',`❌ It's "${correct.toUpperCase()}"!`);
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g4fb','bad',ans?'It\'s TRUE!':'It\'s FALSE!');
   }
-  g3i++; setTimeout(renderG3,2000);
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+(ans?'TRUE':'FALSE'));
+  show('g4next');
 }
 
-// ═══════════════════════════════════════════
-//  G4 — DRESS FOR THE WEATHER
-//  Read the weather condition, choose the right clothes
-// ═══════════════════════════════════════════
-function initG4(){ g4d=shuffle(DRESS_WEATHER); g4i=0; renderG4(); }
-function renderG4(){
-  if(g4i>=g4d.length){ showComplete(); return; }
-  totalQ++; setProgress(g4i,g4d.length);
-  const q=g4d[g4i];
-  g4opts=shuffle(q.opts);
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🧥 Dress for the <span>Weather</span></div><div class="game-instr">${q.q}</div></div>
-    <div class="q-counter">Question ${g4i+1} of ${g4d.length}</div>
-    <div class="weather-strip">
-      <div class="ws-label">Today's Weather</div>
-      <div class="ws-cond">${q.condition}</div>
+/* ═══════════════════════════════════════════
+   G5 — FORECAST MACHINE
+   A retro TV shows location + weather.
+   Student taps ALL the correct clothes (multi-select).
+   Then hits CHECK. Correct tiles go green, wrong go red.
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  g5selected=[];
+  // build clothes list for this round (correct + wrong, shuffled)
+  const allClothes=rnd(CLOTHES.filter(c=>q.correct.includes(c.id)||q.wrong.includes(c.id)));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Vocabulary · Weather Clothes</div>
+      <div class="gh-name" style="color:var(--violet)">Forecast Machine 📺</div>
+      <div class="gh-instr">Tap ALL the clothes you'd wear for this weather, then check!</div>
     </div>
-    <div class="clothes-grid" id="copts">
-      ${g4opts.map((_,i)=>`<div class="clothes-opt" data-i="${i}">${g4opts[i]}</div>`).join('')}
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="forecast-tv">
+      <div class="tv-screen-bar">
+        <div class="tv-dot" style="background:var(--red)"></div>
+        <div class="tv-dot" style="background:var(--gold)"></div>
+        <div class="tv-dot" style="background:var(--lime)"></div>
+        <span style="font-family:var(--font-h);font-size:10px;font-weight:800;color:var(--muted);margin-left:6px;letter-spacing:2px">LIVE FORECAST</span>
+      </div>
+      <div class="tv-body">
+        <div class="forecast-location">${q.location}</div>
+        <span class="forecast-wx">${q.wx}</span>
+        <div class="forecast-desc">${q.desc}</div>
+      </div>
     </div>
-    <div class="feedback" id="fb4"></div>
-    <div class="grammar-tip" id="gtip4"></div>`;
-  document.querySelectorAll('#copts .clothes-opt').forEach((el,i)=>{
-    el.addEventListener('click',()=>g4ans(el,g4opts[i],q.ans,q.reason));
+    <div class="clothes-grid" id="clothesGrid">
+      ${allClothes.map(c=>`
+        <div class="clothes-tile" data-id="${c.id}">
+          <span class="clothes-emoji">${c.emoji}</span>
+          <div class="clothes-name">${c.name}</div>
+        </div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g5clr">Clear</button>
+      <button class="btn-check" id="g5chk" style="background:var(--violet);color:#fff">Check ✓</button>
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--violet);color:#fff">Next ›</button>`;
+
+  document.querySelectorAll('.clothes-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('locked'))return;
+      const id=el.dataset.id;
+      if(el.classList.contains('selected')){ el.classList.remove('selected'); g5selected=g5selected.filter(x=>x!==id); }
+      else { el.classList.add('selected'); g5selected.push(id); }
+    });
   });
+  $('g5clr').addEventListener('click',()=>{
+    document.querySelectorAll('.clothes-tile').forEach(el=>el.classList.remove('selected'));
+    g5selected=[]; hideFb('g5fb');
+  });
+  $('g5chk').addEventListener('click',()=>g5Check(q));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
 }
-function g4ans(el,chosen,correct,reason){
-  document.querySelectorAll('.clothes-opt').forEach(o=>o.classList.add('locked'));
-  const tipEl=document.getElementById('gtip4'); tipEl.style.display='block'; tipEl.textContent='💡 '+reason;
-  if(chosen===correct){
-    el.classList.add('correct-opt'); addScore(12); feedback('fb4','correct','🎉 Good choice!');
-    confetti(el.getBoundingClientRect().left+60,el.getBoundingClientRect().top);
-  } else {
-    el.classList.add('wrong-opt');
-    document.querySelectorAll('.clothes-opt').forEach(o=>{ if(o.textContent.trim()===correct) o.classList.add('correct-opt'); });
-    feedback('fb4','wrong',`❌ "${correct}"`);
-  }
-  g4i++; setTimeout(renderG4,2200);
+function g5Check(q){
+  if(g5selected.length===0){ showFb('g5fb','bad','Pick some clothes first!'); return; }
+  document.querySelectorAll('.clothes-tile').forEach(el=>el.classList.add('locked'));
+  let allRight=true;
+  document.querySelectorAll('.clothes-tile').forEach(el=>{
+    const id=el.dataset.id;
+    const isCorrect=q.correct.includes(id);
+    const isSelected=g5selected.includes(id);
+    if(isCorrect){ el.classList.add('correct'); if(!isSelected)allRight=false; }
+    else if(isSelected){ el.classList.add('wrong'); allRight=false; }
+  });
+  if(allRight){ addScore(3); showFb('g5fb','ok','Perfect outfit! +3 ⭐ 💡 '+q.tip); miniConfetti($('g5chk')); }
+  else { showFb('g5fb','bad','Not quite! Green = correct clothes. 💡 '+q.tip); }
+  show('g5next');
 }
 
-// ═══════════════════════════════════════════
-//  G5 — TRUE OR FALSE
-// ═══════════════════════════════════════════
-function initG5(){ g5d=shuffle(TRUE_FALSE).slice(0,9); g5i=0; renderG5(); }
-function renderG5(){
-  if(g5i>=g5d.length){ showComplete(); return; }
-  totalQ++; setProgress(g5i,g5d.length);
-  const f=g5d[g5i];
-  const dots=g5d.map((_,i)=>`<div class="dot ${i<g5i?'done':i===g5i?'current':''}"></div>`).join('');
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">✅ True or <span>False?</span></div><div class="game-instr">Is this weather fact true or false?</div></div>
-    <div class="dots-row">${dots}</div>
-    <div class="fact-card"><span class="fact-icon">${f.icon}</span><div class="fact-text">${f.text}</div></div>
-    <div class="tf-btns">
-      <button class="tf-btn true-btn"  id="tbtn">✅ TRUE</button>
-      <button class="tf-btn false-btn" id="fbtn">❌ FALSE</button>
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Weather Sentences</div>
+      <div class="gh-name" style="color:var(--sky)">Word Order 🔤</div>
+      <div class="gh-instr">Tap the tiles in order to build the sentence!</div>
     </div>
-    <div class="feedback" id="fb5"></div>`;
-  document.getElementById('tbtn').addEventListener('click',()=>g5ans(true,f.answer));
-  document.getElementById('fbtn').addEventListener('click',()=>g5ans(false,f.answer));
-}
-function g5ans(ans,correct){
-  document.getElementById('tbtn').disabled=true; document.getElementById('fbtn').disabled=true;
-  if(ans===correct){
-    addScore(12); feedback('fb5','correct',"🎉 That's right!");
-    confetti(window.innerWidth/2,window.innerHeight/3);
-  } else {
-    feedback('fb5','wrong',`❌ It's ${correct?'TRUE ✅':'FALSE ❌'}!`);
-  }
-  g5i++; setTimeout(renderG5,1600);
-}
-
-// ═══════════════════════════════════════════
-//  G6 — LIVE BROADCAST (sentence builder)
-//  Build the forecast from word chips — uses was/were + weather vocab
-// ═══════════════════════════════════════════
-function initG6(){ g6d=shuffle(BROADCASTS); g6i=0; renderG6(); }
-function renderG6(){
-  if(g6i>=g6d.length){ showComplete(); return; }
-  totalQ++; setProgress(g6i,g6d.length);
-  const b=g6d[g6i]; g6typed=[];
-  const pool=shuffle([...b.required,...b.distractors]);
-  g6d[g6i]._pool=pool;
-  document.getElementById('game-content').innerHTML=`
-    <div class="game-title-bar"><div class="game-name">🎙️ Live <span>Broadcast!</span></div><div class="game-instr">Tap the words to build your forecast!</div></div>
-    <div class="q-counter">Broadcast ${g6i+1} of ${g6d.length}</div>
-    <div class="broadcast-screen">
-      <div class="bc-location">📍 ${b.location}</div>
-      <div class="bc-prompt">${b.prompt.replace(/___+/g,'<em>_____</em>')}</div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
     </div>
-    <div class="sentence-tray" id="stray"><span class="tray-placeholder">Tap the words below…</span></div>
-    <div class="word-bank" id="wbank">
-      ${pool.map((_,i)=>`<button class="w-option" id="wo${i}">${pool[i]}</button>`).join('')}
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--sky);color:var(--bg)">Check ✓</button>
     </div>
-    <div class="center-row">
-      <button class="btn btn-sm" onclick="renderG6()">🗑️ Clear</button>
-      <button class="btn btn-primary" onclick="g6check()">📡 Broadcast!</button>
-    </div>
-    <div class="feedback" id="fb6"></div>
-    <div id="csent6" class="correct-sent" style="display:none"></div>`;
-  document.querySelectorAll('#wbank .w-option').forEach((btn,i)=>{
-    btn.addEventListener('click',()=>g6pick(btn,pool[i]));
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
   });
-}
-function g6pick(btn,word){
-  btn.disabled=true; btn.style.opacity='0.3';
-  g6typed.push({word,btn});
-  const tray=document.getElementById('stray');
-  if(g6typed.length===1) tray.innerHTML='';
-  tray.classList.add('has-words');
-  const chip=document.createElement('div'); chip.className='w-chip'; chip.textContent=word;
-  chip.addEventListener('click',()=>{
-    const idx=g6typed.findIndex(x=>x.btn===btn);
-    if(idx>-1) g6typed.splice(idx,1);
-    btn.disabled=false; btn.style.opacity='1'; chip.remove();
-    if(g6typed.length===0){ tray.classList.remove('has-words'); tray.innerHTML='<span class="tray-placeholder">Tap the words below…</span>'; }
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…';
+    hideFb('g6fb');
   });
-  tray.appendChild(chip);
-}
-function g6check(){
-  const b=g6d[g6i];
-  const attempt=g6typed.map(x=>x.word.toLowerCase()).join(' ');
-  const allRequired=b.required.every(w=>attempt.includes(w.toLowerCase()));
-  const noDistractors=b.distractors.every(w=>!attempt.includes(w.toLowerCase()));
-  const cs=document.getElementById('csent6'); cs.style.display='block';
-  if(allRequired&&noDistractors){
-    addScore(20); feedback('fb6','correct','📡 Great broadcast!');
-    cs.style.color='var(--leaf)'; cs.textContent='✅ '+b.answer;
-    confetti(window.innerWidth/2,200);
-  } else {
-    feedback('fb6','wrong','❌ Check your words!');
-    cs.style.color='var(--coral)'; cs.textContent='💡 '+b.answer;
-  }
-  g6i++; setTimeout(renderG6,2200);
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 ⭐'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct sentence: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
 }
 </script>
 </body>
