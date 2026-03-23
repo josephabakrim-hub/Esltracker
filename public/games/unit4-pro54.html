@@ -3,984 +3,839 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unit 4 – After School Club 🎭</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Unit 4 — After-school Club!</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --orange: #FF6B35;
-    --yellow: #FFD23F;
-    --green: #06D6A0;
-    --blue: #118AB2;
-    --pink: #EF476F;
-    --purple: #845EC2;
-    --dark: #1a1a2e;
-    --card: #ffffff;
-  }
+:root {
+  --bg:      #0c0608;
+  --deep:    #120a0c;
+  --card:    #1a0e10;
+  --card2:   #221218;
+  --border:  #3d1a20;
+  --crimson: #c41230;
+  --red2:    #e63950;
+  --gold:    #f5c842;
+  --gold2:   #fde68a;
+  --cream:   #fff8e7;
+  --teal:    #00c9a7;
+  --green:   #00e676;
+  --white:   #fff0f3;
+  --muted:   #5a2030;
+  --ok:      #00e676;
+  --bad:     #e63950;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(196,18,48,.2) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(245,200,66,.06) 0%, transparent 50%);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* spotlight effect at top */
+body::before {
+  content:'';
+  position:fixed; top:0; left:50%; transform:translateX(-50%);
+  width:300px; height:200px;
+  background:radial-gradient(ellipse at 50% 0%, rgba(245,200,66,.12) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--dark);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 60px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--border);
+  color:var(--gold); font-family:var(--font-m); font-size:10px;
+  letter-spacing:2px; padding:5px 14px; border-radius:4px; margin-bottom:18px; text-transform:uppercase;
+}
+/* curtain divider */
+.curtain-bar {
+  width:100%; max-width:500px; height:6px; margin-bottom:16px; border-radius:3px;
+  background:repeating-linear-gradient(90deg, var(--crimson) 0, var(--crimson) 18px, #8b0010 18px, #8b0010 36px);
+  opacity:.7;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2.2rem,10vw,4rem); font-weight:800;
+  text-align:center; line-height:.95; margin-bottom:6px;
+  text-shadow:0 0 40px rgba(245,200,66,.3);
+}
+.home-title span { color:var(--gold); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:6px; padding:6px 16px; margin-bottom:28px; font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--gold); }
 
-  /* ===== STARS BG ===== */
-  .stars {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse at 20% 30%, #16213e 0%, #0f3460 50%, #1a1a2e 100%);
-  }
-  .stars::before, .stars::after {
-    content: '';
-    position: absolute;
-    width: 2px; height: 2px;
-    border-radius: 50%;
-    background: white;
-    box-shadow:
-      50px 80px 0 white, 120px 20px 0 #ffd, 200px 150px 0 white,
-      300px 60px 0 #ffd, 400px 30px 0 white, 450px 120px 0 #ffd,
-      520px 200px 0 white, 600px 40px 0 white, 700px 180px 0 #ffd,
-      800px 90px 0 white, 900px 50px 0 #ffd, 1000px 160px 0 white,
-      80px 300px 0 #ffd, 160px 400px 0 white, 250px 350px 0 #ffd,
-      350px 450px 0 white, 430px 280px 0 #ffd, 550px 380px 0 white,
-      650px 320px 0 #ffd, 750px 460px 0 white, 850px 340px 0 #ffd;
-  }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:520px; }
+.gc {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 12px; cursor:pointer; text-align:center; position:relative;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.8rem; margin-bottom:7px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:17px; font-weight:800; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:6px; color:var(--gold); min-height:14px; }
 
-  /* ===== SCREEN SYSTEM ===== */
-  .screen {
-    display: none;
-    position: relative; z-index: 1;
-    min-height: 100vh;
-    padding: 20px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .screen.active { display: flex; }
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px; background:rgba(12,6,8,.92); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--gold); color:var(--gold); }
+.tb-title { font-family:var(--font-h); font-size:16px; font-weight:700; }
+.tb-score { background:var(--crimson); color:#fff; font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:3px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
 
-  /* ===== HOME SCREEN ===== */
-  .home-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(2.5rem, 7vw, 5rem);
-    color: var(--yellow);
-    text-align: center;
-    text-shadow: 4px 4px 0 rgba(0,0,0,0.3);
-    line-height: 1.1;
-    margin-bottom: 8px;
-  }
-  .home-sub {
-    font-size: 1.1rem;
-    color: #a8c0d6;
-    text-align: center;
-    margin-bottom: 40px;
-    font-weight: 600;
-  }
-  .emoji-banner {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    animation: bounce 2s ease-in-out infinite;
-  }
-  @keyframes bounce {
-    0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)}
-  }
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.6rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
 
-  .game-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    width: 100%;
-  }
+/* clapper card — the signature mechanic */
+.clapper-wrap { text-align:center; margin-bottom:14px; }
+.clapper {
+  display:inline-block; background:var(--card2);
+  border:2px solid var(--border); border-radius:var(--r);
+  padding:16px 18px; max-width:420px; width:100%;
+  position:relative; overflow:hidden;
+}
+.clapper-top {
+  background:linear-gradient(135deg,#1a1a1a,#2a2a2a);
+  border-radius:6px 6px 0 0; padding:8px 12px; margin:-16px -18px 12px;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:3px solid var(--gold);
+}
+.clapper-stripe { width:18px; height:18px; border-radius:2px; background:repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 4px, #222 4px, #222 8px); flex-shrink:0; }
+.clapper-meta { font-family:var(--font-m); font-size:9px; color:var(--gold2); letter-spacing:1px; }
+.clapper-body { font-family:var(--font-h); font-size:1.05rem; font-weight:700; line-height:1.6; text-align:left; }
+.clapper-body .hl  { color:var(--gold); }
+.clapper-body .hl2 { color:var(--red2); }
+.clapper-body .gap { border-bottom:2px solid var(--gold); color:var(--gold); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:13px; }
+.clapper.snap { animation:clapSnap .25s ease; }
+@keyframes clapSnap { 0%{transform:scaleY(1)} 30%{transform:scaleY(.92)} 60%{transform:scaleY(1.04)} 100%{transform:scaleY(1)} }
 
-  .game-card {
-    background: white;
-    border-radius: 24px;
-    padding: 28px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform .2s, box-shadow .2s;
-    border: 4px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
-  .game-card:hover { transform: translateY(-6px) scale(1.02); }
-  .game-card:active { transform: scale(0.97); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:700; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--gold)); color:var(--opt-col,var(--gold)); background:color-mix(in srgb, var(--opt-col,var(--gold)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(230,57,80,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
 
-  .game-card.orange { border-color: var(--orange); background: linear-gradient(135deg,#fff8f5,#fff); }
-  .game-card.green  { border-color: var(--green);  background: linear-gradient(135deg,#f0fff9,#fff); }
-  .game-card.blue   { border-color: var(--blue);   background: linear-gradient(135deg,#f0f8ff,#fff); }
-  .game-card.pink   { border-color: var(--pink);   background: linear-gradient(135deg,#fff0f4,#fff); }
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:14px; font-weight:600; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.08); color:var(--ok); border:1px solid rgba(0,230,118,.2); }
+.fb.bad { display:block; background:rgba(230,57,80,.08); color:var(--bad); border:1px solid rgba(230,57,80,.2); }
+.grammar-tip { font-family:var(--font-b); font-size:12px; color:var(--teal); padding:8px 12px; background:rgba(0,201,167,.07); border-radius:8px; margin-top:6px; line-height:1.5; display:none; border-left:2px solid var(--teal); }
 
-  .card-emoji { font-size: 3rem; margin-bottom: 12px; }
-  .card-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.5rem;
-    color: var(--dark);
-    margin-bottom: 6px;
-  }
-  .card-desc { font-size: 0.9rem; color: #666; font-weight: 600; }
-  .card-badge {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--yellow); color: var(--dark);
-    font-size: 0.7rem; font-weight: 800;
-    padding: 4px 8px; border-radius: 20px;
-    text-transform: uppercase;
-  }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--gold); transform:scale(1.4); }
 
-  /* ===== GAME HEADER ===== */
-  .game-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 800px;
-    margin-bottom: 24px;
-    padding: 12px 20px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-  }
-  .back-btn {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1rem;
-    background: rgba(255,255,255,0.15);
-    color: white;
-    border: 2px solid rgba(255,255,255,0.3);
-    padding: 8px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .back-btn:hover { background: rgba(255,255,255,0.25); }
+/* ══ G2: SPELLING STAGE — -ed spelling rules ══ */
+.verb-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:22px 16px; text-align:center; margin-bottom:16px; }
+.verb-big  { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--white); letter-spacing:-1px; margin-bottom:4px; }
+.verb-hint { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+.ed-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.ed-opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-m); font-size:15px; font-weight:700; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; }
+.ed-opt:hover:not(.locked) { border-color:var(--gold); color:var(--gold); transform:translateY(-2px); }
+.ed-opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s; pointer-events:none; }
+.ed-opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(230,57,80,.08); animation:shake .4s; pointer-events:none; }
+.ed-opt.locked  { pointer-events:none; }
 
-  .score-badge {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.2rem;
-    color: var(--yellow);
-    background: rgba(255,210,63,0.15);
-    padding: 6px 16px;
-    border-radius: 12px;
-    border: 2px solid var(--yellow);
-  }
+/* ══ G4: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(245,200,66,.08); border:1px solid rgba(245,200,66,.25); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--gold); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:600; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--gold); }
 
-  .game-title-sm {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.2rem;
-    color: white;
-  }
+/* ══ G5: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--gold); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--gold2); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:22px 16px; text-align:center; margin-bottom:14px; }
+.rule-text { font-family:var(--font-h); font-size:1.05rem; font-weight:700; line-height:1.6; }
+.rule-text .hl  { color:var(--gold); }
+.rule-text .hl2 { color:var(--red2); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:15px; font-weight:700; padding:16px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.08); color:var(--ok); border-color:rgba(0,230,118,.3); }
+.tf-no  { background:rgba(230,57,80,.06); color:var(--bad); border-color:rgba(230,57,80,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
 
-  /* ===== PROGRESS BAR ===== */
-  .progress-bar {
-    width: 100%;
-    max-width: 800px;
-    height: 10px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    margin-bottom: 24px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green), var(--yellow));
-    border-radius: 10px;
-    transition: width .4s ease;
-  }
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:56px; margin-bottom:14px; font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--gold); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--crimson); color:#fff; font-family:var(--font-h); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--red2); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
 
-  /* ===== QUESTION AREA ===== */
-  .question-box {
-    background: white;
-    border-radius: 24px;
-    padding: 32px;
-    text-align: center;
-    max-width: 800px;
-    width: 100%;
-    margin-bottom: 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  }
-  .question-label {
-    font-size: 0.85rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #999;
-    margin-bottom: 12px;
-  }
-  .question-text {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    color: var(--dark);
-    line-height: 1.3;
-  }
-  .question-emoji { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--gold); text-shadow:0 0 40px rgba(245,200,66,.4); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--gold) 0%, var(--crimson) 40%, var(--teal) 80%, var(--gold2) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(245,200,66,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--gold); font-weight:900; }
+.btn-play { background:var(--crimson); color:#fff; font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(196,18,48,.4); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(196,18,48,.55); background:var(--red2); }
 
-  /* ===== OPTIONS GRID ===== */
-  .options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    max-width: 800px;
-    width: 100%;
-  }
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
 
-  .option-btn {
-    padding: 18px 20px;
-    border-radius: 18px;
-    border: 3px solid #e0e0e0;
-    background: white;
-    font-family: 'Nunito', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--dark);
-    cursor: pointer;
-    transition: all .15s;
-    box-shadow: 0 4px 0 #e0e0e0;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .option-btn:hover:not(:disabled) {
-    border-color: var(--blue);
-    background: #f0f8ff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 0 #c5dff0;
-  }
-  .option-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
-  .option-btn.correct {
-    border-color: var(--green) !important;
-    background: #e8fff5 !important;
-    box-shadow: 0 4px 0 #02b07e !important;
-    animation: correctPop .3s ease;
-  }
-  .option-btn.wrong {
-    border-color: var(--pink) !important;
-    background: #fff0f3 !important;
-    box-shadow: 0 4px 0 #c73558 !important;
-    animation: shake .3s ease;
-  }
-  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
-  @keyframes shake { 0%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} 100%{transform:translateX(0)} }
-
-  /* ===== FEEDBACK ===== */
-  .feedback {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.5rem;
-    text-align: center;
-    padding: 16px 32px;
-    border-radius: 16px;
-    margin-top: 16px;
-    opacity: 0;
-    transition: opacity .2s;
-    max-width: 800px;
-    width: 100%;
-  }
-  .feedback.show { opacity: 1; }
-  .feedback.correct-fb { background: #e8fff5; color: #02b07e; border: 3px solid var(--green); }
-  .feedback.wrong-fb   { background: #fff0f3; color: #c73558; border: 3px solid var(--pink); }
-
-  /* ===== ORDINAL GAME – DRAG ===== */
-  .ordinal-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    max-width: 800px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .ordinal-card {
-    background: white;
-    border-radius: 14px;
-    padding: 14px 8px;
-    text-align: center;
-    border: 3px solid #e8e8e8;
-    cursor: pointer;
-    transition: all .2s;
-    font-family: 'Fredoka One', cursive;
-  }
-  .ordinal-card .number { font-size: 1.5rem; color: var(--blue); }
-  .ordinal-card .word   { font-size: 0.75rem; color: #888; font-weight: 700; margin-top: 4px; }
-  .ordinal-card.selected { border-color: var(--orange); background: #fff8f0; transform: scale(1.05); }
-  .ordinal-card.matched  { border-color: var(--green); background: #e8fff5; pointer-events: none; }
-  .ordinal-card.wrong-pick { border-color: var(--pink); background: #fff0f3; animation: shake .3s ease; }
-
-  /* ===== COMPLETE SCREEN ===== */
-  .complete-box {
-    background: white;
-    border-radius: 32px;
-    padding: 48px 36px;
-    text-align: center;
-    max-width: 520px;
-    width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
-  }
-  .complete-emoji { font-size: 5rem; margin-bottom: 16px; animation: bounce 1.5s infinite; }
-  .complete-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 2.5rem;
-    color: var(--dark);
-    margin-bottom: 8px;
-  }
-  .complete-score {
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 28px;
-    font-weight: 700;
-  }
-  .stars-row { font-size: 2.5rem; margin-bottom: 28px; }
-
-  .play-again-btn {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.3rem;
-    background: linear-gradient(135deg, var(--orange), #ff8c42);
-    color: white;
-    border: none;
-    padding: 16px 40px;
-    border-radius: 20px;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #cc5228;
-    transition: all .15s;
-  }
-  .play-again-btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #cc5228; }
-  .play-again-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #cc5228; }
-
-  /* ===== SENTENCE BUILDER ===== */
-  .sentence-target {
-    background: #f0f8ff;
-    border: 3px dashed var(--blue);
-    border-radius: 16px;
-    padding: 20px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.6rem;
-    color: var(--blue);
-    min-height: 64px;
-    text-align: center;
-    max-width: 800px;
-    width: 100%;
-    margin-bottom: 16px;
-    word-spacing: 6px;
-  }
-
-  .word-bank {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    max-width: 800px;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .word-chip {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 1rem;
-    padding: 10px 18px;
-    border-radius: 12px;
-    background: white;
-    border: 3px solid #ddd;
-    cursor: pointer;
-    transition: all .15s;
-    box-shadow: 0 3px 0 #ccc;
-  }
-  .word-chip:hover:not(.used) { border-color: var(--purple); background: #f5f0ff; transform: translateY(-2px); }
-  .word-chip.used { opacity: 0.35; pointer-events: none; }
-
-  .check-btn {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.2rem;
-    background: linear-gradient(135deg, var(--green), #04c48a);
-    color: white;
-    border: none;
-    padding: 14px 36px;
-    border-radius: 16px;
-    cursor: pointer;
-    box-shadow: 0 5px 0 #029e70;
-    transition: all .15s;
-    margin-top: 8px;
-  }
-  .check-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #029e70; }
-
-  .clear-btn {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1rem;
-    background: rgba(255,255,255,0.1);
-    color: #ccc;
-    border: 2px solid rgba(255,255,255,0.2);
-    padding: 10px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-left: 10px;
-  }
-
-  /* ===== PAST SIMPLE FILL ===== */
-  .fill-input {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.4rem;
-    color: var(--dark);
-    border: none;
-    border-bottom: 4px solid var(--blue);
-    background: transparent;
-    text-align: center;
-    width: 180px;
-    outline: none;
-    padding: 4px 8px;
-  }
-  .fill-input.correct-input { border-color: var(--green); color: var(--green); }
-  .fill-input.wrong-input   { border-color: var(--pink);  color: var(--pink);  }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 500px) {
-    .options-grid { grid-template-columns: 1fr; }
-    .ordinal-grid { grid-template-columns: repeat(3,1fr); }
-    .game-grid    { grid-template-columns: 1fr; }
-  }
-
-  /* ===== CONFETTI ===== */
-  .confetti-piece {
-    position: fixed;
-    width: 10px; height: 10px;
-    top: -10px;
-    border-radius: 2px;
-    animation: confettiFall linear forwards;
-    pointer-events: none;
-    z-index: 9999;
-  }
-  @keyframes confettiFall {
-    to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
-  }
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
 </style>
 </head>
 <body>
 
-<div class="stars"></div>
-
-<!-- ===== HOME SCREEN ===== -->
-<div class="screen active" id="screen-home">
-  <div class="emoji-banner">🎭🏓♟️🎼</div>
-  <h1 class="home-title">After School Club!</h1>
-  <p class="home-sub">Unit 4 · Kids Box Level 4 · Pro Class 🌟</p>
-
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Kids Box NG4 · Unit 4 · Pro5_4</div>
+  <div class="curtain-bar"></div>
+  <h1 class="home-title">After-school<br><span>Club!</span></h1>
+  <p class="home-sub">// The show must go on! What did the kids do today? //</p>
+  <div class="total-stars">Stars: <span id="totalStars">0</span></div>
   <div class="game-grid">
-    <div class="game-card orange" onclick="startGame('vocab')">
-      <div class="card-badge">Vocabulary</div>
-      <div class="card-emoji">🎯</div>
-      <div class="card-title">Activity Match</div>
-      <div class="card-desc">Match activities to their descriptions!</div>
+    <div class="gc" style="--gc-col:#f5c842" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🎪</span>
+      <div class="gc-title">Club Vocab</div>
+      <div class="gc-desc">Name the after-school activity!</div>
+      <div class="gc-best" id="best0"></div>
     </div>
-    <div class="game-card green" onclick="startGame('pastSimple')">
-      <div class="card-emoji">⏰</div>
-      <div class="card-title">Past Simple Quiz</div>
-      <div class="card-desc">Choose the correct past simple form!</div>
+    <div class="gc" style="--gc-col:#00c9a7" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">✏️</span>
+      <div class="gc-title">Spelling Stage</div>
+      <div class="gc-desc">What's the correct -ed form?</div>
+      <div class="gc-best" id="best1"></div>
     </div>
-    <div class="game-card blue" onclick="startGame('ordinals')">
-      <div class="card-emoji">🔢</div>
-      <div class="card-title">Ordinal Numbers</div>
-      <div class="card-desc">Click the right ordinal for each number!</div>
+    <div class="gc" style="--gc-col:#e63950" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">🎬</span>
+      <div class="gc-title">Story Gap-Fill</div>
+      <div class="gc-desc">Complete Simon and Stella's story!</div>
+      <div class="gc-best" id="best2"></div>
     </div>
-    <div class="game-card pink" onclick="startGame('builder')">
-      <div class="card-emoji">🏗️</div>
-      <div class="card-title">Sentence Builder</div>
-      <div class="card-desc">Build past simple sentences word by word!</div>
+    <div class="gc" style="--gc-col:#f5c842" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">Did / didn't — answer fast!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#c41230" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f5c842" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the past simple sentence!</div>
+      <div class="gc-best" id="best5"></div>
     </div>
   </div>
 </div>
 
-<!-- ===== VOCAB GAME ===== -->
-<div class="screen" id="screen-vocab">
-  <div class="game-header">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <span class="game-title-sm">🎯 Activity Match</span>
-    <span class="score-badge" id="vocab-score">⭐ 0</span>
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
   </div>
-  <div class="progress-bar"><div class="progress-fill" id="vocab-progress" style="width:0%"></div></div>
-  <div class="question-box">
-    <div class="question-label">What activity is this? 🤔</div>
-    <span class="question-emoji" id="vocab-emoji"></span>
-    <div class="question-text" id="vocab-question"></div>
-  </div>
-  <div class="options-grid" id="vocab-options"></div>
-  <div class="feedback" id="vocab-feedback"></div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
 </div>
 
-<!-- ===== PAST SIMPLE GAME ===== -->
-<div class="screen" id="screen-pastSimple">
-  <div class="game-header">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <span class="game-title-sm">⏰ Past Simple Quiz</span>
-    <span class="score-badge" id="ps-score">⭐ 0</span>
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🎭</span>
+  <div class="win-title">Show Time!</div>
+  <div class="win-sub">"What a great afternoon!" — Mr Star</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
   </div>
-  <div class="progress-bar"><div class="progress-fill" id="ps-progress" style="width:0%"></div></div>
-  <div class="question-box">
-    <div class="question-label">Choose the correct past simple! ✏️</div>
-    <div class="question-text" id="ps-question"></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
   </div>
-  <div class="options-grid" id="ps-options"></div>
-  <div class="feedback" id="ps-feedback"></div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
 </div>
-
-<!-- ===== ORDINALS GAME ===== -->
-<div class="screen" id="screen-ordinals">
-  <div class="game-header">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <span class="game-title-sm">🔢 Ordinal Numbers</span>
-    <span class="score-badge" id="ord-score">⭐ 0</span>
-  </div>
-  <div class="question-box">
-    <div class="question-label">Click the matching ordinal number! 🏆</div>
-    <div class="question-text" id="ord-question"></div>
-  </div>
-  <div class="ordinal-grid" id="ord-grid"></div>
-  <div class="feedback" id="ord-feedback"></div>
-</div>
-
-<!-- ===== SENTENCE BUILDER ===== -->
-<div class="screen" id="screen-builder">
-  <div class="game-header">
-    <button class="back-btn" onclick="goHome()">← Home</button>
-    <span class="game-title-sm">🏗️ Sentence Builder</span>
-    <span class="score-badge" id="sb-score">⭐ 0</span>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" id="sb-progress" style="width:0%"></div></div>
-  <div class="question-box">
-    <div class="question-label">Build the past simple sentence! 🔨</div>
-    <div class="question-text" id="sb-clue"></div>
-  </div>
-  <div class="sentence-target" id="sb-target">Tap a word below to add it!</div>
-  <div class="word-bank" id="sb-wordbank"></div>
-  <div>
-    <button class="check-btn" onclick="checkSentence()">✅ Check!</button>
-    <button class="clear-btn" onclick="clearSentence()">🔄 Clear</button>
-  </div>
-  <div class="feedback" id="sb-feedback"></div>
-</div>
-
-<!-- ===== COMPLETE SCREEN ===== -->
-<div class="screen" id="screen-complete">
-  <div class="complete-box">
-    <div class="complete-emoji" id="complete-emoji">🎉</div>
-    <div class="complete-title" id="complete-title">Amazing!</div>
-    <div class="stars-row" id="complete-stars">⭐⭐⭐</div>
-    <div class="complete-score" id="complete-msg"></div>
-    <button class="play-again-btn" onclick="goHome()">🏠 Play Again!</button>
-  </div>
-</div>
+<div class="cfx" id="cfx"></div>
 
 <script>
-// ===== DATA =====
-const vocabQuestions = [
-  { emoji:'🎭', q:'A show with singing and dancing on a big stage', a:'do a musical', opts:['do a musical','play chess','play table tennis','go swimming'] },
-  { emoji:'♟️', q:'A board game where you move pieces to catch the king!', a:'play chess', opts:['play chess','do a musical','play table tennis','do painting'] },
-  { emoji:'🏓', q:'A sport you play with a small ball and a paddle on a table', a:'play table tennis', opts:['play table tennis','play chess','do a musical','go running'] },
-  { emoji:'🎭', q:'Which activity is also called "ping pong"?', a:'play table tennis', opts:['play table tennis','do a musical','play chess','do gymnastics'] },
-  { emoji:'♟️', q:'In this game, pieces are called Queen, King, Bishop, and Knight', a:'play chess', opts:['play chess','play table tennis','do a musical','play football'] },
-  { emoji:'🎵', q:'The school club where students practise songs and acting', a:'do a musical', opts:['do a musical','play chess','play table tennis','do drama'] },
-  { emoji:'🏓', q:'This club needs a net, a small white ball, and two bats', a:'play table tennis', opts:['play table tennis','play chess','do a musical','play badminton'] },
-  { emoji:'♟️', q:'This game is played on a black and white board with 64 squares', a:'play chess', opts:['play chess','do a musical','play table tennis','play draughts'] },
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — confirmed from Kids Box NG4 Unit 4
+   "After-school Club" Teacher's Book p.T36–T42
+   + Wordwall story dialogue + TPT vocabulary list
+═══════════════════════════════════════════ */
+
+// G1 — Club Vocab: confirmed from TPT key language list
+// Key language: after-school club, hall, play chess, school show, musical
+// Revision: clean, carry, help, hop, skip, jump, laugh, sing, dance
+const G1 = [
+  { clue:"You move things from one place to another. Your arms do the work.",    ans:'carry',          opts:['carry','clean','skip','laugh']          },
+  { clue:"This is a big room in a school for assemblies and shows.",             ans:'hall',           opts:['hall','club','show','classroom']        },
+  { clue:"A show with singing and dancing on a stage.",                          ans:'musical',        opts:['musical','concert','chess','club']      },
+  { clue:"You play this game with 16 white and 16 black pieces on a board.",     ans:'play chess',     opts:['play chess','do a show','skip','dance'] },
+  { clue:"You join this group after school to do a fun activity.",               ans:'after-school club', opts:['after-school club','school show','hall','musical'] },
+  { clue:"Students prepare this performance for their school.",                  ans:'school show',    opts:['school show','musical','chess','club']  },
+  { clue:"You do this on one foot — jump quickly and lightly!",                 ans:'hop',            opts:['hop','skip','jump','dance']             },
+  { clue:"You jump from one foot to the other in a rhythmic way.",              ans:'skip',           opts:['skip','hop','carry','jump']             },
+  { clue:"Your mouth does this when something is very funny.",                   ans:'laugh',          opts:['laugh','sing','skip','carry']           },
+  { clue:"You make the floor or tables look new again using a cloth or brush.",  ans:'clean',          opts:['clean','carry','help','wash']           },
 ];
 
-const pastSimpleQs = [
-  { q:'Yesterday, she _____ chess for two hours.', a:'played', opts:['played','playd','plays','playied'] },
-  { q:'They _____ a musical last week! It was great!', a:'performed', opts:['performed','performd','performs','performied'] },
-  { q:'He _____ table tennis at the school club on Monday.', a:'played', opts:['played','playied','plays','playing'] },
-  { q:'We _____ not watch TV. We studied English!', a:'did', opts:['did','does','was','done'] },
-  { q:'_____ she dance in the musical?', a:'Did', opts:['Did','Does','Was','Were'] },
-  { q:'I _____ my homework after school club.', a:'finished', opts:['finished','finishd','finish','finishing'] },
-  { q:'They _____ (not) play chess. They played table tennis!', a:"didn't", opts:["didn't","doesn't","wasn't","don't"] },
-  { q:'He _____ at school at 3pm yesterday.', a:'arrived', opts:['arrived','arrivd','arriving','arrive'] },
-  { q:'_____ you practise for the musical last night?', a:'Did', opts:['Did','Does','Were','Have'] },
-  { q:'She _____ the chess champion in the competition!', a:'was', opts:['was','were','is','be'] },
+// G2 — Spelling Stage: base verb → correct past simple -ed form
+// Confirmed from TPT "Grammar: past simple regular verbs, spelling of -ed endings"
+// Three rules: 1) just add -ed  2) double consonant + ed  3) drop -e + d
+const G2_ED = [
+  { verb:'skip',   correct:'skipped',  wrong1:'skiped',   wrong2:'skippped', rule:'Short vowel + single consonant → double it: skip → skipped' },
+  { verb:'hop',    correct:'hopped',   wrong1:'hoped',    wrong2:'hoped',    rule:'Short vowel + consonant → double it: hop → hopped (not hoped — that\'s a different verb!)' },
+  { verb:'stop',   correct:'stopped',  wrong1:'stoped',   wrong2:'stoppd',   rule:'Short vowel + consonant → double it: stop → stopped' },
+  { verb:'dance',  correct:'danced',   wrong1:'danceed',  wrong2:'dancing',  rule:'Ends in -e → just add -d: dance → danced' },
+  { verb:'smile',  correct:'smiled',   wrong1:'smileed',  wrong2:'smilled',  rule:'Ends in -e → just add -d: smile → smiled' },
+  { verb:'help',   correct:'helped',   wrong1:'helpped',  wrong2:'helpt',    rule:'Consonant cluster → just add -ed: help → helped' },
+  { verb:'clean',  correct:'cleaned',  wrong1:'cleanned', wrong2:'cleaneed', rule:'Vowel + consonant at end → just add -ed: clean → cleaned' },
+  { verb:'carry',  correct:'carried',  wrong1:'carryed',  wrong2:'carrid',   rule:'Ends in consonant + y → change y to i, add -ed: carry → carried' },
+  { verb:'play',   correct:'played',   wrong1:'plaid',    wrong2:'plaied',   rule:'Ends in vowel + y → just add -ed: play → played' },
+  { verb:'start',  correct:'started',  wrong1:'starttd',  wrong2:'starte',   rule:'Ends in -t → add -ed: start → started' },
+  { verb:'laugh',  correct:'laughed',  wrong1:'laught',   wrong2:'laughd',   rule:'Ends in consonant cluster → add -ed: laugh → laughed' },
+  { verb:'jump',   correct:'jumped',   wrong1:'jumpped',  wrong2:'jumpt',    rule:'Consonant cluster → just add -ed: jump → jumped' },
 ];
 
-const ordinalPairs = [
-  {num:1,  word:'1st',   say:'first'},
-  {num:2,  word:'2nd',   say:'second'},
-  {num:3,  word:'3rd',   say:'third'},
-  {num:4,  word:'4th',   say:'fourth'},
-  {num:5,  word:'5th',   say:'fifth'},
-  {num:6,  word:'6th',   say:'sixth'},
-  {num:7,  word:'7th',   say:'seventh'},
-  {num:8,  word:'8th',   say:'eighth'},
-  {num:9,  word:'9th',   say:'ninth'},
-  {num:10, word:'10th',  say:'tenth'},
-  {num:11, word:'11th',  say:'eleventh'},
-  {num:12, word:'12th',  say:'twelfth'},
-  {num:15, word:'15th',  say:'fifteenth'},
-  {num:20, word:'20th',  say:'twentieth'},
+// G3 — Story Gap-Fill: from the actual Wordwall dialogue (confirmed)
+// Mr Star: "What did you do this afternoon at the After school club, kids?"
+// Simon: "Well, first we MET Mr Burke. Alex and I CARRIED the chairs and then
+//         we MOVED them into the hall."
+// Stella: "I PLAYED chess with Meera and then we all STARTED to think about
+//          our school show."
+// Simon: "Yes, Mr Burke ASKED us to do a musical. We had to sing. And we DANCED!"
+const G3_STORY = [
+  { scene:"Mr Star is asking the kids about their afternoon.", speaker:"Mr Star", text:"What did you ___ this afternoon at the after-school club, kids?", ans:'do', opts:['do','did','done','doing'], tip:'What did you DO? After "did" we use the BASE form of the verb, not past!' },
+  { scene:"Simon is answering Mr Star.", speaker:"Simon", text:"First we ___ Mr Burke at the after-school club.", ans:'met', opts:['met','meeted','meet','meeting'], tip:'"Met" is the irregular past simple of "meet". meet → MET' },
+  { scene:"Simon is describing what he and Alex did.", speaker:"Simon", text:"Alex and I ___ the chairs into the hall.", ans:'carried', opts:['carried','carryed','carry','carred'], tip:'"Carry" ends in consonant + y → change y to i, add -ed: carried!' },
+  { scene:"Simon continues the story.", speaker:"Simon", text:"Then we ___ the chairs into the hall.", ans:'moved', opts:['moved','moveed','move','moven'], tip:'"Move" ends in -e → just add -d: move → moved!' },
+  { scene:"Stella is telling her part.", speaker:"Stella", text:"I ___ chess with Meera.", ans:'played', opts:['played','plaied','plaid','plays'], tip:'"Play" ends in vowel + y → just add -ed: played!' },
+  { scene:"Stella continues.", speaker:"Stella", text:"Then we all ___ to think about our school show.", ans:'started', opts:['started','start','startted','startet'], tip:'"Start" → just add -ed: started!' },
+  { scene:"Simon explains the musical plan.", speaker:"Simon", text:"Mr Burke ___ us to do a musical.", ans:'asked', opts:['asked','askt','ask','asking'], tip:'"Ask" → just add -ed: asked!' },
+  { scene:"Simon describes the best part!", speaker:"Simon", text:"We had to sing. And we ___!", ans:'danced', opts:['danced','danceed','danse','dance'], tip:'"Dance" ends in -e → just add -d: danced!' },
 ];
 
-const sentences = [
-  { clue:'She did a musical. (last Friday)',           words:['She','performed','in','a','musical','last','Friday','.'], answer:'She performed in a musical last Friday .' },
-  { clue:'He played chess. (yesterday)',               words:['He','played','chess','yesterday','.','the','a'],         answer:'He played chess yesterday .' },
-  { clue:'They did not play table tennis. (Monday)',   words:["They","didn't","play","table","tennis","on","Monday",".","did","chess"], answer:"They didn't play table tennis on Monday ." },
-  { clue:'Did you do a musical? (last year)',          words:['Did','you','do','a','musical','last','year','?','play','chess'], answer:'Did you do a musical last year ?' },
-  { clue:'She finished first in the chess competition.',words:['She','finished','first','in','the','chess','competition','.','did'], answer:'She finished first in the chess competition .' },
+// G4 — Bomb Defuse: past simple questions with did/didn't
+// Confirmed from evaluation format + grammar reference
+const G4_BOMB = [
+  { q:"___ Stella play chess? Yes, she ___.",       ans:'Did / did',     opts:['Did / did','Did / does','Does / did','Was / was'], t:5 },
+  { q:"What ___ Simon do first?",                   ans:'did',           opts:['did','does','was','has'], t:5 },
+  { q:"They ___ watch TV — they carried chairs!",   ans:"didn't",        opts:["didn't","don't","wasn't","not"], t:5 },
+  { q:"___ the kids dance? Yes, they ___.",          ans:'Did / did',     opts:['Did / did','Were / were','Did / does','Do / did'], t:4 },
+  { q:"Alex and Simon ___ the chairs.",              ans:'carried',       opts:['carried','carryed','carry','carrid'], t:5 },
+  { q:"___ Mr Burke ask them to do a musical?",      ans:'Did',           opts:['Did','Was','Does','Were'], t:5 },
+  { q:"She ___ play chess — she sang!",              ans:"didn't",        opts:["didn't","doesn't","wasn't","not"], t:4 },
+  { q:"What did they ___ to think about?",           ans:'start',         opts:['start','started','starts','starting'], t:5 },
 ];
 
-// ===== STATE =====
-let currentGame = '';
-let score = 0;
-let currentQ = 0;
-let totalQ = 0;
-let answered = false;
+// G5 — Streak Challenge: correct or wrong?
+// Past simple regular verbs + questions/negatives
+const G5_STREAK = [
+  { rule:"Simon carried the chairs into the hall.",              correct:true  },
+  { rule:"Stella played chess with Meera.",                      correct:true  },
+  { rule:"What did you do at the club?",                         correct:true  },
+  { rule:"They didn't watched TV.",                              correct:false }, // didn't + base verb
+  { rule:"Mr Burke asked them to do a musical.",                 correct:true  },
+  { rule:"Did she played chess? Yes, she did.",                  correct:false }, // did + base verb
+  { rule:"Alex and I moved the chairs into the hall.",           correct:true  },
+  { rule:"He skiped across the stage.",                          correct:false }, // wrong spelling: skipped
+  { rule:"We danced and sang at the school show.",               correct:true  },
+  { rule:"She carred the chairs.",                               correct:false }, // wrong spelling: carried
+  { rule:"Did they clean the hall? No, they didn't.",           correct:true  },
+  { rule:"I didn't go to the club yesterday.",                   correct:true  },
+  { rule:"What did she did after school?",                       correct:false }, // double did
+  { rule:"They started to think about the school show.",         correct:true  },
+];
 
-let ordState = { pairs: [], selected: null, matched: [], score: 0 };
-let sbState  = { idx:0, built:[], usedIdxs: new Set() };
+// G6 — Word Order: exact sentences from the story + grammar
+const G6 = [
+  { words:["Alex","and","I","carried","the","chairs","into","the","hall","."],  ans:"Alex and I carried the chairs into the hall ."  },
+  { words:["What","did","you","do","at","the","after-school","club","?"],        ans:"What did you do at the after-school club ?"      },
+  { words:["I","played","chess","with","Meera","after","school","."],           ans:"I played chess with Meera after school ."        },
+  { words:["Mr","Burke","asked","us","to","do","a","musical","."],              ans:"Mr Burke asked us to do a musical ."             },
+  { words:["They","didn't","watch","TV","yesterday","."],                       ans:"They didn't watch TV yesterday ."                },
+  { words:["Did","she","dance","in","the","school","show","?"],                 ans:"Did she dance in the school show ?"              },
+];
 
-// ===== NAVIGATION =====
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g5streak=0, g5best=0, g4streak=0, g4bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+// clapperboard snap animation
+function snapClapper(){
+  const el=document.querySelector('.clapper');
+  if(!el) return;
+  el.classList.remove('snap');
+  void el.offsetWidth;
+  el.classList.add('snap');
 }
 
-function goHome() {
-  showScreen('home');
-  currentGame = '';
+function confetti(){
+  const cols=['#f5c842','#c41230','#00c9a7','#00e676','#fde68a'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
 }
-
-function startGame(game) {
-  currentGame = game;
-  score = 0;
-  currentQ = 0;
-  answered = false;
-
-  if (game === 'vocab') {
-    totalQ = vocabQuestions.length;
-    showScreen('vocab');
-    loadVocabQ();
-  } else if (game === 'pastSimple') {
-    totalQ = pastSimpleQs.length;
-    showScreen('pastSimple');
-    loadPsQ();
-  } else if (game === 'ordinals') {
-    score = 0;
-    initOrdinals();
-    showScreen('ordinals');
-  } else if (game === 'builder') {
-    sbState.idx = 0;
-    sbState.score = 0;
-    showScreen('builder');
-    loadSentence();
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#f5c842','#00c9a7','#00e676','#c41230'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
   }
 }
 
-// ===== VOCAB GAME =====
-function loadVocabQ() {
-  if (currentQ >= vocabQuestions.length) { showComplete(); return; }
-  answered = false;
-  const q = vocabQuestions[currentQ];
-  document.getElementById('vocab-emoji').textContent = q.emoji;
-  document.getElementById('vocab-question').textContent = q.q;
-  document.getElementById('vocab-progress').style.width = (currentQ/totalQ*100)+'%';
-  document.getElementById('vocab-score').textContent = '⭐ '+score;
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Club Vocab','Spelling Stage','Story Gap-Fill','Bomb Defuse!','Streak Challenge','Word Order'];
+  const cols=['var(--gold)','var(--teal)','var(--red2)','var(--gold)','var(--crimson)','var(--gold)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"What did you do after school?" — "I carried the chairs into the hall!"',
+    '"Did Stella play chess?" — "Yes, she did!"',
+    '"They didn\'t watch TV — they danced!"',
+    '"Mr Burke asked us to do a musical."',
+    'Tell the class: what did YOU do yesterday after school?',
+    '"Did she skip and hop? Yes, she skipped and hopped!"',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
 
-  const fb = document.getElementById('vocab-feedback');
-  fb.className = 'feedback';
-  fb.textContent = '';
-
-  const grid = document.getElementById('vocab-options');
-  const shuffled = shuffle([...q.opts]);
-  grid.innerHTML = '';
-  shuffled.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = opt;
-    btn.onclick = () => answerVocab(btn, opt, q.a);
-    grid.appendChild(btn);
-  });
+/* ═══════════════════════════════════════════
+   G1 — CLUB VOCAB (clue → word)
+   Each question revealed with clapperboard snap
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · After-school Club</div>
+      <div class="gh-name" style="color:var(--gold)">Club Vocab</div>
+      <div class="gh-instr">Read the clue — what is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="clapper-wrap">
+      <div class="clapper" id="clap1">
+        <div class="clapper-top">
+          <div class="clapper-stripe"></div>
+          <div class="clapper-meta">Clue ${g1i+1} of ${g1q.length}</div>
+        </div>
+        <div class="clapper-body">"${q.clue}"</div>
+      </div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  setTimeout(()=>snapClapper(),100);
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
 }
 
-function answerVocab(btn, chosen, correct) {
-  if (answered) return;
-  answered = true;
-  const btns = document.querySelectorAll('#vocab-options .option-btn');
-  const fb = document.getElementById('vocab-feedback');
+/* ═══════════════════════════════════════════
+   G2 — SPELLING STAGE (base verb → correct -ed past simple)
+   Shows verb large, student taps the correct -ed spelling.
+   Confirms the three -ed rules from TPT grammar notes.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_ED); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const extraWrong=q.verb+'ed';
+  const allOpts=rnd([q.correct,q.wrong1,q.wrong2,extraWrong].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4));
+  while(allOpts.length<4) allOpts.push(q.verb+'d');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Spelling · Past Simple -ed Rules</div>
+      <div class="gh-name" style="color:var(--teal)">Spelling Stage</div>
+      <div class="gh-instr">Which is the correct past simple spelling?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="verb-card">
+      <div class="verb-big">${q.verb}</div>
+      <div class="verb-hint">→ past simple = ???</div>
+    </div>
+    <div class="ed-opts" id="g2opts">
+      ${allOpts.map(o=>`<div class="ed-opt" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-tip" id="g2tip"></div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .ed-opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.correct,q.rule)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,ans,rule){
+  document.querySelectorAll('#g2opts .ed-opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g2tip'); tipEl.style.display='block'; tipEl.textContent='Rule: '+rule;
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct spelling! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .ed-opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','Correct: '+ans); }
+  show('g2next');
+}
 
-  if (chosen === correct) {
-    btn.classList.add('correct');
-    score++;
-    fb.textContent = '✅ Excellent! ' + ['Great job!','Superstar!','Brilliant!','Amazing!'][Math.floor(Math.random()*4)];
-    fb.className = 'feedback correct-fb show';
-    launchConfetti(5);
+/* ═══════════════════════════════════════════
+   G3 — STORY GAP-FILL (the actual Wordwall dialogue confirmed)
+   Each question is presented as a clapperboard scene card.
+   Student fills the gap in the story.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=G3_STORY; g3i=0; g3Render(); } // keep in order — it's a story!
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayText=q.text.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Story · Complete the Dialogue</div>
+      <div class="gh-name" style="color:var(--red2)">Story Gap-Fill</div>
+      <div class="gh-instr">Complete the story — what did they say?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="clapper-wrap">
+      <div class="clapper" id="clap3">
+        <div class="clapper-top">
+          <div class="clapper-stripe"></div>
+          <div class="clapper-meta">${q.speaker} — Scene ${g3i+1}</div>
+        </div>
+        <div class="clapper-body">
+          <span style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">${q.scene}</span>
+          ${displayText}
+        </div>
+      </div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--red2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-tip" id="g3tip"></div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--red2);color:#fff">Next ›</button>`;
+  setTimeout(()=>snapClapper(),100);
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.tip)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,tip){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g3tip'); tipEl.style.display='block'; tipEl.textContent='Tip: '+tip;
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (did/didn't questions — timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_BOMB); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Did / Didn't · Timed!</div>
+      <div class="gh-name" style="color:var(--gold)">Bomb Defuse!</div>
+      <div class="gh-instr">Answer before the fuse burns out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--gold)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--crimson);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ4"></div>
+    <div class="opts2" id="bombOpts4"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4BombRender(); });
+  g4BombRender();
+}
+function g4BombRender(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ4').innerHTML=q.q.replace('???','<span class="hl">???</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts4').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts4 .opt').forEach(el=>el.addEventListener('click',()=>g4BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    g4bombScore+=3; $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 stars'); miniConfetti(el);
   } else {
-    btn.classList.add('wrong');
-    btns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
-    fb.textContent = '❌ Not quite! The answer is: ' + correct;
-    fb.className = 'feedback wrong-fb show';
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g4fb','bad','Boom! It\'s: '+ans);
   }
-
-  setTimeout(() => { currentQ++; loadVocabQ(); }, 1600);
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+ans);
+  show('g4next');
 }
 
-// ===== PAST SIMPLE GAME =====
-function loadPsQ() {
-  if (currentQ >= pastSimpleQs.length) { showComplete(); return; }
-  answered = false;
-  const q = pastSimpleQs[currentQ];
-  document.getElementById('ps-question').textContent = q.q;
-  document.getElementById('ps-progress').style.width = (currentQ/totalQ*100)+'%';
-  document.getElementById('ps-score').textContent = '⭐ '+score;
-
-  const fb = document.getElementById('ps-feedback');
-  fb.className = 'feedback';
-
-  const grid = document.getElementById('ps-options');
-  const shuffled = shuffle([...q.opts]);
-  grid.innerHTML = '';
-  shuffled.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.textContent = opt;
-    btn.onclick = () => answerPs(btn, opt, q.a);
-    grid.appendChild(btn);
-  });
+/* ═══════════════════════════════════════════
+   G5 — STREAK CHALLENGE (correct/wrong sentences)
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_STREAK); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const ruleHtml=q.rule
+    .replace(/(didn't|did)\s(\w+)/g,'<span class="hl">$1 $2</span>')
+    .replace(/(carried|played|moved|started|asked|danced|skipped|hopped|jumped|laughed|cleaned)/g,'<span class="hl">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--crimson)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s5flames">🔥</div>
+        <div><div class="streak-big" id="s5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g5best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--crimson);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g5Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
 }
-
-function answerPs(btn, chosen, correct) {
-  if (answered) return;
-  answered = true;
-  const btns = document.querySelectorAll('#ps-options .option-btn');
-  const fb = document.getElementById('ps-feedback');
-
-  if (chosen === correct) {
-    btn.classList.add('correct');
-    score++;
-    fb.textContent = '✅ Correct! Past simple — perfect!';
-    fb.className = 'feedback correct-fb show';
-    launchConfetti(5);
+function g5Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best)g5best=g5streak;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    $('s5num').textContent=g5streak; $('s5flames').textContent='🔥'.repeat(Math.min(g5streak,5));
+    addScore(2); showFb('g5fb','ok','Correct! +2 stars'); miniConfetti(correct?yBtn:nBtn);
   } else {
-    btn.classList.add('wrong');
-    btns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
-    fb.textContent = '❌ Oops! The correct answer is: ' + correct;
-    fb.className = 'feedback wrong-fb show';
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('s5num').textContent=0; $('s5flames').textContent='🔥';
+    showFb('g5fb','bad','Not quite!');
   }
-
-  setTimeout(() => { currentQ++; loadPsQ(); }, 1700);
+  show('g5next');
 }
 
-// ===== ORDINALS GAME =====
-function initOrdinals() {
-  const displayPairs = shuffle([...ordinalPairs]).slice(0, 8);
-  ordState = { pairs: displayPairs, selected: null, matched: [], score: 0 };
-
-  document.getElementById('ord-score').textContent = '⭐ 0';
-  document.getElementById('ord-question').textContent = 'Tap a number, then tap its ordinal word!';
-  renderOrdinals();
-}
-
-function renderOrdinals() {
-  // Show numbers on left, ordinal words on right — shuffled separately
-  const grid = document.getElementById('ord-grid');
-  grid.innerHTML = '';
-  const fb = document.getElementById('ord-feedback');
-  fb.className = 'feedback';
-
-  const { pairs, matched } = ordState;
-  const numItems  = shuffle(pairs.map(p => ({type:'num', num:p.num, word:p.word, say:p.say})));
-  const wordItems = shuffle(pairs.map(p => ({type:'word', num:p.num, word:p.word, say:p.say})));
-  const all = interleave(numItems, wordItems);
-
-  all.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'ordinal-card';
-    const isMatched = matched.includes(item.num);
-    if (isMatched) card.classList.add('matched');
-
-    if (item.type === 'num') {
-      card.innerHTML = `<div class="number">${item.num}</div>`;
-      card.dataset.num = item.num;
-      card.dataset.type = 'num';
-    } else {
-      card.innerHTML = `<div class="number">${item.word}</div><div class="word">${item.say}</div>`;
-      card.dataset.num = item.num;
-      card.dataset.type = 'word';
-    }
-
-    if (!isMatched) card.onclick = () => selectOrdinal(card, item);
-    grid.appendChild(card);
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER (exact story + grammar sentences)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Past Simple</div>
+      <div class="gh-name" style="color:var(--gold)">Word Order</div>
+      <div class="gh-instr">Tap the words in the correct order!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to start...</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--gold);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
   });
-}
-
-function selectOrdinal(card, item) {
-  const fb = document.getElementById('ord-feedback');
-
-  if (ordState.selected === null) {
-    ordState.selected = { card, item };
-    card.classList.add('selected');
-    return;
-  }
-
-  const prev = ordState.selected;
-  if (prev.card === card) {
-    card.classList.remove('selected');
-    ordState.selected = null;
-    return;
-  }
-
-  // Check match
-  if (prev.item.num === item.num && prev.item.type !== item.type) {
-    // MATCH!
-    ordState.matched.push(item.num);
-    ordState.score++;
-    document.getElementById('ord-score').textContent = '⭐ '+ordState.score;
-    fb.textContent = '✅ Great match! '+item.num+' → '+item.word+' ('+item.say+')';
-    fb.className = 'feedback correct-fb show';
-    launchConfetti(4);
-    ordState.selected = null;
-
-    if (ordState.matched.length === ordState.pairs.length) {
-      setTimeout(() => {
-        score = ordState.score;
-        totalQ = ordState.pairs.length;
-        showComplete();
-      }, 1000);
-    } else {
-      setTimeout(renderOrdinals, 800);
-    }
-  } else {
-    // WRONG
-    prev.card.classList.remove('selected');
-    prev.card.classList.add('wrong-pick');
-    card.classList.add('wrong-pick');
-    fb.textContent = '❌ Not a match! Try again.';
-    fb.className = 'feedback wrong-fb show';
-    ordState.selected = null;
-    setTimeout(() => {
-      document.querySelectorAll('.ordinal-card.wrong-pick').forEach(c => c.classList.remove('wrong-pick'));
-    }, 600);
-  }
-}
-
-function interleave(a, b) {
-  // alternate: num, word, num, word...
-  const result = [];
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    if (i < a.length) result.push(a[i]);
-    if (i < b.length) result.push(b[i]);
-  }
-  return result;
-}
-
-// ===== SENTENCE BUILDER =====
-function loadSentence() {
-  if (sbState.idx >= sentences.length) {
-    score = sbState.score || 0;
-    totalQ = sentences.length;
-    showComplete();
-    return;
-  }
-  sbState.built = [];
-  sbState.usedIdxs = new Set();
-
-  const s = sentences[sbState.idx];
-  document.getElementById('sb-clue').textContent = '💡 ' + s.clue;
-  document.getElementById('sb-progress').style.width = (sbState.idx/sentences.length*100)+'%';
-  document.getElementById('sb-score').textContent = '⭐ '+(sbState.score||0);
-  document.getElementById('sb-target').textContent = 'Tap a word below to add it!';
-  document.getElementById('sb-target').style.color = '#aac';
-
-  const fb = document.getElementById('sb-feedback');
-  fb.className = 'feedback';
-
-  const bank = document.getElementById('sb-wordbank');
-  bank.innerHTML = '';
-  shuffle([...s.words]).forEach((w, i) => {
-    const chip = document.createElement('button');
-    chip.className = 'word-chip';
-    chip.textContent = w;
-    chip.dataset.idx = i;
-    chip.onclick = () => addWord(chip, w, i);
-    bank.appendChild(chip);
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to start...';
+    hideFb('g6fb');
   });
-}
-
-function addWord(chip, word, idx) {
-  if (chip.classList.contains('used')) return;
-  chip.classList.add('used');
-  sbState.built.push({word, idx});
-  sbState.usedIdxs.add(idx);
-
-  const target = document.getElementById('sb-target');
-  target.textContent = sbState.built.map(b=>b.word).join(' ');
-  target.style.color = 'var(--blue)';
-}
-
-function clearSentence() {
-  sbState.built = [];
-  sbState.usedIdxs = new Set();
-  document.querySelectorAll('#sb-wordbank .word-chip').forEach(c => c.classList.remove('used'));
-  document.getElementById('sb-target').textContent = 'Tap a word below to add it!';
-  document.getElementById('sb-target').style.color = '#aac';
-  document.getElementById('sb-feedback').className = 'feedback';
-}
-
-function checkSentence() {
-  const s = sentences[sbState.idx];
-  const built = sbState.built.map(b=>b.word).join(' ');
-  const fb = document.getElementById('sb-feedback');
-
-  if (!sbState.built.length) {
-    fb.textContent = '💬 Tap some words first!';
-    fb.className = 'feedback wrong-fb show';
-    return;
-  }
-
-  if (built === s.answer) {
-    fb.textContent = '✅ Perfect sentence! Well done!';
-    fb.className = 'feedback correct-fb show';
-    sbState.score = (sbState.score||0)+1;
-    launchConfetti(8);
-    setTimeout(() => { sbState.idx++; loadSentence(); }, 1800);
-  } else {
-    fb.textContent = '❌ Not quite! Check the order and try again.';
-    fb.className = 'feedback wrong-fb show';
-    setTimeout(() => { clearSentence(); }, 1000);
-  }
-}
-
-// ===== COMPLETE =====
-function showComplete() {
-  const pct = totalQ > 0 ? score/totalQ : 0;
-  let emoji, title, stars;
-
-  if (pct >= 0.9)      { emoji='🏆'; title='Champion!';  stars='⭐⭐⭐'; launchConfetti(20); }
-  else if (pct >= 0.7) { emoji='🎉'; title='Great job!'; stars='⭐⭐'; }
-  else if (pct >= 0.5) { emoji='💪'; title='Good work!'; stars='⭐'; }
-  else                 { emoji='📚'; title='Keep going!'; stars=''; }
-
-  document.getElementById('complete-emoji').textContent = emoji;
-  document.getElementById('complete-title').textContent = title;
-  document.getElementById('complete-stars').textContent = stars;
-  document.getElementById('complete-msg').textContent = `You scored ${score} out of ${totalQ}!`;
-  showScreen('complete');
-}
-
-// ===== CONFETTI =====
-function launchConfetti(n) {
-  const colors = ['#FF6B35','#FFD23F','#06D6A0','#118AB2','#EF476F','#845EC2'];
-  for (let i = 0; i < n; i++) {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random()*100+'vw';
-      el.style.background = colors[Math.floor(Math.random()*colors.length)];
-      el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
-      el.style.animationDuration = (1.2 + Math.random()*1.5)+'s';
-      el.style.animationDelay = (Math.random()*0.3)+'s';
-      document.body.appendChild(el);
-      el.addEventListener('animationend', () => el.remove());
-    }, i * 80);
-  }
-}
-
-// ===== UTILS =====
-function shuffle(arr) {
-  for (let i = arr.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 stars'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
 }
 </script>
 </body>
