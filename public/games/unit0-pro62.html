@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 0 — Hello!</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #04060f;
+  --deep:   #060814;
+  --card:   #0a0e1c;
+  --card2:  #0e1424;
+  --border: #182040;
+  --blue:   #4080ff;
+  --cyan:   #20d8f8;
+  --lime:   #a0f840;
+  --amber:  #ffc030;
+  --rose:   #ff4890;
+  --violet: #a030ff;
+  --green:  #28f880;
+  --red:    #ff2850;
+  --white:  #d8e8ff;
+  --muted:  #1a2848;
+  --ok:     #28f880;
+  --bad:    #ff2850;
+  --font-h: 'Baloo 2', cursive;
+  --font-b: 'Quicksand', sans-serif;
+  --r:      16px;
+  --r-sm:   10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(64,128,255,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(160,248,64,.05) 0%, transparent 55%);
+}
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.8)} 60%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#060814,#0e1424);
+  border:1px solid var(--border); color:var(--cyan);
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2.5px;
+  padding:5px 16px; border-radius:30px; margin-bottom:14px; text-transform:uppercase;
+  box-shadow:0 0 18px rgba(32,216,248,.12);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow:0 0 28px rgba(32,216,248,.35);
+}
+.home-title span { color:var(--cyan); }
+.home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:10px; text-align:center; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:6px 16px; margin-bottom:28px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--amber); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+.gc { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:18px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 20px color-mix(in srgb, var(--gc-col) 25%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:10px; left:12px; font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--gc-col); letter-spacing:1px; opacity:.7; }
+.gc-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--amber); font-family:var(--font-h); font-weight:700; min-height:15px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(4,6,15,.92); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:900; }
+.tb-score { background:var(--amber); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:4px 14px; border-radius:20px; }
+.prog-bar-wrap { height:3px; background:var(--border); overflow:hidden; }
+.prog-bar-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:900; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; }
+.qcard-text .hl  { color:var(--cyan); }
+.qcard-text .hl2 { color:var(--amber); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--cyan)); color:var(--opt-col,var(--cyan)); transform:scale(1.03); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(40,248,128,.1); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,40,80,.1); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.fb { padding:10px 16px; border-radius:10px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(40,248,128,.1); color:var(--ok); border:1px solid rgba(40,248,128,.25); }
+.fb.bad { display:block; background:rgba(255,40,80,.1); color:#ff7090; border:1px solid rgba(255,40,80,.25); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:800; border:none; border-radius:10px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--cyan); transform:scale(1.4); }
+
+/* ══ G1: NUMBER SPELLER ══ */
+/* Unique mechanic: A large number is shown. Tap the correct word. */
+.number-display {
+  background:linear-gradient(160deg,var(--card2),#060814);
+  border:2px solid rgba(32,216,248,.25); border-radius:var(--r);
+  padding:28px 18px; margin-bottom:14px; text-align:center;
+}
+.number-big { font-family:var(--font-h); font-size:5rem; font-weight:900; color:var(--cyan); line-height:1; text-shadow:0 0 30px rgba(32,216,248,.4); }
+.number-hint { font-size:12px; color:var(--muted); font-weight:600; margin-top:8px; }
+
+/* ══ G2: MEET THE STARS ══ */
+/* Unique mechanic: A first-person introduction is shown.
+   Student reads it and picks the correct character name. */
+.intro-card {
+  background:linear-gradient(160deg,var(--card2),#080614);
+  border:2px solid rgba(255,192,48,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.intro-badge {
+  display:inline-block; background:var(--amber); color:var(--bg);
+  font-family:var(--font-h); font-size:9px; font-weight:900;
+  padding:3px 12px; border-radius:20px; letter-spacing:2px;
+  text-transform:uppercase; margin-bottom:10px;
+}
+.intro-speech { font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.8; color:var(--white); }
+.intro-speech .hl { color:var(--amber); }
+/* Name option buttons */
+.name-opts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+.name-opt {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--white);
+  padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s;
+}
+.name-opt:hover:not(.locked) { border-color:var(--amber); color:var(--amber); transform:scale(1.03); }
+.name-opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(40,248,128,.1); animation:popIn .28s; pointer-events:none; }
+.name-opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,40,80,.1); animation:shake .4s; pointer-events:none; }
+.name-opt.locked  { pointer-events:none; }
+
+/* ══ G3: PREPOSITION SPOTTER ══ */
+/* Unique mechanic: A written scene description uses a preposition.
+   Student reads and picks the correct preposition from 4 options.
+   Uses text descriptions of toy positions — no images, no ambiguity. */
+.scene-card {
+  background:linear-gradient(160deg,var(--card2),#060810);
+  border:2px solid rgba(160,248,64,.18); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.scene-label { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--lime); text-transform:uppercase; margin-bottom:10px; }
+.scene-text  { font-family:var(--font-h); font-size:1rem; font-weight:800; line-height:1.8; color:var(--white); }
+.scene-text .blank { color:var(--lime); font-size:1.1rem; }
+.scene-text .ref   { color:var(--cyan); }
+.prep-tip { background:rgba(160,248,64,.07); border:1px solid rgba(160,248,64,.2); border-radius:10px; padding:10px 14px; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--lime); line-height:1.6; margin-top:8px; display:none; }
+
+/* ══ G4: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:900; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,192,48,.1); border:1px solid rgba(255,192,48,.3); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:900; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:58px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.35; }
+.timer-track { height:8px; background:var(--border); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:4px; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:900; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* ══ G5: PRESENT CONTINUOUS BUILDER ══ */
+/* Unique mechanic: A written description of what someone is doing.
+   Student picks the correct present continuous form.
+   Tests He's/She's + -ing vs doesn't like / has got. */
+.action-card {
+  background:linear-gradient(160deg,var(--card2),#060810);
+  border:2px solid rgba(255,72,144,.18); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.action-context { font-size:13px; color:var(--muted); font-weight:600; line-height:1.6; margin-bottom:10px; }
+.action-q       { font-family:var(--font-h); font-size:1.05rem; font-weight:900; line-height:1.7; }
+.action-q .blank { color:var(--rose); }
+.grammar-tip { background:rgba(255,72,144,.07); border:1px solid rgba(255,72,144,.2); border-radius:10px; padding:10px 14px; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--rose); line-height:1.6; margin-top:8px; display:none; }
+
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--cyan); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-b); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--cyan); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; box-shadow:0 2px 8px rgba(32,216,248,.25); }
+.wtile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(32,216,248,.4); }
+.wtile.used { opacity:.2; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:14px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:800; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:900; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.4rem; font-weight:900; color:var(--cyan); text-shadow:0 0 30px rgba(32,216,248,.4); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--cyan) 0%, var(--blue) 40%, var(--violet) 80%, var(--cyan) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(32,216,248,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:800; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:900; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--cyan); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:18px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--cyan); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--cyan),var(--blue)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:14px 36px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 4px 20px rgba(32,216,248,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(32,216,248,.5); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-badge">Kids Box NG3 · Unit 0 · Pro6_2 &amp; Pro1_3</div>
+  <h1 class="home-title">Hello!</h1>
+  <p class="home-sub">Numbers, colours, toys, prepositions — let's review!</p>
+  <div class="total-stars">⭐ Total stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#20d8f8" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🔢</span>
+      <div class="gc-title">Number Speller</div>
+      <div class="gc-desc">See the number — spell it correctly!</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffc030" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">👋</span>
+      <div class="gc-title">Meet the Stars!</div>
+      <div class="gc-desc">Read the introduction — who said it?</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#a0f840" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">📍</span>
+      <div class="gc-title">Where Is It?</div>
+      <div class="gc-desc">Read the scene — pick the right preposition!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffc030" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">True or false — beat the fuse!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff4890" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">▶</span>
+      <div class="gc-title">What Are They Doing?</div>
+      <div class="gc-desc">Pick the correct present continuous form!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#20d8f8" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the sentence!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Home</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <span class="win-icon">⭐</span>
+  <div class="win-title">Brilliant!</div>
+  <div class="win-sub">You're ready for the rest of the book!</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">🎤 Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again ↺</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — 100% verified from:
+   · KB3 Teacher's Book Language Summary (kupdf.net — exact vocab and grammar for Hello! unit)
+   · KB3 Pupil's Book Unit 0 Hello! (SlideShare PPTX — Stella/Suzy/Simon self-introductions)
+   · KB3 Tests "Hello!" Evaluation answer key (dokumen.pub — Part 1: numbers 19,8,14,12,13;
+     Part 2: helicopter between lorry and chair NO, camera next to ball YES,
+     monster on floor YES, computer under table NO, bike in front of doll NO)
+   · KB3 Pupil's Book "Hello!" playground scene (pdfcoffee — Meera sitting NEXT TO Stella,
+     Simon talking TO Lenny, Alex BEHIND them)
+   · KB3 Teacher's Book grammar focus (present continuous, can, prepositions: next to, on,
+     in front of, under, between, behind)
+
+   CHARACTERS CONFIRMED:
+   · Stella — age 9, has brother (Simon) and sister (Suzy), favourite game = Brainbox
+   · Suzy   — age 5, has big black and white dog called Dotty
+   · Simon  — age 8, likes reading comics, favourite comic = Lock and Key
+═══════════════════════════════════════════ */
+
+// G1 — NUMBER SPELLER: see a number (1-20) → pick the correct word
+// Numbers verified from Teacher's Book Language Summary (1-20) + Evaluation Part 1 answer key
+const G1 = [
+  { num:8,   word:"eight",     opts:["eight","eighty","ate","eighteen"]          },
+  { num:12,  word:"twelve",    opts:["twelve","twenty","two","twelfth"]           },
+  { num:13,  word:"thirteen",  opts:["thirteen","thirty","three","thirtieth"]     },
+  { num:14,  word:"fourteen",  opts:["fourteen","forty","four","fourth"]          },
+  { num:15,  word:"fifteen",   opts:["fifteen","fifty","five","fifth"]            },
+  { num:16,  word:"sixteen",   opts:["sixteen","sixty","six","sixth"]             },
+  { num:17,  word:"seventeen", opts:["seventeen","seventy","seven","seventeenth"] },
+  { num:18,  word:"eighteen",  opts:["eighteen","eighty","eight","eighth"]        },
+  { num:19,  word:"nineteen",  opts:["nineteen","ninety","nine","ninth"]          },
+  { num:20,  word:"twenty",    opts:["twenty","twelve","two","twelfth"]           },
+  { num:11,  word:"eleven",    opts:["eleven","twelve","ten","seventh"]           },
+  { num:9,   word:"nine",      opts:["nine","nineteen","ninety","nice"]           },
+];
+
+// G2 — MEET THE STARS: read the first-person intro → pick the name
+// Exact text verified from KB3 PB Unit 0 Hello! slides (SlideShare)
+const G2 = [
+  {
+    intro:"Hello. I'm <span class='hl'>nine</span>. I have a <span class='hl'>brother and a sister</span>. This is my favourite computer game. It's called <span class='hl'>Brainbox</span>.",
+    ans:"Stella",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Stella is 9 and loves her computer game Brainbox!"
+  },
+  {
+    intro:"Hello. I'm <span class='hl'>five</span>. I have a big dog. She's black and white and she's called <span class='hl'>Dotty</span>.",
+    ans:"Suzy",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Suzy is 5 and her dog Dotty is black and white!"
+  },
+  {
+    intro:"Hi. I'm <span class='hl'>eight</span>. I like reading comics. My favourite comic's called <span class='hl'>Lock and Key</span>.",
+    ans:"Simon",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Simon is 8 and loves his comic Lock and Key!"
+  },
+  {
+    intro:"Hello. I'm <span class='hl'>nine</span>. I have a brother. His name is <span class='hl'>Simon</span>. He's eight.",
+    ans:"Stella",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Stella is nine and Simon is her brother!"
+  },
+  {
+    intro:"Hi! I'm <span class='hl'>eight</span>. I've got two sisters. Their names are <span class='hl'>Stella and Suzy</span>.",
+    ans:"Simon",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Simon has two sisters: Stella (9) and Suzy (5)!"
+  },
+  {
+    intro:"Hello. I'm the youngest — I'm only <span class='hl'>five</span>! My sister is nine and my brother is <span class='hl'>eight</span>.",
+    ans:"Suzy",
+    opts:["Stella","Suzy","Simon"],
+    fact:"Suzy is the youngest — she's only 5!"
+  },
+];
+
+// G3 — WHERE IS IT?: prepositions of place
+// Verified from:
+//   · Eval Part 2 exact picture sentences (dokumen.pub)
+//   · Pupil's Book playground scene (pdfcoffee): Meera next to Stella, Alex behind Simon
+//   · Teacher's Book prepositions list: next to, on, in front of, under, between, behind
+const G3 = [
+  {
+    context:"Look at the picture of the toys.",
+    sentence:"The <span class='ref'>helicopter</span> is <span class='blank'>___</span> the lorry and the chair.",
+    ans:"between",
+    opts:["between","behind","next to","under"],
+    tip:"BETWEEN = in the middle of two things. Lorry ... helicopter ... chair."
+  },
+  {
+    context:"Look at the picture of the toys.",
+    sentence:"The <span class='ref'>camera</span> is <span class='blank'>___</span> the ball.",
+    ans:"next to",
+    opts:["next to","on","under","behind"],
+    tip:"NEXT TO = beside something. The camera is right beside the ball."
+  },
+  {
+    context:"Look at the picture of the toys.",
+    sentence:"The <span class='ref'>monster</span> is <span class='blank'>___</span> the floor.",
+    ans:"on",
+    opts:["on","under","in front of","next to"],
+    tip:"ON = touching the top surface. The monster is sitting on the floor."
+  },
+  {
+    context:"Look at the picture of the toys.",
+    sentence:"The <span class='ref'>computer</span> is <span class='blank'>___</span> the table.",
+    ans:"under",
+    opts:["under","on","in front of","between"],
+    tip:"UNDER = below something. The computer is below the table."
+  },
+  {
+    context:"Look at the picture of the toys.",
+    sentence:"The <span class='ref'>bike</span> is <span class='blank'>___</span> the doll.",
+    ans:"in front of",
+    opts:["in front of","behind","next to","on"],
+    tip:"IN FRONT OF = before something. The bike is in front of the doll."
+  },
+  {
+    context:"Simon, Stella and their friends are in the playground.",
+    sentence:"<span class='ref'>Meera</span> is sitting <span class='blank'>___</span> Stella.",
+    ans:"next to",
+    opts:["next to","behind","in front of","under"],
+    tip:"NEXT TO = beside. Meera is sitting right beside Stella."
+  },
+  {
+    context:"Simon, Stella and their friends are in the playground.",
+    sentence:"<span class='ref'>Alex</span> is <span class='blank'>___</span> Simon and Lenny.",
+    ans:"behind",
+    opts:["behind","in front of","next to","on"],
+    tip:"BEHIND = at the back of. Alex is standing behind them."
+  },
+  {
+    context:"Look at the classroom.",
+    sentence:"The <span class='ref'>kite</span> is <span class='blank'>___</span> the desk.",
+    ans:"on",
+    opts:["on","under","behind","between"],
+    tip:"ON = on top of the surface of the desk."
+  },
+  {
+    context:"Look at the classroom.",
+    sentence:"The <span class='ref'>lorry</span> is <span class='blank'>___</span> the chair and the computer.",
+    ans:"between",
+    opts:["between","in front of","on","behind"],
+    tip:"BETWEEN = in the middle of the chair and the computer."
+  },
+  {
+    context:"Look at the toys on the shelf.",
+    sentence:"The <span class='ref'>doll</span> is <span class='blank'>___</span> the train.",
+    ans:"behind",
+    opts:["behind","next to","under","in front of"],
+    tip:"BEHIND = at the back. The doll is behind the train."
+  },
+];
+
+// G4 — BOMB DEFUSE: true/false — Star family facts + preposition facts
+// Verified from Evaluation Part 2 answer key + PB character descriptions
+const G4 = [
+  { q:"Stella is nine years old.",                                       ans:true,  t:5 },
+  { q:"Simon is Stella's brother.",                                      ans:true,  t:5 },
+  { q:"Suzy's dog is called Dotty.",                                    ans:true,  t:4 },
+  { q:"Simon is five years old.",                                        ans:false, t:4 }, // Simon is 8
+  { q:"In the evaluation picture, the helicopter is between the lorry and the chair.", ans:true,  t:5 },
+  { q:"In the evaluation picture, the camera is next to the ball.",     ans:true,  t:4 },
+  { q:"In the evaluation picture, the computer is on the table.",       ans:false, t:4 }, // under the table
+  { q:"In the evaluation picture, the bike is in front of the doll.",  ans:true,  t:5 },
+  { q:"Stella's favourite game is called Lock and Key.",                 ans:false, t:4 }, // Brainbox — Lock and Key is Simon's
+  { q:"Simon likes reading comics.",                                     ans:true,  t:4 },
+  { q:"Dotty is black and white.",                                      ans:true,  t:4 },
+  { q:"Suzy is the youngest of the three children.",                   ans:true,  t:5 },
+];
+
+// G5 — WHAT ARE THEY DOING?: present continuous + like/-ing + has got
+// Verified from Teacher's Book grammar focus + Evaluation Part 3 audio script sentences
+const G5 = [
+  {
+    context:"Look at the picture. A boy is at his desk.",
+    q:"___ a book.",
+    ans:"He's reading",
+    opts:["He's reading","He read","He reads","He's read"],
+    tip:"Present continuous = He's + verb-ING. He is reading → He's reading."
+  },
+  {
+    context:"Look at the picture. A girl has got something new.",
+    q:"___ a new kite.",
+    ans:"She's got",
+    opts:["She's got","She have","She got","She is got"],
+    tip:"HAS GOT → She's got (= she has got). Always She's for a girl."
+  },
+  {
+    context:"Look at the picture. A boy is in the park.",
+    q:"He ___ painting.",
+    ans:"likes",
+    opts:["likes","like","is liking","likeing"],
+    tip:"LIKE + -ing. He likes (not 'is liking') — it's a state, not an action!"
+  },
+  {
+    context:"Look at the picture. A girl is at a restaurant.",
+    q:"She ___ burgers.",
+    ans:"doesn't like",
+    opts:["doesn't like","don't like","isn't like","not like"],
+    tip:"She doesn't like = negative present simple. NOT 'isn't like'!"
+  },
+  {
+    context:"Look at the picture. A boy is at a party.",
+    q:"He's ___ happy today.",
+    ans:"very",
+    opts:["very","too","so much","much"],
+    tip:"He's VERY happy. We use 'very' before an adjective."
+  },
+  {
+    context:"Look at the picture. A girl is in the playground.",
+    q:"___ jumping.",
+    ans:"She's",
+    opts:["She's","She","Shes","Her"],
+    tip:"Present continuous = subject + is + -ing. She's = she is."
+  },
+  {
+    context:"Look at the picture. A boy is painting.",
+    q:"He ___ painting.",
+    ans:"likes",
+    opts:["likes","is like","liked","like"],
+    tip:"I LIKE painting — but he/she LIKES (add s for he/she/it)!"
+  },
+  {
+    context:"Look at the picture of Simon in the playground.",
+    q:"Simon ___ to Lenny.",
+    ans:"is talking",
+    opts:["is talking","talks","talked","are talking"],
+    tip:"Present continuous for right now = IS + verb-ING. Simon is talking."
+  },
+];
+
+// G6 — WORD ORDER: exact sentences from PB Unit 0 + Evaluation
+const G6 = [
+  { words:["What's","your","name","?"],                                        ans:"What's your name ?"                                    },
+  { words:["My","name's","Stella","and","I'm","nine","."],                     ans:"My name's Stella and I'm nine ."                       },
+  { words:["She's","got","a","big","black","and","white","dog","."],           ans:"She's got a big black and white dog ."                 },
+  { words:["He","likes","reading","comics","."],                               ans:"He likes reading comics ."                             },
+  { words:["The","bike","is","in","front","of","the","doll","."],              ans:"The bike is in front of the doll ."                    },
+  { words:["Meera","is","sitting","next","to","Stella","."],                   ans:"Meera is sitting next to Stella ."                     },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g4bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#20d8f8','#ffc030','#a0f840','#ff4890','#a030ff','#4080ff'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#20d8f8','#ffc030','#a0f840','#a030ff'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Number Speller','Meet the Stars!','Where Is It?','Bomb Defuse!','What Are They Doing?','Word Order'];
+  const cols=['var(--cyan)','var(--amber)','var(--lime)','var(--amber)','var(--rose)','var(--cyan)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .22s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"What\'s your name? My name\'s Stella and I\'m nine."',
+    '"She\'s got a big black and white dog called Dotty."',
+    '"The bike is in front of the doll."',
+    '"Meera is sitting next to Stella."',
+    '"He likes reading comics."',
+    'Count from 1 to 20 as fast as you can!',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — NUMBER SPELLER
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Numbers 1–20</div>
+      <div class="gh-name" style="color:var(--cyan)">Number Speller</div>
+      <div class="gh-instr">See the number — tap the correct word!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="number-display">
+      <div class="number-big">${q.num}</div>
+      <div class="number-hint">How do you say this number?</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--cyan)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--cyan);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.word){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===q.word)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+q.word); }
+    show('g1next');
+  }));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G2 — MEET THE STARS
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Vocabulary · Characters</div>
+      <div class="gh-name" style="color:var(--amber)">Meet the Stars!</div>
+      <div class="gh-instr">Read the introduction — who is speaking?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="intro-card">
+      <div class="intro-badge">Introduction ${g2i+1} of ${g2q.length}</div>
+      <div class="intro-speech">"${q.intro}"</div>
+    </div>
+    <div class="name-opts" id="nameOpts">
+      ${q.opts.map(o=>`<div class="name-opt" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.name-opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('.name-opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok',q.fact+' +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('.name-opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','It\'s '+q.ans+'! '+q.fact); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G3 — WHERE IS IT? (prepositions)
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Prepositions of Place</div>
+      <div class="gh-name" style="color:var(--lime)">Where Is It?</div>
+      <div class="gh-instr">Read carefully — pick the correct preposition!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="scene-card">
+      <div class="scene-label">${q.context}</div>
+      <div class="scene-text">${q.sentence}</div>
+      <div class="prep-tip" id="g3tip"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--lime)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const tip=$('g3tip'); tip.style.display='block'; tip.textContent='💡 '+q.tip;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','It\'s: '+q.ans); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Review · Timed True/False</div>
+      <div class="gh-name" style="color:var(--amber)">Bomb Defuse!</div>
+      <div class="gh-instr">True or false — answer before the fuse burns!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+  g4Render();
+}
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`; hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">✅ True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">❌ False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++; g4bombScore+=3;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g4fb','bad',ans?'It\'s TRUE!':'It\'s FALSE!');
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was '+(ans?'TRUE':'FALSE'));
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — WHAT ARE THEY DOING?
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Present Continuous &amp; has got</div>
+      <div class="gh-name" style="color:var(--rose)">What Are They Doing?</div>
+      <div class="gh-instr">Choose the correct form to complete the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="action-card">
+      <div class="action-context">${q.context}</div>
+      <div class="action-q"><span class="blank">___</span> ${q.q}</div>
+      <div class="grammar-tip" id="g5tip"></div>
+    </div>
+    <div class="opts2" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--rose)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--rose);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+    const tip=$('g5tip'); tip.style.display='block'; tip.textContent='💡 '+q.tip;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g5fb','bad','It\'s: '+q.ans); }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Review Sentences</div>
+      <div class="gh-name" style="color:var(--cyan)">Word Order</div>
+      <div class="gh-instr">Tap the tiles in the correct order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--cyan);color:var(--bg)">Check ✓</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--cyan);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 ⭐'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
