@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 6 — In the Countryside! 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #040c06;
+  --deep:   #071009;
+  --card:   #0b1a0e;
+  --card2:  #0f2214;
+  --border: #183020;
+  --green:  #3dff7a;
+  --lime:   #b8ff30;
+  --gold:   #ffd050;
+  --sky:    #40d4ff;
+  --orange: #ff8c20;
+  --pink:   #ff5ca8;
+  --violet: #9040ff;
+  --brown:  #c47830;
+  --white:  #d8f5e0;
+  --muted:  #1a4028;
+  --ok:     #3dff7a;
+  --bad:    #ff3060;
+  --font-h: 'Baloo 2', cursive;
+  --font-b: 'Quicksand', sans-serif;
+  --r:      16px;
+  --r-sm:   10px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(61,255,122,.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(184,255,48,.04) 0%, transparent 55%);
+}
+
+/* ══ FX ══ */
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall  { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+@keyframes popIn   { 0%{transform:scale(.8)} 60%{transform:scale(1.18)} 100%{transform:scale(1)} }
+@keyframes shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn  { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes sway    { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+@keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes hop     { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-14px)} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#071009,#0f2214);
+  border:1px solid var(--border); color:var(--green);
+  font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2.5px;
+  padding:5px 16px; border-radius:30px; margin-bottom:14px; text-transform:uppercase;
+  box-shadow:0 0 18px rgba(61,255,122,.12);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,8vw,3rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow:0 0 28px rgba(61,255,122,.3);
+}
+.home-title span { color:var(--green); }
+.home-sub { font-size:13px; color:var(--muted); font-weight:600; margin-bottom:10px; text-align:center; }
+.total-stars { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:6px 16px; margin-bottom:20px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--gold); }
+
+/* Nature strip */
+.nature-strip {
+  width:100%; max-width:500px; height:52px; margin-bottom:18px; position:relative;
+  background:linear-gradient(90deg,#071009,#0c1a10,#071009);
+  border:1px solid var(--border); border-radius:14px; overflow:hidden;
+  display:flex; align-items:center; justify-content:space-around; padding:0 10px;
+}
+.ns-icon { font-size:1.6rem; animation:sway 2s ease-in-out infinite; }
+.ns-icon:nth-child(2) { animation-delay:.3s; }
+.ns-icon:nth-child(3) { animation-delay:.6s; animation-name:float; }
+.ns-icon:nth-child(4) { animation-delay:.9s; }
+.ns-icon:nth-child(5) { animation-delay:1.2s; animation-name:hop; }
+
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; max-width:500px; }
+.gc { background:var(--card); border:2px solid var(--border); border-radius:20px; padding:18px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 20px color-mix(in srgb, var(--gc-col) 25%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:10px; left:12px; font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--gc-col); letter-spacing:1px; opacity:.7; }
+.gc-icon { font-size:2rem; margin-bottom:8px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:14px; font-weight:900; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--gold); font-family:var(--font-h); font-weight:700; min-height:15px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(4,12,6,.92); border-bottom:2px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--green); color:var(--green); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:900; }
+.tb-score { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:4px 14px; border-radius:20px; }
+.prog-bar-wrap { height:3px; background:var(--border); overflow:hidden; }
+.prog-bar-fill  { height:100%; border-radius:2px; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:900; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; }
+.qcard-text .hl  { color:var(--green); }
+.qcard-text .hl2 { color:var(--gold); }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:14px; font-weight:800; color:var(--white); padding:14px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--green)); color:var(--opt-col,var(--green)); transform:scale(1.03); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(61,255,122,.1); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ff7090!important; background:rgba(255,48,96,.1); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.fb { padding:10px 16px; border-radius:10px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(61,255,122,.1); color:var(--ok); border:1px solid rgba(61,255,122,.25); }
+.fb.bad { display:block; background:rgba(255,48,96,.1); color:#ff7090; border:1px solid rgba(255,48,96,.25); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; font-weight:800; border:none; border-radius:10px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--green); transform:scale(1.4); }
+
+/* ══ G1: NATURE DETECTIVE — scene clue → countryside word ══ */
+/* Unique mechanic: a "field log" with a hand-drawn style clue card */
+.field-log {
+  background:linear-gradient(160deg,#0c1e10,#0a1808);
+  border:2px solid rgba(61,255,122,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px; position:relative;
+}
+.field-log::before { content:'🔍'; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:1.5rem; }
+.log-badge { display:inline-block; background:var(--green); color:var(--bg); font-family:var(--font-h); font-size:9px; font-weight:900; padding:3px 10px; border-radius:20px; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; margin-top:4px; }
+.log-clue { font-family:var(--font-h); font-size:1.05rem; font-weight:800; line-height:1.7; color:var(--white); }
+
+/* ══ G2: STAR FAMILY PICNIC — love/enjoy/like + -ing matching ══ */
+/* Unique mechanic: Character cards with faces. Tap the character,
+   then tap what they love doing. A "match beam" lights up between them. */
+.picnic-scene {
+  background:linear-gradient(160deg,var(--card2),#061008);
+  border:2px solid rgba(61,255,122,.15); border-radius:var(--r);
+  padding:16px; margin-bottom:14px;
+}
+.picnic-scene-label { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+.char-row { display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
+.char-card {
+  background:var(--card); border:2px solid var(--border); border-radius:14px;
+  padding:10px 8px; text-align:center; cursor:pointer; transition:all .15s;
+  min-width:72px;
+}
+.char-card:hover { border-color:var(--green); }
+.char-card.selected { border-color:var(--gold)!important; background:rgba(255,208,80,.08); transform:scale(1.06); }
+.char-card.matched  { border-color:var(--ok)!important; background:rgba(61,255,122,.08); animation:popIn .3s; pointer-events:none; }
+.char-card.wrong    { border-color:var(--bad)!important; animation:shake .4s; }
+.char-emoji { font-size:1.6rem; display:block; margin-bottom:4px; }
+.char-name  { font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--white); }
+.activity-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.act-pill {
+  background:var(--card2); border:2px solid var(--border); border-radius:30px;
+  padding:8px 14px; font-family:var(--font-h); font-size:12px; font-weight:800;
+  color:var(--white); cursor:pointer; transition:all .15s;
+}
+.act-pill:hover { border-color:var(--lime); color:var(--lime); }
+.act-pill.selected { border-color:var(--gold); color:var(--gold); }
+.act-pill.matched  { border-color:var(--ok); color:var(--ok); pointer-events:none; }
+.act-pill.wrong    { border-color:var(--bad); animation:shake .4s; }
+.match-score { font-family:var(--font-h); font-size:12px; font-weight:800; color:var(--muted); text-align:center; margin-top:10px; }
+
+/* ══ G3: I'D LIKE TO… — wish builder ══ */
+/* Unique mechanic: A map of the countryside appears. Student picks a location,
+   then picks an activity. The sentence builds at the bottom in real time. */
+.map-card {
+  background:linear-gradient(160deg,var(--card2),#061008);
+  border:2px solid rgba(64,212,255,.2); border-radius:var(--r);
+  padding:18px; margin-bottom:14px;
+}
+.map-label { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--sky); text-transform:uppercase; margin-bottom:10px; }
+.map-locations { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.map-loc {
+  background:var(--card); border:2px solid var(--border); border-radius:12px;
+  padding:12px 6px; text-align:center; cursor:pointer; transition:all .15s;
+}
+.map-loc:hover:not(.locked) { border-color:var(--sky); }
+.map-loc.selected { border-color:var(--gold); background:rgba(255,208,80,.08); }
+.map-loc.locked { pointer-events:none; }
+.map-loc-emoji { font-size:1.5rem; display:block; margin-bottom:4px; }
+.map-loc-name  { font-family:var(--font-h); font-size:10px; font-weight:800; color:var(--white); }
+.sentence-builder {
+  background:var(--deep); border:2px dashed var(--border); border-radius:var(--r);
+  padding:14px 18px; min-height:52px; margin-bottom:14px;
+  font-family:var(--font-h); font-size:1rem; font-weight:800; color:var(--white);
+  text-align:center; display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s; line-height:1.6;
+}
+.sentence-builder.active { border-color:var(--green); border-style:solid; }
+.sentence-builder .s-hl { color:var(--green); }
+.sentence-builder .s-hl2 { color:var(--gold); }
+
+/* ══ G4: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:800; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:900; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,140,32,.1); border:1px solid rgba(255,140,32,.3); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:900; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:58px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:sway .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.35; }
+.timer-track { height:8px; background:var(--border); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:4px; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:900; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.bomb-q .hl { color:var(--orange); }
+
+/* ══ G5: COUNTRYSIDE SNAP — correcting wrong -ing forms ══ */
+/* Unique mechanic: A sentence appears with one WRONG part highlighted red.
+   Students tap the correct replacement from 3 options. Like a grammar editor! */
+.snap-card {
+  background:linear-gradient(160deg,var(--card2),#061008);
+  border:2px solid rgba(144,64,255,.25); border-radius:var(--r);
+  padding:22px 16px; margin-bottom:16px; text-align:center;
+}
+.snap-label { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--violet); text-transform:uppercase; margin-bottom:8px; }
+.snap-sentence { font-family:var(--font-h); font-size:1.1rem; font-weight:800; line-height:1.7; }
+.snap-wrong { color:var(--bad); text-decoration:underline wavy var(--bad); cursor:default; }
+.snap-tip   { font-size:12px; color:var(--muted); font-weight:600; margin-top:6px; line-height:1.5; }
+.grammar-hint {
+  background:rgba(144,64,255,.08); border:1px solid rgba(144,64,255,.2);
+  border-radius:10px; padding:10px 14px; font-size:12px; color:var(--violet);
+  font-family:var(--font-h); font-weight:700; line-height:1.6; margin-top:8px; display:none;
+}
+
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-h); font-size:15px; font-weight:800; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--green); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-b); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--green); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:800; padding:7px 13px; border-radius:10px; cursor:pointer; transition:all .15s; user-select:none; box-shadow:0 2px 8px rgba(61,255,122,.25); }
+.wtile:hover:not(.used) { transform:translateY(-2px); box-shadow:0 4px 14px rgba(61,255,122,.4); }
+.wtile.used { opacity:.2; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:14px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:800; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; font-weight:900; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.4rem; font-weight:900; color:var(--green); text-shadow:0 0 30px rgba(61,255,122,.4); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--green) 0%, var(--lime) 35%, var(--gold) 70%, var(--green) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(61,255,122,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:800; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:12px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-size:9px; font-weight:800; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:900; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-h); font-size:10px; font-weight:800; letter-spacing:2px; color:var(--green); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:18px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--green); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--green),var(--lime)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:900; padding:14px 36px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 4px 20px rgba(61,255,122,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(61,255,122,.5); }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Kids Box NG3 · Unit 6 · Pro6_2 &amp; Pro1_3</div>
+  <h1 class="home-title">In the<br><span>Countryside!</span> 🌿</h1>
+  <p class="home-sub">Pack your blanket — the Stars are going on a picnic!</p>
+  <div class="total-stars">⭐ Total stars: <span id="totalStars">0</span></div>
+  <div class="nature-strip">
+    <span class="ns-icon">🌲</span>
+    <span class="ns-icon">🌊</span>
+    <span class="ns-icon">🦋</span>
+    <span class="ns-icon">🌿</span>
+    <span class="ns-icon">🐸</span>
+  </div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#3dff7a" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🔍</span>
+      <div class="gc-title">Nature Detective</div>
+      <div class="gc-desc">Read the clue — name the countryside thing!</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffd050" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">🧺</span>
+      <div class="gc-title">Picnic Matcher!</div>
+      <div class="gc-desc">Match each Star to what they love doing!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#40d4ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">🗺️</span>
+      <div class="gc-title">Map Explorer</div>
+      <div class="gc-desc">I'd like to… — build the wish sentence!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff8c20" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">True or false — defuse the fuse!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#9040ff" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">✏️</span>
+      <div class="gc-title">Grammar Snap!</div>
+      <div class="gc-desc">Spot the error — fix the sentence!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#3dff7a" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the countryside sentence!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Home</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🌿</span>
+  <div class="win-title">Brilliant!</div>
+  <div class="win-sub">You've explored every corner of the countryside!</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">🎤 Speaking Challenge</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again ↺</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — Verified from:
+   - KB3 Activity Book (via flipbuilder, studylib)
+   - KB3 Teacher's Book Unit 6 (Scribd)
+   - KB3 Tests Unit 6 evaluation answer key
+   - Storyfun 3 Journey map (slideshare)
+   - Quizlet KB3 Unit 6 flashcard set
+   - Wordwall KB3 Unit 6 activities
+═══════════════════════════════════════════ */
+
+// G1 — NATURE DETECTIVE: countryside vocab clue → word
+// Confirmed from: AB activity "Look and read. Choose the correct words", Quizlet deck, evaluation Part 1
+const G1 = [
+  { clue:"It has lots of trees. It's dark inside. Animals like foxes and deer live here.",            ans:"forest",    emoji:"🌲", opts:["forest","field","lake","river"]          },
+  { clue:"It's on the ground. It's green. Sheep and cows eat it. Suzy enjoys playing on it!",         ans:"grass",     emoji:"🌿", opts:["grass","leaf","plant","field"]           },
+  { clue:"Water flows through it. Fish swim in it. Grandpa loves fishing here.",                       ans:"river",     emoji:"🌊", opts:["river","lake","waterfall","field"]       },
+  { clue:"You can swim in this. It's like a small sea. There's one next to the river on the map.",     ans:"lake",      emoji:"💧", opts:["lake","river","waterfall","rock"]        },
+  { clue:"Cows and horses live here. It has a lot of grass. Grandma Star was here with the cows.",     ans:"field",     emoji:"🌾", opts:["field","forest","lake","grass"]          },
+  { clue:"It's part of a tree or a plant. It's green. Stella loves drawing these in her notebook.",    ans:"leaf",      emoji:"🍃", opts:["leaf","plant","grass","tree"]            },
+  { clue:"It's a living thing. It grows in the ground. Stella loves looking at these and drawing them.", ans:"plant",  emoji:"🌱", opts:["plant","leaf","tree","grass"]            },
+  { clue:"You eat your lunch outside on the grass. You need a blanket and lots of yummy food!",        ans:"picnic",    emoji:"🧺", opts:["picnic","blanket","lunch","grass"]       },
+  { clue:"Water falls down from a high place. It makes a lovely sound. You can see it by the river.",  ans:"waterfall", emoji:"💦", opts:["waterfall","river","lake","rain"]        },
+  { clue:"It's big and hard. You put your picnic blanket next to it. It doesn't move!",                ans:"rock",      emoji:"🪨", opts:["rock","tree","field","river"]            },
+];
+
+// G2 — PICNIC MATCHER: match Star family member → what they love doing
+// Verified exactly from AB story text: "The Stars enjoy going to the countryside for picnics..."
+const G2_MATCHES = [
+  { char:"Stella",  charEmoji:"👧", activity:"looking at plants and drawing leaves", actEmoji:"🌿" },
+  { char:"Suzy",    charEmoji:"👧", activity:"playing on the grass",                actEmoji:"🌾" },
+  { char:"Simon",   charEmoji:"👦", activity:"swimming in the lake",                actEmoji:"🏊" },
+  { char:"Grandpa", charEmoji:"👴", activity:"fishing in the river",               actEmoji:"🎣" },
+  { char:"Dotty",   charEmoji:"🐶", activity:"running in the fields",              actEmoji:"🏃" },
+];
+
+// G3 — MAP EXPLORER: I'd like to + verb (verified from Teacher's Book PB54 map dialogue)
+// Exact patterns from the story and Storyfun grammar syllabus
+const G3 = [
+  {
+    context:"There's a river with a waterfall on the map.",
+    subject:"Grandpa",
+    location:"the river",  locationEmoji:"🌊",
+    activity:"go fishing", actEmoji:"🎣",
+    sentence:"Grandpa says: \"I'd like to go fishing in the river!\"",
+    opts:["go fishing","go swimming","have a picnic","climb trees"],
+    ans:"go fishing"
+  },
+  {
+    context:"There's a lake next to the river on the map.",
+    subject:"Simon",
+    location:"the lake",   locationEmoji:"💧",
+    activity:"go swimming",actEmoji:"🏊",
+    sentence:"Simon says: \"I'd like to go swimming in the lake!\"",
+    opts:["go fishing","go swimming","go for a walk","draw leaves"],
+    ans:"go swimming"
+  },
+  {
+    context:"There's a big forest on the map.",
+    subject:"Stella",
+    location:"the forest",  locationEmoji:"🌲",
+    activity:"look at plants",actEmoji:"🌱",
+    sentence:"Stella says: \"I'd like to look at plants in the forest!\"",
+    opts:["go fishing","go swimming","look at plants","have a picnic"],
+    ans:"look at plants"
+  },
+  {
+    context:"There's beautiful green grass next to a big rock.",
+    subject:"Mr Star",
+    location:"the grass",   locationEmoji:"🌿",
+    activity:"have a picnic",actEmoji:"🧺",
+    sentence:"Mr Star says: \"I'd like to have a picnic on the grass!\"",
+    opts:["go fishing","climb trees","have a picnic","go for a walk"],
+    ans:"have a picnic"
+  },
+  {
+    context:"There's a forest with big trees.",
+    subject:"Suzy",
+    location:"the trees",   locationEmoji:"🌳",
+    activity:"climb trees",  actEmoji:"🧗",
+    sentence:"Suzy says: \"I'd like to climb trees in the forest!\"",
+    opts:["go fishing","climb trees","go swimming","draw plants"],
+    ans:"climb trees"
+  },
+  {
+    context:"There's a path through the countryside.",
+    subject:"Grandma",
+    location:"the countryside", locationEmoji:"🌄",
+    activity:"go for a walk",   actEmoji:"🚶",
+    sentence:"Grandma says: \"I'd like to go for a walk in the countryside!\"",
+    opts:["go fishing","go swimming","go for a walk","have a picnic"],
+    ans:"go for a walk"
+  },
+];
+
+// G4 — BOMB DEFUSE: true/false facts from the story + countryside vocab
+// Verified from AB reading "yes/no" activity + evaluation Part 2 text
+const G4 = [
+  { q:"The Stars enjoy going to the countryside for picnics.",               ans:true,  t:5 },
+  { q:"Stella loves swimming in the lake.",                                  ans:false, t:4 }, // she loves plants/leaves
+  { q:"Suzy enjoys playing on the grass.",                                   ans:true,  t:5 },
+  { q:"Simon loves fishing in the river.",                                   ans:false, t:4 }, // Simon swims; Grandpa fishes
+  { q:"Grandpa loves fishing in the river.",                                 ans:true,  t:5 },
+  { q:"Dotty loves running in the fields.",                                  ans:true,  t:5 },
+  { q:"A forest has lots of trees.",                                         ans:true,  t:4 },
+  { q:"A lake is the same as a river.",                                      ans:false, t:4 },
+  { q:"A leaf is part of a plant or tree.",                                  ans:true,  t:4 },
+  { q:"You need a blanket for a picnic.",                                    ans:true,  t:4 },
+  { q:"Dotty must always stay with the family in the fields.",               ans:true,  t:5 },
+  { q:"Stella loves looking at bikes.",                                      ans:false, t:4 }, // she loves plants
+];
+
+// G5 — GRAMMAR SNAP: sentence has one WRONG word — fix it!
+// Tests love/enjoy/like + -ing, and I'd like to + infinitive
+// Errors are common mistakes learners make (using infinitive after enjoy, etc.)
+const G5 = [
+  {
+    sentence:"Stella loves <WRONG>look at</WRONG> plants in the forest.",
+    wrongPhrase:"look at", fix:"looking at",
+    opts:["look at","looking at","to look"],
+    tip:"After LOVE, ENJOY, LIKE → always use -ING! 'loves looking at'"
+  },
+  {
+    sentence:"Suzy enjoys <WRONG>play</WRONG> on the grass.",
+    wrongPhrase:"play", fix:"playing",
+    opts:["play","playing","to play"],
+    tip:"After ENJOY → always use -ING! 'enjoys playing'"
+  },
+  {
+    sentence:"Simon loves <WRONG>swim</WRONG> in the lake.",
+    wrongPhrase:"swim", fix:"swimming",
+    opts:["swim","swimming","to swim"],
+    tip:"After LOVE → -ING! 'loves swimming'"
+  },
+  {
+    sentence:"Grandpa loves <WRONG>fish</WRONG> in the river.",
+    wrongPhrase:"fish", fix:"fishing",
+    opts:["fish","fishing","to fish"],
+    tip:"After LOVE → -ING! 'loves fishing'"
+  },
+  {
+    sentence:"I'd like <WRONG>going</WRONG> fishing in the river.",
+    wrongPhrase:"going", fix:"to go",
+    opts:["going","to go","go"],
+    tip:"I'd like → TO + verb! 'I'd like TO GO fishing'"
+  },
+  {
+    sentence:"I'd like <WRONG>swimming</WRONG> in the lake.",
+    wrongPhrase:"swimming", fix:"to swim",
+    opts:["swimming","to swim","swim"],
+    tip:"I'd like → TO + verb! 'I'd like TO SWIM in the lake'"
+  },
+  {
+    sentence:"Dotty enjoys <WRONG>run</WRONG> in the fields.",
+    wrongPhrase:"run", fix:"running",
+    opts:["run","running","to run"],
+    tip:"After ENJOY → -ING! 'enjoys running'"
+  },
+  {
+    sentence:"I'd like <WRONG>to going</WRONG> for a picnic.",
+    wrongPhrase:"to going", fix:"to go",
+    opts:["to going","to go","going"],
+    tip:"I'd like TO GO — never 'to going'! Just TO + base verb."
+  },
+];
+
+// G6 — WORD ORDER: exact sentences from Teacher's Book PB54-55, AB story text + evaluation
+const G6 = [
+  { words:["The","Stars","enjoy","going","to","the","countryside","for","picnics","."],      ans:"The Stars enjoy going to the countryside for picnics ."      },
+  { words:["Stella","loves","looking","at","plants","and","drawing","their","leaves","."],   ans:"Stella loves looking at plants and drawing their leaves ."   },
+  { words:["I'd","like","to","go","fishing","in","the","river","."],                         ans:"I'd like to go fishing in the river ."                       },
+  { words:["There's","a","lake","next","to","the","river","."],                              ans:"There's a lake next to the river ."                          },
+  { words:["Simon","loves","swimming","in","the","lake","."],                                ans:"Simon loves swimming in the lake ."                          },
+  { words:["Let's","have","our","lunch","on","the","grass","next","to","the","rock","."],    ans:"Let's have our lunch on the grass next to the rock ."       },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g4bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#3dff7a','#b8ff30','#ffd050','#40d4ff','#9040ff','#ff8c20'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#3dff7a','#b8ff30','#ffd050','#40d4ff'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Nature Detective','Picnic Matcher!','Map Explorer','Bomb Defuse!','Grammar Snap!','Word Order'];
+  const cols=['var(--green)','var(--gold)','var(--sky)','var(--orange)','var(--violet)','var(--green)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .22s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"The Stars enjoy going to the countryside for picnics!"',
+    '"I\'d like to go fishing in the river."',
+    '"I\'d like to go swimming in the lake."',
+    '"Stella loves looking at plants and drawing their leaves."',
+    '"Do you enjoy going to the countryside? How often?"',
+    '"There\'s a waterfall next to the river on the map!"',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — NATURE DETECTIVE
+   A "field log" card shows a nature clue. Student picks the word.
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Countryside</div>
+      <div class="gh-name" style="color:var(--green)">Nature Detective 🔍</div>
+      <div class="gh-instr">Read the field log clue — what is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="field-log">
+      <div class="log-badge">Field Log ${g1i+1}</div>
+      <div style="font-size:2.5rem;text-align:center;margin-bottom:10px">${q.emoji}</div>
+      <div class="log-clue">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--green)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--green);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+q.ans); }
+    show('g1next');
+  }));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G2 — PICNIC MATCHER
+   Characters on top, activities on bottom.
+   Tap a character (turns gold), then tap their activity.
+   If correct → both go green. If wrong → shake and reset selection.
+   Repeat until all 5 pairs matched.
+═══════════════════════════════════════════ */
+let g2pairs=[], g2sel=null, g2matched=0, g2pts=0;
+function g2Init(){
+  g2pairs=rnd([...G2_MATCHES]); g2sel=null; g2matched=0; g2pts=0;
+  totalQs+=g2pairs.length;
+  setProgress(0,g2pairs.length);
+  g2Render();
+}
+function g2Render(){
+  const chars=g2pairs.map((p,i)=>({...p, idx:i, matched:false}));
+  const acts=rnd(g2pairs.map((p,i)=>({...p, idx:i})));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · love/enjoy + -ing</div>
+      <div class="gh-name" style="color:var(--gold)">Picnic Matcher! 🧺</div>
+      <div class="gh-instr">Tap a Star, then tap what they love doing!</div>
+    </div>
+    <div class="picnic-scene">
+      <div class="picnic-scene-label">The Star Family</div>
+      <div class="char-row" id="charRow">
+        ${g2pairs.map((p,i)=>`
+          <div class="char-card" data-idx="${i}" id="char${i}">
+            <span class="char-emoji">${p.charEmoji}</span>
+            <div class="char-name">${p.char}</div>
+          </div>`).join('')}
+      </div>
+      <div class="picnic-scene-label" style="margin-top:14px">Activities</div>
+      <div class="activity-row" id="actRow">
+        ${acts.map(p=>`
+          <div class="act-pill" data-idx="${p.idx}" id="act${p.idx}">
+            ${p.actEmoji} ${p.activity}
+          </div>`).join('')}
+      </div>
+      <div class="match-score" id="matchScore">Matched: 0 / ${g2pairs.length}</div>
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2finish" style="background:var(--gold);color:var(--bg)">Finish ›</button>`;
+
+  document.querySelectorAll('.char-card').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched'))return;
+      document.querySelectorAll('.char-card').forEach(c=>{ if(!c.classList.contains('matched'))c.classList.remove('selected'); });
+      el.classList.add('selected');
+      g2sel={type:'char', idx:parseInt(el.dataset.idx)};
+    });
+  });
+  document.querySelectorAll('.act-pill').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched'))return;
+      if(!g2sel || g2sel.type!=='char'){ showFb('g2fb','bad','Pick a Star first!'); return; }
+      const actIdx=parseInt(el.dataset.idx);
+      if(g2sel.idx===actIdx){
+        // CORRECT
+        $('char'+g2sel.idx).classList.remove('selected'); $('char'+g2sel.idx).classList.add('matched');
+        el.classList.add('matched');
+        g2matched++; addScore(2);
+        showFb('g2fb','ok',`${g2pairs[g2sel.idx].char} loves ${g2pairs[g2sel.idx].activity}! +2 ⭐`);
+        miniConfetti(el);
+        $('matchScore').textContent=`Matched: ${g2matched} / ${g2pairs.length}`;
+        if(g2sel.idx>bestStreak)bestStreak=g2sel.idx;
+        g2sel=null;
+        setProgress(g2matched,g2pairs.length);
+        if(g2matched===g2pairs.length){ setTimeout(()=>{ show('g2finish'); showFb('g2fb','ok','All matched! Amazing! 🌿'); }, 300); }
+      } else {
+        // WRONG
+        $('char'+g2sel.idx).classList.add('wrong'); el.classList.add('wrong');
+        setTimeout(()=>{ $('char'+g2sel.idx).classList.remove('wrong','selected'); el.classList.remove('wrong'); }, 500);
+        showFb('g2fb','bad','Not quite! Try again.');
+        g2sel=null;
+      }
+    });
+  });
+  $('g2finish').addEventListener('click',()=>finishGame());
+}
+
+/* ═══════════════════════════════════════════
+   G3 — MAP EXPLORER
+   Context card shows location + character.
+   Student taps the correct activity to complete "I'd like to ___"
+   The full sentence builds at the bottom.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · I'd like to + verb</div>
+      <div class="gh-name" style="color:var(--sky)">Map Explorer 🗺️</div>
+      <div class="gh-instr">Pick what they'd like to do. Build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="map-card">
+      <div class="map-label">📍 ${q.location}</div>
+      <div style="font-size:2rem;text-align:center;margin-bottom:8px">${q.locationEmoji}</div>
+      <div style="font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--muted);text-align:center">${q.context}</div>
+    </div>
+    <div style="font-family:var(--font-h);font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--muted);text-align:center;margin-bottom:8px;text-transform:uppercase">${q.subject} says…</div>
+    <div class="sentence-builder" id="g3sent">
+      <span style="color:var(--sky)">I'd like to</span>&nbsp;<span style="color:var(--muted)">___</span>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const chosen=el.dataset.a;
+    const sent=$('g3sent');
+    if(chosen===q.ans){
+      el.classList.add('opt-ok');
+      sent.innerHTML=`<span style="color:var(--sky)">I'd like to</span>&nbsp;<span style="color:var(--green)">${q.ans}</span><span style="color:var(--muted)"> — ${q.actEmoji}</span>`;
+      sent.classList.add('active');
+      addScore(2); showFb('g3fb','ok','Perfect! +2 ⭐'); miniConfetti(el);
+    } else {
+      el.classList.add('opt-bad');
+      document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); });
+      sent.innerHTML=`<span style="color:var(--sky)">I'd like to</span>&nbsp;<span style="color:var(--ok)">${q.ans}</span>`;
+      showFb('g3fb','bad','It\'s: I\'d like to '+q.ans);
+    }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (true/false, timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Story Facts · True or False</div>
+      <div class="gh-name" style="color:var(--orange)">Bomb Defuse! 💣</div>
+      <div class="gh-instr">True or false — answer before the fuse burns!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--orange)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+  g4Render();
+}
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">✅ True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">❌ False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++; g4bombScore+=3;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g4fb','bad',ans?'It\'s TRUE!':'It\'s FALSE!');
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was '+(ans?'TRUE':'FALSE'));
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — GRAMMAR SNAP
+   A sentence appears with ONE wrong word highlighted red (underlined).
+   Student picks the correct replacement from 3 options.
+   Grammar tip appears after each answer.
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const sentHtml=q.sentence.replace(`<WRONG>${q.wrongPhrase}</WRONG>`,`<span class="snap-wrong">${q.wrongPhrase}</span>`);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · love/enjoy + -ing &amp; I'd like to</div>
+      <div class="gh-name" style="color:var(--violet)">Grammar Snap! ✏️</div>
+      <div class="gh-instr">The red word is WRONG — tap the correct replacement!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="snap-card">
+      <div class="snap-label">Spot the error!</div>
+      <div class="snap-sentence">${sentHtml}</div>
+      <div class="snap-tip">The underlined word is wrong — which word should replace it?</div>
+    </div>
+    <div class="opts3" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--violet)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-hint" id="g5hint"></div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+    const hint=$('g5hint'); hint.style.display='block'; hint.textContent='💡 '+q.tip;
+    if(el.dataset.a===q.fix){ el.classList.add('opt-ok'); addScore(2); showFb('g5fb','ok','Fixed it! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===q.fix)o.classList.add('opt-ok'); }); showFb('g5fb','bad','The fix is: '+q.fix); }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G6 — WORD ORDER
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Countryside Sentences</div>
+      <div class="gh-name" style="color:var(--green)">Word Order 🔤</div>
+      <div class="gh-instr">Tap the tiles in order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--green);color:var(--bg)">Check ✓</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--green);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect! +3 ⭐'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
