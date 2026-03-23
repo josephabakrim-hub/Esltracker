@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { scoreColor, initials, avgSkills } from '../lib/utils'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenLessonsHub, readOnly }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenLessonsHub, readOnly }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -55,6 +55,9 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
           <button className="btn btn-outline"
             style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
             onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
+          <button className="btn btn-outline"
+            style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)', fontWeight: 700 }}
+            onClick={onOpenStarSlots}>🃏 Star Slots</button>
           <button className="btn btn-outline"
             style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
             onClick={onOpenLessonsHub}>📚 Lessons Hub</button>

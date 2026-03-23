@@ -14,6 +14,7 @@ import NoteModal from './components/NoteModal'
 import AttendanceModal from './components/AttendanceModal'
 import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
+import StarSlotsModal from './components/StarSlotsModal'
 import LessonsHub from './components/LessonsHub'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
@@ -23,7 +24,6 @@ export default function App() {
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
   // ── Access control ──────────────────────────────────────────────────────────
-  // access = null (not chosen yet) | { role, readOnly }
   const [access, setAccess] = useState(null)
   const readOnly = access?.readOnly ?? true
 
@@ -68,6 +68,7 @@ export default function App() {
   const [attendanceModal,  setAttendanceModal]  = useState(null)
   const [starSessionModal, setStarSessionModal] = useState(null)
   const [spinModal,        setSpinModal]        = useState(null)
+  const [starSlotsModal,   setStarSlotsModal]   = useState(null)
   const [lessonsHubModal,  setLessonsHubModal]  = useState(null)
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
@@ -164,7 +165,6 @@ export default function App() {
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
-  // ── Show gate until role chosen ─────────────────────────────────────────────
   if (!access) {
     return <AccessGate onAccess={setAccess} />
   }
@@ -208,6 +208,7 @@ export default function App() {
               onOpenAttendance={() => setAttendanceModal(liveClass.id)}
               onOpenStarSession={() => setStarSessionModal(liveClass.id)}
               onOpenSpinOfDoom={() => setSpinModal(liveClass.id)}
+              onOpenStarSlots={() => setStarSlotsModal(liveClass.id)}
               onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
               readOnly={readOnly}
             />
@@ -241,13 +242,14 @@ export default function App() {
         </>}
       </div>
 
-      {/* Modals — only mountable when not readOnly */}
+      {/* Modals */}
       {classModal && !readOnly    && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
       {studentModal && !readOnly  && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
       {noteModal && !readOnly     && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
       {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={readOnly} />}
       {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={readOnly} />}
       {spinModal && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={readOnly} />}
+      {starSlotsModal && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={readOnly} />}
       {lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
     </div>
   )
