@@ -8,33 +8,176 @@ const WHEEL_COLORS = [
   '#7c2d12','#1e40af','#166534','#6b21a8',
 ]
 
+// ── Sound Engine (Web Audio API — no external files needed) ──────────────────
+function createAudioCtx() {
+  try { return new (window.AudioContext || window.webkitAudioContext)() } catch { return null }
+}
+
+function playTick(ctx) {
+  if (!ctx) return
+  const o = ctx.createOscillator()
+  const g = ctx.createGain()
+  o.connect(g); g.connect(ctx.destination)
+  o.frequency.value = 600
+  o.type = 'square'
+  g.gain.setValueAtTime(0.08, ctx.currentTime)
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04)
+  o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.04)
+}
+
+function playReveal(ctx) {
+  if (!ctx) return
+  const notes = [523, 659, 784, 1047]
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.type = 'sine'
+    o.frequency.value = freq
+    const t = ctx.currentTime + i * 0.1
+    g.gain.setValueAtTime(0, t)
+    g.gain.linearRampToValueAtTime(0.25, t + 0.05)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.35)
+    o.start(t); o.stop(t + 0.35)
+  })
+}
+
+function playCorrect(ctx) {
+  if (!ctx) return
+  const notes = [523, 659, 784, 1047, 1319]
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.type = 'triangle'
+    o.frequency.value = freq
+    const t = ctx.currentTime + i * 0.08
+    g.gain.setValueAtTime(0, t)
+    g.gain.linearRampToValueAtTime(0.3, t + 0.04)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+    o.start(t); o.stop(t + 0.4)
+  })
+}
+
+function playWrong(ctx) {
+  if (!ctx) return
+  const notes = [330, 277, 233]
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.type = 'sawtooth'
+    o.frequency.value = freq
+    const t = ctx.currentTime + i * 0.15
+    g.gain.setValueAtTime(0.2, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.3)
+    o.start(t); o.stop(t + 0.3)
+  })
+}
+
+function playPhoneRing(ctx) {
+  if (!ctx) return
+  // Two short bursts like a classic phone ring
+  [0, 0.5].forEach(offset => {
+    [0, 0.12].forEach(sub => {
+      const o = ctx.createOscillator()
+      const g = ctx.createGain()
+      o.connect(g); g.connect(ctx.destination)
+      o.type = 'sine'
+      o.frequency.value = 900
+      const t = ctx.currentTime + offset + sub
+      g.gain.setValueAtTime(0.2, t)
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.1)
+      o.start(t); o.stop(t + 0.1)
+    })
+  })
+}
+
+function playTeamwork(ctx) {
+  if (!ctx) return
+  const notes = [523, 659, 784, 659, 1047]
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.type = 'sine'
+    o.frequency.value = freq
+    const t = ctx.currentTime + i * 0.1
+    g.gain.setValueAtTime(0, t)
+    g.gain.linearRampToValueAtTime(0.25, t + 0.05)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.35)
+    o.start(t); o.stop(t + 0.35)
+  })
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Get today's date key matching the attendanceLog format: 'YYYY-MM-DD'
+function getTodayKey() {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, readOnly }) {
-  const canvasRef = useRef(null)
-  const spinRef   = useRef(null)
+  const canvasRef  = useRef(null)
+  const spinRef    = useRef(null)
+  const audioCtxRef = useRef(null)
+  const tickIntervalRef = useRef(null)
 
-  const [phase, setPhase] = useState('ready') // ready | spinning | picked | question | result | friend
-  const [pickedStudent, setPickedStudent]   = useState(null)
-  const [friendStudent, setFriendStudent]   = useState(null)
-  const [currentQuestion, setCurrentQuestion] = useState(null)
-  const [rotation, setRotation]             = useState(0)
-  const [saving, setSaving]                 = useState(false)
-  const [lastResult, setLastResult]         = useState(null) // 'correct' | 'wrong'
+  const [phase, setPhase]                       = useState('ready')
+  const [pickedStudent, setPickedStudent]       = useState(null)
+  const [friendStudent, setFriendStudent]       = useState(null)
+  const [currentQuestion, setCurrentQuestion]  = useState(null)
+  const [rotation, setRotation]                = useState(0)
+  const [saving, setSaving]                    = useState(false)
+  const [lastResult, setLastResult]            = useState(null)
+  const [soundOn, setSoundOn]                  = useState(true)
 
-  const level = cls?.level || 'pro'
-  const eligible = students.filter(s => s.nameEn)
+  const level   = cls?.level || 'pro'
+  const todayKey = getTodayKey()
+
+  // Filter: only students with a name AND not absent today
+  const eligible = students.filter(s => {
+    if (!s.nameEn) return false
+    const log = s.attendanceLog || {}
+    // If today has been recorded as absent, exclude
+    if (log[todayKey] === 'absent') return false
+    return true
+  })
+
+  // Students excluded today (absent)
+  const absentToday = students.filter(s => {
+    if (!s.nameEn) return false
+    const log = s.attendanceLog || {}
+    return log[todayKey] === 'absent'
+  })
+
+  // Lazy-init AudioContext on first interaction
+  function getAudioCtx() {
+    if (!soundOn) return null
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = createAudioCtx()
+    }
+    if (audioCtxRef.current?.state === 'suspended') {
+      audioCtxRef.current.resume()
+    }
+    return audioCtxRef.current
+  }
 
   // ── Draw wheel ──
   useEffect(() => {
     drawWheel(rotation)
-  }, [rotation, eligible])
+  }, [rotation, eligible.length])
 
   function drawWheel(rot) {
     const canvas = canvasRef.current
     if (!canvas || eligible.length === 0) return
     const ctx = canvas.getContext('2d')
-    const cx = canvas.width / 2
-    const cy = canvas.height / 2
-    const r  = cx - 10
+    const cx  = canvas.width / 2
+    const cy  = canvas.height / 2
+    const r   = cx - 10
     const slice = (2 * Math.PI) / eligible.length
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -43,7 +186,6 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
       const start = rot + i * slice
       const end   = start + slice
 
-      // Slice
       ctx.beginPath()
       ctx.moveTo(cx, cy)
       ctx.arc(cx, cy, r, start, end)
@@ -54,7 +196,6 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
       ctx.lineWidth = 2
       ctx.stroke()
 
-      // Text
       ctx.save()
       ctx.translate(cx, cy)
       ctx.rotate(start + slice / 2)
@@ -87,29 +228,38 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     if (phase !== 'ready' || eligible.length === 0) return
     setPhase('spinning')
 
-    const totalSpins  = 6 + Math.random() * 4 // 6–10 full rotations
-    const extraAngle  = Math.random() * 2 * Math.PI
-    const targetRot   = rotation + totalSpins * 2 * Math.PI + extraAngle
-    const duration    = 3500
-    const startTime   = performance.now()
-    const startRot    = rotation
+    const ctx = getAudioCtx()
+
+    const totalSpins = 6 + Math.random() * 4
+    const extraAngle = Math.random() * 2 * Math.PI
+    const targetRot  = rotation + totalSpins * 2 * Math.PI + extraAngle
+    const duration   = 3500
+    const startTime  = performance.now()
+    const startRot   = rotation
+
+    // Ticking sound — fast at start, slows down
+    let lastTickAngle = rotation
+    const TICK_THRESHOLD = (2 * Math.PI) / eligible.length
 
     function animate(now) {
       const elapsed  = now - startTime
       const progress = Math.min(elapsed / duration, 1)
-      // Ease out cubic
       const eased    = 1 - Math.pow(1 - progress, 3)
       const current  = startRot + (targetRot - startRot) * eased
       setRotation(current)
       drawWheel(current)
 
+      // Play tick each time we pass a segment boundary
+      if (Math.abs(current - lastTickAngle) >= TICK_THRESHOLD) {
+        playTick(ctx)
+        lastTickAngle = current
+      }
+
       if (progress < 1) {
         spinRef.current = requestAnimationFrame(animate)
       } else {
-        // Figure out who is at the top (pointer is at -π/2 = top)
-        const normalized = ((current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
-        const slice       = (2 * Math.PI) / eligible.length
-        // Pointer at top = angle 0 relative to rotation
+        const normalized   = ((current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+        const slice        = (2 * Math.PI) / eligible.length
         const pointerAngle = ((2 * Math.PI - normalized) % (2 * Math.PI))
         const index        = Math.floor(pointerAngle / slice) % eligible.length
         const picked       = eligible[index]
@@ -117,6 +267,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
         setPickedStudent(picked)
         setCurrentQuestion(question)
         setPhase('picked')
+        playReveal(ctx)
       }
     }
     spinRef.current = requestAnimationFrame(animate)
@@ -130,23 +281,28 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     setSaving(false)
     setLastResult('correct')
     setPhase('result')
+    playCorrect(getAudioCtx())
   }
 
   async function handleWrong() {
+    playWrong(getAudioCtx())
     setPhase('friend')
+    playPhoneRing(getAudioCtx())
   }
 
   async function handleFriendCorrect() {
     if (!friendStudent) return
     setSaving(true)
-    await onAwardStars(pickedStudent.id,  2, '📞 Phone a Friend — helped friend!')
-    await onAwardStars(friendStudent.id,  2, '📞 Phone a Friend — answered correctly!')
+    await onAwardStars(pickedStudent.id, 2, '📞 Phone a Friend — helped friend!')
+    await onAwardStars(friendStudent.id, 2, '📞 Phone a Friend — answered correctly!')
     setSaving(false)
     setLastResult('friend')
     setPhase('result')
+    playTeamwork(getAudioCtx())
   }
 
   async function handleFriendWrong() {
+    playWrong(getAudioCtx())
     setLastResult('wrong')
     setPhase('result')
   }
@@ -159,6 +315,14 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     setLastResult(null)
   }
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (spinRef.current) cancelAnimationFrame(spinRef.current)
+      if (tickIntervalRef.current) clearInterval(tickIntervalRef.current)
+    }
+  }, [])
+
   const size = Math.min(320, window.innerWidth - 80)
 
   return (
@@ -166,7 +330,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
       <style>{`
         @keyframes popIn { from { transform: scale(0.5); opacity: 0 } to { transform: scale(1); opacity: 1 } }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
-        .spin-pop { animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) }
+        .spin-pop   { animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) }
         .spin-shake { animation: shake 0.5s ease }
       `}</style>
 
@@ -179,16 +343,67 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
               🎰 Spin of Doom — <span style={{ color: 'var(--accent)' }}>{cls?.name}</span>
             </div>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, marginTop: 2 }}>
-              {eligible.length} STUDENTS · {level.toUpperCase()} LEVEL
+              {eligible.length} ON WHEEL
+              {absentToday.length > 0 && (
+                <span style={{ color: '#ef4444aa', marginLeft: 8 }}>· {absentToday.length} ABSENT TODAY</span>
+              )}
+              <span style={{ marginLeft: 8 }}>· {level.toUpperCase()} LEVEL</span>
             </div>
           </div>
-          <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }} onClick={onClose}>✕</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Sound toggle */}
+            <button
+              onClick={() => setSoundOn(s => !s)}
+              title={soundOn ? 'Mute sounds' : 'Unmute sounds'}
+              style={{
+                background: 'none', border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: 8, padding: '4px 8px', cursor: 'pointer',
+                fontSize: 16, color: soundOn ? '#fff' : 'rgba(255,255,255,0.3)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {soundOn ? '🔊' : '🔇'}
+            </button>
+            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }} onClick={onClose}>✕</button>
+          </div>
         </div>
 
         <div style={{ padding: 24 }}>
 
+          {/* ── ABSENT TODAY BANNER ── */}
+          {absentToday.length > 0 && (phase === 'ready' || phase === 'spinning') && (
+            <div style={{
+              marginBottom: 16, padding: '10px 14px', borderRadius: 10,
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+            }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>🚫</span>
+              <div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: '#ef4444', letterSpacing: 2, marginBottom: 4 }}>
+                  EXCLUDED TODAY (ABSENT)
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                  {absentToday.map(s => s.nameEn).join(', ')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── NO STUDENTS WARNING ── */}
+          {eligible.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--muted)' }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>😴</div>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>No students on the wheel</div>
+              <div style={{ fontSize: 12 }}>
+                {students.length === 0
+                  ? 'This class has no students yet.'
+                  : 'All students are marked absent today.'}
+              </div>
+            </div>
+          )}
+
           {/* ── WHEEL ── */}
-          {(phase === 'ready' || phase === 'spinning') && (
+          {eligible.length > 0 && (phase === 'ready' || phase === 'spinning') && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
 
               {/* Pointer */}
@@ -198,7 +413,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
                   ref={canvasRef}
                   width={size}
                   height={size}
-                  style={{ borderRadius: '50%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', cursor: phase === 'ready' ? 'pointer' : 'default' }}
+                  style={{ borderRadius: '50%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', cursor: phase === 'ready' && !readOnly ? 'pointer' : 'default' }}
                   onClick={readOnly ? undefined : spin}
                 />
               </div>
@@ -206,12 +421,16 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
               {phase === 'ready' && (
                 <div style={{ textAlign: 'center' }}>
                   {readOnly && (
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', padding: '10px 16px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)', marginBottom: 8 }}>👁 View only — only the teacher can spin</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', padding: '10px 16px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)', marginBottom: 8 }}>
+                      👁 View only — only the teacher can spin
+                    </div>
                   )}
                   <button onClick={spin} className="btn btn-accent" disabled={readOnly} style={{ fontSize: 14, padding: '12px 32px', borderRadius: 12 }}>
                     🎰 SPIN!
                   </button>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>or tap the wheel</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>
+                    {readOnly ? '' : 'or tap the wheel'}
+                  </div>
                 </div>
               )}
 
@@ -281,7 +500,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
                     <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>+2⭐ each</span>
                   </button>
                   <button className="btn" style={{ background: 'rgba(214,59,59,0.08)', color: 'var(--red)', border: '1.5px solid rgba(214,59,59,0.2)', padding: '10px 8px' }}
-                    onClick={() => { setLastResult('wrong'); setPhase('result') }}>
+                    onClick={() => { playWrong(getAudioCtx()); setLastResult('wrong'); setPhase('result') }}>
                     ❌ Wrong<br/>
                     <span style={{ fontFamily: 'var(--mono)', fontSize: 9 }}>no stars</span>
                   </button>
@@ -350,7 +569,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
 
           {/* ── RESULT ── */}
           {phase === 'result' && (
-            <div className={`spin-pop`} style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div className="spin-pop" style={{ textAlign: 'center', padding: '20px 0' }}>
               {lastResult === 'correct' && (
                 <>
                   <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
@@ -387,6 +606,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
               </div>
             </div>
           )}
+
         </div>
       </div>
     </div>
