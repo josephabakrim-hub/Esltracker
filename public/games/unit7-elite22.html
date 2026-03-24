@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 7 — Future Fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #03040f;
+  --deep:    #050614;
+  --card:    #090b1e;
+  --card2:   #0d1028;
+  --border:  #1a1f4a;
+  --indigo:  #5c6bff;
+  --indigo2: #8892ff;
+  --violet:  #a855f7;
+  --cyan:    #22d3ee;
+  --white:   #e8eeff;
+  --amber:   #fbbf24;
+  --green:   #00e676;
+  --red:     #ff3d5a;
+  --muted:   #1e2350;
+  --ok:      #00e676;
+  --bad:     #ff3d5a;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 25% 15%, rgba(92,107,255,.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 85%, rgba(34,211,238,.07) 0%, transparent 55%);
+}
+
+/* star field decoration */
+#stars { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.star { position:absolute; border-radius:50%; background:#fff; }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px; background:var(--card);
+  border:1px solid var(--border); color:var(--indigo2);
+  font-family:var(--font-m); font-size:10px; letter-spacing:2px;
+  padding:5px 16px; border-radius:4px; margin-bottom:18px; text-transform:uppercase;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2.2rem,9vw,4rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+  text-shadow:0 0 40px rgba(92,107,255,.4);
+}
+.home-title span { color:var(--indigo); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.departure-board {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:12px 16px; max-width:500px; width:100%; margin-bottom:20px;
+}
+.db-header { font-family:var(--font-m); font-size:9px; color:var(--indigo2); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.db-row { display:flex; justify-content:space-between; align-items:center; font-family:var(--font-m); font-size:11px; color:var(--muted); padding:5px 0; border-bottom:1px solid rgba(26,31,74,.5); }
+.db-row:last-child { border:none; }
+.db-dest { color:var(--white); font-weight:700; }
+.db-time { color:var(--cyan); }
+.db-status { font-size:9px; padding:2px 8px; border-radius:10px; }
+.db-on-time { background:rgba(0,230,118,.1); color:var(--green); border:1px solid rgba(0,230,118,.2); }
+.db-boarding { background:rgba(92,107,255,.1); color:var(--indigo2); border:1px solid rgba(92,107,255,.2); }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--amber); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; position:relative; z-index:1; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 16px; background:rgba(3,4,15,.92); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--indigo); color:var(--indigo2); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--indigo); color:#fff; font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.qcard-text .hl  { color:var(--indigo2); }
+.qcard-text .hl2 { color:var(--amber); }
+.qcard-text .gap { border-bottom:2px solid var(--indigo); color:var(--indigo2); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:12px; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--indigo2)); color:var(--opt-col,var(--indigo2)); background:color-mix(in srgb, var(--opt-col,var(--indigo2)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(255,61,90,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.explain-box { background:rgba(92,107,255,.06); border:1px solid rgba(92,107,255,.2); border-left:3px solid var(--indigo); border-radius:var(--r-sm); padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white); margin-bottom:10px; display:none; }
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--indigo2); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:13px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.07); color:var(--ok); border:1px solid rgba(0,230,118,.2); }
+.fb.bad { display:block; background:rgba(255,61,90,.07); color:var(--bad); border:1px solid rgba(255,61,90,.2); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--indigo); transform:scale(1.4); }
+
+/* ══ G2: MISSION CONTROL TIMELINE — the unique mechanic ══ */
+/* A horizontal timeline from PAST → NOW → NEAR FUTURE → FAR FUTURE.
+   Four zones are labelled with their future form.
+   Student reads a sentence and must:
+   a) identify which future form is used, and
+   b) tap the correct zone on the timeline.
+   After answering: the correct zone glows and an explanation appears. */
+.timeline-wrap { margin-bottom:16px; position:relative; }
+.timeline-track {
+  height:6px; background:var(--border); border-radius:3px; margin:32px 0 12px; position:relative;
+  background:linear-gradient(90deg, var(--muted) 0%, var(--indigo) 40%, var(--cyan) 75%, var(--amber) 100%);
+}
+.tl-now { position:absolute; top:50%; left:28%; transform:translate(-50%,-50%); width:14px; height:14px; border-radius:50%; background:var(--white); border:3px solid var(--indigo); box-shadow:0 0 10px rgba(92,107,255,.5); }
+.tl-zones { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:8px; }
+.tl-zone {
+  background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm);
+  padding:12px 8px; text-align:center; cursor:pointer; transition:all .15s;
+  position:relative;
+}
+.tl-zone:hover:not(.locked) { border-color:var(--indigo2); transform:translateY(-2px); }
+.tl-zone-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.tl-zone-form  { font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--white); }
+.tl-zone-eg    { font-size:10px; color:var(--muted); margin-top:3px; line-height:1.4; }
+.tl-zone.tl-ok    { border-color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s; pointer-events:none; }
+.tl-zone.tl-bad   { border-color:var(--bad)!important; background:rgba(255,61,90,.07); animation:shake .4s; pointer-events:none; }
+.tl-zone.tl-right { border-color:var(--ok)!important; background:rgba(0,230,118,.08); pointer-events:none; }
+.tl-zone.locked   { pointer-events:none; }
+.tl-sentence { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.6; background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:14px; margin-bottom:14px; }
+.tl-sentence .hl { color:var(--cyan); }
+
+/* ══ G3: FOUR FUTURES GAP-FILL ══ */
+/* Shows the sentence context + which form is expected + gap */
+.future-tag { display:inline-block; font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+.ft-will { background:rgba(92,107,255,.12); color:var(--indigo2); border:1px solid rgba(92,107,255,.2); }
+.ft-cont { background:rgba(34,211,238,.1); color:var(--cyan); border:1px solid rgba(34,211,238,.2); }
+.ft-simp { background:rgba(0,230,118,.08); color:var(--green); border:1px solid rgba(0,230,118,.2); }
+.ft-gona { background:rgba(251,191,36,.1); color:var(--amber); border:1px solid rgba(251,191,36,.2); }
+
+/* ══ G4: QUESTION TAGS BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(92,107,255,.08); border:1px solid rgba(92,107,255,.25); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--indigo2); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1rem; font-weight:600; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--indigo2); }
+
+/* ══ G5: SO/NEITHER/NOR — ECHO MECHANIC ══ */
+/* Student A says something. Student B must "echo" agreement using so/neither/nor.
+   The sentence appears, student taps the correct response. Very interactive feel. */
+.echo-scene { display:flex; gap:12px; align-items:flex-end; margin-bottom:14px; }
+.echo-bubble-a {
+  flex:1; background:rgba(92,107,255,.1); border:1px solid rgba(92,107,255,.2);
+  border-radius:14px 14px 14px 4px; padding:14px 16px;
+}
+.echo-bubble-b {
+  flex:1; background:var(--card2); border:1.5px dashed var(--border);
+  border-radius:14px 14px 4px 14px; padding:14px 16px;
+  display:flex; align-items:center; justify-content:center; min-height:70px;
+}
+.echo-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.echo-speaker-a { color:var(--indigo2); }
+.echo-speaker-b { color:var(--cyan); }
+.echo-text { font-family:var(--font-h); font-size:14px; font-weight:700; line-height:1.5; }
+.echo-text .pos { color:var(--indigo2); }
+.echo-text .neg { color:var(--red); }
+.echo-prompt { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.rule-strip {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:10px 14px; margin-bottom:14px;
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+}
+.rs-item { font-family:var(--font-b); font-size:12px; }
+.rs-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+.rs-pos { color:var(--indigo2); font-weight:700; }
+.rs-neg { color:var(--cyan); font-weight:700; }
+
+/* ══ G6: TRANSCRIPT QUIZ (Mira & Shirley) ══ */
+.transcript-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; margin-bottom:14px; max-height:200px; overflow-y:auto; }
+.transcript-card::-webkit-scrollbar { width:4px; }
+.transcript-card::-webkit-scrollbar-track { background:var(--border); }
+.transcript-card::-webkit-scrollbar-thumb { background:var(--indigo); border-radius:2px; }
+.tc-header { font-family:var(--font-m); font-size:9px; color:var(--indigo2); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.tc-line { font-size:12px; line-height:1.7; margin-bottom:3px; }
+.tc-speaker { font-family:var(--font-m); font-size:10px; color:var(--muted); font-weight:700; margin-right:4px; }
+.tc-key { color:var(--cyan); font-weight:700; }
+
+/* ══ G7: STREAK CHALLENGE ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--amber); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--amber); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.rule-text .hl  { color:var(--indigo2); }
+.rule-text .hl2 { color:var(--cyan); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:14px; font-weight:700; padding:15px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.07); color:var(--ok); border-color:rgba(0,230,118,.3); }
+.tf-no  { background:rgba(255,61,90,.05); color:var(--bad); border-color:rgba(255,61,90,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G8: DIALOGUE STAGE ══ */
+.dialogue-stage { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:14px; }
+.stage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.stage-label  { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge  { background:var(--indigo); color:#fff; font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread  { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap  { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; font-weight:700; color:#fff; }
+.av-a { background:linear-gradient(135deg,var(--indigo),var(--violet)); }
+.av-b { background:linear-gradient(135deg,var(--cyan),var(--green)); }
+.bubble { max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600; }
+.bubble-a { background:rgba(92,107,255,.1); border:1px solid rgba(92,107,255,.18); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(34,211,238,.07); border:1px solid rgba(34,211,238,.15); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--indigo2); }
+.bubble-speaker-b { color:var(--cyan); }
+.bubble-text .key-phrase { color:var(--indigo2); font-weight:800; }
+.phrase-bank { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px; }
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(92,107,255,.08); border:1px solid rgba(92,107,255,.2); color:var(--indigo2); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.cyan { background:rgba(34,211,238,.07); border-color:rgba(34,211,238,.18); color:var(--cyan); }
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--indigo); color:var(--indigo2); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.role-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:10px; font-family:var(--font-m); font-size:10px; font-weight:700; }
+.role-a { background:rgba(92,107,255,.1); color:var(--indigo2); border:1px solid rgba(92,107,255,.18); }
+.role-b { background:rgba(34,211,238,.07); color:var(--cyan); border:1px solid rgba(34,211,238,.15); }
+
+/* word order */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-family:var(--font-h); font-size:14px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--indigo); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--indigo); color:#fff; font-family:var(--font-h); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--indigo2); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--indigo2); text-shadow:0 0 40px rgba(92,107,255,.4); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--indigo) 0%, var(--cyan) 40%, var(--violet) 80%, var(--amber) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(92,107,255,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:#fff; line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(255,255,255,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--indigo2); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--indigo2); font-weight:900; }
+.btn-play { background:var(--indigo); color:#fff; font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(92,107,255,.35); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); background:var(--indigo2); }
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 7 · Elite2_2</div>
+  <!-- departure board decoration from the unit's timetable theme -->
+  <div class="departure-board">
+    <div class="db-header">SS Moon Star — Departure Board</div>
+    <div class="db-row"><span class="db-dest">Moon Base Alpha</span><span class="db-time">08:00</span><span class="db-status db-boarding">Boarding</span></div>
+    <div class="db-row"><span class="db-dest">Helsinki Championships</span><span class="db-time">Next month</span><span class="db-status db-on-time">On Time</span></div>
+    <div class="db-row"><span class="db-dest">Anti-Gravity Spa</span><span class="db-time">In 2 years' time</span><span class="db-status db-on-time">On Time</span></div>
+  </div>
+  <h1 class="home-title">Future<br><span>Fun</span></h1>
+  <p class="home-sub">// 8 games · future forms · question tags · so/neither //</p>
+  <div class="total-stars">Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#8892ff" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span><span class="gc-icon">🗓️</span>
+      <div class="gc-title">Future Vocab</div>
+      <div class="gc-desc">Time expressions + party vocabulary</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#22d3ee" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span><span class="gc-icon">🚀</span>
+      <div class="gc-title">Mission Control</div>
+      <div class="gc-desc">Four future forms on a visual timeline!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#8892ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span><span class="gc-icon">⚡</span>
+      <div class="gc-title">Four Futures Gap-Fill</div>
+      <div class="gc-desc">will / going to / -ing / present simple</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#fbbf24" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span><span class="gc-icon">💣</span>
+      <div class="gc-title">Question Tags Bomb</div>
+      <div class="gc-desc">Aren't you? Didn't she? — timed!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#22d3ee" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span><span class="gc-icon">💬</span>
+      <div class="gc-title">Echo Chamber</div>
+      <div class="gc-desc">So do I / Neither do I — agree correctly!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#a855f7" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span><span class="gc-icon">📻</span>
+      <div class="gc-title">Mira & Shirley</div>
+      <div class="gc-desc">Moon holiday + boxing champion quiz</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff3d5a" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span><span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#8892ff" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span><span class="gc-icon">🎤</span>
+      <div class="gc-title">Dialogue Stage</div>
+      <div class="gc-desc">Planning parties + making future plans</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🚀</span>
+  <div class="win-title">Launch Successful!</div>
+  <div class="win-sub">All future forms mastered. Ready for lift-off!</div>
+  <div class="win-ring"><div class="win-num" id="winScore">0</div><div class="win-lbl">STARS</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — confirmed from Think Level 2 Unit 7
+   "Future Fun" — p.66-73 + Wordlist PDF + workbook p.64-71
+═══════════════════════════════════════════ */
+
+// G1 — Future Vocab: time expressions + party vocab + sci-fi
+const G1 = [
+  { clue:'Not next week, but the week that comes after it.',              ans:'the week after next',   opts:['the week after next','next weekend','later today','in two weeks\' time'] },
+  { clue:'Not tomorrow, but the day that comes after tomorrow.',          ans:'the day after tomorrow', opts:['the day after tomorrow','the week after next','before too long','later today'] },
+  { clue:'At some point that is not far away — soon, in the near future.', ans:'before too long',      opts:['before too long','in the near future','later today','four years from now'] },
+  { clue:'Space travel may become very common ___ .',                     ans:'in the near future',    opts:['in the near future','before too long','the week after next','in two weeks\' time'] },
+  { clue:'I wonder what I\'ll be doing ___ — about four years from now.', ans:'four years from now',  opts:['four years from now','in two weeks\' time','the week after next','before too long'] },
+  { clue:'The place where a party, concert, or match happens.',           ans:'venue',                 opts:['venue','publicity','deposit','theme'] },
+  { clue:'To decide who you want to invite to a party.',                  ans:'draw up a guest list',  opts:['draw up a guest list','send out invitations','hire a DJ','get permission'] },
+  { clue:'To post cards that invite people to a party or event.',         ans:'send out invitations',  opts:['send out invitations','draw up a guest list','pay a deposit','decorate the room'] },
+  { clue:'To pay part of the cost of something in advance, before paying the rest.', ans:'pay a deposit', opts:['pay a deposit','hire a DJ','get permission','organise the food'] },
+  { clue:'To add decorations like balloons and streamers to a room.',     ans:'decorate the room',     opts:['decorate the room','choose a theme','organise the food','get permission'] },
+  { clue:'You need to ___ from the school before you can hold the party there.', ans:'get permission', opts:['get permission','hire a DJ','decorate the room','pay a deposit'] },
+  { clue:'An image that appears solid and has depth when light shines on it — from the science fiction article.', ans:'hologram', opts:['hologram','robot','transplant','technology'] },
+];
+
+// G2 — Mission Control Timeline: identify which future form a sentence uses
+// Four zones: will/won't · present continuous · present simple · be going to
+// Confirmed from p.68 workbook rule chart + exercises
+const G2_TIMELINE = [
+  { sentence:"The concert <span class='hl'>starts</span> at 8 pm on Saturday.", zone:'present simple', zones_key:'simp', explain:'PRESENT SIMPLE for timetabled/fixed events that are scheduled (concerts, trains, flights). Not a personal arrangement — it\'s on a schedule.' },
+  { sentence:"I<span class='hl'>'m meeting</span> Olivia for coffee tomorrow afternoon.", zone:'present continuous', zones_key:'cont', explain:'PRESENT CONTINUOUS for personal arrangements — already planned and confirmed with someone else. You have a diary entry for it.' },
+  { sentence:"Shirley <span class='hl'>is going to</span> train hard every day before the championships.", zone:'be going to', zones_key:'gona', explain:'BE GOING TO for intentions — a plan or decision made before speaking. Shirley has decided to train hard.' },
+  { sentence:"I think it <span class='hl'>will</span> be a really good year for me.", zone:'will/won\'t', zones_key:'will', explain:'WILL for predictions — talking about what we think or believe will happen in the future, especially with "I think".' },
+  { sentence:"The train <span class='hl'>leaves</span> at 10 am and <span class='hl'>arrives</span> at 14:55.", zone:'present simple', zones_key:'simp', explain:'PRESENT SIMPLE for transport timetables. The train schedule is fixed — it\'s not a personal arrangement.' },
+  { sentence:"We<span class='hl'>'re going to</span> go on a moon walk. That will be incredible.", zone:'be going to', zones_key:'gona', explain:'BE GOING TO for plans and intentions decided before speaking. Mira and her group planned the moon walk in advance.' },
+  { sentence:"I<span class='hl'>'m flying</span> to Helsinki next month for the championships.", zone:'present continuous', zones_key:'cont', explain:'PRESENT CONTINUOUS for definite arrangements — the flight is booked, it\'s confirmed. Personal arrangement.' },
+  { sentence:"I don't think they <span class='hl'>will win</span> the match.", zone:'will/won\'t', zones_key:'will', explain:'WILL/WON\'T for predictions and opinions about the future. "I don\'t think" signals a personal prediction.' },
+];
+
+// The four zone definitions shown on the timeline
+const TL_ZONES = [
+  { key:'will',   label:'Prediction',        form:'will / won\'t',     eg:'"I think it will be great."',   tagClass:'ft-will' },
+  { key:'cont',   label:'Arrangement',       form:'present continuous', eg:'"I\'m meeting her tomorrow."', tagClass:'ft-cont' },
+  { key:'simp',   label:'Fixed Timetable',   form:'present simple',     eg:'"The train leaves at 10."',   tagClass:'ft-simp' },
+  { key:'gona',   label:'Intention/Plan',    form:'be going to',        eg:'"I\'m going to train hard."', tagClass:'ft-gona' },
+];
+
+// G3 — Four Futures Gap-Fill: exact exercises from workbook p.64
+const G3_GAPS = [
+  { context:'Workbook p.64 — intention',   sentence:"I ___ the match on TV tonight.", ans:"'m going to watch", opts:["'m going to watch","will watch","watch","am watching"], tag:'ft-gona', tagLabel:'Intention',  explain:'Decision made before speaking → BE GOING TO. "I\'m going to watch" = already planned.' },
+  { context:'Workbook p.64 — prediction',  sentence:"I think the match ___ extra time.", ans:"will end in",   opts:["will end in","ends in","is ending in","is going to end in"], tag:'ft-will', tagLabel:'Prediction', explain:'Opinion about the future with "I think" → WILL.' },
+  { context:'Workbook p.64 — timetable',   sentence:"The film ___ at 7 pm.", ans:"starts",               opts:["starts","is going to start","will start","is starting"],    tag:'ft-simp', tagLabel:'Timetable', explain:'Fixed cinema schedule → PRESENT SIMPLE.' },
+  { context:'Workbook p.64 — arrangement', sentence:"She ___ the DJ for the party this weekend.", ans:"'s getting", opts:["'s getting","gets","will get","is going to get"],  tag:'ft-cont', tagLabel:'Arrangement', explain:'Confirmed personal arrangement → PRESENT CONTINUOUS.' },
+  { context:'Workbook p.64 — prediction',  sentence:"The shop ___ on Sundays.", ans:"doesn't open",      opts:["doesn't open","isn't going to open","won't open","isn't opening"], tag:'ft-simp', tagLabel:'Timetable', explain:'Regular fact / timetable → PRESENT SIMPLE.' },
+  { context:'Workbook p.64 — intention',   sentence:"They ___ a new album next year.", ans:"'re bringing out", opts:["'re bringing out","will bring out","bring out","brought out"], tag:'ft-cont', tagLabel:'Arrangement', explain:'Confirmed band announcement / arrangement → PRESENT CONTINUOUS.' },
+  { context:'p.68 — intention',            sentence:"I ___ to train hard every day between now and next month.", ans:"'m going", opts:["'m going","will go","go","am going to go"], tag:'ft-gona', tagLabel:'Intention', explain:'Shirley\'s pre-decided plan → BE GOING TO.' },
+  { context:'p.68 — prediction',           sentence:"I think it ___ be a great year for me.", ans:"'ll",      opts:["'ll","am going to","'m","is"],   tag:'ft-will', tagLabel:'Prediction', explain:'I think + future → WILL for prediction.' },
+];
+
+// G4 — Question Tags Bomb: confirmed from p.71 + workbook p.65
+// Rule: positive statement → negative tag; negative statement → positive tag
+// Use the same auxiliary verb as in the main clause
+const G4_TAGS = [
+  { sentence:"You're coming to the party,", tag:"aren't you?", opts:["aren't you?","isn't you?","don't you?","didn't you?"], t:5 },
+  { sentence:"She didn't see you,",          tag:"did she?",   opts:["did she?","didn't she?","does she?","was she?"],        t:5 },
+  { sentence:"They can swim,",               tag:"can't they?",opts:["can't they?","couldn't they?","don't they?","can they?"],t:4 },
+  { sentence:"He wasn't there,",             tag:"was he?",    opts:["was he?","wasn't he?","is he?","did he?"],              t:5 },
+  { sentence:"You haven't phoned her,",      tag:"have you?",  opts:["have you?","haven't you?","did you?","do you?"],        t:5 },
+  { sentence:"We'll be there on time,",       tag:"won't we?",  opts:["won't we?","will we?","wouldn't we?","aren't we?"],    t:4 },
+  { sentence:"Luke is going to play football,", tag:"isn't he?", opts:["isn't he?","is he?","doesn't he?","won't he?"],      t:5 },
+  { sentence:"They don't know about the party,", tag:"do they?", opts:["do they?","don't they?","did they?","are they?"],    t:5 },
+  { sentence:"You've met Ryan before,",       tag:"haven't you?", opts:["haven't you?","have you?","didn't you?","aren't you?"],t:4 },
+];
+
+// G5 — Echo Chamber (So/Neither/Nor)
+// Confirmed from p.71 + workbook p.65 answer key
+// Rule: positive statement → "So + aux + subject"
+//       negative statement → "Neither/Nor + aux + subject"
+const G5_ECHO = [
+  { statement:"I love dancing.",              type:'pos', correct:"So do I.",         wrong1:"Neither do I.",   wrong2:"So am I.",          wrong3:"Nor do I.",     explain:'"I love" = positive → "So DO I." Use DO because the main verb is a simple present verb (love).' },
+  { statement:"I don't like getting up early.", type:'neg', correct:"Neither do I.",   wrong1:"So do I.",        wrong2:"Nor am I.",          wrong3:"So don't I.",   explain:'"I don\'t like" = negative → "Neither/Nor DO I." Still use DO — it matches the auxiliary in the original.' },
+  { statement:"I was really excited.",        type:'pos', correct:"So was I.",         wrong1:"Neither was I.",  wrong2:"So did I.",          wrong3:"Nor was I.",    explain:'"I was" = positive past → "So WAS I." Mirror the auxiliary: was → was.' },
+  { statement:"I can\'t wait to go.",         type:'neg', correct:"Neither can I.",    wrong1:"So can I.",       wrong2:"Nor do I.",          wrong3:"Neither am I.", explain:'"I can\'t" = negative modal → "Neither/Nor CAN I." Mirror the modal.' },
+  { statement:"I\'ll be there.",              type:'pos', correct:"So will I.",         wrong1:"Neither will I.", wrong2:"So am I.",           wrong3:"Nor will I.",   explain:'"I\'ll" = positive future will → "So WILL I."' },
+  { statement:"I didn\'t text him.",          type:'neg', correct:"Neither did I.",    wrong1:"So did I.",       wrong2:"Nor do I.",          wrong3:"Nor am I.",     explain:'"I didn\'t" = negative past → "Neither/Nor DID I." Mirror the past auxiliary DID.' },
+  { statement:"I should eat more healthily.", type:'pos', correct:"So should I.",       wrong1:"Neither should I.", wrong2:"So do I.",        wrong3:"Nor should I.", explain:'"I should" = positive modal → "So SHOULD I." Mirror the modal.' },
+  { statement:"I\'m not going on the trip.", type:'neg', correct:"Neither am I.",     wrong1:"So am I.",        wrong2:"Nor do I.",          wrong3:"Nor did I.",    explain:'"I\'m not" = negative be → "Neither/Nor AM I." Mirror am → am.' },
+];
+
+// G6 — Mira & Shirley comprehension (confirmed from p.69 + audio transcript)
+const G6_TRANSCRIPT = [
+  { q:'Why is Mira excited at the start of her interview?',             ans:'She is about to go on a moon holiday',    opts:['She is about to go on a moon holiday','She won a boxing championship','She found a stray cat','She passed her driving test'] },
+  { q:'What does Mira plan to visit on the moon?',                      ans:'The anti-gravity spa rooms',              opts:['The anti-gravity spa rooms','The moon museum','A restaurant','A shopping mall'] },
+  { q:'What did Shirley Williams lose in a car accident?',              ans:'A hand (she had a hand transplant)',      opts:['A hand (she had a hand transplant)','Her sight','A leg','Her memory'] },
+  { q:'What is Shirley\'s number one ambition?',                        ans:'To win gold at the European championships', opts:['To win gold at the European championships','To retire from boxing','To open a gym','To visit the moon'] },
+  { q:'What is Shirley\'s second plan after the championships?',        ans:'To take her parents on holiday',          opts:['To take her parents on holiday','To record a documentary','To move abroad','To start a business'] },
+  { q:'What does Mira say she never goes anywhere without?',            ans:'Her phone',                               opts:['Her phone','Her camera','Her e-reader','Her sunglasses'] },
+  { q:'According to the reading text (p.67), what do scientists say about holograms?', ans:'They are becoming a reality', opts:['They are becoming a reality','They are impossible','They are only in films','They are already widely used'] },
+  { q:'In the episode, why didn\'t Ryan go to his cousin\'s house?',    ans:'His dad\'s car wouldn\'t start',          opts:['His dad\'s car wouldn\'t start','His cousin was ill','The trip was cancelled by his mum','He forgot about it'] },
+];
+
+// G7 — Streak Challenge: future forms + question tags + so/neither/nor
+const G7_STREAK = [
+  { rule:"I'm meeting Luke at the cinema tomorrow.",                     correct:true  },
+  { rule:"The train leaves at 10 am — it's on the timetable.",          correct:true  },
+  { rule:"I think it will be a great year for me.",                     correct:true  },
+  { rule:"She's going to train hard before the championships.",          correct:true  },
+  { rule:"You're coming to the party, isn't you?",                      correct:false }, // should be: aren't you?
+  { rule:"I don't eat meat.' 'Neither do I.'",                          correct:true  },
+  { rule:"I will to go shopping tomorrow.",                              correct:false }, // no 'to' after will
+  { rule:"He wasn't there, was he?",                                    correct:true  },
+  { rule:"I love pizza.' 'So am I.'",                                   correct:false }, // should be: So do I
+  { rule:"They can swim, can they?",                                     correct:false }, // should be: can't they?
+  { rule:"She didn't see you, did she?",                                 correct:true  },
+  { rule:"I didn't text him.' 'Neither did I.'",                        correct:true  },
+  { rule:"We're going to have a party next week — everything is planned.", correct:true },
+  { rule:"I'll be there.' 'So will I.'",                                correct:true  },
+];
+
+// G8 — Dialogue Stage: future plans conversations
+const G8_DIALOGUES = [
+  {
+    title:"Planning a Party",
+    topic:"Two students plan a class party together. All the party vocabulary in action!",
+    roleA:"Party organiser",
+    roleB:"Helpful classmate",
+    exchanges:[
+      { speaker:'A', text:"So I'm going to organise a party for the class. Are you going to help?", key_phrase:"I'm going to ..." },
+      { speaker:'B', text:"Of course! So what are we going to do first?", key_phrase:"What are we going to ...?" },
+      { speaker:'A', text:"Well, first we need to choose a theme and get permission from the school.", key_phrase:"first we need to ..." },
+      { speaker:'B', text:"That's a good idea. And someone will need to draw up a guest list.", key_phrase:"someone will need to ..." },
+      { speaker:'A', text:"I'll do that. Can you hire a DJ? I think live music will make it more exciting.", key_phrase:"I'll do that. / I think ... will ..." },
+      { speaker:'B', text:"Sure! And I'll also help decorate the room. When is the party — the week after next?", key_phrase:"the week after next" },
+      { speaker:'A', text:"Exactly. And we need to send out invitations before too long, or people won't come!", key_phrase:"before too long" },
+      { speaker:'B', text:"I'm on it! This is going to be amazing.", key_phrase:"This is going to be ..." },
+    ],
+    phrases_a:["I'm going to ...","I'll do that.","I think ... will ...","We need to ... before too long"],
+    phrases_b:["What are we going to ...?","Someone will need to ...","the week after next","This is going to be ..."],
+  },
+  {
+    title:"Weekend Plans (like the Episode)",
+    topic:"Making and cancelling plans — using all four future forms naturally.",
+    roleA:"Student with cancelled plans",
+    roleB:"Friend offering an alternative",
+    exchanges:[
+      { speaker:'A', text:"My football match got cancelled. The other team didn't have enough players.", key_phrase: null },
+      { speaker:'B', text:"That's a shame! So what are you going to do now?", key_phrase:"What are you going to do?" },
+      { speaker:'A', text:"I'm not sure. I was going to go, but now I've got nothing planned.", key_phrase:"I was going to ..." },
+      { speaker:'B', text:"Why don't you come with us? We're meeting at the park at 3 o'clock.", key_phrase:"We're meeting at ..." },
+      { speaker:'A', text:"That sounds great. Will the others be there?", key_phrase:"Will ... be there?" },
+      { speaker:'B', text:"Yes — Megan said she'll come, and I think Ryan will turn up too.", key_phrase:"I think ... will ..." },
+      { speaker:'A', text:"Perfect. I'll be there at 3 then. Neither did I think the day would turn out this well!", key_phrase:"Neither did I ..." },
+    ],
+    phrases_a:["I was going to ...","Will ... be there?","I'll be there at ...","Neither did I ..."],
+    phrases_b:["What are you going to do?","We're meeting at ...","I think ... will ...","That's a shame! / Lucky you!"],
+  },
+  {
+    title:"Future Predictions",
+    topic:"Discuss predictions about the future — using will, may, might, and going to.",
+    roleA:"Optimist",
+    roleB:"Sceptic",
+    exchanges:[
+      { speaker:'A', text:"I think space tourism will be really common in the near future. Mira's already going to the moon!", key_phrase:"I think ... will be ... in the near future" },
+      { speaker:'B', text:"It might be, but I think it will be very expensive. Most people won't be able to afford it.", key_phrase:"It might be, but ..." },
+      { speaker:'A', text:"True. But technology is going to improve a lot. Prices will drop eventually.", key_phrase:"Technology is going to ..." },
+      { speaker:'B', text:"Maybe. What about holograms? The article says they're going to be a reality soon.", key_phrase:"going to be a reality" },
+      { speaker:'A', text:"Yes! I think we'll be using holograms for calls in two years' time.", key_phrase:"in two years' time" },
+      { speaker:'B', text:"That's exciting. So are you going to study science or technology in the future?", key_phrase:"Are you going to ...?" },
+      { speaker:'A', text:"I'm thinking about it. I've always been interested. So have you, haven't you?", key_phrase:"So have you, haven't you?" },
+    ],
+    phrases_a:["I think ... will be ... in the near future","Technology is going to ...","in two years' time","So have you, haven't you?"],
+    phrases_b:["It might be, but ...","going to be a reality","Are you going to ...?","What about ...?"],
+  },
+];
+
+// Word Order: exact sentences from workbook p.64-71 + student book
+const GWO = [
+  { words:["I","think","it","'ll","be","a","really","good","year","for","me","."],              ans:"I think it 'll be a really good year for me ."              },
+  { words:["She","'s","going","to","train","hard","every","day","before","the","championships","."], ans:"She 's going to train hard every day before the championships ." },
+  { words:["You","'re","coming","to","the","party",",","aren't","you","?"],                      ans:"You 're coming to the party , aren't you ?"                  },
+  { words:["I","don't","eat","meat",".",  "Neither","do","I","."],                               ans:"I don't eat meat . Neither do I ."                           },
+  { words:["The","train","leaves","at","10","am","and","arrives","at","14:55","."],              ans:"The train leaves at 10 am and arrives at 14:55 ."            },
+  { words:["Space","travel","may","become","common","in","the","near","future","."],             ans:"Space travel may become common in the near future ."         },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7best=0, g4streak=0, g4bombScore=0;
+let g8scenIdx=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+// Build star field
+(function(){
+  const c=$('stars'); if(!c)return;
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${(Math.random()*.5+.1).toFixed(2)}`;
+    c.appendChild(s);
+  }
+})();
+
+function confetti(){
+  const cols=['#5c6bff','#22d3ee','#a855f7','#fbbf24','#00e676'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#5c6bff','#22d3ee','#00e676','#fbbf24'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el)el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Future Vocab','Mission Control','Four Futures','Question Tags Bomb','Echo Chamber','Mira & Shirley','Streak Challenge','Dialogue Stage'];
+  const cols=['var(--indigo2)','var(--cyan)','var(--indigo2)','var(--amber)','var(--cyan)','var(--violet)','var(--red)','var(--indigo2)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  const gc=$(`gc${currentGame}`); if(gc) gc.classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"What are you going to do next weekend?" — use all four future forms in your answer!',
+    '"You\'re coming to the party, aren\'t you?" — make three more question tags.',
+    '"I love pizza." "So do I!" — practise agreeing with 5 different statements.',
+    'Describe Mira\'s moon trip or Shirley\'s boxing plans in your own words.',
+    '"I\'m meeting my friend tomorrow." — what\'s the difference from "I\'m going to meet"?',
+    'Plan a party: use draw up, hire, send out, pay a deposit, decorate, get permission.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — FUTURE VOCAB
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Time Expressions + Party Vocab</div>
+      <div class="gh-name" style="color:var(--indigo2)">Future Vocab</div>
+      <div class="gh-instr">Read the definition — which word or phrase is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Definition ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--indigo2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--indigo);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — MISSION CONTROL TIMELINE
+   Unique mechanic: a horizontal timeline with 4 labelled zones.
+   Student reads a sentence (with key verb highlighted in cyan),
+   identifies which future form is used, and taps the correct zone.
+   After answering: the correct zone glows green + full explanation shown.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_TIMELINE); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const zoneHtml=TL_ZONES.map(z=>`
+    <div class="tl-zone" data-z="${z.key}" id="tlz-${z.key}">
+      <div class="tl-zone-label">${z.label}</div>
+      <div class="tl-zone-form">${z.form}</div>
+      <div class="tl-zone-eg">${z.eg}</div>
+    </div>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Four Future Forms · Timeline</div>
+      <div class="gh-name" style="color:var(--cyan)">Mission Control</div>
+      <div class="gh-instr">Read the sentence — which future form is the highlighted verb? Tap the correct zone!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="tl-sentence">${q.sentence}</div>
+    <div class="timeline-wrap">
+      <div class="timeline-track"><div class="tl-now"></div></div>
+      <div class="tl-zones" id="tlzones">${zoneHtml}</div>
+    </div>
+    <div class="explain-box" id="g2exp"><span class="rule-tag">Grammar Rule</span>${q.explain}</div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--cyan);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.tl-zone').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.z,q.zones_key,q.explain)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,correct,explain){
+  document.querySelectorAll('.tl-zone').forEach(z=>z.classList.add('locked'));
+  $('g2exp').classList.add('show');
+  if(chosen===correct){
+    el.classList.add('tl-ok'); addScore(3); showFb('g2fb','ok','Correct! +3 stars — read the explanation!'); miniConfetti(el);
+  } else {
+    el.classList.add('tl-bad');
+    const correctEl=document.querySelector(`#tlz-${correct}`); if(correctEl) correctEl.classList.add('tl-right');
+    showFb('g2fb','bad','Not quite — check the explanation!');
+  }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — FOUR FUTURES GAP-FILL (with explanation + form tag)
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_GAPS); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayQ=q.sentence.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Four Future Forms Gap-Fill</div>
+      <div class="gh-name" style="color:var(--indigo2)">Four Futures</div>
+      <div class="gh-instr">Choose the correct future form!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="qcard">
+      <span class="future-tag ${q.tag}">${q.tagLabel}</span>
+      <div class="qcard-label" style="margin-top:6px">${q.context}</div>
+      <div class="qcard-text">${displayQ}</div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--indigo2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">Why this form?</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--indigo);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g3exp').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(3); showFb('g3fb','ok','Correct! +3 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — QUESTION TAGS BOMB (timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_TAGS); g4i=0; g4streak=0; g4bombScore=0; g4Setup(); }
+function g4Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Question Tags · Timed!</div>
+      <div class="gh-name" style="color:var(--amber)">Question Tags Bomb</div>
+      <div class="gh-instr">Add the correct question tag — before the fuse burns out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ4"></div>
+    <div class="opts2" id="bombOpts4"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4BombRender(); });
+  g4BombRender();
+}
+function g4BombRender(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ4').innerHTML=`"<span class="hl">${q.sentence}</span>" + <span class="hl">???</span>`;
+  const opts=rnd(q.opts);
+  $('bombOpts4').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts4 .opt').forEach(el=>el.addEventListener('click',()=>g4BombAns(el,el.dataset.a,q.tag)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.tag),q.t*1000);
+}
+function g4BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    g4bombScore+=3; $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g4fb','bad','Boom! It\'s: '+ans);
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+ans);
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — ECHO CHAMBER (So/Neither/Nor)
+   Student A's statement appears in a left bubble.
+   Right bubble shows "???" and student taps the correct response.
+   The rule strip shows the pattern before each question.
+   After answering: the correct echo fills the right bubble.
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_ECHO); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const opts=rnd([q.correct,q.wrong1,q.wrong2,q.wrong3]);
+  const stmtClass=q.type==='pos'?'pos':'neg';
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · So / Neither / Nor</div>
+      <div class="gh-name" style="color:var(--cyan)">Echo Chamber</div>
+      <div class="gh-instr">Student A speaks — Student B agrees. Tap the correct echo!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="rule-strip">
+      <div class="rs-item">
+        <div class="rs-label">Positive statement</div>
+        <div class="rs-pos">So + aux + I</div>
+        <div style="font-size:11px;color:var(--muted)">"I love it." → "So do I."</div>
+      </div>
+      <div class="rs-item">
+        <div class="rs-label">Negative statement</div>
+        <div class="rs-neg">Neither/Nor + aux + I</div>
+        <div style="font-size:11px;color:var(--muted)">"I can't go." → "Neither can I."</div>
+      </div>
+    </div>
+    <div class="echo-scene">
+      <div>
+        <div class="echo-speaker echo-speaker-a">Student A</div>
+        <div class="echo-bubble-a">
+          <div class="echo-text"><span class="${stmtClass}">${q.statement}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="echo-speaker echo-speaker-b">Student B</div>
+        <div class="echo-bubble-b" id="echoB">
+          <div class="echo-prompt">Tap the correct response below…</div>
+        </div>
+      </div>
+    </div>
+    <div class="opts2" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--cyan)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g5exp"><span class="rule-tag">Grammar Rule</span>${q.explain}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--cyan);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>g5Ans(el,el.dataset.a,q.correct,q.explain)));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g5exp').classList.add('show');
+  const echoB=$('echoB');
+  if(chosen===ans){
+    el.classList.add('opt-ok'); addScore(3);
+    if(echoB){ echoB.style.background='rgba(0,230,118,.1)'; echoB.style.borderColor='rgba(0,230,118,.25)'; echoB.innerHTML=`<div class="echo-text" style="color:var(--ok)">${ans}</div>`; }
+    showFb('g5fb','ok','Perfect echo! +3 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad');
+    document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    if(echoB){ echoB.innerHTML=`<div class="echo-text" style="color:var(--ok)">${ans}</div>`; }
+    showFb('g5fb','bad','Correct: '+ans);
+  }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — MIRA & SHIRLEY COMPREHENSION
+   Scrollable transcript shown + questions below
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6_TRANSCRIPT); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Listening · Mira (Moon Trip) + Shirley (Boxing)</div>
+      <div class="gh-name" style="color:var(--violet)">Mira &amp; Shirley</div>
+      <div class="gh-instr">Use the transcript to answer the questions.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="transcript-card">
+      <div class="tc-header">Audio Transcripts — p.69</div>
+      <div class="tc-line"><span class="tc-speaker">MIRA:</span>We're definitely going to go on a <span class="tc-key">moon walk</span>. The hotel looks absolutely amazing — I can't wait to visit the <span class="tc-key">anti-gravity spa rooms</span>.</div>
+      <div class="tc-line"><span class="tc-speaker">MIRA:</span>I never go anywhere without my <span class="tc-key">phone</span>.</div>
+      <div class="tc-line"><span class="tc-speaker">SHIRLEY:</span>I want to win <span class="tc-key">gold at the European championships</span> — that's number one.</div>
+      <div class="tc-line"><span class="tc-speaker">SHIRLEY:</span>I'm going to take my <span class="tc-key">parents on holiday</span>. Somewhere nice and hot — my mum loves the sun.</div>
+      <div class="tc-line"><span class="tc-speaker">P.67 TEXT:</span>Shirley Williams, 28, had a complete <span class="tc-key">hand transplant</span> after a car accident. Holograms are <span class="tc-key">becoming a reality</span>, scientists say.</div>
+      <div class="tc-line"><span class="tc-speaker">EPISODE 4:</span>Ryan's dad's car <span class="tc-key">wouldn't start</span>. Luke's match <span class="tc-key">got cancelled</span>. Olivia's mum <span class="tc-key">had to work</span>.</div>
+    </div>
+    <div class="qcard" style="margin-top:14px">
+      <div class="qcard-label">Question ${g6i+1} of ${g6q.length}</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g6opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--violet)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>g6Ans(el,el.dataset.a,q.ans)));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+function g6Ans(el,chosen,ans){
+  document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad','The answer is: '+ans); }
+  show('g6next');
+}
+
+/* ═══════════════════════════════════════════
+   G7 — STREAK CHALLENGE
+═══════════════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7_STREAK); g7i=0; g7streak=0; g7best=0; g7Render(); }
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++; setProgress(g7i,g7q.length);
+  const ruleHtml=q.rule
+    .replace(/(will\b|won't\b|'ll\b)/g,'<span class="hl">$1</span>')
+    .replace(/(going to|aren't you|isn't he|can't|did she|So do I|Neither do I)/g,'<span class="hl2">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--red)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s7flames">🔥</div>
+        <div><div class="streak-big" id="s7num">${g7streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g7best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">${g7i+1} of ${g7q.length}</div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--red);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g7Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g7Ans(false,q.correct));
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+}
+function g7Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak++; if(g7streak>g7best)g7best=g7streak;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('s7num').textContent=g7streak; $('s7flames').textContent='🔥'.repeat(Math.min(g7streak,5));
+    addScore(2); showFb('g7fb','ok','Correct! +2 stars'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak=0; $('s7num').textContent=0; $('s7flames').textContent='🔥';
+    showFb('g7fb','bad','Not quite!');
+  }
+  show('g7next');
+}
+
+/* ═══════════════════════════════════════════
+   G8 — DIALOGUE STAGE
+═══════════════════════════════════════════ */
+function g8Init(){ g8scenIdx=0; g8RenderScenario(); }
+function g8RenderScenario(){
+  const sc=G8_DIALOGUES[g8scenIdx];
+  const bubbles=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    let text=ex.text;
+    if(ex.key_phrase){
+      try { text=text.replace(new RegExp(`(${ex.key_phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\.\.\./g,'[\\s\\S]{0,30}')})`, 'i'), `<span class="key-phrase">$1</span>`); } catch(e){}
+    }
+    return `<div class="bubble-wrap ${isA?'':'b-right'}">
+      <div class="bubble-avatar ${isA?'av-a':'av-b'}">${ex.speaker}</div>
+      <div class="bubble ${isA?'bubble-a':'bubble-b'}">
+        <div class="bubble-speaker ${isA?'bubble-speaker-a':'bubble-speaker-b'}">${isA?sc.roleA:sc.roleB}</div>
+        <div class="bubble-text">${text}</div>
+      </div>
+    </div>`;
+  }).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Speaking · Dialogue Stage</div>
+      <div class="gh-name" style="color:var(--indigo2)">Dialogue Stage</div>
+      <div class="gh-instr">Take roles — read aloud, then try without looking!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g8prev" ${g8scenIdx===0?'disabled style="opacity:.3"':''}>← Prev</button>
+      <div class="scenario-count">Scenario ${g8scenIdx+1} of ${G8_DIALOGUES.length}</div>
+      <button class="nav-btn-small" id="g8next-sc" ${g8scenIdx===G8_DIALOGUES.length-1?'disabled style="opacity:.3"':''}>Next →</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div>
+          <div class="stage-label">${sc.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${sc.topic}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="role-tag role-a">A: ${sc.roleA}</span>
+          <span class="role-tag role-b">B: ${sc.roleB}</span>
+        </div>
+      </div>
+      <div class="chat-thread">${bubbles}</div>
+    </div>
+    <div class="phrase-bank">
+      <div class="pb-label">Student A — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_a.map(p=>`<div class="pb-chip">${p}</div>`).join('')}</div>
+    </div>
+    <div class="phrase-bank" style="margin-bottom:14px">
+      <div class="pb-label">Student B — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_b.map(p=>`<div class="pb-chip cyan">${p}</div>`).join('')}</div>
+    </div>
+    <div style="background:rgba(92,107,255,.05);border:1px solid rgba(92,107,255,.15);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.7;">
+      <div style="font-family:var(--font-m);font-size:9px;color:var(--indigo2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Challenge</div>
+      After reading the dialogue, try your own version using the phrase banks above!
+    </div>
+    ${g8scenIdx===G8_DIALOGUES.length-1?`<div style="text-align:center"><button class="btn-check" style="background:var(--indigo);color:#fff" onclick="finishGame()">Done — Back to Home</button></div>`:''}`;
+  $('g8prev').addEventListener('click',()=>{ if(g8scenIdx>0){g8scenIdx--;g8RenderScenario();} });
+  $('g8next-sc').addEventListener('click',()=>{ if(g8scenIdx<G8_DIALOGUES.length-1){g8scenIdx++;g8RenderScenario();} });
+}
+</script>
+</body>
+</html>
