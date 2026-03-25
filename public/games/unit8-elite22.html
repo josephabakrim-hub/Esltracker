@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 8 — Science Counts</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080a06;
+  --deep:    #0c0f09;
+  --card:    #121508;
+  --card2:   #181c0b;
+  --border:  #2a300f;
+  --orange:  #f97316;
+  --orange2: #fdba74;
+  --teal:    #14b8a6;
+  --teal2:   #5eead4;
+  --amber:   #f59e0b;
+  --green:   #00e676;
+  --red:     #ff3d5a;
+  --purple:  #a855f7;
+  --white:   #fefce8;
+  --muted:   #2a3010;
+  --ok:      #00e676;
+  --bad:     #ff3d5a;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(249,115,22,.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(20,184,166,.07) 0%, transparent 55%);
+}
+
+/* EUREKA burst animation */
+.eureka-burst {
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0;
+}
+.eureka-burst.active { animation:eurekaPop .7s ease forwards; }
+@keyframes eurekaPop {
+  0%   { opacity:0; transform:scale(.4); }
+  30%  { opacity:1; transform:scale(1.2); }
+  60%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.1); }
+}
+.eureka-text {
+  font-family:var(--font-h); font-size:4rem; font-weight:800; color:var(--orange);
+  text-shadow:0 0 40px rgba(249,115,22,.8), 0 0 80px rgba(249,115,22,.4);
+  letter-spacing:4px;
+}
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; z-index:1; position:relative; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px; background:var(--card);
+  border:1px solid var(--border); color:var(--orange2);
+  font-family:var(--font-m); font-size:10px; letter-spacing:2px;
+  padding:5px 16px; border-radius:4px; margin-bottom:18px; text-transform:uppercase;
+}
+/* equation strip decoration */
+.equation-strip {
+  font-family:var(--font-m); font-size:11px; color:var(--muted); letter-spacing:1px;
+  margin-bottom:14px; text-align:center; line-height:2;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2.2rem,9vw,4rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+  text-shadow:0 0 40px rgba(249,115,22,.35);
+}
+.home-title span { color:var(--orange); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--green); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--amber); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 16px; background:rgba(8,10,6,.92); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--orange); color:var(--orange2); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--orange); color:var(--bg); font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.qcard-text .hl  { color:var(--orange2); }
+.qcard-text .hl2 { color:var(--teal2); }
+.qcard-text .gap { border-bottom:2px solid var(--orange); color:var(--orange2); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:12px; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:13px; font-weight:700; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--orange2)); color:var(--opt-col,var(--orange2)); background:color-mix(in srgb, var(--opt-col,var(--orange2)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,230,118,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(255,61,90,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+.explain-box { background:rgba(249,115,22,.05); border:1px solid rgba(249,115,22,.2); border-left:3px solid var(--orange); border-radius:var(--r-sm); padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white); margin-bottom:10px; display:none; }
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--orange2); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:13px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.07); color:var(--ok); border:1px solid rgba(0,230,118,.2); }
+.fb.bad { display:block; background:rgba(255,61,90,.07); color:var(--bad); border:1px solid rgba(255,61,90,.2); }
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--orange); transform:scale(1.4); }
+
+/* ══ G2: WHEN/WHILE SPLIT — visual mechanic ══ */
+/* Two panels side by side showing the two clauses with colour coding */
+.split-panel { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.split-side { border-radius:var(--r-sm); padding:12px; text-align:center; }
+.split-when { background:rgba(249,115,22,.08); border:1.5px solid rgba(249,115,22,.25); }
+.split-while { background:rgba(20,184,166,.07); border:1.5px solid rgba(20,184,166,.2); }
+.split-conn { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.split-conn-when  { color:var(--orange2); }
+.split-conn-while { color:var(--teal2); }
+.split-desc { font-size:11px; color:var(--muted); margin-bottom:6px; }
+.split-form { font-family:var(--font-h); font-size:12px; font-weight:700; }
+.split-form-when  { color:var(--orange2); }
+.split-form-while { color:var(--teal2); }
+.split-eg { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; font-style:italic; }
+
+/* ══ G3: USED TO TRANSFORMER ══ */
+.transform-card {
+  background:linear-gradient(160deg,var(--card2),#080a06);
+  border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px;
+}
+.transform-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.transform-original { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.6; color:var(--muted); margin-bottom:10px; }
+.transform-arrow { text-align:center; color:var(--orange); font-size:1.2rem; margin-bottom:8px; }
+.transform-target { font-size:13px; color:var(--white); font-weight:600; }
+.transform-target .gap { border-bottom:2px solid var(--orange); color:var(--orange2); padding:0 6px; font-family:var(--font-m); font-size:12px; min-width:100px; display:inline-block; }
+
+/* ══ G4: SECOND CONDITIONAL FORGE ══ */
+.unreal-badge {
+  display:inline-flex; align-items:center; gap:6px; background:rgba(168,85,247,.1);
+  border:1px solid rgba(168,85,247,.25); border-radius:20px; padding:5px 14px; margin-bottom:10px;
+  font-family:var(--font-m); font-size:10px; color:var(--purple); font-weight:700; letter-spacing:1px;
+}
+.cond-visual { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.cond-side { border-radius:var(--r-sm); padding:12px; }
+.cond-if   { background:rgba(168,85,247,.08); border:1.5px solid rgba(168,85,247,.2); }
+.cond-then { background:rgba(249,115,22,.07); border:1.5px solid rgba(249,115,22,.2); }
+.cond-tag  { font-family:var(--font-m); font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.ct-if   { color:var(--purple); }
+.ct-then { color:var(--orange2); }
+.cond-form { font-family:var(--font-h); font-size:12px; font-weight:700; }
+.cf-if   { color:var(--purple); }
+.cf-then { color:var(--orange2); }
+.cond-eg { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; font-style:italic; }
+
+/* ══ G5: BOMB (wish) ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.25); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1rem; font-weight:600; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--orange2); }
+
+/* ══ G7: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--amber); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--amber); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1rem; font-weight:700; line-height:1.7; }
+.rule-text .hl  { color:var(--orange2); }
+.rule-text .hl2 { color:var(--teal2); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:14px; font-weight:700; padding:15px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.07); color:var(--ok); border-color:rgba(0,230,118,.3); }
+.tf-no  { background:rgba(255,61,90,.05); color:var(--bad); border-color:rgba(255,61,90,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G8: DIALOGUE ══ */
+.dialogue-stage { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:14px; }
+.stage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.stage-label  { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge  { background:var(--orange); color:var(--bg); font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread  { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap  { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--bg); }
+.av-a { background:linear-gradient(135deg,var(--orange),var(--amber)); }
+.av-b { background:linear-gradient(135deg,var(--teal),var(--teal2)); }
+.bubble { max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600; }
+.bubble-a { background:rgba(249,115,22,.1); border:1px solid rgba(249,115,22,.18); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(20,184,166,.07); border:1px solid rgba(20,184,166,.15); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--orange2); }
+.bubble-speaker-b { color:var(--teal2); }
+.bubble-text .key-phrase { color:var(--orange2); font-weight:800; }
+.phrase-bank { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px; }
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.2); color:var(--orange2); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.teal { background:rgba(20,184,166,.07); border-color:rgba(20,184,166,.18); color:var(--teal2); }
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--orange); color:var(--orange2); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.role-tag { display:inline-flex; align-items:center; padding:4px 10px; border-radius:10px; font-family:var(--font-m); font-size:10px; font-weight:700; }
+.role-a { background:rgba(249,115,22,.1); color:var(--orange2); border:1px solid rgba(249,115,22,.18); }
+.role-b { background:rgba(20,184,166,.07); color:var(--teal2); border:1px solid rgba(20,184,166,.15); }
+
+/* word order */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-family:var(--font-h); font-size:14px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--orange); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--orange); color:var(--bg); font-family:var(--font-h); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--orange2); color:var(--bg); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* transcript */
+.transcript-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; margin-bottom:14px; max-height:190px; overflow-y:auto; }
+.transcript-card::-webkit-scrollbar { width:4px; }
+.transcript-card::-webkit-scrollbar-track { background:var(--border); }
+.transcript-card::-webkit-scrollbar-thumb { background:var(--orange); border-radius:2px; }
+.tc-header { font-family:var(--font-m); font-size:9px; color:var(--orange2); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.tc-line { font-size:12px; line-height:1.7; margin-bottom:3px; }
+.tc-speaker { font-family:var(--font-m); font-size:10px; color:var(--muted); font-weight:700; margin-right:4px; }
+.tc-key { color:var(--orange2); font-weight:700; }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--orange); text-shadow:0 0 40px rgba(249,115,22,.4); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--orange) 0%, var(--amber) 40%, var(--teal) 80%, var(--green) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(249,115,22,.35); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--orange2); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--orange); font-weight:900; }
+.btn-play { background:var(--orange); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(249,115,22,.4); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); background:var(--orange2); color:var(--bg); }
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- EUREKA burst overlay -->
+<div class="eureka-burst" id="eurekaBurst">
+  <div class="eureka-text">EUREKA!</div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 8 · Elite2_2</div>
+  <div class="equation-strip">E = mc² · F = ma · DNA = ATCG · H₂O · π ≈ 3.14159</div>
+  <h1 class="home-title">Science<br><span>Counts</span></h1>
+  <p class="home-sub">// 8 games · past tenses · used to · conditionals · wish //</p>
+  <div class="total-stars">Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#fdba74" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span><span class="gc-icon">🔬</span>
+      <div class="gc-title">Science Vocab Lab</div>
+      <div class="gc-desc">invention, discovery, experiment…</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#5eead4" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span><span class="gc-icon">⚡</span>
+      <div class="gc-title">When / While Split</div>
+      <div class="gc-desc">Past simple vs continuous + visual split</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#fdba74" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span><span class="gc-icon">🔄</span>
+      <div class="gc-title">Used To Transformer</div>
+      <div class="gc-desc">Transform past habits + beliefs!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#a855f7" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span><span class="gc-icon">🧪</span>
+      <div class="gc-title">Conditional Forge</div>
+      <div class="gc-desc">Second conditional — unreal situations!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f59e0b" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span><span class="gc-icon">💣</span>
+      <div class="gc-title">Wish Bomb</div>
+      <div class="gc-desc">I wish + past simple — timed!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#5eead4" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span><span class="gc-icon">📖</span>
+      <div class="gc-title">Famous Scientists</div>
+      <div class="gc-desc">Galileo, Pasteur, Watson, Goodall…</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff3d5a" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span><span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#fdba74" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span><span class="gc-icon">🎤</span>
+      <div class="gc-title">Dialogue Stage</div>
+      <div class="gc-desc">Science conversations + past beliefs</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🔬</span>
+  <div class="win-title">EUREKA!</div>
+  <div class="win-sub">Science counts — and so do you.</div>
+  <div class="win-ring"><div class="win-num" id="winScore">0</div><div class="win-lbl">STARS</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — confirmed from Think Level 2 Unit 8
+   "Science Counts" — p.74-83 + Wordlist PDF + workbook p.72-81
+═══════════════════════════════════════════ */
+
+// G1 — Science Vocab Lab
+const G1 = [
+  { clue:'Something designed or created for the very first time — e.g. the telephone.', ans:'invention',   opts:['invention','discovery','experiment','achievement'] },
+  { clue:'When you find out something new — Archimedes\' bathtub moment was one.', ans:'discovery',       opts:['discovery','invention','cure','experiment'] },
+  { clue:'A scientific test to learn something or to discover if something is true.', ans:'experiment',   opts:['experiment','discovery','laboratory','research'] },
+  { clue:'A room specifically designed and equipped for scientific work.',            ans:'laboratory',   opts:['laboratory','machine','experiment','tool'] },
+  { clue:'Something that makes an ill person healthy again.',                         ans:'cure',         opts:['cure','pill','treat','prevent'] },
+  { clue:'To stop something bad from happening — Pasteur found a way to ___ disease.',ans:'prevent',     opts:['prevent','treat','cure','identify'] },
+  { clue:'To recognise and say who or what someone or something is.',                ans:'identify',     opts:['identify','discover','invent','prevent'] },
+  { clue:'An extremely important thing that someone has succeeded in doing.',         ans:'achievement',  opts:['achievement','discovery','invention','experiment'] },
+  { clue:'To study a subject in order to discover new information.',                 ans:'do research',  opts:['do research','do experiments','make discoveries','identify facts'] },
+  { clue:'The way parts are arranged or put together — Crick and Watson found DNA\'s ___.',ans:'structure', opts:['structure','tool','machine','organism'] },
+  { clue:'Extremely large in size or amount — the improvements in medicine were ___.', ans:'enormous',   opts:['enormous','basic','complicated','tiny'] },
+  { clue:'A small, hard piece of medicine that you swallow.',                         ans:'pill',         opts:['pill','cure','tool','machine'] },
+];
+
+// G2 — When/While Split: past simple vs past continuous
+// Confirmed from p.75-76 exercises + workbook p.72
+// Rule: WHEN + past simple (short, completed action that interrupts)
+//       WHILE + past continuous (background ongoing action)
+const G2_WHEN_WHILE = [
+  { sentence:"Newton ___ under a tree when an apple fell on his head.", ans:'was sitting', opts:['was sitting','sat','is sitting','were sitting'], connector:'while', correct_connector:'when', explain:'When + past simple (fell) interrupts the background action. The background = Newton WAS SITTING (past continuous).' },
+  { sentence:"___ he was getting out of the bath, he noticed the water went down.", ans:'While', opts:['While','When','During','As soon as'], connector:'while', correct_connector:'while', explain:'WHILE introduces the ongoing background action (he was getting out). While = during the time that (past continuous).' },
+  { sentence:"He ___ breakfast when he heard the radio programme about kids\' beliefs.", ans:'was having', opts:['was having','had','is having','has had'], connector:'when', correct_connector:'when', explain:'Background activity = WAS HAVING breakfast. When introduces the interrupting event (heard the programme).' },
+  { sentence:"When the apple ___ on Newton\'s head, he started thinking about gravity.", ans:'fell', opts:['fell','was falling','falls','has fallen'], connector:'when', correct_connector:'when', explain:'WHEN + past simple = the short, sudden event that interrupts. Fell = the complete, sudden action.' },
+  { sentence:"___ Archimedes was relaxing in the bath, he made his famous discovery.", ans:'While', opts:['While','When','After','Before'], connector:'while', correct_connector:'while', explain:'WHILE = during the background ongoing activity. He was relaxing (continuous) when the discovery happened.' },
+  { sentence:"She ___ names at the moon while she was sitting at her bedroom window.", ans:'was calling', opts:['was calling','called','calls','had called'], connector:'when', correct_connector:'while', explain:'The background activity (calling names) was continuous. WHILE is used with past continuous for ongoing background.' },
+  { sentence:"When we ___ about gravity, someone knocked on the door.", ans:'were talking', opts:['were talking','talked','talk','have talked'], connector:'while', correct_connector:'when', explain:'Background = WERE TALKING (ongoing). When introduces the sudden interruption (knocked).' },
+  { sentence:"Alex\'s grandfather ___ on a wire when he got a shock.", ans:'stepped', opts:['stepped','was stepping','steps','had stepped'], connector:'when', correct_connector:'when', explain:'WHEN + past simple = the short completed action. He stepped (suddenly) → then the result.' },
+];
+
+// G3 — Used To Transformer
+// Confirmed from p.77 exercises + workbook p.72 + classroom transcript
+const G3_USED_TO = [
+  { original:"Newton sat under an apple tree every day.", target:"Newton ___ under an apple tree every day.", ans:"used to sit", opts:["used to sit","was sitting","used to sitting","use to sit"], explain:'USED TO + base verb for repeated past habits/states that no longer exist.' },
+  { original:"As a child, she believed that electricity came out of sockets.", target:"As a child, she ___ that electricity came out of sockets.", ans:"used to believe", opts:["used to believe","used to believed","use to believe","was believing"], explain:'USED TO + base verb. Never "used to + past verb". The base form follows used to.' },
+  { original:"Martin didn\'t buy apples because he had a tree.", target:"Martin ___ apples because he had a tree.", ans:"didn\'t use to buy", opts:["didn\'t use to buy","didn\'t used to buy","used to not buy","didn\'t use to buying"], explain:'NEGATIVE: didn\'t use to + base verb. Note: "use" not "used" after "didn\'t".' },
+  { original:"Did Sarah look at the moon for hours when she was little?", target:"___ Sarah ___ at the moon for hours?", ans:"Did / use to look", opts:["Did / use to look","Used / to look","Did / used to look","Was / use to look"], explain:'QUESTION: Did + subject + use to + base verb? Not "used to" — use "use to" after "did".' },
+  { original:"People believed the Earth was flat centuries ago.", target:"People ___ the Earth was flat.", ans:"used to believe", opts:["used to believe","were believing","use to believe","believed use to"], explain:'USED TO for past beliefs/ideas that are no longer held. Simple and clean.' },
+  { original:"She didn\'t go to the laboratory at weekends.", target:"She ___ to the laboratory at weekends.", ans:"didn\'t use to go", opts:["didn\'t use to go","didn\'t used to go","used to not go","wasn\'t use to go"], explain:'Negative: DIDN\'T USE TO + base verb. Never "didn\'t used to".' },
+];
+
+// G4 — Second Conditional Forge
+// Confirmed from p.79 + workbook p.73
+// Rule: If + past simple, would + base verb = unreal/hypothetical/improbable
+const G4_COND2 = [
+  {
+    full:'If I found a cure for malaria, it would be amazing.',
+    gap:'If I ___ a cure for malaria, it would be amazing.',
+    ans:'found',
+    opts:['found','find','will find','would find'],
+    explain:'Second conditional IF clause → PAST SIMPLE. Never "would" in the if-clause. "Found" = hypothetical past to signal unreal situation.',
+    reality:'Finding a cure for malaria is possible but very difficult — not happening now.'
+  },
+  {
+    full:'It would be great if there was petrol that didn\'t pollute.',
+    gap:'It ___ great if there was petrol that didn\'t pollute.',
+    ans:'would be',
+    opts:['would be','will be','was','is'],
+    explain:'RESULT clause → WOULD + base verb. "Would be great" = the hypothetical result of an unreal condition.',
+    reality:'Clean non-polluting petrol doesn\'t currently exist — it\'s a wish/hypothesis.'
+  },
+  {
+    full:'If you worked harder, you would do better at school.',
+    gap:'If you worked harder, you ___ better at school.',
+    ans:'would do',
+    opts:['would do','will do','do','did'],
+    explain:'Result clause → WOULD + base verb. "Would do better" = the hypothetical result of working harder.',
+    reality:'Improbable/hypothetical — the speaker doesn\'t actually work harder.'
+  },
+  {
+    full:'If I had more time, I would do more research.',
+    gap:'If I ___ more time, I would do more research.',
+    ans:'had',
+    opts:['had','have','would have','will have'],
+    explain:'Second conditional IF clause → PAST SIMPLE. "Had" = hypothetical. Never would in the if-clause.',
+    reality:'The person doesn\'t currently have more time — it\'s imaginary.'
+  },
+  {
+    full:'The world would be a better place if scientists had more funding.',
+    gap:'The world ___ a better place if scientists had more funding.',
+    ans:'would be',
+    opts:['would be','will be','is','was'],
+    explain:'WOULD + base verb in the result clause. The if-clause uses past simple (had) for the unreal condition.',
+    reality:'Scientists don\'t currently have enough funding — this is hypothetical.'
+  },
+  {
+    full:'If I were a scientist, I would study chimpanzees like Jane Goodall.',
+    gap:'If I ___ a scientist, I would study chimpanzees.',
+    ans:'were',
+    opts:['were','was','am','would be'],
+    explain:'In second conditionals, use WERE (not "was") for all persons: "If I were, if he were, if she were." This is formal/correct grammar.',
+    reality:'The speaker is not a scientist — purely hypothetical.'
+  },
+];
+
+// G5 — Wish Bomb: wish + past simple (timed)
+// Confirmed from p.79 + workbook p.73 + p.83 exercises
+const G5_WISH = [
+  { q:"I wish this homework ___ so difficult!", ans:"wasn't", opts:["wasn't","isn't","wouldn't be","won't be"], t:5 },
+  { q:"I wish I ___ a pill so I only needed two hours of sleep.", ans:"could take", opts:["could take","can take","would take","took"], t:5 },
+  { q:"I wish I ___ stronger. Then I could help more.", ans:"were", opts:["were","was","am","would be"], t:4 },
+  { q:"She wishes she ___ the answer to the experiment.", ans:"knew", opts:["knew","knows","would know","could know"], t:5 },
+  { q:"I wish we ___ more time in the laboratory.", ans:"had", opts:["had","have","would have","could have"], t:5 },
+  { q:"He wishes he ___ fly to the moon. Like Mira!", ans:"could", opts:["could","can","would","was"], t:5 },
+  { q:"I wish scientists ___ a cure for cancer already.", ans:"had found", opts:["had found","found","would find","find"], t:4 },
+  { q:"She wishes she ___ the discovery before anyone else.", ans:"had made", opts:["had made","made","would make","makes"], t:5 },
+];
+
+// G6 — Famous Scientists comprehension (p.80-81)
+const G6_SCIENTISTS = [
+  { q:'Who showed that the Earth moves around the sun?', ans:'Galileo', opts:['Galileo','Newton','Pasteur','Watson'] },
+  { q:'What is Louis Pasteur famous for developing?', ans:'A way to prevent disease (pasteurisation)', opts:['A way to prevent disease (pasteurisation)','The structure of DNA','A cure for malaria','The telescope'] },
+  { q:'Who discovered the structure of DNA together?', ans:'Francis Crick and James Watson', opts:['Francis Crick and James Watson','Galileo and Newton','Pasteur and Landsteiner','Goodall and Watson'] },
+  { q:'What did Karl Landsteiner identify?', ans:'Blood types', opts:['Blood types','The DNA structure','The polio virus','A cure for malaria'] },
+  { q:'What has Jane Goodall studied throughout her career?', ans:'Chimpanzees — their family groups, tool use and emotions', opts:['Chimpanzees — their family groups, tool use and emotions','Blood types','The structure of DNA','The movement of planets'] },
+  { q:'What was the enormous improvement that came from discovering the structure of DNA?', ans:'Improvements in medicine, history and solving crimes', opts:['Improvements in medicine, history and solving crimes','A cure for malaria','A way to prevent disease','Hologram technology'] },
+  { q:'In the classroom discussion (p.77), what did Martin used to believe about apple seeds?', ans:'That an apple would grow inside him if he swallowed a seed', opts:['That an apple would grow inside him if he swallowed a seed','That they were poisonous','That they tasted good','That they were magical'] },
+  { q:'What did the teacher used to do every night as a little girl?', ans:'Plug things into all the electrical sockets so electricity wouldn\'t come out', opts:['Plug things into all the electrical sockets so electricity wouldn\'t come out','Count the stars from her window','Read science books','Talk to the moon'] },
+];
+
+// G7 — Streak Challenge: all grammar combined
+const G7_STREAK = [
+  { rule:"Newton was sitting under a tree when an apple fell on his head.",         correct:true  },
+  { rule:"While Archimedes was having a bath, he made his famous discovery.",        correct:true  },
+  { rule:"I used to believe that electricity came out of sockets.",                  correct:true  },
+  { rule:"She didn't use to listen to music when she was studying.",                 correct:true  },
+  { rule:"If I found a cure for cancer, it will be amazing.",                        correct:false }, // would not will
+  { rule:"I wish this homework wasn't so difficult.",                                correct:true  },
+  { rule:"When I was a kid, I used to playing with toy cars.",                       correct:false }, // used to + base verb
+  { rule:"If you would work harder, you would do better.",                           correct:false }, // no would in if-clause
+  { rule:"She was discovering DNA while working in the laboratory.",                  correct:false }, // discover not progressive
+  { rule:"I wish I were stronger and could help more.",                              correct:true  },
+  { rule:"He used to think that standing on a wire would stop electricity.",         correct:true  },
+  { rule:"If there was a cure for malaria, it would save millions of lives.",        correct:true  },
+  { rule:"When you phoned me, I was having dinner.",                                 correct:true  },
+  { rule:"The world would be a happier place if people smiled more.",                correct:true  },
+];
+
+// G8 — Dialogue Stage
+const G8_DIALOGUES = [
+  {
+    title:"Childhood Beliefs",
+    topic:"Like the classroom discussion on p.77 — share strange things you used to believe!",
+    roleA:"Student sharing a belief",
+    roleB:"Curious classmate",
+    exchanges:[
+      { speaker:'A', text:"OK so when I was little, I used to think that if you swallowed chewing gum, it would stay in your stomach for seven years!", key_phrase:"I used to think that ..." },
+      { speaker:'B', text:"Really? Did you use to believe that for a long time?", key_phrase:"Did you use to ...?" },
+      { speaker:'A', text:"Until I was about eight, yes! And I used to be really scared of swallowing it by accident.", key_phrase:"I used to be scared of ..." },
+      { speaker:'B', text:"That's so funny. I used to believe that if you made a funny face, it would stay that way forever.", key_phrase:"I used to believe that if ..." },
+      { speaker:'A', text:"No way! Did your parents used to tell you that?", key_phrase:"Did ... used to tell you ...?" },
+      { speaker:'B', text:"I think so. I didn't use to question anything adults said!", key_phrase:"I didn't use to ..." },
+    ],
+    phrases_a:["I used to think that ...","I used to be scared of ...","Did your parents used to ...?","Until I was about ..."],
+    phrases_b:["Did you use to ...?","I used to believe that if ...","I didn't use to ...","That's so funny / strange / weird!"],
+  },
+  {
+    title:"Scientific Wishes",
+    topic:"Using second conditionals and wish — what would you invent or discover?",
+    roleA:"The scientist dreamer",
+    roleB:"The practical thinker",
+    exchanges:[
+      { speaker:'A', text:"If I were a scientist, I would try to find a cure for malaria. It would save millions of lives.", key_phrase:"If I were a scientist, I would ..." },
+      { speaker:'B', text:"That's incredible. I wish more scientists were working on that right now.", key_phrase:"I wish ... were ..." },
+      { speaker:'A', text:"Me too. If I had the funding, I would set up a laboratory immediately.", key_phrase:"If I had ..., I would ..." },
+      { speaker:'B', text:"What else would you invent if you could? I'd go for something that makes homework automatic!", key_phrase:"What would you invent if you could?" },
+      { speaker:'A', text:"Ha! If there were a machine that did homework, students wouldn't learn anything though.", key_phrase:"If there were a machine that ..." },
+      { speaker:'B', text:"True. I wish I were smarter — then I wouldn't need the machine!", key_phrase:"I wish I were ..." },
+    ],
+    phrases_a:["If I were a scientist, I would ...","If I had ..., I would ...","If there were a machine that ...","It would be amazing if ..."],
+    phrases_b:["I wish ... were ...","What would you invent if you could?","I wish I were ...","That's a great idea, but ..."],
+  },
+  {
+    title:"When It All Happened",
+    topic:"Describing scientific discoveries using past simple and past continuous.",
+    roleA:"History of science enthusiast",
+    roleB:"Interested listener",
+    exchanges:[
+      { speaker:'A', text:"Did you know that Newton was sitting under a tree when an apple fell on his head? That's when he started thinking about gravity.", key_phrase:"... was sitting ... when ..." },
+      { speaker:'B', text:"I've heard that story! And while Archimedes was taking a bath, he worked out how to measure volume, right?", key_phrase:"While ... was ... ing, he ..." },
+      { speaker:'A', text:"Exactly! He noticed the water level went down. He was so excited that he ran outside shouting 'Eureka!'", key_phrase:"He was so excited that ..." },
+      { speaker:'B', text:"And what about DNA? When did Watson and Crick make their discovery?", key_phrase:"When did they make their discovery?" },
+      { speaker:'A', text:"In 1953. They were doing research while Rosalind Franklin was also working on the same problem.", key_phrase:"They were doing research while ..." },
+      { speaker:'B', text:"It's amazing how many great discoveries happened while scientists were just going about their everyday lives!", key_phrase:"discoveries happened while ..." },
+    ],
+    phrases_a:["... was sitting ... when ...","He was so excited that ...","They were doing research while ...","In 1953 / At that time ..."],
+    phrases_b:["While ... was ...ing, he ...","When did they make their discovery?","discoveries happened while ...","That's incredible / amazing!"],
+  },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7best=0, g5streak=0, g5bombScore=0;
+let g8scenIdx=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function eureka(){
+  const b=$('eurekaBurst'); b.classList.remove('active');
+  void b.offsetWidth; b.classList.add('active');
+  setTimeout(()=>b.classList.remove('active'),800);
+}
+
+function confetti(){
+  const cols=['#f97316','#fdba74','#14b8a6','#f59e0b','#00e676'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#f97316','#fdba74','#14b8a6','#f59e0b'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+function correctAnswer(el){
+  addScore(3);
+  miniConfetti(el);
+  eureka(); // EUREKA burst on every correct answer!
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el)el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Science Vocab Lab','When / While Split','Used To Transformer','Conditional Forge','Wish Bomb','Famous Scientists','Streak Challenge','Dialogue Stage'];
+  const cols=['var(--orange2)','var(--teal2)','var(--orange2)','var(--purple)','var(--amber)','var(--teal2)','var(--red)','var(--orange2)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  const gc=$(`gc${currentGame}`); if(gc) gc.classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"When I was little, I used to believe that..." — share your own strange childhood belief!',
+    '"If I were a scientist, I would..." — what would you discover or invent?',
+    '"Newton was sitting under a tree when an apple fell." — describe a discovery using when/while.',
+    '"I wish I could speak five languages." — make three personal wish sentences.',
+    'Describe one of the scientists from p.80-81 to your partner without saying the name.',
+    '"If there was a machine that did homework, would you use it?" — second conditional debate!',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — SCIENCE VOCAB LAB
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Science Words</div>
+      <div class="gh-name" style="color:var(--orange2)">Science Vocab Lab</div>
+      <div class="gh-instr">Read the definition — which word is it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Definition ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.clue}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--orange2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — WHEN/WHILE SPLIT
+   Shows the colour-coded split panel (when=orange, while=teal)
+   then a gap-fill sentence. Full explanation shown after.
+   EUREKA fires on correct answer.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_WHEN_WHILE); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd(q.opts);
+  const displayQ=q.sentence.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Past Simple vs Continuous</div>
+      <div class="gh-name" style="color:var(--teal2)">When / While Split</div>
+      <div class="gh-instr">Study the split — then choose the correct form!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="split-panel">
+      <div class="split-side split-when">
+        <div class="split-conn split-conn-when">WHEN</div>
+        <div class="split-desc">introduces a short, completed action that interrupts</div>
+        <div class="split-form split-form-when">+ past simple</div>
+        <div class="split-eg">"...when an apple fell"</div>
+      </div>
+      <div class="split-side split-while">
+        <div class="split-conn split-conn-while">WHILE</div>
+        <div class="split-desc">introduces an ongoing background activity</div>
+        <div class="split-form split-form-while">+ past continuous</div>
+        <div class="split-eg">"while he was sitting"</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qcard-label">Complete the sentence</div>
+      <div class="qcard-text">${displayQ}</div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g2exp"><span class="rule-tag">Grammar Rule</span>${q.explain}</div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g2exp').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); correctAnswer(el); showFb('g2fb','ok','Correct! +3 stars'); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','Correct: '+ans); }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — USED TO TRANSFORMER
+   Shows the original sentence in muted colour, then an arrow,
+   then the target sentence with a gap. Student fills the used to form.
+   EUREKA fires on correct.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_USED_TO); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayT=q.target.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Used To — Habits &amp; Beliefs</div>
+      <div class="gh-name" style="color:var(--orange2)">Used To Transformer</div>
+      <div class="gh-instr">The original fact → now transform it using used to!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="transform-card">
+      <div class="transform-label">Original statement</div>
+      <div class="transform-original">${q.original}</div>
+      <div class="transform-arrow">↓ Transform with "used to" ↓</div>
+      <div class="transform-target">${displayT}</div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--orange2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">Used To Rule</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g3exp').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); correctAnswer(el); showFb('g3fb','ok','Transformed! +3 stars'); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — SECOND CONDITIONAL FORGE
+   Shows an "UNREAL SITUATION" badge + a two-panel
+   if/then colour-coded visual before every gap-fill.
+   Explanation shows after every answer.
+   EUREKA fires on correct.
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_COND2); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  const opts=rnd(q.opts);
+  const displayQ=q.gap.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Second Conditional</div>
+      <div class="gh-name" style="color:var(--purple)">Conditional Forge</div>
+      <div class="gh-instr">Unreal / hypothetical situations — choose the correct form!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="unreal-badge">UNREAL SITUATION — ${q.reality}</div>
+    <div class="cond-visual">
+      <div class="cond-side cond-if">
+        <div class="cond-tag ct-if">IF clause</div>
+        <div class="cond-form cf-if">if + past simple</div>
+        <div class="cond-eg">"If I found a cure..."</div>
+      </div>
+      <div class="cond-side cond-then">
+        <div class="cond-tag ct-then">RESULT clause</div>
+        <div class="cond-form cf-then">would + base verb</div>
+        <div class="cond-eg">"...it would be amazing."</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qcard-label">Complete the sentence</div>
+      <div class="qcard-text">${displayQ}</div>
+    </div>
+    <div class="opts2" id="g4opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--purple)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="explain-box" id="g4exp"><span class="rule-tag">Second Conditional Rule</span>${q.explain}</div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--purple);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>g4Ans(el,el.dataset.a,q.ans,q.explain)));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+function g4Ans(el,chosen,ans,explain){
+  document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+  $('g4exp').classList.add('show');
+  if(chosen===ans){ el.classList.add('opt-ok'); correctAnswer(el); showFb('g4fb','ok','Correct! +3 stars'); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g4fb','bad','Correct: '+ans); }
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — WISH BOMB (timed)
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_WISH); g5i=0; g5streak=0; g5bombScore=0; g5Setup(); }
+function g5Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Wish + Past Simple · Timed!</div>
+      <div class="gh-name" style="color:var(--amber)">Wish Bomb</div>
+      <div class="gh-instr">Complete the wish sentence — before the fuse burns out!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber)" id="bQ">1/${g5q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ5"></div>
+    <div class="opts2" id="bombOpts5"></div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g5next').addEventListener('click',()=>{ g5i++; g5BombRender(); });
+  g5BombRender();
+}
+function g5BombRender(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++;
+  $('bQ').textContent=`${g5i+1}/${g5q.length}`;
+  hideFb('g5fb'); hide('g5next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ5').innerHTML=q.q.replace('___','<span class="hl">___</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts5').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts5 .opt').forEach(el=>el.addEventListener('click',()=>g5BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g5TimeUp(q.ans),q.t*1000);
+}
+function g5BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g5streak++;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    g5bombScore+=3; $('bStreak').textContent=g5streak; $('bScore').textContent=g5bombScore;
+    addScore(3); eureka(); showFb('g5fb','ok','Defused! +3 stars'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g5streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts5 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g5fb','bad','Boom! It\'s: '+ans);
+  }
+  show('g5next');
+}
+function g5TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g5streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts5 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g5fb','bad','Time\'s up! It was: '+ans);
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — FAMOUS SCIENTISTS (transcript + quiz)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6_SCIENTISTS); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Reading · Famous Scientists (p.80-81) + Classroom (p.77)</div>
+      <div class="gh-name" style="color:var(--teal2)">Famous Scientists</div>
+      <div class="gh-instr">Use the fact sheet to answer the questions.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="transcript-card">
+      <div class="tc-header">Science Fact Sheet — p.80-81</div>
+      <div class="tc-line"><span class="tc-speaker">GALILEO:</span>His achievement was showing that <span class="tc-key">the Earth moves around the sun</span>. He improved basic telescopes enormously.</div>
+      <div class="tc-line"><span class="tc-speaker">PASTEUR:</span>Developed a way to <span class="tc-key">prevent disease</span>. Also identified the polio virus with Erwin Popper.</div>
+      <div class="tc-line"><span class="tc-speaker">LANDSTEINER:</span>Identified <span class="tc-key">blood types</span> — this revolutionised medicine and surgery.</div>
+      <div class="tc-line"><span class="tc-speaker">CRICK &amp; WATSON:</span>Discovered the <span class="tc-key">structure of DNA</span> in 1953 → enormous improvements in medicine, history and crime-solving.</div>
+      <div class="tc-line"><span class="tc-speaker">JANE GOODALL:</span>Studied <span class="tc-key">chimpanzees</span> — their family groups, use of tools, and emotions. She treated them with respect.</div>
+      <div class="tc-line"><span class="tc-speaker">CLASSROOM p.77:</span>Teacher <span class="tc-key">used to plug in all sockets</span>. Sarah <span class="tc-key">used to think moon was scared of her</span>. Martin <span class="tc-key">used to think apple seeds grew inside him</span>.</div>
+    </div>
+    <div class="qcard" style="margin-top:14px">
+      <div class="qcard-label">Question ${g6i+1} of ${g6q.length}</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g6opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal2)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>g6Ans(el,el.dataset.a,q.ans)));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+function g6Ans(el,chosen,ans){
+  document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok','Correct! +2 stars'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad','The answer is: '+ans); }
+  show('g6next');
+}
+
+/* ═══════════════════════════════════════════
+   G7 — STREAK CHALLENGE
+═══════════════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7_STREAK); g7i=0; g7streak=0; g7best=0; g7Render(); }
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++; setProgress(g7i,g7q.length);
+  const ruleHtml=q.rule
+    .replace(/(used to|use to|didn't use to)/g,'<span class="hl">$1</span>')
+    .replace(/(was \w+ing|were \w+ing|when|while)/g,'<span class="hl2">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--red)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s7flames">🔥</div>
+        <div><div class="streak-big" id="s7num">${g7streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g7best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">Wrong</button>
+    </div>
+    <div class="streak-tally">${g7i+1} of ${g7q.length}</div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--red);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g7Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g7Ans(false,q.correct));
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+}
+function g7Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak++; if(g7streak>g7best)g7best=g7streak;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('s7num').textContent=g7streak; $('s7flames').textContent='🔥'.repeat(Math.min(g7streak,5));
+    addScore(2); showFb('g7fb','ok','Correct! +2 stars'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g7streak=0; $('s7num').textContent=0; $('s7flames').textContent='🔥';
+    showFb('g7fb','bad','Not quite!');
+  }
+  show('g7next');
+}
+
+/* ═══════════════════════════════════════════
+   G8 — DIALOGUE STAGE
+═══════════════════════════════════════════ */
+function g8Init(){ g8scenIdx=0; g8RenderScenario(); }
+function g8RenderScenario(){
+  const sc=G8_DIALOGUES[g8scenIdx];
+  const bubbles=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    let text=ex.text;
+    if(ex.key_phrase){
+      try { text=text.replace(new RegExp(`(${ex.key_phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\.\.\./g,'[\\s\\S]{0,30}')})`, 'i'), `<span class="key-phrase">$1</span>`); } catch(e){}
+    }
+    return `<div class="bubble-wrap ${isA?'':'b-right'}">
+      <div class="bubble-avatar ${isA?'av-a':'av-b'}">${ex.speaker}</div>
+      <div class="bubble ${isA?'bubble-a':'bubble-b'}">
+        <div class="bubble-speaker ${isA?'bubble-speaker-a':'bubble-speaker-b'}">${isA?sc.roleA:sc.roleB}</div>
+        <div class="bubble-text">${text}</div>
+      </div>
+    </div>`;
+  }).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Speaking · Dialogue Stage</div>
+      <div class="gh-name" style="color:var(--orange2)">Dialogue Stage</div>
+      <div class="gh-instr">Take roles — read aloud, then try your own version!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g8prev" ${g8scenIdx===0?'disabled style="opacity:.3"':''}>← Prev</button>
+      <div class="scenario-count">Scenario ${g8scenIdx+1} of ${G8_DIALOGUES.length}</div>
+      <button class="nav-btn-small" id="g8next-sc" ${g8scenIdx===G8_DIALOGUES.length-1?'disabled style="opacity:.3"':''}>Next →</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div>
+          <div class="stage-label">${sc.title}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">${sc.topic}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="role-tag role-a">A: ${sc.roleA}</span>
+          <span class="role-tag role-b">B: ${sc.roleB}</span>
+        </div>
+      </div>
+      <div class="chat-thread">${bubbles}</div>
+    </div>
+    <div class="phrase-bank">
+      <div class="pb-label">Student A — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_a.map(p=>`<div class="pb-chip">${p}</div>`).join('')}</div>
+    </div>
+    <div class="phrase-bank" style="margin-bottom:14px">
+      <div class="pb-label">Student B — useful phrases</div>
+      <div class="pb-grid">${sc.phrases_b.map(p=>`<div class="pb-chip teal">${p}</div>`).join('')}</div>
+    </div>
+    <div style="background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.15);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.7;">
+      <div style="font-family:var(--font-m);font-size:9px;color:var(--orange2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Challenge</div>
+      Now try your own version — without looking at the screen!
+    </div>
+    ${g8scenIdx===G8_DIALOGUES.length-1?`<div style="text-align:center"><button class="btn-check" style="background:var(--orange);color:var(--bg)" onclick="finishGame()">Done — Back to Home</button></div>`:''}`;
+  $('g8prev').addEventListener('click',()=>{ if(g8scenIdx>0){g8scenIdx--;g8RenderScenario();} });
+  $('g8next-sc').addEventListener('click',()=>{ if(g8scenIdx<G8_DIALOGUES.length-1){g8scenIdx++;g8RenderScenario();} });
+}
+</script>
+</body>
+</html>
