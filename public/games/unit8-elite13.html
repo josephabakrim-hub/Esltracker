@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 8 — It's a Crime</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07080c;
+  --deep:    #0b0d14;
+  --card:    #0f1118;
+  --card2:   #13151f;
+  --border:  #1c2030;
+  --red:     #e03c4a;
+  --amber:   #e8a83c;
+  --teal:    #2ec4b6;
+  --violet:  #7c5cbf;
+  --lime:    #6bcb77;
+  --sky:     #4db8e8;
+  --rose:    #d45f7a;
+  --white:   #e4e6f0;
+  --muted:   #2e3348;
+  --muted2:  #505878;
+  --ok:      #22c55e;
+  --bad:     #ef4444;
+  --font-h:  'DM Serif Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:       12px;
+  --r-sm:    7px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 10% 20%, rgba(224,60,74,.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(46,196,182,.04) 0%, transparent 50%);
+}
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:32px 20px 70px; min-height:100vh; }
+.home-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:10px; text-align:center; }
+.home-title { font-family:var(--font-h); font-size:clamp(2.4rem,9vw,3.6rem); text-align:center; line-height:1.05; margin-bottom:6px; color:var(--white); }
+.home-title em { color:var(--red); font-style:italic; }
+.home-unit { font-size:11px; color:var(--muted2); font-weight:500; margin-bottom:8px; letter-spacing:1px; text-align:center; }
+.home-divider { width:36px; height:2px; background:var(--red); border-radius:2px; margin:12px auto 20px; }
+.total-stars { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:7px 18px; margin-bottom:28px; font-size:14px; font-weight:600; color:var(--amber); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 14px; cursor:pointer; position:relative; transition:transform .14s, border-color .14s, background .14s; }
+.gc:hover { transform:translateY(-3px); border-color:var(--gc-col); background:var(--card2); }
+.gc:active { transform:scale(.98); }
+.gc.done { border-color:var(--ok); }
+.gc.done::after { content:'✓'; position:absolute; top:10px; right:12px; color:var(--ok); font-weight:700; font-size:13px; }
+.gc-num  { font-size:9px; font-weight:700; color:var(--gc-col); letter-spacing:2px; text-transform:uppercase; opacity:.8; margin-bottom:6px; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); margin-bottom:4px; line-height:1.2; }
+.gc-desc { font-size:11px; color:var(--muted2); line-height:1.5; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--amber); font-weight:600; min-height:14px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(7,8,12,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .14s; }
+.back-btn:hover { border-color:var(--red); color:var(--red); }
+.tb-title { font-family:var(--font-h); font-size:16px; color:var(--white); }
+.tb-score { background:var(--amber); color:var(--bg); font-size:13px; font-weight:700; padding:5px 14px; border-radius:20px; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:24px 20px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:20px; }
+.gh-eyebrow { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:5px; }
+.gh-name  { font-family:var(--font-h); font-size:1.7rem; line-height:1.1; margin-bottom:6px; }
+.gh-instr { font-size:13px; color:var(--muted2); line-height:1.6; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 18px; margin-bottom:14px; }
+.qcard-label { font-size:10px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; margin-bottom:8px; }
+.qcard-text  { font-size:1rem; font-weight:400; line-height:1.85; color:var(--white); }
+.qcard-text .hl  { color:var(--amber); font-weight:600; }
+.qcard-text .hl2 { color:var(--teal); font-weight:600; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:13px 10px; cursor:pointer; text-align:center; transition:all .13s; line-height:1.45; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--amber)); color:var(--opt-col,var(--amber)); background:var(--card2); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(34,197,94,.08); animation:popIn .25s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:rgba(239,68,68,.85)!important; background:rgba(239,68,68,.07); animation:shake .35s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.65; }
+.fb { padding:10px 16px; border-radius:7px; font-size:13px; font-weight:500; text-align:center; display:none; margin-bottom:12px; line-height:1.55; }
+.fb.ok  { display:block; background:rgba(34,197,94,.08); color:var(--ok); border:1px solid rgba(34,197,94,.2); }
+.fb.bad { display:block; background:rgba(239,68,68,.07); color:rgba(239,68,68,.9); border:1px solid rgba(239,68,68,.18); }
+.next-btn { display:none; margin-left:auto; padding:9px 22px; font-size:13px; font-weight:600; border:none; border-radius:7px; cursor:pointer; transition:all .14s; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+.prog-dots { display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--amber); transform:scale(1.5); }
+
+/* ══ G1: CRIMINAL MATCH ══ */
+.match-layout { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.match-col-label { font-size:10px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; margin-bottom:6px; text-align:center; }
+.match-col { display:flex; flex-direction:column; gap:6px; }
+.match-tile { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:11px 12px; cursor:pointer; transition:all .13s; line-height:1.4; text-align:center; }
+.match-tile:hover { border-color:var(--amber); color:var(--amber); }
+.match-tile.selected { border-color:var(--amber); color:var(--amber); background:rgba(232,168,60,.06); }
+.match-tile.matched  { border-color:var(--ok); color:var(--ok); background:rgba(34,197,94,.07); pointer-events:none; animation:popIn .25s; }
+.match-tile.wrong    { border-color:var(--bad); animation:shake .35s; }
+.match-tile.locked   { pointer-events:none; opacity:.45; }
+.match-progress { text-align:center; font-size:12px; color:var(--muted2); margin-top:8px; }
+
+/* ══ G2: REPORTED SPEECH CONVERTER ══ */
+/* Direct quote shown, student picks the correctly reported version */
+.quote-card {
+  background:var(--card2); border-left:3px solid var(--red);
+  border-radius:0 var(--r) var(--r) 0; padding:20px 18px; margin-bottom:14px;
+}
+.quote-speaker { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
+.quote-text { font-family:var(--font-h); font-size:1.05rem; font-style:italic; color:var(--white); line-height:1.7; }
+.report-prompt { font-size:13px; color:var(--muted2); margin-top:10px; font-weight:500; }
+.report-prompt .hl { color:var(--amber); font-weight:600; }
+
+/* ══ G3: REPORTING VERB ARENA ══ */
+/* A sentence describes what someone said/did.
+   Student picks the best reporting verb from 4 options. */
+.arena-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(46,196,182,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.arena-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--teal); text-transform:uppercase; margin-bottom:10px; }
+.arena-context { font-size:12px; color:var(--muted2); font-weight:400; line-height:1.6; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.arena-sentence { font-size:1rem; font-weight:400; line-height:1.85; color:var(--white); }
+.arena-sentence .blank { color:var(--teal); font-weight:700; }
+.teal-note { background:rgba(46,196,182,.07); border:1px solid rgba(46,196,182,.18); border-radius:7px; padding:10px 14px; font-size:12px; color:var(--teal); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* ══ G4: PUNISHMENT SORTER ══ */
+/* A crime/situation is described. Student picks the most likely punishment. */
+.crime-file {
+  background:var(--card2); border:1px solid var(--border);
+  border-radius:var(--r); padding:20px 18px; margin-bottom:14px;
+}
+.file-stamp { display:inline-block; font-size:9px; font-weight:700; letter-spacing:2.5px; color:var(--red); text-transform:uppercase; border:1px solid rgba(224,60,74,.3); padding:3px 10px; border-radius:4px; margin-bottom:10px; }
+.crime-text { font-size:1rem; font-weight:400; line-height:1.85; color:var(--white); }
+.crime-text .hl { color:var(--amber); font-weight:600; }
+
+/* ══ G5: FAMOUS CRIMINALS QUIZ ══ */
+/* Who did what? Kozlowski / Biggs / Gonzalez → match to fact */
+.criminal-card {
+  background:var(--card2); border:1px solid rgba(124,92,191,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.criminal-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--violet); text-transform:uppercase; margin-bottom:10px; }
+.criminal-fact { font-size:1rem; font-weight:400; line-height:1.85; color:var(--white); }
+.criminal-fact .hl { color:var(--violet); font-weight:600; }
+.name-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.name-btn { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:600; color:var(--white); padding:13px 8px; cursor:pointer; text-align:center; transition:all .13s; }
+.name-btn:hover:not(.locked) { border-color:var(--violet); color:var(--violet); }
+.name-btn.nb-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(34,197,94,.08); animation:popIn .25s; pointer-events:none; }
+.name-btn.nb-wrong { border-color:var(--bad)!important; color:rgba(239,68,68,.85)!important; background:rgba(239,68,68,.07); animation:shake .35s; pointer-events:none; }
+.name-btn.locked   { pointer-events:none; }
+
+/* ══ G6: RESTORING JUSTICE — comprehension ══ */
+/* Question about the Jason & Mrs Schwartz listening/reading scenario */
+.rj-card {
+  background:var(--card2); border-left:3px solid var(--lime);
+  border-radius:0 var(--r) var(--r) 0; padding:20px 18px; margin-bottom:14px;
+}
+.rj-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--lime); text-transform:uppercase; margin-bottom:8px; }
+.rj-question { font-size:1rem; font-weight:400; line-height:1.85; color:var(--white); }
+.rj-question .hl { color:var(--lime); font-weight:600; }
+
+/* ══ G7: BOMB DEFUSE ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:1.4rem; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(232,168,60,.08); border:1px solid rgba(232,168,60,.2); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:1.4rem; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:54px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:5px; background:var(--border); border-radius:3px; margin-bottom:8px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; }
+.bomb-q { font-size:1rem; font-weight:400; text-align:center; line-height:1.65; min-height:50px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* ══ G8: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:1px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-size:15px; font-weight:500; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--amber); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:400; color:var(--muted2); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--card2); border:1px solid var(--amber); color:var(--amber); font-size:13px; font-weight:600; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .13s; user-select:none; }
+.wtile:hover:not(.used) { background:var(--amber); color:var(--bg); transform:translateY(-2px); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:12px; }
+.btn-clear { background:var(--border); color:var(--white); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:7px; cursor:pointer; }
+.btn-check { font-size:13px; font-weight:700; padding:9px 22px; border:none; border-radius:7px; cursor:pointer; transition:all .13s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:40px 24px; flex-direction:column; }
+.win-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:12px; }
+.win-title { font-family:var(--font-h); font-size:3rem; color:var(--amber); text-shadow:0 0 30px rgba(232,168,60,.25); margin-bottom:8px; }
+.win-sub   { font-size:14px; color:var(--muted2); margin-bottom:28px; max-width:380px; line-height:1.6; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--red) 0%, var(--amber) 40%, var(--teal) 80%, var(--red) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 28px; box-shadow:0 0 40px rgba(224,60,74,.15); }
+.win-num { font-family:var(--font-h); font-size:2.4rem; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:400px; margin-bottom:24px; }
+.win-stat { background:var(--card); border-radius:var(--r); padding:14px 8px; text-align:center; border:1px solid var(--border); }
+.ws-lbl  { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; margin-bottom:4px; }
+.ws-val  { font-family:var(--font-h); font-size:1.4rem; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; max-width:440px; width:100%; margin-bottom:24px; text-align:left; }
+.ws-title { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:10px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:2; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'—'; position:absolute; left:0; color:var(--amber); }
+.btn-play { background:var(--amber); color:var(--bg); font-size:14px; font-weight:700; padding:13px 36px; border:none; border-radius:30px; cursor:pointer; transition:all .14s; }
+.btn-play:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(232,168,60,.25); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-eyebrow">Think Level 3 · Unit 8 · Elite1_3</div>
+  <h1 class="home-title">It's a<br><em>Crime</em></h1>
+  <div class="home-unit">CRIME & PUNISHMENT · REPORTED SPEECH · REPORTING VERBS</div>
+  <div class="home-divider"></div>
+  <div class="total-stars">⭐ <span id="totalStars">0</span> stars earned</div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#e03c4a" onclick="launch(0)" id="gc0">
+      <div class="gc-num">01</div>
+      <div class="gc-title">Criminal Match</div>
+      <div class="gc-desc">Match criminal type to what they do</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e8a83c" onclick="launch(1)" id="gc1">
+      <div class="gc-num">02</div>
+      <div class="gc-title">Report It!</div>
+      <div class="gc-desc">Convert direct speech to reported speech</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#2ec4b6" onclick="launch(2)" id="gc2">
+      <div class="gc-num">03</div>
+      <div class="gc-title">Reporting Verb Arena</div>
+      <div class="gc-desc">explain · claim · refuse · persuade · demand…</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e8a83c" onclick="launch(3)" id="gc3">
+      <div class="gc-num">04</div>
+      <div class="gc-title">Crime & Punishment</div>
+      <div class="gc-desc">Match the crime to the likely punishment</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#7c5cbf" onclick="launch(4)" id="gc4">
+      <div class="gc-num">05</div>
+      <div class="gc-title">Famous Criminals</div>
+      <div class="gc-desc">Kozlowski, Biggs or Gonzalez — who did it?</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#6bcb77" onclick="launch(5)" id="gc5">
+      <div class="gc-num">06</div>
+      <div class="gc-title">Restoring Justice</div>
+      <div class="gc-desc">Comprehension — Jason, Mrs Schwartz & the programme</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e03c4a" onclick="launch(6)" id="gc6">
+      <div class="gc-num">07</div>
+      <div class="gc-title">Bomb Defuse</div>
+      <div class="gc-desc">Unit 8 facts — true or false, timed</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#2ec4b6" onclick="launch(7)" id="gc7">
+      <div class="gc-num">08</div>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Reconstruct reported speech sentences</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <div class="win-eyebrow">Unit 8 Complete</div>
+  <div class="win-title">Case Closed.</div>
+  <div class="win-sub">You've mastered crime vocabulary, reported speech and the full cast of criminals. Well done.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — 100% verified from:
+   · Wordlist PDF (fetched) — exact definitions for all criminal types, punishment words, reporting verbs
+   · SB pp.74-83: all exercise answer keys
+   · WB pp.72-81: all exercise answer keys
+   · Restoring Justice listening transcript (full, exact)
+   · Mrs Atkins bike theft reading (full, exact)
+   · Frank Caron Xbox con reading (full, exact)
+   · Famous criminals text pp.80: Kozlowski, Biggs, Gonzalez exact facts
+   · Newcastle poster experiment SB p.78 exact facts
+═══════════════════════════════════════════ */
+
+// G1 — CRIMINAL MATCH: type → what they do
+// Definitions from wordlist PDF
+const G1_CRIMINALS = [
+  { type:"burglar",    def:"illegally enters buildings to steal things" },
+  { type:"con man",    def:"deceives people by making them believe something false to get money" },
+  { type:"mugger",     def:"attacks people in the street to steal their money" },
+  { type:"pickpocket", def:"steals things out of pockets or bags, especially in a crowd" },
+  { type:"robber",     def:"steals things, often using force or threats" },
+  { type:"shoplifter", def:"steals things from shops while pretending to be a customer" },
+  { type:"thief",      def:"takes things that belong to other people" },
+];
+
+// G2 — REPORT IT!: direct → reported speech
+// All sentences from SB p.75-76, WB pp.72-73 exercise answer keys
+const G2 = [
+  {
+    speaker:"Mrs Atkins told the reporter:",
+    direct:"'I was really angry when I realised the bike was gone.'",
+    ans:"She told him that she'd been really angry when she realised the bike was gone.",
+    opts:[
+      "She told him that she'd been really angry when she realised the bike was gone.",
+      "She told him that she's really angry when she realises the bike is gone.",
+      "She said she will be really angry when she realises the bike is gone.",
+      "She told him that she is really angry when the bike is gone.",
+    ],
+    note:"Past simple → past perfect: 'was angry' → 'had been angry'"
+  },
+  {
+    speaker:"Mrs Atkins said:",
+    direct:"'A friend gave it to me years ago.'",
+    ans:"She said a friend had given it to her years ago.",
+    opts:[
+      "She said a friend had given it to her years ago.",
+      "She said a friend gives it to her years ago.",
+      "She told that a friend gave it to her years ago.",
+      "She said a friend would give it to her years ago.",
+    ],
+    note:"Past simple → past perfect: 'gave' → 'had given'. Also: 'me' → 'her'"
+  },
+  {
+    speaker:"Mrs Atkins told reporters:",
+    direct:"'I'm still feeling surprised at what happened.'",
+    ans:"She said that she was still feeling surprised at what had happened.",
+    opts:[
+      "She said that she was still feeling surprised at what had happened.",
+      "She said that she is still feeling surprised at what happens.",
+      "She told that she was still feeling surprised at what happened.",
+      "She said that she still feels surprised at what has happened.",
+    ],
+    note:"Present continuous → past continuous. Past simple → past perfect."
+  },
+  {
+    speaker:"The manager said:",
+    direct:"'I'd be happy to put cameras all over the shop.'",
+    ans:"The manager said that he'd be happy to put cameras all over the shop.",
+    opts:[
+      "The manager said that he'd be happy to put cameras all over the shop.",
+      "The manager said that he'll be happy to put cameras all over the shop.",
+      "The manager told that he is happy to put cameras all over the shop.",
+      "The manager said that he would happy to put cameras all over the shop.",
+    ],
+    note:"'I'd' (= I would) → 'he'd' (= he would). No change for 'would' in reported speech."
+  },
+  {
+    speaker:"Dad said:",
+    direct:"'The police can't find the con man.'",
+    ans:"Dad said that the police couldn't find the con man.",
+    opts:[
+      "Dad said that the police couldn't find the con man.",
+      "Dad said that the police can't find the con man.",
+      "Dad told that the police cannot find the con man.",
+      "Dad said that the police won't find the con man.",
+    ],
+    note:"'can' → 'could' in reported speech."
+  },
+  {
+    speaker:"Mrs Atkins said:",
+    direct:"'Most people would be angry in my situation.'",
+    ans:"She said that most people would be angry in her situation.",
+    opts:[
+      "She said that most people would be angry in her situation.",
+      "She said that most people will be angry in my situation.",
+      "She told most people would be angry in her situation.",
+      "She said that most people were angry in her situation.",
+    ],
+    note:"'would' stays as 'would' — no change needed. 'my' → 'her'"
+  },
+  {
+    speaker:"Mrs Atkins added:",
+    direct:"'I'll probably write another message to the thief.'",
+    ans:"She added that she'd probably write another message to the thief.",
+    opts:[
+      "She added that she'd probably write another message to the thief.",
+      "She added that she'll probably write another message to the thief.",
+      "She said that she would probably wrote another message to the thief.",
+      "She added she probably writes another message to the thief.",
+    ],
+    note:"'will' → 'would' ('ll → 'd) in reported speech."
+  },
+  {
+    speaker:"Mrs Atkins said:",
+    direct:"'I'm not going to report the incident to the police.'",
+    ans:"She said that she wasn't going to report the incident to the police.",
+    opts:[
+      "She said that she wasn't going to report the incident to the police.",
+      "She said that she isn't going to report the incident to the police.",
+      "She told that she won't report the incident to the police.",
+      "She said that she doesn't report the incident to the police.",
+    ],
+    note:"'am going to' → 'was going to'. Present → past in reported speech."
+  },
+];
+
+// G3 — REPORTING VERB ARENA
+// All verified from SB p.79 + WB p.75-76 exercise answer keys
+const G3 = [
+  {
+    context:"The researchers at Newcastle University published their results.",
+    sentence:"The researchers ___ that the number of thefts decreased by 62 per cent.",
+    ans:"explained",
+    opts:["explained","refused","demanded","persuaded"],
+    note:"EXPLAIN = make something clear by giving reasons or details."
+  },
+  {
+    context:"Scientists believe posters of eyes reduce crime, but can't be 100% certain.",
+    sentence:"Experts ___ that clearly visible images of eyes make people feel they're being watched.",
+    ans:"claim",
+    opts:["claim","agree","refuse","invite"],
+    note:"CLAIM = say something is true although you can't prove it and others might not believe it."
+  },
+  {
+    context:"Government officials decided to expand the programme.",
+    sentence:"Officials have ___ to carry out similar projects at train stations all over the country.",
+    ans:"agreed",
+    opts:["agreed","refused","demanded","claimed"],
+    note:"AGREE = accept an idea or suggestion and say you will do it."
+  },
+  {
+    context:"The police in Leicester had a creative idea for the community.",
+    sentence:"Police are ___ people to make large woolly balls and hang them in trees.",
+    ans:"inviting",
+    opts:["inviting","demanding","refusing","claiming"],
+    note:"INVITE = suggest that people can do something (a friendly suggestion)."
+  },
+  {
+    context:"A local resident was very unhappy with the woolly ball scheme.",
+    sentence:"One resident ___ that the police stop wasting their time on mad schemes.",
+    ans:"recommended",
+    opts:["recommended","agreed","invited","persuaded"],
+    note:"RECOMMEND = advise someone that something should be done."
+  },
+  {
+    context:"Not everyone in the neighbourhood believes the scheme will work.",
+    sentence:"Many residents ___ to believe the woolly balls will make any difference.",
+    ans:"refuse",
+    opts:["refuse","claim","agree","encourage"],
+    note:"REFUSE = say that you will not do or accept something."
+  },
+  {
+    context:"The organisers want residents to feel proud of their area.",
+    sentence:"'We want to ___ people to take more pride in where they live,' said the organiser.",
+    ans:"encourage",
+    opts:["encourage","demand","refuse","claim"],
+    note:"ENCOURAGE = make someone more likely to do something."
+  },
+  {
+    context:"Unhappy residents are pushing hard for more police presence.",
+    sentence:"They're ___ that the police do more to reduce trouble in the area.",
+    ans:"demanding",
+    opts:["demanding","recommending","agreeing","inviting"],
+    note:"DEMAND = ask for something in a forceful, insistent way."
+  },
+];
+
+// G4 — CRIME & PUNISHMENT
+// All punishment vocabulary verified from SB p.77 exercise + wordlist
+const G4 = [
+  {
+    crime:"A 17-year-old first-time offender mugged someone. The judge thinks he deserves a chance and the victim agreed to take part in a programme.",
+    ans:"community service",
+    opts:["community service","life sentence","death penalty","caution"],
+    note:"COMMUNITY SERVICE = unpaid work as punishment. Often given to young or first-time offenders."
+  },
+  {
+    crime:"A man was caught shoplifting a small item worth £15. It's the first time he's been in trouble with the police.",
+    ans:"caution",
+    opts:["caution","prison sentence","life sentence","fine"],
+    note:"A CAUTION = a police warning. Given for minor first-time offences."
+  },
+  {
+    crime:"A driver was caught going 60 mph in a 30 mph zone. Nobody was hurt.",
+    ans:"fine",
+    opts:["fine","prison sentence","life sentence","community service"],
+    note:"A FINE = money paid as punishment for breaking a rule or law."
+  },
+  {
+    crime:"Albert Gonzalez was convicted of hacking into retail stores and stealing 140 million credit card details.",
+    ans:"prison sentence",
+    opts:["prison sentence","caution","community service","fine"],
+    note:"He received a 20-year PRISON SENTENCE — from the Famous Criminals text."
+  },
+  {
+    crime:"A person was found guilty of a very serious murder and the country they live in allows the most extreme punishment.",
+    ans:"death penalty",
+    opts:["death penalty","caution","fine","community service"],
+    note:"DEATH PENALTY = the legal punishment of death. Used in some countries for the most serious crimes."
+  },
+  {
+    crime:"A man committed a brutal murder and will never be considered safe enough to release.",
+    ans:"life sentence",
+    opts:["life sentence","prison sentence","fine","caution"],
+    note:"A LIFE SENTENCE = prison for the rest of your life. Given for the most serious crimes."
+  },
+];
+
+// G5 — FAMOUS CRIMINALS: Kozlowski / Biggs / Gonzalez
+// All facts verified from SB pp.80-81 exact text
+const G5 = [
+  { fact:"He stole $600 million by embezzling money from his own company, Tyco.", ans:"Kozlowski", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: Kozlowski and another manager 'decided to help themselves to the company's money'." },
+  { fact:"He spent $2 million on a private concert by the singer Jimmy Buffet.", ans:"Kozlowski", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: among his extravagant purchases was a private concert." },
+  { fact:"He was involved in the Great Train Robbery of 1963.", ans:"Biggs", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: a gang stopped a train and stole 120 mailbags of money." },
+  { fact:"He got caught because police found his fingerprints all over the farm.", ans:"Biggs", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: 'Biggs's fingerprints were all over the place'." },
+  { fact:"He avoided justice for almost 40 years, living in Australia and Brazil.", ans:"Biggs", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: he escaped prison and fled abroad." },
+  { fact:"He worked for the US Secret Service before forming his own gang of hackers.", ans:"Gonzalez", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: he was originally trying to catch cybercriminals!" },
+  { fact:"His gang stole the details of 140 million credit cards from huge retail stores.", ans:"Gonzalez", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: they hacked into retail store computer networks." },
+  { fact:"He received a 20-year prison sentence.", ans:"Gonzalez", opts:["Kozlowski","Biggs","Gonzalez"], note:"From SB p.80: 'Gonzalez was sentenced to 20 years in prison'." },
+];
+
+// G6 — RESTORING JUSTICE: comprehension
+// All answers verified from SB p.77 listening transcript + answer key
+const G6 = [
+  {
+    q:"What crime had Jason committed before joining the Restoring Justice programme?",
+    ans:"mugging",
+    opts:["mugging","burglary","shoplifting","hacking"],
+    note:"From the transcript: 'He's 17 and he got arrested for mugging somebody.'"
+  },
+  {
+    q:"What were Jason's two choices from the judge?",
+    ans:"Prison for six months OR joining the Restoring Justice programme",
+    opts:[
+      "Prison for six months OR joining the Restoring Justice programme",
+      "Community service OR a large fine",
+      "House arrest OR working with a social worker",
+      "A caution OR six months of community service",
+    ],
+    note:"From the transcript: 'go to prison for half a year, or join a special programme called Restoring Justice'."
+  },
+  {
+    q:"How did Jason feel at the first meeting with Mrs Schwartz?",
+    ans:"Terrified",
+    opts:["Terrified","Calm","Angry","Indifferent"],
+    note:"From SB p.77 answer key: 'Terrified'. He said it was 'very difficult'."
+  },
+  {
+    q:"What did Mrs Schwartz say as the FIRST thing at the meeting?",
+    ans:"She wasn't going to get angry with him",
+    opts:[
+      "She wasn't going to get angry with him",
+      "She wanted him to go to prison",
+      "She had forgiven him already",
+      "She wanted him to pay back all the money",
+    ],
+    note:"From the transcript: 'the first thing she said was that she wasn't going to get angry with me'."
+  },
+  {
+    q:"At the second meeting, Mrs Schwartz asked Jason who had suffered most. What was her actual answer?",
+    ans:"Jason's parents",
+    opts:["Jason's parents","Mrs Schwartz herself","The whole community","The social worker"],
+    note:"From the transcript: she asked him to look at his mum and dad — Jason 'knew immediately what she meant'."
+  },
+  {
+    q:"Why was Jason surprised when he heard his own reason for mugging Mrs Schwartz?",
+    ans:"He realised how stupid he'd been to mug someone just to buy some stuff",
+    opts:[
+      "He realised how stupid he'd been to mug someone just to buy some stuff",
+      "He realised the police had been listening the whole time",
+      "He realised he'd mugged the wrong person",
+      "He realised Mrs Schwartz recognised him",
+    ],
+    note:"From the transcript: 'I thought how stupid I'd been to mug somebody because I wanted to buy some stuff'."
+  },
+];
+
+// G7 — BOMB DEFUSE: true/false facts
+// Verified from SB/WB reading and listening answer keys
+const G7 = [
+  { q:"Mrs Atkins' bike was stolen from outside her school.",                                    ans:false, t:5 }, // she couldn't find it when she went to ride it — it was at a bike stand
+  { q:"The thief returned Mrs Atkins' bike on the same day she wrote the note.",                 ans:true,  t:5 },
+  { q:"Mrs Atkins decided to report the incident to the police.",                                ans:false, t:4 }, // she said she wasn't going to report it
+  { q:"Frank Caron bought what he thought was an Xbox One console for £450.",                    ans:true,  t:5 },
+  { q:"When Frank opened the box he found a low-resolution photo of the console.",               ans:true,  t:4 },
+  { q:"The Newcastle University experiment put cameras on the bike racks.",                      ans:false, t:4 }, // they put up posters of large eyes — not cameras
+  { q:"At racks WITH the eye posters, thefts decreased by 62 per cent.",                        ans:true,  t:5 },
+  { q:"At racks WITHOUT the eye posters, thefts also decreased.",                               ans:false, t:4 }, // thefts actually increased by 63% at those racks
+  { q:"Ronnie Biggs received £147,000 from the Great Train Robbery.",                           ans:true,  t:4 },
+  { q:"Gonzalez received a 20-year prison sentence.",                                            ans:true,  t:4 },
+  { q:"Jason had to meet Mrs Schwartz only once during the Restoring Justice programme.",        ans:false, t:5 }, // he met her three times
+  { q:"The Restoring Justice programme is for people who have physically attacked their victims.", ans:false, t:5 }, // Ken says it's for people who HAVEN'T attacked victims physically
+  { q:"'Embezzlement' means stealing from the company you work for.",                            ans:true,  t:4 },
+  { q:"A caution is the most severe punishment in British law.",                                 ans:false, t:4 }, // it is the mildest
+];
+
+// G8 — WORD ORDER: reported speech and crime sentences from SB/WB
+const G8 = [
+  { words:["She","said","a","friend","had","given","it","to","her","years","ago","."],                  ans:"She said a friend had given it to her years ago ."                  },
+  { words:["The","manager","said","he'd","be","happy","to","put","cameras","all","over","the","shop","."], ans:"The manager said he'd be happy to put cameras all over the shop ." },
+  { words:["She","said","she","wasn't","going","to","report","the","incident","to","the","police","."],   ans:"She said she wasn't going to report the incident to the police ."  },
+  { words:["He","asked","me","whether","I","wanted","to","go","to","prison","."],                        ans:"He asked me whether I wanted to go to prison ."                    },
+  { words:["The","judge","told","him","to","think","carefully","about","his","choices","."],             ans:"The judge told him to think carefully about his choices ."          },
+  { words:["Dad","said","that","the","police","couldn't","find","the","con","man","."],                  ans:"Dad said that the police couldn't find the con man ."              },
+  { words:["She","asked","me","if","I","knew","who'd","suffered","most","."],                            ans:"She asked me if I knew who'd suffered most ."                      },
+  { words:["They","explained","that","the","number","of","thefts","had","decreased","by","62","per","cent","."], ans:"They explained that the number of thefts had decreased by 62 per cent ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.innerHTML=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#e03c4a','#e8a83c','#2ec4b6','#7c5cbf','#6bcb77','#4db8e8'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#e03c4a','#e8a83c','#2ec4b6','#7c5cbf'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=3+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Criminal Match','Report It!','Reporting Verb Arena','Crime & Punishment','Famous Criminals','Restoring Justice','Bomb Defuse','Word Order'];
+  const cols=['var(--red)','var(--amber)','var(--teal)','var(--amber)','var(--violet)','var(--lime)','var(--red)','var(--teal)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    'Summarise one of the four crime conversations from SB p.81 using reported speech.',
+    '"She said she wasn\'t going to report it because she believed everyone can do bad things sometimes." — Do you agree?',
+    'Use three different reporting verbs to report something a teacher told you this week.',
+    'What do you think is the best punishment for a first-time young offender? Defend your view.',
+    'Retell the Restoring Justice programme: what is it, why does it work?',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — CRIMINAL MATCH
+═══════════════════════════════════════════ */
+let g1pairs=[], g1sel=null, g1matched=0;
+function g1Init(){
+  g1pairs=rnd([...G1_CRIMINALS]); g1sel=null; g1matched=0;
+  totalQs+=g1pairs.length; setProgress(0,g1pairs.length);
+  g1Render();
+}
+function g1Render(){
+  const defs=rnd(g1pairs.map((p,i)=>({...p,idx:i})));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Criminal Types</div>
+      <div class="gh-name" style="color:var(--red)">Criminal Match</div>
+      <div class="gh-instr">Tap a criminal type, then tap what they do. Match all seven.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="match-col-label">Criminal type</div>
+      <div class="match-col-label">What they do</div>
+    </div>
+    <div class="match-layout">
+      <div class="match-col" id="crimeCol">
+        ${g1pairs.map((p,i)=>`<div class="match-tile" data-idx="${i}" id="cr${i}">${p.type}</div>`).join('')}
+      </div>
+      <div class="match-col" id="defCol">
+        ${defs.map(d=>`<div class="match-tile" data-idx="${d.idx}" id="def${d.idx}">${d.def}</div>`).join('')}
+      </div>
+    </div>
+    <div class="match-progress" id="g1prog">Matched: 0 / ${g1pairs.length}</div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1fin" style="background:var(--red);color:#fff">Finish ›</button>`;
+
+  document.querySelectorAll('#crimeCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched')||el.classList.contains('locked'))return;
+      document.querySelectorAll('#crimeCol .match-tile').forEach(t=>{ if(!t.classList.contains('matched'))t.classList.remove('selected'); });
+      el.classList.add('selected');
+      g1sel={idx:parseInt(el.dataset.idx)};
+    });
+  });
+  document.querySelectorAll('#defCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched'))return;
+      if(!g1sel){ showFb('g1fb','bad','Tap a criminal type first.'); return; }
+      const defIdx=parseInt(el.dataset.idx);
+      if(g1sel.idx===defIdx){
+        $('cr'+g1sel.idx).classList.remove('selected'); $('cr'+g1sel.idx).classList.add('matched');
+        el.classList.add('matched'); g1matched++; addScore(2);
+        showFb('g1fb','ok',`"${g1pairs[g1sel.idx].type}" — correct! +2 ⭐`); miniConfetti(el);
+        $('g1prog').textContent=`Matched: ${g1matched} / ${g1pairs.length}`;
+        setProgress(g1matched,g1pairs.length);
+        g1sel=null;
+        if(g1matched===g1pairs.length) setTimeout(()=>show('g1fin'),300);
+      } else {
+        $('cr'+g1sel.idx).classList.add('wrong'); el.classList.add('wrong');
+        setTimeout(()=>{ $('cr'+g1sel.idx).classList.remove('wrong','selected'); el.classList.remove('wrong'); },500);
+        showFb('g1fb','bad','Not quite — try again.'); g1sel=null;
+      }
+    });
+  });
+  $('g1fin').addEventListener('click',()=>finishGame());
+}
+
+/* ═══════════════════════════════════════════
+   G2 — REPORT IT!
+   Direct speech shown → pick correctly reported version
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Reported Speech</div>
+      <div class="gh-name" style="color:var(--amber)">Report It!</div>
+      <div class="gh-instr">Choose the correctly reported version of the direct quote.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="quote-card">
+      <div class="quote-speaker">${q.speaker}</div>
+      <div class="quote-text">${q.direct}</div>
+      <div class="report-prompt">Report this. The verb in the reporting clause is: <span class="hl">said / told / added</span></div>
+    </div>
+    <div id="g2opts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber);text-align:left;padding:14px 14px" data-a="${encodeURIComponent(o)}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+    const chosen=decodeURIComponent(el.dataset.a);
+    if(chosen===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok',`Correct! 💡 ${q.note} +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(decodeURIComponent(o.dataset.a)===q.ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad',`💡 ${q.note}`); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G3 — REPORTING VERB ARENA
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Reporting Verbs</div>
+      <div class="gh-name" style="color:var(--teal)">Reporting Verb Arena</div>
+      <div class="gh-instr">Choose the correct reporting verb for the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="arena-card">
+      <div class="arena-eyebrow">Context</div>
+      <div class="arena-context">${q.context}</div>
+      <div class="arena-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="teal-note" id="g3note"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g3note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','It\'s: <strong>'+q.ans+'</strong>'); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G4 — CRIME & PUNISHMENT
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Vocabulary · Punishments</div>
+      <div class="gh-name" style="color:var(--amber)">Crime & Punishment</div>
+      <div class="gh-instr">Read the case — what punishment fits best?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="crime-file">
+      <div class="file-stamp">Case ${g4i+1} of ${g4q.length}</div>
+      <div class="crime-text">${q.crime}</div>
+    </div>
+    <div class="opts2" id="g4opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g4fb','ok',`${q.ans.toUpperCase()} — ${q.note} +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g4fb','bad','The best answer is: <strong>'+q.ans+'</strong>. 💡 '+q.note); }
+    show('g4next');
+  }));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G5 — FAMOUS CRIMINALS
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Reading · Famous Criminals</div>
+      <div class="gh-name" style="color:var(--violet)">Famous Criminals</div>
+      <div class="gh-instr">Which famous criminal does this fact describe?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="criminal-card">
+      <div class="criminal-eyebrow">Fact ${g5i+1} of ${g5q.length}</div>
+      <div class="criminal-fact">${q.fact}</div>
+    </div>
+    <div class="name-row" id="nameRow">
+      ${q.opts.map(o=>`<div class="name-btn" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('.name-btn').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('.name-btn').forEach(b=>b.classList.add('locked'));
+    if(el.dataset.a===q.ans){ el.classList.add('nb-ok'); addScore(2); showFb('g5fb','ok',`${q.ans} — ${q.note} +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('nb-wrong'); document.querySelectorAll('.name-btn').forEach(b=>{ if(b.dataset.a===q.ans)b.classList.add('nb-ok'); }); showFb('g5fb','bad',`It was <strong>${q.ans}</strong>. 💡 ${q.note}`); }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G6 — RESTORING JUSTICE
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Listening & Reading · Restoring Justice</div>
+      <div class="gh-name" style="color:var(--lime)">Restoring Justice</div>
+      <div class="gh-instr">Answer the comprehension question about Jason, Mrs Schwartz and the programme.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="rj-card">
+      <div class="rj-eyebrow">Question ${g6i+1} of ${g6q.length}</div>
+      <div class="rj-question">${q.q}</div>
+    </div>
+    <div id="g6opts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--lime);text-align:left;padding:14px" data-a="${encodeURIComponent(o)}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+    const chosen=decodeURIComponent(el.dataset.a);
+    if(chosen===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok',`Correct! 💡 ${q.note} +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(decodeURIComponent(o.dataset.a)===q.ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad',`💡 ${q.note}`); }
+    show('g6next');
+  }));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ═══════════════════════════════════════════
+   G7 — BOMB DEFUSE
+═══════════════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7streak=0; g7bombScore=0; g7Setup(); }
+function g7Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Review · Timed True / False</div>
+      <div class="gh-name" style="color:var(--red)">Bomb Defuse</div>
+      <div class="gh-instr">Unit 8 facts — true or false? Defuse before time runs out.</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" id="bQ">1/${g7q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--red);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+  g7Render();
+}
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++;
+  $('bQ').textContent=`${g7i+1}/${g7q.length}`; hideFb('g7fb'); hide('g7next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`
+    <div class="opt" style="--opt-col:var(--ok)" data-a="true">True</div>
+    <div class="opt" style="--opt-col:var(--bad)" data-a="false">False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g7Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g7TimeUp(q.ans),q.t*1000);
+}
+function g7Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g7streak++; g7bombScore+=3;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('bStreak').textContent=g7streak; $('bScore').textContent=g7bombScore;
+    addScore(3); showFb('g7fb','ok','Correct! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g7streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g7fb','bad',ans?'That is TRUE.':'That is FALSE.');
+  }
+  show('g7next');
+}
+function g7TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g7streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g7fb','bad','Time up — it was '+(ans?'TRUE':'FALSE')+'.');
+  show('g7next');
+}
+
+/* ═══════════════════════════════════════════
+   G8 — WORD ORDER
+═══════════════════════════════════════════ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · Reported Speech</div>
+      <div class="gh-name" style="color:var(--teal)">Word Order</div>
+      <div class="gh-instr">Reconstruct the reported speech sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">Tap tiles to build the sentence…</div>
+    <div class="word-pool" id="g8pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--teal);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='Tap tiles to build the sentence…';
+    hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 ⭐'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
+}
+</script>
+</body>
+</html>
