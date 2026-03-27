@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 11 — Making the News!</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0a0202;
+  --deep:    #120404;
+  --card:    #1a0505;
+  --card2:   #230707;
+  --border:  #4a1010;
+  --red:     #ff2020;
+  --red2:    #ff7070;
+  --amber:   #ffcc00;
+  --amber2:  #ffe066;
+  --white2:  #ffe8e8;
+  --sky:     #40b8ff;
+  --sky2:    #90d8ff;
+  --green:   #00e676;
+  --purple:  #c060ff;
+  --purple2: #e0a0ff;
+  --orange:  #ff8020;
+  --orange2: #ffb070;
+  --white:   #fff5f5;
+  --muted:   #4a1818;
+  --ok:      #00e676;
+  --bad:     #ff2020;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 15% 15%, rgba(255,32,32,.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(64,184,255,.05) 0%, transparent 55%);
+}
+
+/* ══ BREAKING burst ══ */
+.breaking-burst {
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0;
+}
+.breaking-burst.active { animation:breakingPop .7s ease forwards; }
+@keyframes breakingPop {
+  0%   { opacity:0; transform:scale(.3); }
+  35%  { opacity:1; transform:scale(1.1); }
+  65%  { opacity:1; transform:scale(1); }
+  100% { opacity:0; transform:scale(1.05); }
+}
+.breaking-tag {
+  background:var(--red); color:#fff;
+  font-family:var(--font-m); font-size:1rem; font-weight:700;
+  padding:4px 20px; letter-spacing:4px; text-transform:uppercase; margin-bottom:4px;
+}
+.breaking-text {
+  font-family:var(--font-h); font-size:3rem; font-weight:800;
+  color:var(--white); letter-spacing:3px; text-transform:uppercase;
+  text-shadow:0 0 40px rgba(255,32,32,.8), 0 0 80px rgba(255,32,32,.4);
+}
+
+/* ══ TICKER STRIP ══ */
+.ticker-wrap {
+  width:100%; overflow:hidden; margin-bottom:14px;
+  background:var(--red); border-top:2px solid rgba(255,255,255,.2); border-bottom:2px solid rgba(255,255,255,.2);
+  padding:4px 0;
+}
+.ticker-inner {
+  display:inline-block; white-space:nowrap;
+  animation:ticker 22s linear infinite;
+  font-family:var(--font-m); font-size:11px; font-weight:700; color:#fff; letter-spacing:1px;
+}
+@keyframes ticker { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px; background:var(--card);
+  border:1px solid var(--border); color:var(--red2);
+  font-family:var(--font-m); font-size:10px; letter-spacing:2px;
+  padding:5px 16px; border-radius:4px; margin-bottom:8px; text-transform:uppercase;
+}
+.breaking-label {
+  background:var(--red); color:#fff;
+  font-family:var(--font-m); font-size:12px; font-weight:700;
+  padding:3px 14px; letter-spacing:3px; text-transform:uppercase; margin-bottom:12px;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,9vw,3.8rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+  text-shadow:0 0 40px rgba(255,32,32,.3);
+}
+.home-title span { color:var(--red); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--amber);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--ok); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--ok); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--amber); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 16px; background:rgba(10,2,2,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--red); color:var(--red2); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--red); color:#fff; font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 18px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.1rem; font-weight:700; line-height:1.75; color:var(--white); }
+.qcard-text .hl  { color:var(--red2); }
+.qcard-text .hl2 { color:var(--sky2); }
+.qcard-text .gap { border-bottom:2px solid var(--amber); color:var(--amber2); padding:0 8px; min-width:70px; display:inline-block; font-family:var(--font-m); font-size:13px; }
+
+/* OPTIONS — large, bright, clear */
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:15px; font-weight:700;
+  color:var(--white); padding:15px 10px; cursor:pointer; text-align:center;
+  transition:all .14s; line-height:1.4;
+}
+.opt:hover:not(.locked) {
+  border-color:var(--opt-col, var(--red2));
+  color:var(--opt-col, var(--red2));
+  background:color-mix(in srgb, var(--opt-col,var(--red2)) 10%, transparent);
+  transform:translateY(-2px);
+}
+.opt.opt-ok  { border-color:var(--ok)!important; color:#fff!important; background:rgba(0,230,118,.18)!important; animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ffb0b0!important; background:rgba(255,32,32,.12)!important; animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.45; }
+
+/* EXPLAIN BOX */
+.explain-box {
+  background:rgba(255,32,32,.05); border:1px solid rgba(255,32,32,.18);
+  border-left:3px solid var(--red); border-radius:var(--r-sm);
+  padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white);
+  margin-bottom:10px; display:none;
+}
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--red2); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+/* FEEDBACK */
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.1); color:#86efac; border:1px solid rgba(0,230,118,.25); }
+.fb.bad { display:block; background:rgba(255,32,32,.08); color:#ffb0b0; border:1px solid rgba(255,32,32,.2); }
+
+/* NEXT BTN */
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+
+/* PROG DOTS */
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--red); transform:scale(1.4); }
+
+/* ══ G2: DIRECT → REPORTED TRANSFORMER ══ */
+.direct-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px 18px; margin-bottom:10px;
+}
+.dc-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.dc-speaker { font-family:var(--font-m); font-size:10px; color:var(--red2); letter-spacing:1px; margin-bottom:6px; }
+.dc-quote {
+  font-family:var(--font-h); font-size:1.1rem; font-weight:700; color:var(--amber2);
+  border-left:3px solid var(--amber); padding-left:12px; line-height:1.6;
+}
+.arrow-row { text-align:center; font-size:1.3rem; color:var(--red); margin-bottom:8px; }
+.reported-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 18px; margin-bottom:12px;
+}
+.rc-label { font-family:var(--font-m); font-size:9px; color:var(--red); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.rc-text { font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:var(--white); line-height:1.6; }
+.rc-text .gap { border-bottom:2px solid var(--amber); color:var(--amber2); padding:0 8px; font-family:var(--font-m); font-size:13px; min-width:120px; display:inline-block; }
+
+/* ══ G3: REPORTING VERB MATCH ══ */
+.situation-card {
+  background:linear-gradient(160deg,var(--card2),#0a0202);
+  border:1px solid var(--border); border-radius:var(--r); padding:18px 16px; margin-bottom:14px;
+}
+.sc-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.sc-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:var(--white); line-height:1.65; }
+.sc-text .hl { color:var(--amber2); }
+.verb-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; margin-bottom:14px; }
+.verb-btn {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-m); font-size:16px; font-weight:700;
+  color:var(--sky2); padding:16px 8px; cursor:pointer; text-align:center; transition:all .15s;
+}
+.verb-btn:hover:not(.locked) { border-color:var(--sky); background:rgba(64,184,255,.1); transform:scale(1.04); }
+.verb-btn.v-ok   { border-color:var(--ok)!important; color:#fff!important; background:rgba(0,230,118,.2)!important; animation:popIn .28s; pointer-events:none; }
+.verb-btn.v-bad  { border-color:var(--bad)!important; color:#ffb0b0!important; background:rgba(255,32,32,.12)!important; animation:shake .4s; pointer-events:none; }
+.verb-btn.locked { pointer-events:none; opacity:.4; }
+
+/* ══ G4: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,128,32,.08); border:1px solid rgba(255,128,32,.22); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:700; text-align:center; line-height:1.55; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; color:var(--white); }
+
+/* ══ G5: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--amber); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--amber); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1.05rem; font-weight:700; line-height:1.7; color:var(--white); }
+.rule-text .hl  { color:var(--red2); }
+.rule-text .hl2 { color:var(--sky2); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:2px solid; border-radius:var(--r); font-family:var(--font-h); font-size:15px; font-weight:700; padding:16px; cursor:pointer; transition:all .15s; text-align:center; color:var(--white); }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.1); color:#86efac; border-color:rgba(0,230,118,.35); }
+.tf-no  { background:rgba(255,32,32,.08); color:#ffb0b0; border-color:rgba(255,32,32,.28); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:#fff!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked   { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G6: QUESTION REPORTER ══ */
+.direct-q-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px 18px; margin-bottom:10px;
+}
+.dq-label  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.dq-q { font-family:var(--font-h); font-size:1.1rem; font-weight:700; color:var(--amber2); border-left:3px solid var(--amber); padding-left:12px; line-height:1.6; }
+.reported-q-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 18px; margin-bottom:12px;
+}
+.rq-label { font-family:var(--font-m); font-size:9px; color:var(--sky); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.rq-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:var(--white); line-height:1.6; }
+.rq-text .gap { border-bottom:2px solid var(--amber); color:var(--amber2); padding:0 8px; font-family:var(--font-m); font-size:13px; min-width:100px; display:inline-block; }
+
+/* ══ G7: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:12px; font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--red); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--red); color:#fff; font-family:var(--font-h); font-size:14px; font-weight:700; padding:8px 14px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--red2); color:#fff; }
+.wtile.used { opacity:.18; pointer-events:none; }
+
+/* ══ G8: DIALOGUE ══ */
+.dialogue-stage { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:14px; }
+.stage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.stage-label  { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge  { background:var(--red); color:#fff; font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread  { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap  { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; font-weight:700; color:#fff; }
+.av-a { background:linear-gradient(135deg,var(--red),var(--red2)); }
+.av-b { background:linear-gradient(135deg,var(--sky),var(--sky2)); color:var(--bg); }
+.bubble { max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600; color:var(--white); }
+.bubble-a { background:rgba(255,32,32,.08); border:1px solid rgba(255,32,32,.16); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(64,184,255,.06); border:1px solid rgba(64,184,255,.13); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--red2); }
+.bubble-speaker-b { color:var(--sky2); }
+.bubble-text .key-phrase { color:var(--amber2); font-weight:800; }
+.phrase-bank { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px; }
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(255,32,32,.08); border:1px solid rgba(255,32,32,.2); color:var(--red2); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.sky { background:rgba(64,184,255,.07); border-color:rgba(64,184,255,.18); color:var(--sky2); }
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--red); color:var(--red2); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+
+/* BTN ROW */
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* WIN */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:66px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--red); text-shadow:0 0 40px rgba(255,32,32,.4); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--red) 0%, var(--orange) 30%, var(--amber) 65%, var(--ok) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(255,32,32,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:#86efac; }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--red2); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--red); font-weight:900; }
+.btn-play { background:var(--red); color:#fff; font-family:var(--font-h); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(255,32,32,.35); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); background:var(--red2); }
+
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<div class="breaking-burst" id="breakBurst">
+  <div class="breaking-tag">⚡ BREAKING</div>
+  <div class="breaking-text">CORRECT!</div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 11 · Elite2_2</div>
+  <div class="breaking-label">⚡ BREAKING NEWS</div>
+  <div class="ticker-wrap"><div class="ticker-inner">📺 STUDENT ACES REPORTED SPEECH · 🗞️ REPORTING VERBS MASTERED · 📡 BACKSHIFT CONFIRMED · 🎤 DIRECT QUOTE GOES VIRAL · 📰 GRAMMAR EXCLUSIVE: STUDENT CONQUERS UNIT 11 · 🔴 LIVE: PRESS CONFERENCE ON THE PASSIVE OF REPORTING · 📻 CORRESPONDENT REPORTS FROM INSIDE THE CLASSROOM</div></div>
+  <h1 class="home-title">Making<br><span>the News!</span></h1>
+  <p class="home-sub">// 8 games · reported speech · reporting verbs · media vocab · dialogue //</p>
+  <div class="total-stars">⭐ Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#ff7070" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span><span class="gc-icon">📺</span>
+      <div class="gc-title">Headline Spotter</div>
+      <div class="gc-desc">Media vocab — read the clue, name the term!</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffe066" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span><span class="gc-icon">🔄</span>
+      <div class="gc-title">Direct → Reported</div>
+      <div class="gc-desc">Backshift the tense — choose the form!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#90d8ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span><span class="gc-icon">🎯</span>
+      <div class="gc-title">Reporting Verb Match</div>
+      <div class="gc-desc">claim / admit / deny / warn / promise…</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffb070" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span><span class="gc-icon">💣</span>
+      <div class="gc-title">Reported Bomb!</div>
+      <div class="gc-desc">True or false? Beat the timer!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff7070" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span><span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e0a0ff" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span><span class="gc-icon">❓</span>
+      <div class="gc-title">Question Reporter</div>
+      <div class="gc-desc">Reported questions — tricky but essential!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff7070" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span><span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the reported speech sentence!</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffe066" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span><span class="gc-icon">🎤</span>
+      <div class="gc-title">Newsroom Dialogue</div>
+      <div class="gc-desc">Photostory phrases + live news conversations!</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">📰</span>
+  <div class="win-title">EXCLUSIVE!</div>
+  <div class="win-sub">You conquered all 8 games. Front page news.</div>
+  <div class="win-ring"><div class="win-num" id="winScore">0</div><div class="win-lbl">STARS</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges 🗣️</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again 🔄</button>
+</div>
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — Think Level 2 Unit 11 "Making the News"
+   p.104–113 SB + Workbook p.99–106 (TB numbering)
+   Grammar: Reported speech (statements + questions)
+   Vocab: Media terms + reporting verbs
+═══════════════════════════════════════════ */
+
+// G1 — Headline Spotter: media vocab
+const G1 = [
+  { def:"The line of text at the top of a newspaper article, printed in large letters.",              ans:'headline',        opts:['headline','article','caption','column']              },
+  { def:"A journalist who sends reports from a specific country or on a particular topic.",            ans:'correspondent',   opts:['correspondent','anchor','presenter','editor']        },
+  { def:"The person who reads the news on television from a studio.",                                 ans:'anchor',          opts:['anchor','reporter','correspondent','journalist']      },
+  { def:"A first or important news story that only one newspaper or channel has.",                    ans:'exclusive',       opts:['exclusive','headline','scoop','article']             },
+  { def:"Someone who witnesses an event and can describe what they saw.",                              ans:'eyewitness',      opts:['eyewitness','correspondent','anchor','reporter']     },
+  { def:"A public meeting where someone makes a statement and answers questions from the press.",     ans:'press conference', opts:['press conference','interview','broadcast','editorial']},
+  { def:"A newspaper with small pages, shorter articles and often more celebrity gossip.",             ans:'tabloid',         opts:['tabloid','broadsheet','magazine','newsletter']       },
+  { def:"When news or a video spreads extremely quickly and widely online.",                           ans:'go viral',        opts:['go viral','break news','go live','hit headlines']    },
+  { def:"Important news that is reported as soon as it happens — often with red banners on TV.",      ans:'breaking news',   opts:['breaking news','live report','bulletin','broadcast'] },
+  { def:"The general name for television, radio, newspapers and the internet together.",              ans:'the media',       opts:['the media','the press','journalism','broadcasting']  },
+];
+
+// G2 — Direct → Reported (statements): tense backshift
+// Rules: present simple→past simple, present continuous→past continuous,
+//        will→would, can→could, am/is/are→was/were, have→had
+const G2 = [
+  {
+    speaker:"The reporter", direct:'"I am live outside the parliament building."',
+    reported:"She said that she ___ live outside the parliament building.",
+    ans:"was", opts:["was","is","were","had been"],
+    explain:"AM/IS → WAS in reported speech (backshift). Present simple → past simple.",
+    ruleTag:"is/am → was"
+  },
+  {
+    speaker:"The politician", direct:'"We will announce the results tomorrow."',
+    reported:"He said that they ___ announce the results the next day.",
+    ans:"would", opts:["would","will","could","should"],
+    explain:"WILL → WOULD in reported speech (backshift). 'Tomorrow' also changes to 'the next day'.",
+    ruleTag:"will → would"
+  },
+  {
+    speaker:"The eyewitness", direct:'"I can see smoke coming from the building."',
+    reported:"She said she ___ see smoke coming from the building.",
+    ans:"could", opts:["could","can","would","was able to"],
+    explain:"CAN → COULD in reported speech (backshift).",
+    ruleTag:"can → could"
+  },
+  {
+    speaker:"The journalist", direct:'"The story has gone viral on social media."',
+    reported:"He reported that the story ___ viral on social media.",
+    ans:"had gone", opts:["had gone","has gone","went","was going"],
+    explain:"PRESENT PERFECT (has gone) → PAST PERFECT (had gone) in reported speech.",
+    ruleTag:"has/have gone → had gone"
+  },
+  {
+    speaker:"The anchor", direct:'"People are protesting outside the building right now."',
+    reported:"She said that people ___ outside the building.",
+    ans:"were protesting", opts:["were protesting","are protesting","protested","had been protesting"],
+    explain:"PRESENT CONTINUOUS (are protesting) → PAST CONTINUOUS (were protesting) in reported speech.",
+    ruleTag:"are -ing → were -ing"
+  },
+  {
+    speaker:"The CEO", direct:'"We have already contacted the authorities."',
+    reported:"She claimed that they ___ already contacted the authorities.",
+    ans:"had", opts:["had","have","were","did"],
+    explain:"HAVE ALREADY → HAD ALREADY in reported speech. Present perfect → past perfect.",
+    ruleTag:"have → had (past perfect)"
+  },
+];
+
+// G3 — Reporting Verb Match
+// Each situation → choose the best reporting verb
+const G3 = [
+  {
+    text:"The suspect said: <span class='hl'>\"I didn't steal the money. I was never there!\"</span>",
+    ans:"denied", opts:["denied","claimed","warned","admitted"],
+    explain:"DENY = say that something is NOT true. The suspect is saying he did NOT do it.",
+    ruleTag:"deny + verb-ing"
+  },
+  {
+    text:"The politician said: <span class='hl'>\"I accept that I made an error in my speech.\"</span>",
+    ans:"admitted", opts:["admitted","denied","promised","announced"],
+    explain:"ADMIT = accept or confess something, often something negative or embarrassing.",
+    ruleTag:"admit + verb-ing"
+  },
+  {
+    text:"The scientist said: <span class='hl'>\"I believe we have found a way to slow climate change.\"</span>",
+    ans:"claimed", opts:["claimed","denied","warned","told"],
+    explain:"CLAIM = say something is true, but without definite proof yet.",
+    ruleTag:"claim + that-clause"
+  },
+  {
+    text:"The doctor said: <span class='hl'>\"Be careful — this medicine can be very dangerous if misused.\"</span>",
+    ans:"warned", opts:["warned","promised","claimed","announced"],
+    explain:"WARN = tell someone about a possible danger or problem.",
+    ruleTag:"warn (somebody) that/about"
+  },
+  {
+    text:"The government said: <span class='hl'>\"We will definitely reduce taxes next year.\"</span>",
+    ans:"promised", opts:["promised","denied","warned","revealed"],
+    explain:"PROMISE = say you will definitely do something — a commitment.",
+    ruleTag:"promise + to + infinitive"
+  },
+  {
+    text:"The company said: <span class='hl'>\"We are happy to tell you that we are opening a new factory.\"</span>",
+    ans:"announced", opts:["announced","admitted","denied","claimed"],
+    explain:"ANNOUNCE = make a formal public statement about something.",
+    ruleTag:"announce + that-clause"
+  },
+  {
+    text:"The journalist said: <span class='hl'>\"It turns out the CEO had been hiding the financial losses.\"</span>",
+    ans:"revealed", opts:["revealed","warned","promised","told"],
+    explain:"REVEAL = make known something that was previously secret or unknown.",
+    ruleTag:"reveal + that-clause"
+  },
+  {
+    text:"The spokesperson said: <span class='hl'>\"The company is not responsible for the accident.\"</span>",
+    ans:"denied", opts:["denied","admitted","announced","revealed"],
+    explain:"DENY = say that you did NOT do something or that something is NOT true.",
+    ruleTag:"deny + that-clause / deny + verb-ing"
+  },
+];
+
+// G4 — Bomb Defuse: reported speech true/false
+const G4 = [
+  { q:"'She said she was a journalist.' correctly reports: \"I am a journalist.\"",    ans:true,  t:5 },
+  { q:"'He told that he would come.' — GRAMMATICALLY CORRECT reported speech.",        ans:false, t:5 }, // tell needs object: told me
+  { q:"'She said she can help us.' correctly reports: \"I can help you.\" — TRUE?",    ans:false, t:5 }, // can → could
+  { q:"In reported speech, WILL always changes to WOULD.",                              ans:true,  t:5 },
+  { q:"'He asked where did she live.' — correct reported question form.",              ans:false, t:4 }, // no auxiliary in rep. question
+  { q:"'She admitted taking the money.' — ADMIT + verb-ing is correct.",               ans:true,  t:4 },
+  { q:"We use SAY + object + that: 'She said me that she was tired.' — CORRECT.",     ans:false, t:4 }, // say has no object
+  { q:"'They promised they would return.' correctly backshifts WILL → WOULD.",         ans:true,  t:4 },
+  { q:"Present simple → past simple in reported speech: goes → went. TRUE?",           ans:true,  t:5 },
+  { q:"'He denied stealing the car.' uses the correct form after DENY.",               ans:true,  t:4 },
+];
+
+// G5 — Streak Challenge: reported speech correct/wrong
+const G5 = [
+  { rule:"She said that she was a journalist for the BBC.",                             correct:true  },
+  { rule:"He told me that he will come to the press conference.",                       correct:false }, // will → would
+  { rule:"The minister said that the country had made great progress.",                 correct:true  },
+  { rule:"She asked me where did I work.",                                              correct:false }, // no auxiliary in rep. question
+  { rule:"He denied stealing the documents from the office.",                           correct:true  },
+  { rule:"The company announced that they would open a new branch in the spring.",      correct:true  },
+  { rule:"She admitted to take the money from the register.",                           correct:false }, // admit + verb-ING
+  { rule:"The reporter claimed that the president has resigned.",                       correct:false }, // has → had (backshift)
+  { rule:"He warned us that the road was very dangerous at night.",                     correct:true  },
+  { rule:"She said me that she was really tired after the interview.",                  correct:false }, // say has no object
+  { rule:"The witness revealed that she had seen the suspect near the building.",       correct:true  },
+  { rule:"They promised to send us the report by Friday.",                              correct:true  },
+  { rule:"He told that the meeting had been cancelled.",                                correct:false }, // tell needs object
+  { rule:"The anchor said the story had gone viral on social media overnight.",         correct:true  },
+];
+
+// G6 — Question Reporter: direct question → reported question
+// KEY RULE: no auxiliary verb, normal word order, if/whether for yes/no questions
+const G6 = [
+  {
+    speaker:"The journalist",
+    direct:'"Where do you work?"',
+    reported:"She asked me ___ I worked.",
+    ans:"where", opts:["where","if","whether","that"],
+    explain:"Wh- question reported: QUESTION WORD + subject + verb (no auxiliary). Where do you → where I worked.",
+    ruleTag:"wh-word + subject + verb (no auxiliary)"
+  },
+  {
+    speaker:"The interviewer",
+    direct:'"Have you ever worked as a correspondent?"',
+    reported:"He asked me ___ I had ever worked as a correspondent.",
+    ans:"whether", opts:["whether","where","what","that"],
+    explain:"YES/NO question reported: IF or WHETHER + subject + verb. Have you → whether I had.",
+    ruleTag:"if / whether + subject + verb"
+  },
+  {
+    speaker:"The editor",
+    direct:'"What time did the press conference start?"',
+    reported:"She asked ___ the press conference had started.",
+    ans:"what time", opts:["what time","if","whether","when"],
+    explain:"What time → WHAT TIME + subject + verb (no auxiliary). Did start → had started (backshift).",
+    ruleTag:"wh-word + subject + verb"
+  },
+  {
+    speaker:"The anchor",
+    direct:'"Is the story breaking news?"',
+    reported:"He asked ___ the story was breaking news.",
+    ans:"if", opts:["if","where","what","which"],
+    explain:"YES/NO question: IF or WHETHER + subject + verb. Is → was (backshift).",
+    ruleTag:"if / whether + subject + verb"
+  },
+  {
+    speaker:"The reporter",
+    direct:'"Who told you about the story?"',
+    reported:"She asked him ___ had told him about the story.",
+    ans:"who", opts:["who","that","if","whether"],
+    explain:"WHO question reported: WHO + verb (normal order, no auxiliary — who is already the subject).",
+    ruleTag:"who + verb (subject question)"
+  },
+  {
+    speaker:"The producer",
+    direct:'"Why are you leaving the programme?"',
+    reported:"He asked her ___ she was leaving the programme.",
+    ans:"why", opts:["why","if","whether","that"],
+    explain:"WHY question reported: WHY + subject + verb. Are leaving → was leaving (backshift).",
+    ruleTag:"why + subject + verb (no auxiliary)"
+  },
+];
+
+// G7 — Word Order: confirmed from WB p.99-100 exercises + SB p.108-109
+const G7 = [
+  { words:["She","said","that","she","was","a","correspondent","for","the","BBC","."],   ans:"She said that she was a correspondent for the BBC ."   },
+  { words:["He","told","me","that","he","would","send","the","report","that","day","."], ans:"He told me that he would send the report that day ."   },
+  { words:["The","journalist","claimed","that","the","story","had","gone","viral","."],  ans:"The journalist claimed that the story had gone viral ." },
+  { words:["She","asked","me","where","I","worked","and","who","I","wrote","for","."],   ans:"She asked me where I worked and who I wrote for ."     },
+  { words:["He","admitted","taking","the","photos","without","permission","."],          ans:"He admitted taking the photos without permission ."     },
+  { words:["They","warned","us","that","the","situation","could","be","dangerous","."],  ans:"They warned us that the situation could be dangerous ." },
+];
+
+// G8 — Dialogue: photostory phrases + news conversations
+const G8_DIALOGUES = [
+  {
+    title:"The Press Conference",
+    topic:"A journalist reports back to her editor — using reported speech and reporting verbs.",
+    roleA:"Journalist", roleB:"Editor",
+    exchanges:[
+      { speaker:'A', text:"By the way, I've just come back from the press conference. The minister said that he would announce the new policy by the end of the week.", key_phrase:"By the way / said that he would" },
+      { speaker:'B', text:"At long last! Did he say anything about the budget?", key_phrase:"At long last" },
+      { speaker:'A', text:"He claimed that the country had made significant progress, but he denied that there had been any cover-up.", key_phrase:"claimed / denied" },
+      { speaker:'B', text:"For a while now, people have been saying that the government was hiding something.", key_phrase:"For a while" },
+      { speaker:'A', text:"He also warned that anyone spreading false information would face consequences.", key_phrase:"warned that" },
+      { speaker:'B', text:"This is going to be front page. As long as you have the quotes confirmed, we're publishing tonight.", key_phrase:"As long as" },
+    ],
+    phrases_a:["By the way","said that he would","claimed / denied","warned that"],
+    phrases_b:["At long last","For a while","As long as","asked whether / if"],
+  },
+  {
+    title:"Breaking Story",
+    topic:"Two journalists discuss a breaking story — using direct and reported speech together.",
+    roleA:"Reporter A", roleB:"Reporter B",
+    exchanges:[
+      { speaker:'A', text:"Did you hear? The eyewitness revealed that she had seen the suspect near the building two hours before the incident.", key_phrase:"revealed that she had seen" },
+      { speaker:'B', text:"Seriously? What else did she say? I need to know — we're going live in a few weeks' time with the full story.", key_phrase:"in a few weeks' time" },
+      { speaker:'A', text:"She admitted being there but denied knowing anything about the plan. She also said she would cooperate with the police.", key_phrase:"admitted / denied" },
+      { speaker:'B', text:"The police told me that they were still questioning other witnesses. They wouldn't tell me who they were.", key_phrase:"told me that they were" },
+      { speaker:'A', text:"By the way, did the editor say whether we're allowed to publish the names?", key_phrase:"asked whether" },
+      { speaker:'B', text:"She said we had to wait until the police confirmed everything. At long last, they might do that this evening.", key_phrase:"At long last" },
+    ],
+    phrases_a:["revealed that she had seen","admitted / denied","By the way","asked whether"],
+    phrases_b:["in a few weeks' time","told me that they were","At long last","For a while"],
+  },
+  {
+    title:"Media Ethics",
+    topic:"Discussing responsible journalism — reported speech, photostory phrases and media vocabulary.",
+    roleA:"Student A", roleB:"Student B",
+    exchanges:[
+      { speaker:'A', text:"I read that the tabloid had published a story without checking the facts. The journalist claimed that her sources were reliable.", key_phrase:"claimed that / had published" },
+      { speaker:'B', text:"I know. The editor warned that journalists who don't verify their sources can lose their jobs. For a while, I thought she might be fired.", key_phrase:"warned that / For a while" },
+      { speaker:'A', text:"By the way, do you think social media is making journalism worse? Anyone can post a story and say it's breaking news.", key_phrase:"By the way" },
+      { speaker:'B', text:"At long last, people are starting to question what they read online. As long as we check multiple sources, we can tell what's true.", key_phrase:"As long as / At long last" },
+      { speaker:'A', text:"The professor said that citizen journalism had changed the media forever. She asked whether we thought that was positive or negative.", key_phrase:"asked whether / had changed" },
+      { speaker:'B', text:"I told her that I thought it depended on how responsibly people used it.", key_phrase:"told her that I thought" },
+    ],
+    phrases_a:["claimed that / had published","By the way","asked whether / had changed","said that … had"],
+    phrases_b:["warned that / For a while","As long as / At long last","told her that I thought","denied / admitted + verb-ing"],
+  },
+];
+
+/* STATE */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g4bombScore=0, g5streak=0, g5best=0;
+let g8scenIdx=0;
+
+/* HELPERS */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{if(typeof el==='string')el=$(el);if(!el)return;el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block';};
+const hide=el=>{if(typeof el==='string')el=$(el);if(!el)return;el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none';};
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function breaking(){
+  const b=$('breakBurst'); b.classList.remove('active');
+  void b.offsetWidth; b.classList.add('active');
+  setTimeout(()=>b.classList.remove('active'),800);
+}
+function confetti(){
+  const cols=['#ff2020','#ff7070','#ffcc00','#00e676','#40b8ff','#c060ff'];
+  const box=$('cfx');
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#ff2020','#ffcc00','#00e676','#40b8ff'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+function correctAnswer(el){ addScore(3); miniConfetti(el); breaking(); }
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el)el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Headline Spotter','Direct → Reported','Reporting Verb Match','Reported Bomb!','Streak Challenge','Question Reporter','Word Order','Newsroom Dialogue'];
+  const cols=['var(--red2)','var(--amber2)','var(--sky2)','var(--orange2)','var(--red2)','var(--purple2)','var(--red2)','var(--amber2)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"She said that she was a correspondent for the BBC." — practise reporting 5 things a friend told you!',
+    '"He denied stealing the photos. She admitted leaving early." — use 4 different reporting verbs in a story.',
+    '"She asked me where I worked." — report 5 questions a teacher or friend asked you today.',
+    '"By the way / For a while / At long last / As long as" — use all 4 photostory phrases in one paragraph.',
+    'Roleplay: You are a journalist reporting a press conference. Your partner answers as a politician — use reported speech when you report back.',
+    '"The company claimed that they had not broken any rules." — create a fake news headline and report it!',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0;totalCorrect=0;totalQs=0;bestStreak=0;
+  gameScores=Array(8).fill(0);gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(g=>g.classList.remove('done'));
+  showHome();
+});
+
+/* ── G1: HEADLINE SPOTTER ── */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  totalQs++; const q=g1q[g1i]; setProgress(g1i,g1q.length);
+  const optsHtml=rnd(q.opts).map(o=>`<button class="opt" style="--opt-col:var(--red2)" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Media Terms</div>
+      <div class="gh-name" style="color:var(--red2)">Headline Spotter 📺</div>
+      <div class="gh-instr">Read the definition. What's the media term?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Term ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.def}</div>
+    </div>
+    <div class="opts2">${optsHtml}</div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--red);color:#fff">Next ›</button>`;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      if(btn.dataset.ans===q.ans){ btn.classList.add('opt-ok'); correctAnswer(btn); totalCorrect++; showFb('g1fb','ok','BREAKING: Correct! +3 ⭐'); }
+      else { btn.classList.add('opt-bad'); document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+q.ans); }
+      show('g1next');
+    });
+  });
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ── G2: DIRECT → REPORTED ── */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  totalQs++; const q=g2q[g2i]; setProgress(g2i,g2q.length);
+  const repHtml=q.reported.replace('___',`<span class="gap">___</span>`);
+  const optsHtml=rnd(q.opts).map(o=>`<button class="opt" style="--opt-col:var(--amber2)" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Reported Speech</div>
+      <div class="gh-name" style="color:var(--amber2)">Direct → Reported 🔄</div>
+      <div class="gh-instr">Choose the correct backshifted form for the reported speech!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="direct-card">
+      <div class="dc-label">Direct Speech</div>
+      <div class="dc-speaker">${q.speaker} said:</div>
+      <div class="dc-quote">${q.direct}</div>
+    </div>
+    <div class="arrow-row">↓ Reported Speech ↓</div>
+    <div class="reported-card">
+      <div class="rc-label">⚡ Reported Speech</div>
+      <div class="rc-text">${repHtml}</div>
+    </div>
+    <div class="opts2">${optsHtml}</div>
+    <div class="explain-box" id="g2exp"><span class="rule-tag">${q.ruleTag}</span>${q.explain}</div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      $('g2exp').classList.add('show');
+      if(btn.dataset.ans===q.ans){ btn.classList.add('opt-ok'); correctAnswer(btn); totalCorrect++; showFb('g2fb','ok','Correct backshift! +3 ⭐'); }
+      else { btn.classList.add('opt-bad'); document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('opt-ok'); }); showFb('g2fb','bad','The answer is: '+q.ans); }
+      show('g2next');
+    });
+  });
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ── G3: REPORTING VERB MATCH ── */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  totalQs++; const q=g3q[g3i]; setProgress(g3i,g3q.length);
+  const btnsHtml=rnd(q.opts).map(o=>`<button class="verb-btn" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Vocabulary · Reporting Verbs</div>
+      <div class="gh-name" style="color:var(--sky2)">Reporting Verb Match 🎯</div>
+      <div class="gh-instr">Read what was said. Which reporting verb best describes it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="situation-card">
+      <div class="sc-label">What they said</div>
+      <div class="sc-text">${q.text}</div>
+    </div>
+    <div class="verb-grid">${btnsHtml}</div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">${q.ruleTag}</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.verb-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.verb-btn').forEach(b=>b.classList.add('locked'));
+      $('g3exp').classList.add('show');
+      if(btn.dataset.ans===q.ans){ btn.classList.add('v-ok'); correctAnswer(btn); totalCorrect++; showFb('g3fb','ok',`"${q.ans}" — perfect choice! +3 ⭐`); }
+      else { btn.classList.add('v-bad'); document.querySelectorAll('.verb-btn').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('v-ok'); }); showFb('g3fb','bad','The best verb is: '+q.ans); }
+      show('g3next');
+    });
+  });
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ── G4: BOMB DEFUSE ── */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Render(); }
+function g4Render(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  if(g4i>=g4q.length){ finishGame(); return; }
+  totalQs++; const q=g4q[g4i]; const secs=q.t||5; setProgress(g4i,g4q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Timed True/False</div>
+      <div class="gh-name" style="color:var(--orange2)">Reported Bomb! 💣</div>
+      <div class="gh-instr">Is the reported speech statement TRUE or FALSE? Answer before the bomb explodes!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">SCORE</div><div class="hud-val" style="color:var(--orange)" id="g4sc">${g4bombScore}</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="g4str">${g4streak}</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--orange)">${g4i+1}/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji ticking" id="g4bomb">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="g4bar" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q">${q.q}</div>
+    <div class="opts2">
+      <button class="opt" style="--opt-col:var(--ok)" data-ans="true">✅ TRUE</button>
+      <button class="opt" style="--opt-col:var(--bad)" data-ans="false">❌ FALSE</button>
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  const bar=$('g4bar');
+  bar.style.transition='none'; bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition=`width ${secs*1000}ms linear`; bar.style.width='0%';
+  }));
+  bombTimer=setTimeout(()=>{
+    document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+    bar.style.transition='none'; bar.style.background='var(--bad)';
+    $('g4bomb').textContent='💥'; $('g4bomb').className='bomb-emoji';
+    document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===(q.ans?'true':'false')) b.classList.add('opt-ok'); else b.classList.add('opt-bad'); });
+    g4streak=0; if($('g4str'))$('g4str').textContent=0;
+    showFb('g4fb','bad','⏱ Time\'s up! Answer: '+(q.ans?'TRUE':'FALSE'));
+    show('g4next');
+  }, secs*1000);
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      bar.style.transition='none'; $('g4bomb').className='bomb-emoji';
+      const correct=(btn.dataset.ans==='true')===q.ans;
+      if(correct){
+        btn.classList.add('opt-ok'); g4streak++;
+        if(g4streak>bestStreak) bestStreak=g4streak;
+        const bonus=3+(g4streak>2?g4streak-2:0);
+        g4bombScore+=bonus; $('g4sc').textContent=g4bombScore; $('g4str').textContent=g4streak;
+        $('g4bomb').textContent='😅';
+        addScore(bonus); totalCorrect++;
+        showFb('g4fb','ok',`Defused! +${bonus} ⭐${g4streak>2?' 🔥 Streak!':''}`);
+        miniConfetti(btn); breaking();
+      } else {
+        btn.classList.add('opt-bad');
+        document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===(q.ans?'true':'false')) b.classList.add('opt-ok'); });
+        g4streak=0; if($('g4str'))$('g4str').textContent=0;
+        $('g4bomb').textContent='💥'; bar.style.background='var(--bad)';
+        showFb('g4fb','bad','BOOM! Answer: '+(q.ans?'TRUE':'FALSE'));
+      }
+      show('g4next');
+    });
+  });
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+
+/* ── G5: STREAK CHALLENGE ── */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  totalQs++; const q=g5q[g5i]; setProgress(g5i,g5q.length);
+  const ruleHtml=q.rule
+    .replace(/(said|told|claimed|denied|admitted|warned|promised|announced|revealed|asked)/g,m=>`<span class="hl">${m}</span>`)
+    .replace(/(that|whether|if|where|who|why|what)\b/g,m=>`<span class="hl2">${m}</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Streak Challenge</div>
+      <div class="gh-name" style="color:var(--red2)">Streak Challenge 🔥</div>
+      <div class="gh-instr">Is this sentence CORRECT or does it have a MISTAKE?</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="g5flames">🔥</div>
+        <div><div class="streak-big" id="g5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g5best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="g5yes">✅ Correct!</button>
+      <button class="tf-btn tf-no"  id="g5no">❌ Mistake!</button>
+    </div>
+    <div class="streak-tally">Question ${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--red)">Next ›</button>`;
+  $('g5yes').addEventListener('click',()=>g5Ans(true, q.correct));
+  $('g5no' ).addEventListener('click',()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(chosen,correct){
+  $('g5yes').classList.add('locked'); $('g5no').classList.add('locked');
+  const yBtn=$('g5yes'), nBtn=$('g5no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best) g5best=g5streak;
+    if(g5streak>bestStreak) bestStreak=g5streak;
+    $('g5num').textContent=g5streak;
+    $('g5flames').textContent='🔥'.repeat(Math.min(g5streak,5));
+    addScore(2); totalCorrect++;
+    showFb('g5fb','ok',`Correct! Streak: ${g5streak}${g5streak>=3?' 🔥🔥':''} +2 ⭐`);
+    miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong');
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('g5num').textContent=0; $('g5flames').textContent='🔥';
+    showFb('g5fb','bad','Not quite — streak reset!');
+  }
+  show('g5next');
+}
+
+/* ── G6: QUESTION REPORTER ── */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  totalQs++; const q=g6q[g6i]; setProgress(g6i,g6q.length);
+  const repHtml=q.reported.replace('___',`<span class="gap">___</span>`);
+  const optsHtml=rnd(q.opts).map(o=>`<button class="opt" style="--opt-col:var(--purple2)" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Grammar · Reported Questions</div>
+      <div class="gh-name" style="color:var(--purple2)">Question Reporter ❓</div>
+      <div class="gh-instr">Choose the correct word to report this question!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="direct-q-card">
+      <div class="dq-label">Direct Question</div>
+      <div class="dc-speaker">${q.speaker} asked:</div>
+      <div class="dq-q">${q.direct}</div>
+    </div>
+    <div class="arrow-row">↓ Reported Question ↓</div>
+    <div class="reported-q-card">
+      <div class="rq-label">⚡ Reported Question</div>
+      <div class="rq-text">${repHtml}</div>
+    </div>
+    <div class="opts2">${optsHtml}</div>
+    <div class="explain-box" id="g6exp"><span class="rule-tag">${q.ruleTag}</span>${q.explain}</div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--purple);color:#fff">Next ›</button>`;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      $('g6exp').classList.add('show');
+      if(btn.dataset.ans===q.ans){ btn.classList.add('opt-ok'); correctAnswer(btn); totalCorrect++; showFb('g6fb','ok','Correct reported question! +3 ⭐'); }
+      else { btn.classList.add('opt-bad'); document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('opt-ok'); }); showFb('g6fb','bad','The answer is: '+q.ans); }
+      show('g6next');
+    });
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ── G7: WORD ORDER ── */
+let g7q=[], g7i=0, g7built=[], g7locked=false;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7Render(); }
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  g7built=[]; g7locked=false; totalQs++;
+  const q=g7q[g7i]; setProgress(g7i,g7q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Grammar · Word Order</div>
+      <div class="gh-name" style="color:var(--red2)">Word Order 🔤</div>
+      <div class="gh-instr">Tap the tiles in the correct order to build the reported speech sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g7q,g7i)}</div>
+    <div class="wo-display empty" id="g7disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g7pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g7clr">Clear</button>
+      <button class="btn-check" id="g7chk" style="background:var(--red);color:#fff">Check</button>
+    </div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--red);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g7pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g7locked||el.classList.contains('used')) return;
+      el.classList.add('used'); g7built.push({w:el.dataset.w,el});
+      const d=$('g7disp'); d.classList.remove('empty'); d.textContent=g7built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g7clr').addEventListener('click',()=>{
+    g7built.forEach(x=>x.el.classList.remove('used')); g7built=[];
+    const d=$('g7disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…'; hideFb('g7fb');
+  });
+  $('g7chk').addEventListener('click',()=>{
+    if(g7locked||g7built.length===0) return; g7locked=true;
+    const built=g7built.map(x=>x.w).join(' ');
+    if(built===q.ans){ addScore(3); totalCorrect++; showFb('g7fb','ok','Perfect reported speech! +3 ⭐'); miniConfetti($('g7chk')); breaking(); }
+    else { showFb('g7fb','bad','Correct: '+q.ans); }
+    show('g7next');
+  });
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+}
+
+/* ── G8: NEWSROOM DIALOGUE ── */
+function g8Init(){ g8scenIdx=0; g8Render(); }
+function g8Render(){
+  if(g8scenIdx>=G8_DIALOGUES.length){ finishGame(); return; }
+  const sc=G8_DIALOGUES[g8scenIdx];
+  const bubblesHtml=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    const kp=ex.key_phrase;
+    const textHtml=ex.text.replace(kp,`<span class="key-phrase">${kp}</span>`);
+    return `<div class="bubble-wrap${isA?'':' b-right'}">
+      <div class="bubble-avatar ${isA?'av-a':'av-b'}">${ex.speaker}</div>
+      <div class="bubble ${isA?'bubble-a':'bubble-b'}">
+        <div class="bubble-speaker ${isA?'bubble-speaker-a':'bubble-speaker-b'}">${isA?sc.roleA:sc.roleB}</div>
+        <div class="bubble-text">${textHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const phrA=sc.phrases_a.map(p=>`<span class="pb-chip">${p}</span>`).join('');
+  const phrB=sc.phrases_b.map(p=>`<span class="pb-chip sky">${p}</span>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Speaking · Newsroom Dialogue</div>
+      <div class="gh-name" style="color:var(--amber2)">Newsroom Dialogue 🎤</div>
+      <div class="gh-instr">Study the dialogue and key phrases, then practise with a partner!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g8prev" ${g8scenIdx===0?'disabled style="opacity:.4;cursor:default"':''}>‹ Prev</button>
+      <span class="scenario-count">Scenario ${g8scenIdx+1}/${G8_DIALOGUES.length}: <strong>${sc.title}</strong></span>
+      <button class="nav-btn-small" id="g8nx">${g8scenIdx<G8_DIALOGUES.length-1?'Next ›':'Finish ✓'}</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div class="stage-label">${sc.topic}</div>
+        <div class="stage-badge">🔴 LIVE</div>
+      </div>
+      <div class="chat-thread">${bubblesHtml}</div>
+      <div class="phrase-bank">
+        <div class="pb-label">Key phrases — ${sc.roleA}</div>
+        <div class="pb-grid">${phrA}</div>
+      </div>
+      <div class="phrase-bank" style="margin-top:8px">
+        <div class="pb-label">Key phrases — ${sc.roleB}</div>
+        <div class="pb-grid">${phrB}</div>
+      </div>
+    </div>
+    <div class="fb" id="g8fb"></div>`;
+  $('g8prev').addEventListener('click',()=>{ if(g8scenIdx>0){ g8scenIdx--; g8Render(); } });
+  $('g8nx').addEventListener('click',()=>{
+    addScore(3); totalCorrect++;
+    if(g8scenIdx<G8_DIALOGUES.length-1){ g8scenIdx++; g8Render(); }
+    else { showFb('g8fb','ok','Newsroom complete! +3 ⭐'); breaking(); setTimeout(finishGame,1200); }
+  });
+}
+</script>
+</body>
+</html>
