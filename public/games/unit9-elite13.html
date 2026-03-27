@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 9 — What Happened?</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060a0f;
+  --deep:    #080d15;
+  --card:    #0d1520;
+  --card2:   #111c2a;
+  --border:  #1a2840;
+  --teal:    #2dd4bf;
+  --amber:   #f59e0b;
+  --violet:  #7c3aed;
+  --sky:     #0ea5e9;
+  --lime:    #84cc16;
+  --rose:    #f43f5e;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --white:   #e0f2fe;
+  --muted:   #1e3a52;
+  --muted2:  #4a7090;
+  --ok:      #22c55e;
+  --bad:     #ef4444;
+  --font-h:  'DM Serif Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:       14px; --r-sm:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image: radial-gradient(ellipse at 10% 20%, rgba(45,212,191,.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(124,58,237,.04) 0%, transparent 50%); }
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes glow   { 0%,100%{box-shadow:0 0 8px rgba(45,212,191,.2)} 50%{box-shadow:0 0 22px rgba(45,212,191,.5)} }
+@keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+/* HOME */
+#home { display:flex; flex-direction:column; align-items:center; padding:32px 20px 70px; min-height:100vh; }
+.home-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:10px; text-align:center; }
+.home-title { font-family:var(--font-h); font-size:clamp(2.2rem,8vw,3.4rem); text-align:center; line-height:1.08; margin-bottom:6px; }
+.home-title em { color:var(--teal); font-style:italic; }
+.home-unit { font-size:12px; color:var(--muted2); font-weight:500; margin-bottom:8px; letter-spacing:1px; text-align:center; }
+.home-divider { width:40px; height:2px; background:var(--teal); border-radius:2px; margin:12px auto 20px; }
+.total-stars { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:7px 18px; margin-bottom:30px; font-size:14px; font-weight:600; color:var(--amber); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 14px; cursor:pointer; position:relative; transition:transform .15s, border-color .15s, background .15s; }
+.gc:hover { transform:translateY(-3px); border-color:var(--gc-col); background:var(--card2); }
+.gc:active { transform:scale(.98); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:10px; right:12px; color:var(--green); font-weight:700; font-size:13px; }
+.gc-num  { font-size:9px; font-weight:700; color:var(--gc-col); letter-spacing:2px; text-transform:uppercase; opacity:.8; margin-bottom:6px; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); margin-bottom:4px; line-height:1.2; }
+.gc-desc { font-size:11px; color:var(--muted2); line-height:1.5; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--amber); font-weight:600; min-height:14px; }
+
+/* SHELL */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(6,10,15,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--teal); color:var(--teal); }
+.tb-title { font-family:var(--font-h); font-size:16px; }
+.tb-score { background:var(--teal); color:var(--bg); font-size:13px; font-weight:700; padding:5px 14px; border-radius:20px; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:24px 20px; max-width:680px; width:100%; margin:0 auto; }
+
+/* SHARED */
+.game-header { margin-bottom:20px; }
+.gh-eyebrow { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:5px; }
+.gh-name  { font-family:var(--font-h); font-size:1.7rem; line-height:1.1; margin-bottom:6px; }
+.gh-instr { font-size:13px; color:var(--muted2); line-height:1.6; }
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 18px; margin-bottom:14px; }
+.qcard-text  { font-size:1rem; font-weight:400; line-height:1.8; }
+.qcard-text .hl  { color:var(--teal); font-weight:600; }
+.qcard-text .hl2 { color:var(--amber); font-weight:600; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opts4 { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:12px 10px; cursor:pointer; text-align:center; transition:all .13s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--teal)); color:var(--opt-col,var(--teal)); background:var(--card2); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(34,197,94,.08); animation:popIn .25s; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:rgba(239,68,68,.8)!important; background:rgba(239,68,68,.07); animation:shake .35s; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.7; }
+.fb { padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; text-align:center; display:none; margin-bottom:12px; line-height:1.5; }
+.fb.ok  { display:block; background:rgba(34,197,94,.08); color:var(--ok); border:1px solid rgba(34,197,94,.2); }
+.fb.bad { display:block; background:rgba(239,68,68,.07); color:rgba(239,68,68,.9); border:1px solid rgba(239,68,68,.18); }
+.next-btn { display:none; margin-left:auto; padding:9px 22px; font-size:13px; font-weight:600; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.next-btn.visible { display:block; }
+.prog-dots { display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done { background:var(--muted); }
+.dot.current { background:var(--teal); transform:scale(1.5); }
+
+/* G1: MYSTERY FILE — clue-card → mystery name. Like a detective case file flipping open */
+.case-file {
+  background:linear-gradient(160deg,var(--card2),#060c14);
+  border:1px solid rgba(45,212,191,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px; position:relative;
+  overflow:hidden;
+}
+.case-file::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--teal),var(--violet)); }
+.case-stamp { display:inline-block; font-size:9px; font-weight:700; letter-spacing:3px; color:var(--teal); text-transform:uppercase; border:1px solid var(--teal); border-radius:4px; padding:2px 8px; margin-bottom:10px; opacity:.7; }
+.case-clue { font-size:.98rem; font-weight:400; line-height:1.8; color:var(--white); }
+.case-clue .hl { color:var(--teal); font-weight:600; }
+
+/* G2: CERTAINTY SLIDER — unique! A sentence appears, student picks the modal that matches the speaker's certainty level shown by a meter */
+.certainty-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.certainty-label { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--amber); text-transform:uppercase; margin-bottom:10px; }
+.certainty-meter {
+  width:100%; height:12px; background:var(--border); border-radius:6px; overflow:hidden; margin-bottom:12px; position:relative;
+}
+.certainty-fill { height:100%; border-radius:6px; transition:width .5s ease; }
+.certainty-level { font-size:11px; font-weight:600; color:var(--amber); margin-bottom:10px; text-align:center; }
+.certainty-sentence { font-size:1rem; font-weight:400; line-height:1.8; color:var(--white); }
+.certainty-sentence .blank { color:var(--amber); font-weight:700; }
+.amber-note { background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--amber); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G3: SHOULD HAVE COURT — facts + verdict */
+/* A person did something wrong or failed to do something. Student taps "should have" or "shouldn't have" + the correct verb */
+.court-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(244,63,94,.18); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.court-label { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--rose); text-transform:uppercase; margin-bottom:10px; }
+.court-fact { background:rgba(244,63,94,.05); border-left:3px solid var(--rose); padding:10px 14px; font-size:1rem; line-height:1.7; margin-bottom:12px; border-radius:0 6px 6px 0; }
+.court-q { font-size:1rem; line-height:1.8; color:var(--white); }
+.court-q .blank { color:var(--rose); font-weight:700; }
+.rose-note { background:rgba(244,63,94,.07); border:1px solid rgba(244,63,94,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--rose); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G4: TIMELINE DRAG — Amelia Earhart events — tap events in chronological order */
+/* The events appear as cards to rank. Student taps them in order 1-to-N. */
+.timeline-instruction { font-size:13px; color:var(--muted2); margin-bottom:14px; line-height:1.6; }
+.timeline-pool { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+.timeline-event {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:12px 14px; cursor:pointer; transition:all .14s; position:relative;
+  font-size:13px; font-weight:500; line-height:1.4; color:var(--white);
+  display:flex; align-items:center; gap:10px;
+}
+.timeline-event:hover:not(.placed):not(.locked) { border-color:var(--sky); }
+.timeline-event .ev-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; color:var(--muted2); flex-shrink:0; transition:all .2s; }
+.timeline-event.placed .ev-num { background:var(--sky); color:var(--bg); }
+.timeline-event.placed { border-color:var(--sky); opacity:.7; }
+.timeline-event.wrong .ev-num { background:var(--bad); color:#fff; }
+.timeline-event.wrong { border-color:var(--bad); animation:shake .35s; }
+.timeline-event.correct .ev-num { background:var(--ok); color:var(--bg); }
+.timeline-event.correct { border-color:var(--ok); }
+.timeline-event.locked { pointer-events:none; }
+.timeline-result { text-align:center; font-size:12px; color:var(--muted2); margin-top:6px; }
+
+/* G5: MODAL PERFECT DEDUCTION — 3-option quick-fire round with streak counter */
+.deduction-card {
+  background:var(--card2); border:1px solid rgba(14,165,233,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.deduction-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--sky); text-transform:uppercase; margin-bottom:10px; }
+.deduction-situation { font-size:13px; color:var(--muted2); font-weight:400; line-height:1.6; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.deduction-q { font-size:1rem; line-height:1.8; color:var(--white); }
+.deduction-q .blank { color:var(--sky); font-weight:700; }
+.sky-note { background:rgba(14,165,233,.07); border:1px solid rgba(14,165,233,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--sky); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+.streak-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-num-lg { font-family:var(--font-h); font-size:2rem; color:var(--amber); }
+.streak-lbl { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; }
+
+/* G6: GO-EXPRESSION FILL — context → choose the right "go" expression */
+.go-card {
+  background:var(--card2); border:1px solid rgba(132,204,22,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.go-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--lime); text-transform:uppercase; margin-bottom:10px; }
+.go-context { font-size:12px; color:var(--muted2); line-height:1.6; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.go-sentence { font-size:1rem; line-height:1.8; color:var(--white); }
+.go-sentence .blank { color:var(--lime); font-weight:700; }
+.lime-note { background:rgba(132,204,22,.07); border:1px solid rgba(132,204,22,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--lime); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G7: BOMB DEFUSE */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:1.4rem; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:1.4rem; color:var(--amber); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:54px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:5px; background:var(--border); border-radius:3px; margin-bottom:8px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; }
+.bomb-q { font-size:1rem; text-align:center; line-height:1.6; min-height:50px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* G8: WORD ORDER */
+.wo-display { background:var(--deep); border:1px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-size:15px; font-weight:500; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--teal); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:400; color:var(--muted2); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--card2); border:1px solid var(--teal); color:var(--teal); font-size:13px; font-weight:600; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .13s; user-select:none; }
+.wtile:hover:not(.used) { background:var(--teal); color:var(--bg); transform:translateY(-2px); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:12px; }
+.btn-clear { background:var(--border); color:var(--white); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:7px; cursor:pointer; }
+.btn-check { font-size:13px; font-weight:700; padding:9px 22px; border:none; border-radius:7px; cursor:pointer; transition:all .13s; }
+
+/* WIN */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:40px 24px; flex-direction:column; }
+.win-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:12px; }
+.win-title { font-family:var(--font-h); font-size:3rem; color:var(--teal); text-shadow:0 0 30px rgba(45,212,191,.3); margin-bottom:8px; }
+.win-sub   { font-size:14px; color:var(--muted2); margin-bottom:28px; max-width:380px; line-height:1.6; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--teal) 0%, var(--sky) 40%, var(--violet) 80%, var(--teal) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 28px; box-shadow:0 0 40px rgba(45,212,191,.2); }
+.win-num { font-family:var(--font-h); font-size:2.4rem; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:400px; margin-bottom:24px; }
+.win-stat { background:var(--card); border-radius:var(--r); padding:14px 8px; text-align:center; border:1px solid var(--border); }
+.ws-lbl  { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; margin-bottom:4px; }
+.ws-val  { font-family:var(--font-h); font-size:1.4rem; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; max-width:440px; width:100%; margin-bottom:24px; text-align:left; }
+.ws-title { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:10px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:2; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'—'; position:absolute; left:0; color:var(--teal); }
+.btn-play { background:var(--teal); color:var(--bg); font-size:14px; font-weight:700; padding:13px 36px; border:none; border-radius:30px; cursor:pointer; transition:all .15s; }
+.btn-play:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(45,212,191,.3); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-eyebrow">Think Level 3 · Unit 9 · Elite1_3</div>
+  <h1 class="home-title">What<br><em>Happened?</em></h1>
+  <div class="home-unit">MYSTERIES · MODAL DEDUCTION · SHOULD HAVE</div>
+  <div class="home-divider"></div>
+  <div class="total-stars">⭐ <span id="totalStars">0</span> stars earned</div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#2dd4bf" onclick="launch(0)" id="gc0">
+      <div class="gc-num">01</div>
+      <div class="gc-title">Mystery Files</div>
+      <div class="gc-desc">Read the clues — which mystery is it?</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f59e0b" onclick="launch(1)" id="gc1">
+      <div class="gc-num">02</div>
+      <div class="gc-title">Certainty Meter</div>
+      <div class="gc-desc">How sure is the speaker? Pick the right modal</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f43f5e" onclick="launch(2)" id="gc2">
+      <div class="gc-num">03</div>
+      <div class="gc-title">Should Have Court</div>
+      <div class="gc-desc">Should or shouldn't have — pass your verdict!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#0ea5e9" onclick="launch(3)" id="gc3">
+      <div class="gc-num">04</div>
+      <div class="gc-title">Earhart Timeline</div>
+      <div class="gc-desc">Tap the events in chronological order</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#0ea5e9" onclick="launch(4)" id="gc4">
+      <div class="gc-num">05</div>
+      <div class="gc-title">Past Deduction Streak</div>
+      <div class="gc-desc">must have / can't have / might have</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#84cc16" onclick="launch(5)" id="gc5">
+      <div class="gc-num">06</div>
+      <div class="gc-title">Go Expressions</div>
+      <div class="gc-desc">go missing · go down · it goes without saying…</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f59e0b" onclick="launch(6)" id="gc6">
+      <div class="gc-num">07</div>
+      <div class="gc-title">Bomb Defuse</div>
+      <div class="gc-desc">Unit facts — true or false, timed</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#2dd4bf" onclick="launch(7)" id="gc7">
+      <div class="gc-num">08</div>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Reconstruct the sentence</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <div class="win-eyebrow">Unit 9 Complete</div>
+  <div class="win-title">What Happened?</div>
+  <div class="win-sub">You've cracked the mysteries, mastered modal deduction and filed your verdicts. Case closed.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════
+   ALL DATA 100% from the book.
+   Sources:
+   · SB pp.84-91 + full answer keys
+   · WB pp.82-89 + full answer keys
+   · Wordlist PDF (all vocab + definitions)
+   · Amelia Earhart "Lost" text (SB p.88-89 — exact timeline)
+   · Stonehenge monologue (WB p.89 — exact numbers)
+   · Mysteries text (SB p.84-85 — Nampa Doll, Teotihuacan, Suicide Dog Bridge, Lolladoff Plate)
+   · Mr Huntingdon story (SB p.87 — exact should have sentences)
+   · Modal grammar rules (SB pp.86, 89 — must/can't/might + perfect forms)
+═══════════════════════════════ */
+
+// G1 — MYSTERY FILES: clue set → identify the mystery
+// All facts verified from SB pp.84-85 and WB pp.86-87
+const G1 = [
+  {
+    clues:[
+      "Found in Idaho, USA, in 1889 during well-drilling.",
+      "It came from <span class='hl'>almost 100 metres below the surface</span>.",
+      "It is a small clay figure that appears to be <span class='hl'>over 300,000 years old</span> — before humans walked the Earth."
+    ],
+    ans:"The Nampa Doll",
+    opts:["The Nampa Doll","The Lolladoff Plate","The Suicide Dog Bridge","Teotihuacan"],
+    note:"The Nampa Doll — found in Idaho, 1889. 100m underground. May be 300,000 years old."
+  },
+  {
+    clues:[
+      "An ancient city in <span class='hl'>central Mexico</span>, over 2,000 years old.",
+      "Scientists found large amounts of the mineral <span class='hl'>mica in its walls</span>.",
+      "The nearest source of mica is <span class='hl'>thousands of km away in Brazil</span>. Mica is used in energy production today."
+    ],
+    ans:"Teotihuacan",
+    opts:["The Nampa Doll","Teotihuacan","The Lolladoff Plate","The Suicide Dog Bridge"],
+    note:"Teotihuacan — Mexico. The mica mystery: why bring it from Brazil? Did they know its modern uses?"
+  },
+  {
+    clues:[
+      "A bridge in <span class='hl'>Scotland</span> famous for a sad reason.",
+      "Over the last <span class='hl'>50 years, 50 dogs</span> have jumped to their deaths from the same point.",
+      "The best explanation is that dogs can smell <span class='hl'>minks' nests</span> below and jump trying to catch them."
+    ],
+    ans:"The Suicide Dog Bridge",
+    opts:["Teotihuacan","The Nampa Doll","The Suicide Dog Bridge","The Lolladoff Plate"],
+    note:"The Overtoun Bridge, Scotland. 50 dogs, 50 years. Probably mink-related instinct."
+  },
+  {
+    clues:[
+      "A <span class='hl'>12,000-year-old plate</span> found in Nepal.",
+      "A Polish professor bought it in Northern India. It was allegedly from a secret people called the <span class='hl'>Dzopa</span>.",
+      "Marked with <span class='hl'>spiral lines, odd symbols</span> and a grey figure — it looks like a flying saucer."
+    ],
+    ans:"The Lolladoff Plate",
+    opts:["The Nampa Doll","Teotihuacan","The Suicide Dog Bridge","The Lolladoff Plate"],
+    note:"The Lolladoff Plate — 12,000 years old, Nepal. Spirals, alien-looking figure. Some say it's a fake."
+  },
+  {
+    clues:[
+      "Huge pictures <span class='hl'>dug into the desert ground</span> in southern Peru.",
+      "They depict <span class='hl'>birds, spiders, fish and sharks</span> — some nearly 200 metres wide.",
+      "Only visible from the air. <span class='hl'>Only discovered in the 1930s</span> when planes started flying over."
+    ],
+    ans:"The Nazca Lines",
+    opts:["The Nazca Lines","Teotihuacan","The Lolladoff Plate","The Nampa Doll"],
+    note:"The Nazca Lines, Peru. Discovered 1930s from the air. Sticks-and-ropes theory by Dr Joe Nickell."
+  },
+  {
+    clues:[
+      "Faces appeared on a kitchen floor in a Spanish town called <span class='hl'>Bélmez</span> in 1971.",
+      "Every time the floor was destroyed, <span class='hl'>a new face appeared</span>.",
+      "The writer thinks they were probably made by María's <span class='hl'>husband or son to make money</span>."
+    ],
+    ans:"The Bélmez Faces",
+    opts:["The Bélmez Faces","The Suicide Dog Bridge","Teotihuacan","The Nampa Doll"],
+    note:"La Casa de las Caras, Bélmez, Spain. Real or fake? Millions of tourists have visited."
+  },
+];
+
+// G2 — CERTAINTY METER: visual meter shows the speaker's certainty level → choose the correct modal
+// Tied directly to SB p.86 grammar rule + answer key
+const G2 = [
+  {
+    level:100, levelLabel:"100% — I'm completely sure it IS.",
+    fillColor:"#22c55e",
+    sentence:"That's Oliver! I recognise his voice. It ___ be him.",
+    ans:"must",
+    opts:["must","might","can't","could"],
+    note:"MUST = you are almost certain it is true. Strong positive deduction."
+  },
+  {
+    level:0, levelLabel:"0% — I'm completely sure it is NOT.",
+    fillColor:"#ef4444",
+    sentence:"She's had 20 cats since she was little. She ___ hate cats.",
+    ans:"can't",
+    opts:["must","might","can't","could"],
+    note:"CAN'T = you are almost certain it is NOT true. Strong negative deduction."
+  },
+  {
+    level:50, levelLabel:"50% — possible, but I'm not sure.",
+    sentence:"He's not answering his phone. He ___ be asleep.",
+    ans:"might",
+    fillColor:"#f59e0b",
+    opts:["must","might","can't","could"],
+    note:"MIGHT / COULD = possible but uncertain. You have a theory, not a certainty."
+  },
+  {
+    level:50, levelLabel:"50% — possible, but I'm not sure.",
+    sentence:"She hasn't eaten yet. She ___ be hungry by now.",
+    ans:"could",
+    fillColor:"#f59e0b",
+    opts:["must","might","can't","could"],
+    note:"COULD = another way of expressing possibility. Interchangeable with 'might' here."
+  },
+  {
+    level:100, levelLabel:"100% — I'm completely sure it IS.",
+    fillColor:"#22c55e",
+    sentence:"Jo's passport is full of visa stamps. She ___ travel a lot.",
+    ans:"must",
+    opts:["must","might","can't","could"],
+    note:"MUST = the evidence strongly points to one conclusion."
+  },
+  {
+    level:0, levelLabel:"0% — I'm completely sure it is NOT.",
+    fillColor:"#ef4444",
+    sentence:"Dana wasn't at school yesterday. She ___ know what the homework is.",
+    ans:"can't",
+    opts:["must","might","can't","could"],
+    note:"CAN'T = logically impossible given the information."
+  },
+  {
+    level:50, levelLabel:"50% — possible, but I'm not sure.",
+    sentence:"Bernie's been working hard all day. She ___ be tired.",
+    ans:"might",
+    fillColor:"#f59e0b",
+    opts:["must","might","can't","could"],
+    note:"MIGHT = you're speculating based on a reasonable possibility."
+  },
+  {
+    level:100, levelLabel:"100% — I'm completely sure it IS.",
+    fillColor:"#22c55e",
+    sentence:"He's seen that film ten times. He ___ really love it.",
+    ans:"must",
+    opts:["must","might","can't","could"],
+    note:"MUST = repeated behaviour strongly implies a conclusion."
+  },
+];
+
+// G3 — SHOULD HAVE COURT: fact (what happened) → verdict (should/shouldn't have + verb)
+// All scenarios verified from SB p.87 exercises + WB p.88 answer key (Ollie/Lisa + Sean/Mum)
+const G3 = [
+  {
+    fact:"Mrs Crabtree tied Mr Huntingdon to the floor and then left the house without asking why.",
+    q:"She ___ asked why before she left.",
+    ans:"should have",
+    verb:"asked",
+    full:"She should have asked why before she left.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULD HAVE = it would have been a good idea, but she didn't do it."
+  },
+  {
+    fact:"Mr Huntingdon sent Mrs Crabtree home for the whole weekend when he was tied to the floor.",
+    q:"He ___ sent Mrs Crabtree home.",
+    ans:"shouldn't have",
+    verb:"sent",
+    full:"He shouldn't have sent Mrs Crabtree home.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULDN'T HAVE = it was a bad idea. He regrets it."
+  },
+  {
+    fact:"Ollie told Jennie about her own surprise party when Lisa asked him to keep it secret.",
+    q:"Ollie ___ told Jennie. It was supposed to be a surprise.",
+    ans:"shouldn't have",
+    verb:"told",
+    full:"Ollie shouldn't have told Jennie.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULDN'T HAVE = he did something wrong. Lisa is angry."
+  },
+  {
+    fact:"Lisa says she told Ollie to keep the party secret, but he clearly didn't listen.",
+    q:"Lisa ___ told Ollie that it was a surprise.",
+    ans:"should have",
+    verb:"told",
+    full:"Lisa should have told Ollie more clearly.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULD HAVE = it would have been better if she had done this."
+  },
+  {
+    fact:"Sean found an ancient sword on a field walk and took it home with him.",
+    q:"He ___ taken it. It could be historically important.",
+    ans:"shouldn't have",
+    verb:"taken",
+    full:"He shouldn't have taken it.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULDN'T HAVE = his mum says it was wrong. It should have been left."
+  },
+  {
+    fact:"Sean found the sword but didn't contact any experts or leave it where it was.",
+    q:"He ___ left it where it was and called the museum.",
+    ans:"should have",
+    verb:"left",
+    full:"He should have left it where it was and called the museum.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULD HAVE = the right action that wasn't taken."
+  },
+  {
+    fact:"Gina went on a bike ride but left her phone without charging it.",
+    q:"She ___ charged her phone before leaving.",
+    ans:"should have",
+    verb:"charged",
+    full:"She should have charged her phone before leaving.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULD HAVE = a sensible thing she failed to do before the ride."
+  },
+  {
+    fact:"Gina went cycling without a coat and got completely soaked in the rain.",
+    q:"She ___ worn a coat.",
+    ans:"should have",
+    verb:"worn",
+    full:"She should have worn a coat.",
+    opts:["should have","shouldn't have"],
+    note:"SHOULD HAVE = an obvious precaution she neglected."
+  },
+];
+
+// G4 — EARHART TIMELINE: tap events in correct chronological order
+// Exact sequence verified from SB p.88-89 answer key (activity ordering exercise)
+const G4_EVENTS = [
+  { text:"Earhart flies solo across the Atlantic Ocean for the first time.", order:1 },
+  { text:"Earhart plans to fly around the world.", order:2 },
+  { text:"The Electra takes off from Miami on 1 June.", order:3 },
+  { text:"The Electra lands in New Guinea after 35,000 km.", order:4 },
+  { text:"The Electra disappears over the Pacific on 2 July.", order:5 },
+  { text:"An expedition goes to Nikumaroro Island in 2007 to look for evidence.", order:6 },
+  { text:"A 2012 expedition uses underwater photography to search for the plane.", order:7 },
+  { text:"Bones are found that could have been human fingers.", order:8 },
+];
+
+// G5 — PAST DEDUCTION STREAK: situation → must have / can't have / might have / could have
+// All verified from SB p.89 grammar box + WB p.83 answer key
+const G5 = [
+  {
+    situation:"Most people thought Amelia and Fred ran out of fuel. There was no sign of the aircraft.",
+    q:"They ___ run out of fuel and gone down in the Pacific.",
+    ans:"must have",
+    opts:["must have","can't have","might have","could have"],
+    note:"MUST HAVE = you are certain about a past event based on evidence."
+  },
+  {
+    situation:"Amelia and Fred disappeared over open ocean with no survivors found.",
+    q:"They ___ survived the crash.",
+    ans:"can't have",
+    opts:["must have","can't have","might have","could have"],
+    note:"CAN'T HAVE = you are certain it did NOT happen in the past."
+  },
+  {
+    situation:"One theory is that Amelia landed on a tiny island near Howland Island.",
+    q:"She ___ landed her plane on Nikumaroro Island.",
+    ans:"might have",
+    opts:["must have","can't have","might have","could have"],
+    note:"MIGHT HAVE / COULD HAVE = possible past event, but not certain."
+  },
+  {
+    situation:"The police found Cecil's passport in his office desk after he disappeared.",
+    q:"He ___ left the country — his passport was still there.",
+    ans:"can't have",
+    opts:["must have","can't have","might have","could have"],
+    note:"CAN'T HAVE = the evidence makes it logically impossible."
+  },
+  {
+    situation:"Oliver's cake has gone. The dog is always stealing food from high places.",
+    q:"The dog ___ jumped onto the table and eaten it.",
+    ans:"might have",
+    opts:["must have","can't have","might have","could have"],
+    note:"MIGHT HAVE = a possible explanation, but not proven."
+  },
+  {
+    situation:"Oliver has chocolate all around his mouth. The cake is gone.",
+    q:"It ___ been Oliver who ate the cake!",
+    ans:"must have",
+    opts:["must have","can't have","might have","could have"],
+    note:"MUST HAVE = the evidence (chocolate mouth) makes it almost certain."
+  },
+  {
+    situation:"The painting was stolen from a gallery. No one forced entry. The alarm was turned off.",
+    q:"It ___ been someone who worked at the gallery.",
+    ans:"must have",
+    opts:["must have","can't have","might have","could have"],
+    note:"MUST HAVE = the circumstances strongly point to an inside job."
+  },
+  {
+    situation:"Lucy's bike was locked outside. She was in the shop for only five minutes.",
+    q:"They ___ gone far — we were only inside five minutes.",
+    ans:"can't have",
+    opts:["must have","can't have","might have","could have"],
+    note:"CAN'T HAVE = logically impossible given the short time frame."
+  },
+];
+
+// G6 — GO EXPRESSIONS: exact sentences from SB p.89 + WB p.85 + wordlist
+const G6 = [
+  {
+    context:"Amelia Earhart wanted to achieve the greatest possible goal in aviation.",
+    sentence:"She wanted to ___ the ultimate aviation prize and fly around the world.",
+    ans:"go for",
+    opts:["go for","go missing","go one step further","go down"],
+    note:"GO FOR = to try to get or achieve something ambitious."
+  },
+  {
+    context:"Last week Amelia swam twice. This week she wants to do more.",
+    sentence:"I want to ___ and swim three times this week.",
+    ans:"go one step further",
+    opts:["go for","go one step further","go well","go down"],
+    note:"GO ONE STEP FURTHER = do something extra or more extreme than before."
+  },
+  {
+    context:"The journey to New Guinea was progressing well.",
+    sentence:"The journey was ___ when the pair landed in New Guinea.",
+    ans:"going well",
+    opts:["going well","going for","going down","going missing"],
+    note:"GO WELL = to be successful or progress as planned."
+  },
+  {
+    context:"The Electra crashed into the Pacific Ocean.",
+    sentence:"Most people thought the Electra had ___ somewhere in the Pacific.",
+    ans:"gone down",
+    opts:["gone for","gone well","gone down","gone missing"],
+    note:"GO DOWN = if an aircraft goes down, it crashes."
+  },
+  {
+    context:"No one could find Amelia or her plane after 2 July 1937.",
+    sentence:"On 2 July, Amelia and Fred ___ over the Pacific.",
+    ans:"went missing",
+    opts:["went for","went well","went down","went missing"],
+    note:"GO MISSING = to disappear, to not be findable."
+  },
+  {
+    context:"Both countries deny the spy theory. Of course they would.",
+    sentence:"___ that both countries deny this. But what else would they say?",
+    ans:"It goes without saying",
+    opts:["It goes without saying","It goes missing","It goes one step further","It goes down"],
+    note:"IT GOES WITHOUT SAYING = it is so obvious that it doesn't even need to be stated."
+  },
+  {
+    context:"The expedition has 11,000 km left to fly over the Pacific.",
+    sentence:"They had 11,000 km over the Pacific still ___.",
+    ans:"to go",
+    opts:["going for","to go","going down","going missing"],
+    note:"(TIME/DISTANCE) TO GO = the amount that still remains."
+  },
+];
+
+// G7 — BOMB DEFUSE: true/false, all facts from unit
+const G7 = [
+  { q:"The Nampa Doll was found almost 100 metres below the ground in 1889.",            ans:true,  t:5 },
+  { q:"Teotihuacan is located in central Brazil.",                                        ans:false, t:4 }, // Mexico
+  { q:"Over 50 years, 50 dogs have died at the Overtoun Bridge in Scotland.",            ans:true,  t:5 },
+  { q:"The Lolladoff Plate is 12,000 years old and was found in Nepal.",                 ans:true,  t:4 },
+  { q:"Mr Huntingdon visited the fortune-teller every Saturday morning.",                ans:false, t:4 }, // Friday mornings
+  { q:"Mrs Crabtree arrived back at the house on Monday morning.",                       ans:true,  t:5 },
+  { q:"Amelia Earhart was the first woman to fly solo across the Atlantic.",             ans:true,  t:5 },
+  { q:"Amelia and Fred disappeared while heading towards Howland Island.",               ans:true,  t:4 },
+  { q:"Stonehenge is estimated to be more than 5,000 years old.",                       ans:true,  t:4 },
+  { q:"The heaviest stone at Stonehenge weighs 5 tonnes.",                              ans:false, t:4 }, // 50 tonnes
+  { q:"You would need 600 men to move the largest stone at Stonehenge.",                ans:true,  t:5 }, // 500 to pull + 100 for logs
+  { q:"The Nazca Lines in Peru were discovered in the 1830s.",                          ans:false, t:4 }, // 1930s
+  { q:"In reported speech, 'must' changes to 'had to' when referring to obligation.",   ans:true,  t:5 }, // standard backshift
+  { q:"MUST HAVE + past participle = you are almost certain about a past event.",       ans:true,  t:4 },
+];
+
+// G8 — WORD ORDER: exact sentences from SB/WB
+const G8 = [
+  { words:["She","must","be","extraterrestrial","."],                                         ans:"She must be extraterrestrial ."                                       },
+  { words:["The","plate","can't","be","genuine","—","it's","a","fake","."],                   ans:"The plate can't be genuine — it's a fake ."                          },
+  { words:["He","should","have","asked","why","before","he","sent","her","home","."],          ans:"He should have asked why before he sent her home ."                   },
+  { words:["She","shouldn't","have","taken","it","—","it","could","be","important","."],       ans:"She shouldn't have taken it — it could be important ."               },
+  { words:["They","must","have","run","out","of","fuel","over","the","Pacific","."],           ans:"They must have run out of fuel over the Pacific ."                    },
+  { words:["It","goes","without","saying","that","both","countries","deny","this","."],        ans:"It goes without saying that both countries deny this ."               },
+  { words:["Amelia","might","have","landed","on","the","island","of","Nikumaroro","."],        ans:"Amelia might have landed on the island of Nikumaroro ."              },
+  { words:["She","can't","have","survived","the","crash","."],                                ans:"She can't have survived the crash ."                                  },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7bombScore=0;
+let g4seq=[], g4placed=0, g5streak=0, g5best=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.innerHTML=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+function confetti(){
+  const cols=['#2dd4bf','#f59e0b','#7c3aed','#0ea5e9','#84cc16','#f43f5e'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#2dd4bf','#f59e0b','#0ea5e9','#84cc16'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=3+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Mystery Files','Certainty Meter','Should Have Court','Earhart Timeline','Past Deduction Streak','Go Expressions','Bomb Defuse','Word Order'];
+  const cols=['var(--teal)','var(--amber)','var(--rose)','var(--sky)','var(--sky)','var(--lime)','var(--amber)','var(--teal)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    'Use modal deduction: "The lights are on — someone must be home. But the car is gone — they can\'t be expecting us."',
+    'Should have / shouldn\'t have: describe a bad decision you or someone made recently.',
+    'Describe the Amelia Earhart mystery using: must have, can\'t have, might have.',
+    'Discuss: "Which mystery from this unit do you find most convincing — and why?"',
+    'Use "it goes without saying" and "go one step further" in sentences about your life.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════
+   G1 — MYSTERY FILES
+   Three clues reveal progressively. After all 3, student picks the mystery.
+   Unique: clues appear one by one — builds suspense like a real case file.
+═══════════════════════════════════ */
+let g1q=[], g1i=0, g1clueIdx=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; g1clueIdx=0; totalQs++; setProgress(g1i,g1q.length);
+  drawG1(q, false);
+}
+function drawG1(q, answered){
+  const visibleClues=q.clues.slice(0,g1clueIdx+1);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary & Reading · World Mysteries</div>
+      <div class="gh-name" style="color:var(--teal)">Mystery Files</div>
+      <div class="gh-instr">Clues reveal one by one. Identify the mystery as soon as you can!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="case-file">
+      <div class="case-stamp">Case ${g1i+1} of ${g1q.length}</div>
+      ${visibleClues.map((c,idx)=>`<div class="case-clue" style="margin-bottom:${idx<visibleClues.length-1?'12':'0'}px;${idx<visibleClues.length-1?'padding-bottom:12px;border-bottom:1px solid var(--border)':''}">${c}</div>`).join('')}
+      ${!answered&&g1clueIdx<q.clues.length-1?`<button id="g1moreclue" style="margin-top:12px;background:var(--border);color:var(--white);border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;">Next clue ›</button>`:''}
+    </div>
+    ${g1clueIdx===q.clues.length-1||answered?`
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt ${answered?'locked':''}" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>`:``}
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+
+  if(!answered && g1clueIdx<q.clues.length-1){
+    $('g1moreclue').addEventListener('click',()=>{ g1clueIdx++; drawG1(q,false); });
+  }
+  if(g1clueIdx===q.clues.length-1 && !answered){
+    document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans,q.note,q)));
+  }
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans,note,q){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(3); showFb('g1fb','ok',`${ans} — ${note} +3 ⭐`); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad',`It's <strong>${ans}</strong>. ${note}`); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════
+   G2 — CERTAINTY METER
+   A visual meter animates to show how certain the speaker is.
+   Then student picks must / might / can't.
+   100% = green = must; 0% = red = can't; 50% = amber = might/could
+═══════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Modal Verbs of Deduction</div>
+      <div class="gh-name" style="color:var(--amber)">Certainty Meter</div>
+      <div class="gh-instr">The meter shows the speaker's level of certainty. Pick the right modal.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="certainty-card">
+      <div class="certainty-label">Certainty Level</div>
+      <div class="certainty-meter"><div id="cmFill" style="width:0%;background:${q.fillColor}"></div></div>
+      <div class="certainty-level" id="cmLabel">…</div>
+      <div class="certainty-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="amber-note" id="g2note"></div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  // Animate meter
+  setTimeout(()=>{
+    const fill=$('cmFill'); if(fill){ fill.style.transition=`width 0.9s ease`; fill.style.width=q.level+'%'; }
+    const lbl=$('cmLabel'); if(lbl){ lbl.textContent=q.levelLabel; }
+  },120);
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g2note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','It\'s: <strong>'+q.ans+'</strong>'); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══════════════════════════════════
+   G3 — SHOULD HAVE COURT
+   Fact shown. Student taps SHOULD HAVE or SHOULDN'T HAVE.
+   The court delivers a "verdict" with full sentence.
+═══════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · should have / shouldn't have</div>
+      <div class="gh-name" style="color:var(--rose)">Should Have Court</div>
+      <div class="gh-instr">Read the facts. Pass your verdict: should have or shouldn't have?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="court-card">
+      <div class="court-label">The facts</div>
+      <div class="court-fact">${q.fact}</div>
+      <div class="court-q">${q.q.replace('___','<span class="blank">___</span>')} <em style="color:var(--muted2);font-size:.9rem">[+ ${q.verb}]</em></div>
+      <div class="rose-note" id="g3note"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${q.opts.map(o=>`<div class="opt" style="--opt-col:var(--rose)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--rose);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g3note'); note.style.display='block'; note.textContent='💡 '+q.note+' → "'+q.full+'"';
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Verdict correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','The verdict is: <strong>'+q.ans+'</strong> '+q.verb); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════
+   G4 — EARHART TIMELINE
+   8 events shown in random order. Tap them in the correct chronological order.
+   Each tap numbers the event. Wrong = shake + stay. Score = 2pts per correct placement.
+═══════════════════════════════════ */
+function g4Init(){
+  g4seq=[]; g4placed=0;
+  totalQs+=G4_EVENTS.length; setProgress(0,G4_EVENTS.length);
+  const events=rnd([...G4_EVENTS]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Reading · Amelia Earhart — Timeline</div>
+      <div class="gh-name" style="color:var(--sky)">Earhart Timeline</div>
+      <div class="gh-instr">Tap the events in the correct chronological order — from first to last.</div>
+    </div>
+    <div class="timeline-instruction">Tap the event that happened <strong style="color:var(--sky)">first</strong>, then the second, and so on.</div>
+    <div class="timeline-pool" id="tlPool">
+      ${events.map((e,i)=>`
+        <div class="timeline-event" data-order="${e.order}" id="tl${i}">
+          <div class="ev-num" id="evnum${i}">?</div>
+          <div>${e.text}</div>
+        </div>`).join('')}
+    </div>
+    <div class="timeline-result" id="tlResult">Placed: 0 / ${G4_EVENTS.length}</div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4done" style="background:var(--sky);color:var(--bg)">Finish ›</button>`;
+
+  document.querySelectorAll('.timeline-event').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('placed')||el.classList.contains('locked'))return;
+      const expectedOrder=g4placed+1;
+      const actualOrder=parseInt(el.dataset.order);
+      const elIdx=[...document.querySelectorAll('.timeline-event')].indexOf(el);
+      if(actualOrder===expectedOrder){
+        g4placed++; g4seq.push(el);
+        el.classList.add('placed');
+        $('evnum'+elIdx).textContent=g4placed;
+        $('tlResult').textContent=`Placed: ${g4placed} / ${G4_EVENTS.length}`;
+        addScore(2); setProgress(g4placed,G4_EVENTS.length);
+        showFb('g4fb','ok',`Event ${g4placed} correct! +2 ⭐`); miniConfetti(el);
+        if(g4placed===G4_EVENTS.length){
+          document.querySelectorAll('.timeline-event').forEach(t=>t.classList.add('locked','correct'));
+          setTimeout(()=>show('g4done'),400);
+        }
+      } else {
+        el.classList.add('wrong');
+        showFb('g4fb','bad',`Not next — event ${expectedOrder} should come before this one.`);
+        setTimeout(()=>el.classList.remove('wrong'),500);
+      }
+    });
+  });
+  $('g4done').addEventListener('click',()=>finishGame());
+}
+
+/* ═══════════════════════════════════
+   G5 — PAST DEDUCTION STREAK
+   Quick-fire: situation → must have / can't have / might have / could have
+   Streak counter visible. Fast, punchy.
+═══════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Modal Perfect Deduction</div>
+      <div class="gh-name" style="color:var(--sky)">Past Deduction Streak</div>
+      <div class="gh-instr">Choose the right modal perfect to express the deduction.</div>
+    </div>
+    <div class="streak-hud">
+      <div class="streak-display"><div class="streak-num-lg">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      <div style="font-size:12px;color:var(--muted2)">${g5i+1} / ${g5q.length}</div>
+      <div style="font-size:11px;color:var(--muted2)">Best: ${g5best}</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="deduction-card">
+      <div class="deduction-eyebrow">The situation</div>
+      <div class="deduction-situation">${q.situation}</div>
+      <div class="deduction-q">${q.q.replace('___','<span class="blank">___</span>')}</div>
+      <div class="sky-note" id="g5note"></div>
+    </div>
+    <div class="opts2" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g5note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){
+      el.classList.add('opt-ok'); g5streak++; if(g5streak>g5best)g5best=g5streak; if(g5streak>bestStreak)bestStreak=g5streak;
+      addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(el);
+    } else {
+      el.classList.add('opt-bad'); document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); });
+      g5streak=0; showFb('g5fb','bad','It\'s: <strong>'+q.ans+'</strong>');
+    }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══════════════════════════════════
+   G6 — GO EXPRESSIONS
+═══════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Vocabulary · Expressions with Go</div>
+      <div class="gh-name" style="color:var(--lime)">Go Expressions</div>
+      <div class="gh-instr">Choose the correct go expression to complete the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="go-card">
+      <div class="go-eyebrow">Context</div>
+      <div class="go-context">${q.context}</div>
+      <div class="go-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="lime-note" id="g6note"></div>
+    </div>
+    <div class="opts2" id="g6opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--lime)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g6note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad','It\'s: <strong>'+q.ans+'</strong>'); }
+    show('g6next');
+  }));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ═══════════════════════════════════
+   G7 — BOMB DEFUSE
+═══════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7streak=0; g7bombScore=0; g7Setup(); }
+function g7Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Review · Timed True / False</div>
+      <div class="gh-name" style="color:var(--amber)">Bomb Defuse</div>
+      <div class="gh-instr">Unit 9 facts — true or false? Defuse before time runs out.</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" id="bQ">1/${g7q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--amber);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+  g7Render();
+}
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++;
+  $('bQ').textContent=`${g7i+1}/${g7q.length}`; hideFb('g7fb'); hide('g7next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`<div class="opt" style="--opt-col:var(--ok)" data-a="true">True</div><div class="opt" style="--opt-col:var(--bad)" data-a="false">False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g7Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill'); tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g7TimeUp(q.ans),q.t*1000);
+}
+function g7Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g7streak++; g7bombScore+=3;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('bStreak').textContent=g7streak; $('bScore').textContent=g7bombScore;
+    addScore(3); showFb('g7fb','ok','Correct! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g7streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g7fb','bad',ans?'That is TRUE.':'That is FALSE.');
+  }
+  show('g7next');
+}
+function g7TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji'; g7streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g7fb','bad','Time up — it was '+(ans?'TRUE':'FALSE')+'.'); show('g7next');
+}
+
+/* ═══════════════════════════════════
+   G8 — WORD ORDER
+═══════════════════════════════════ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · Unit 9 Sentences</div>
+      <div class="gh-name" style="color:var(--teal)">Word Order</div>
+      <div class="gh-instr">Tap the tiles in the correct order to reconstruct the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">Tap tiles to build the sentence…</div>
+    <div class="word-pool" id="g8pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--teal);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='Tap tiles to build the sentence…'; hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 ⭐'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
+}
+</script>
+</body>
+</html>
