@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 10 — Money</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060a06;
+  --deep:    #080d08;
+  --card:    #0d160d;
+  --card2:   #111e11;
+  --border:  #1a2e1a;
+  --gold:    #f0b429;
+  --gold2:   #d4960f;
+  --emerald: #10b981;
+  --teal:    #14b8a6;
+  --violet:  #8b5cf6;
+  --rose:    #f43f5e;
+  --sky:     #0ea5e9;
+  --lime:    #84cc16;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --white:   #ecfdf5;
+  --muted:   #1a3020;
+  --muted2:  #4a7060;
+  --ok:      #22c55e;
+  --bad:     #ef4444;
+  --font-h:  'DM Serif Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:14px; --r-sm:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image: radial-gradient(ellipse at 15% 20%, rgba(240,180,41,.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(16,185,129,.04) 0%, transparent 50%); }
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes coinSpin { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(360deg)} }
+@keyframes slideRight { from{transform:translateX(-8px);opacity:0} to{transform:none;opacity:1} }
+
+/* HOME */
+#home { display:flex; flex-direction:column; align-items:center; padding:32px 20px 70px; min-height:100vh; }
+.home-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:10px; text-align:center; }
+.home-title { font-family:var(--font-h); font-size:clamp(2.2rem,8vw,3.4rem); text-align:center; line-height:1.08; margin-bottom:6px; }
+.home-title em { color:var(--gold); font-style:italic; }
+.home-unit { font-size:12px; color:var(--muted2); font-weight:500; margin-bottom:8px; letter-spacing:1px; }
+.home-divider { width:40px; height:2px; background:var(--gold); border-radius:2px; margin:12px auto 20px; }
+.total-stars { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:7px 18px; margin-bottom:30px; font-size:14px; font-weight:600; color:var(--gold); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 14px; cursor:pointer; position:relative; transition:transform .15s, border-color .15s, background .15s; }
+.gc:hover { transform:translateY(-3px); border-color:var(--gc-col); background:var(--card2); }
+.gc:active { transform:scale(.98); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:10px; right:12px; color:var(--green); font-weight:700; font-size:13px; }
+.gc-num  { font-size:9px; font-weight:700; color:var(--gc-col); letter-spacing:2px; text-transform:uppercase; opacity:.8; margin-bottom:6px; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); margin-bottom:4px; line-height:1.2; }
+.gc-desc { font-size:11px; color:var(--muted2); line-height:1.5; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--gold); font-weight:600; min-height:14px; }
+
+/* SHELL */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(6,10,6,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--gold); color:var(--gold); }
+.tb-title { font-family:var(--font-h); font-size:16px; }
+.tb-score { background:var(--gold); color:var(--bg); font-size:13px; font-weight:700; padding:5px 14px; border-radius:20px; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:24px 20px; max-width:680px; width:100%; margin:0 auto; }
+
+/* SHARED */
+.game-header { margin-bottom:20px; }
+.gh-eyebrow { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:5px; }
+.gh-name  { font-family:var(--font-h); font-size:1.7rem; line-height:1.1; margin-bottom:6px; }
+.gh-instr { font-size:13px; color:var(--muted2); line-height:1.6; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:12px 10px; cursor:pointer; text-align:center; transition:all .13s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--gold)); color:var(--opt-col,var(--gold)); background:var(--card2); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(34,197,94,.08); animation:popIn .25s; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:rgba(239,68,68,.8)!important; background:rgba(239,68,68,.07); animation:shake .35s; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.7; }
+.fb { padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; text-align:center; display:none; margin-bottom:12px; line-height:1.5; }
+.fb.ok  { display:block; background:rgba(34,197,94,.08); color:var(--ok); border:1px solid rgba(34,197,94,.2); }
+.fb.bad { display:block; background:rgba(239,68,68,.07); color:rgba(239,68,68,.9); border:1px solid rgba(239,68,68,.18); }
+.next-btn { display:none; margin-left:auto; padding:9px 22px; font-size:13px; font-weight:600; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.next-btn.visible { display:block; }
+.prog-dots { display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done { background:var(--muted); }
+.dot.current { background:var(--gold); transform:scale(1.5); }
+
+/* G1: MONEY VOCAB QUIZ — sentence context → word */
+.vocab-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(240,180,41,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px; position:relative;
+  overflow:hidden;
+}
+.vocab-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--gold),var(--emerald)); }
+.vocab-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--gold); text-transform:uppercase; margin-bottom:10px; }
+.vocab-sentence { font-size:1.05rem; line-height:1.8; color:var(--white); }
+.vocab-sentence .blank { color:var(--gold); font-weight:700; }
+.gold-note { background:rgba(240,180,41,.07); border:1px solid rgba(240,180,41,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--gold2); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G2: FUTURE CONTINUOUS — complete the sentence with will be + -ing */
+.fc-card {
+  background:var(--card2); border:1px solid rgba(16,185,129,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.fc-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--emerald); text-transform:uppercase; margin-bottom:10px; }
+.fc-context { font-size:12px; color:var(--muted2); line-height:1.6; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.fc-sentence { font-size:1rem; line-height:1.8; color:var(--white); }
+.fc-sentence .blank { color:var(--emerald); font-weight:700; }
+.emerald-note { background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--emerald); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G3: FUTURE PERFECT — same but for will have + pp */
+.fp-card {
+  background:var(--card2); border:1px solid rgba(139,92,246,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.fp-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--violet); text-transform:uppercase; margin-bottom:10px; }
+.fp-context { font-size:12px; color:var(--muted2); line-height:1.6; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.fp-sentence { font-size:1rem; line-height:1.8; color:var(--white); }
+.fp-sentence .blank { color:var(--violet); font-weight:700; }
+.violet-note { background:rgba(139,92,246,.07); border:1px solid rgba(139,92,246,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--violet); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G4: SHOW ME THE MONEY! — quiz show mechanic
+   Student is a contestant on the quiz show. Each question = a real question from the book.
+   Increasing point value shown on screen. Wrong = game over for that round. */
+.quiz-show {
+  background:linear-gradient(160deg,#0a1a0a,#060a06);
+  border:2px solid var(--gold); border-radius:var(--r);
+  padding:24px 18px; margin-bottom:14px; text-align:center;
+}
+.quiz-logo { font-family:var(--font-h); font-size:1.1rem; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin-bottom:8px; font-style:italic; }
+.quiz-prize { font-family:var(--font-h); font-size:2rem; color:var(--gold); margin-bottom:6px; }
+.quiz-prize-lbl { font-size:10px; color:var(--muted2); letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+.quiz-q { font-size:1rem; line-height:1.7; color:var(--white); text-align:left; }
+.prize-ladder { display:flex; justify-content:center; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+.prize-rung { background:var(--border); border-radius:6px; padding:4px 10px; font-size:10px; font-weight:700; color:var(--muted2); transition:all .2s; }
+.prize-rung.current { background:var(--gold); color:var(--bg); }
+.prize-rung.won { background:var(--muted); color:var(--white); }
+
+/* G5: WORDS ABOUT MONEY — etymology quiz */
+/* Unique: a short etymology story → fill in the blank with the word it gave us */
+.etym-card {
+  background:linear-gradient(160deg,var(--card2),#060a06);
+  border:1px solid rgba(20,184,166,.2); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px;
+}
+.etym-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--teal); text-transform:uppercase; margin-bottom:10px; }
+.etym-story { font-size:.98rem; line-height:1.8; color:var(--white); margin-bottom:12px; }
+.etym-story .hl { color:var(--teal); font-weight:600; }
+.etym-question { font-family:var(--font-h); font-size:1.05rem; color:var(--white); }
+.teal-note { background:rgba(20,184,166,.07); border:1px solid rgba(20,184,166,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--teal); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G6: ROB'S WALLET — maths mystery / spending tracker
+   Unique mechanic: Students see Rob's spending and must work out how much should be left,
+   then identify the correct deduction using modal perfect logic */
+.wallet-card {
+  background:var(--card2); border:1px solid rgba(244,63,94,.18);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.wallet-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--rose); text-transform:uppercase; margin-bottom:10px; }
+.spending-list { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+.spend-row { display:flex; justify-content:space-between; align-items:center; background:var(--card); border-radius:7px; padding:8px 12px; font-size:13px; color:var(--white); }
+.spend-item { font-weight:400; }
+.spend-amt  { font-weight:700; color:var(--rose); }
+.spend-row.start .spend-amt { color:var(--emerald); }
+.spend-row.result { background:rgba(240,180,41,.07); border:1px solid rgba(240,180,41,.2); }
+.spend-row.result .spend-amt { color:var(--gold); }
+.wallet-q { font-size:1rem; line-height:1.8; color:var(--white); }
+.wallet-q .blank { color:var(--rose); font-weight:700; }
+.rose-note { background:rgba(244,63,94,.07); border:1px solid rgba(244,63,94,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--rose); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G7: BOMB DEFUSE */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:1.4rem; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(240,180,41,.08); border:1px solid rgba(240,180,41,.2); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:1.4rem; color:var(--gold); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:54px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:5px; background:var(--border); border-radius:3px; margin-bottom:8px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; }
+.bomb-q { font-size:1rem; text-align:center; line-height:1.6; min-height:50px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* G8: WORD ORDER */
+.wo-display { background:var(--deep); border:1px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-size:15px; font-weight:500; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--gold); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:400; color:var(--muted2); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--card2); border:1px solid var(--gold); color:var(--gold); font-size:13px; font-weight:600; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .13s; user-select:none; }
+.wtile:hover:not(.used) { background:var(--gold); color:var(--bg); transform:translateY(-2px); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:12px; }
+.btn-clear { background:var(--border); color:var(--white); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:7px; cursor:pointer; }
+.btn-check { font-size:13px; font-weight:700; padding:9px 22px; border:none; border-radius:7px; cursor:pointer; transition:all .13s; }
+
+/* WIN */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:40px 24px; flex-direction:column; }
+.win-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:12px; }
+.win-title { font-family:var(--font-h); font-size:3rem; color:var(--gold); text-shadow:0 0 30px rgba(240,180,41,.3); margin-bottom:8px; }
+.win-sub   { font-size:14px; color:var(--muted2); margin-bottom:28px; max-width:380px; line-height:1.6; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--gold) 0%, var(--emerald) 50%, var(--gold2) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 28px; box-shadow:0 0 40px rgba(240,180,41,.2); }
+.win-num { font-family:var(--font-h); font-size:2.4rem; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:400px; margin-bottom:24px; }
+.win-stat { background:var(--card); border-radius:var(--r); padding:14px 8px; text-align:center; border:1px solid var(--border); }
+.ws-lbl  { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; margin-bottom:4px; }
+.ws-val  { font-family:var(--font-h); font-size:1.4rem; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; max-width:440px; width:100%; margin-bottom:24px; text-align:left; }
+.ws-title { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--gold); text-transform:uppercase; margin-bottom:10px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:2; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'—'; position:absolute; left:0; color:var(--gold); }
+.btn-play { background:var(--gold); color:var(--bg); font-size:14px; font-weight:700; padding:13px 36px; border:none; border-radius:30px; cursor:pointer; transition:all .15s; }
+.btn-play:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(240,180,41,.3); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-eyebrow">Think Level 3 · Unit 10 · Elite1_3</div>
+  <h1 class="home-title"><em>Money</em></h1>
+  <div class="home-unit">FUTURE TENSES · MONEY VOCABULARY · CAREERS</div>
+  <div class="home-divider"></div>
+  <div class="total-stars">⭐ <span id="totalStars">0</span> stars earned</div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#f0b429" onclick="launch(0)" id="gc0">
+      <div class="gc-num">01</div>
+      <div class="gc-title">Money Vocab</div>
+      <div class="gc-desc">tip · refund · bargain · on offer… in context</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#10b981" onclick="launch(1)" id="gc1">
+      <div class="gc-num">02</div>
+      <div class="gc-title">Future Continuous</div>
+      <div class="gc-desc">will be + -ing — actions in progress later</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#8b5cf6" onclick="launch(2)" id="gc2">
+      <div class="gc-num">03</div>
+      <div class="gc-title">Future Perfect</div>
+      <div class="gc-desc">will have + past participle — completed by a future point</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f0b429" onclick="launch(3)" id="gc3">
+      <div class="gc-num">04</div>
+      <div class="gc-title">Show Me The Money!</div>
+      <div class="gc-desc">You're on the quiz show — answer to win!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#14b8a6" onclick="launch(4)" id="gc4">
+      <div class="gc-num">05</div>
+      <div class="gc-title">Words About Money</div>
+      <div class="gc-desc">Etymology of cash, bankrupt, money…</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f43f5e" onclick="launch(5)" id="gc5">
+      <div class="gc-num">06</div>
+      <div class="gc-title">Rob's Wallet</div>
+      <div class="gc-desc">Track his spending — solve the mystery!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f0b429" onclick="launch(6)" id="gc6">
+      <div class="gc-num">07</div>
+      <div class="gc-title">Bomb Defuse</div>
+      <div class="gc-desc">Unit 10 facts — true or false, timed</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#10b981" onclick="launch(7)" id="gc7">
+      <div class="gc-num">08</div>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Reconstruct the sentence</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <div class="win-eyebrow">Unit 10 Complete</div>
+  <div class="win-title">Money!</div>
+  <div class="win-sub">You've mastered money vocabulary, future tenses and the surprising history of cash. Time well spent.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════
+   ALL DATA 100% from the book:
+   · Wordlist PDF — every vocabulary item + definition
+   · SB pp.92-101 + WB pp.90-99 — full content + answer keys
+   · Bitcoin text (SB p.92) — exact facts
+   · Show Me The Money quiz (SB p.95) — exact Q&A
+   · Footballers' salaries (SB p.96) — exact figures
+   · Words About Money (WB p.94) — exact etymology
+   · Matt & Melissa dialogue (WB p.96) — exact quotes
+   · Rob's wallet mystery (WB p.98) — exact spending amounts
+   · Royal Mint monologue (SB p.100) — exact numbers
+   · Video Episode 4 — exact plot
+═══════════════════════════════════════ */
+
+// G1 — MONEY VOCAB: sentence context → word
+// All definitions verified from wordlist PDF
+const G1 = [
+  {
+    sentence:"I borrowed £20 from Kylie last week. I really must pay her back — I ___ her that money.",
+    ans:"owe", opts:["owe","reward","tip","refund"],
+    note:"OWE = to have to pay money back to someone."
+  },
+  {
+    sentence:"The waiter was brilliant — he brought us extra bread and stayed late. We left him a generous ___.",
+    ans:"tip", opts:["tip","reward","bargain","refund"],
+    note:"TIP = extra money to thank someone for a service."
+  },
+  {
+    sentence:"The tablet broke after a week. I took it back to the shop and they gave me a full ___.",
+    ans:"refund", opts:["refund","reward","tip","bargain"],
+    note:"REFUND = money paid back to you when something is faulty."
+  },
+  {
+    sentence:"Mr Brown's dog has gone missing. He's offered a £500 ___ for any information.",
+    ans:"reward", opts:["reward","tip","refund","owe"],
+    note:"REWARD = money offered for finding something or someone."
+  },
+  {
+    sentence:"I got these trainers for £20 — they're usually £60. They were a real ___.",
+    ans:"bargain", opts:["bargain","tip","reward","refund"],
+    note:"BARGAIN = something at a much lower price than usual."
+  },
+  {
+    sentence:"These shoes aren't ___ — they fell apart after two weeks and cost £80.",
+    ans:"good value for money", opts:["good value for money","on offer","worth","a bargain"],
+    note:"VALUE FOR MONEY = how much quality you get for the price you paid."
+  },
+  {
+    sentence:"The jacket is normally £120 but this week it's ___ at half price.",
+    ans:"on offer", opts:["on offer","worth","a bargain","good value for money"],
+    note:"ON OFFER = available at a lower than usual price for a limited time."
+  },
+  {
+    sentence:"This vase is 3,000 years old and extremely ___. It could be sold at auction for millions.",
+    ans:"valuable", opts:["valuable","worth","on offer","bargain"],
+    note:"VALUABLE = worth a lot of money."
+  },
+  {
+    sentence:"The laptop was £200 off. I got it for £400 instead of £600. That's £200 ___.",
+    ans:"off", opts:["off","worth","owe","tip"],
+    note:"OFF = money taken away from the original price."
+  },
+  {
+    sentence:"That old coin could be ___ quite a lot. It might be from the Roman Empire.",
+    ans:"worth", opts:["worth","valuable","on offer","a bargain"],
+    note:"WORTH = to have a particular value."
+  },
+];
+
+// G2 — FUTURE CONTINUOUS: choose the correct will be + -ing form
+// All sentences verified from SB p.93-94 exercise answer keys
+const G2 = [
+  {
+    context:"Matt is asking Melissa about her plans. She hasn't decided yet.",
+    sentence:"What do you think you ___ in ten years' time?",
+    ans:"will be doing", opts:["will be doing","will do","will have done","are doing"],
+    note:"Future continuous = will be + -ing. A future action in progress at that time."
+  },
+  {
+    context:"It is 10 am. Susan is at university. In a year's time, she will have started working.",
+    sentence:"A year from now, she ___ in her dad's company.",
+    ans:"'ll be working", opts:["'ll be working","'ll have worked","works","will work"],
+    note:"'ll be working = future continuous. She'll be in the middle of working at that point."
+  },
+  {
+    context:"The train journey starts at 10. It takes three hours.",
+    sentence:"Tomorrow at 10 o'clock, I ___ on a train.",
+    ans:"'ll be sitting", opts:["'ll be sitting","'ll have sat","'ll sit","sit"],
+    note:"FUTURE CONTINUOUS: at a specific future time, this will be in progress."
+  },
+  {
+    context:"The holidays start next week. It's Monday today.",
+    sentence:"This time next week, you ___ your holidays.",
+    ans:"'ll be enjoying", opts:["'ll be enjoying","'ll have enjoyed","enjoy","'ll enjoy"],
+    note:"'This time next week' = future continuous. You'll be in the middle of enjoying them."
+  },
+  {
+    context:"Tonight, James is playing tennis. You want to call him.",
+    sentence:"Talk to James now — tonight he ___ tennis and he won't answer.",
+    ans:"'ll be playing", opts:["'ll be playing","'ll have played","plays","will play"],
+    note:"Future continuous describes what will be in progress at that future moment."
+  },
+  {
+    context:"Tomorrow afternoon they have a plan to sit by the river.",
+    sentence:"Tomorrow afternoon, we ___ a drink next to the river.",
+    ans:"'ll be having", opts:["'ll be having","'ll have had","have","'ll have"],
+    note:"Future continuous: an activity that will be happening at a specific future time."
+  },
+  {
+    context:"Matt says his future career will not involve finance.",
+    sentence:"Matt says he ___ in finance. He wants something creative.",
+    ans:"won't be working", opts:["won't be working","won't have worked","doesn't work","won't work"],
+    note:"Negative future continuous: won't be + -ing."
+  },
+  {
+    context:"Melissa won't be travelling to work — her future job means she works from home.",
+    sentence:"She ___ to work every day.",
+    ans:"won't be travelling", opts:["won't be travelling","won't travel","won't have travelled","isn't travelling"],
+    note:"Won't be travelling = negative future continuous for a future ongoing situation."
+  },
+];
+
+// G3 — FUTURE PERFECT: choose will have + pp form
+// All sentences from SB p.97 exercise + WB p.90-91 answer keys + Rooney forum text
+const G3 = [
+  {
+    context:"Wayne Rooney is on a five-year contract earning £15.6m per year.",
+    sentence:"By the end of his contract, he ___ more than £70 million.",
+    ans:"will have earned", opts:["will have earned","will be earning","will earn","earns"],
+    note:"Future perfect: by a future point, this will be completed. £15.6m × 5 = £78m."
+  },
+  {
+    context:"Young footballers don't think about the future. By the time they leave school, it's too late.",
+    sentence:"They ___ about that before they leave school.",
+    ans:"won't have thought", opts:["won't have thought","won't think","won't be thinking","haven't thought"],
+    note:"Won't have thought = negative future perfect. The thinking won't have happened yet."
+  },
+  {
+    context:"Lucy88 hopes the FA will sort out the salary problem eventually.",
+    sentence:"Hopefully by 2050, ___ this mess out.",
+    ans:"they'll have sorted", opts:["they'll have sorted","they'll be sorting","they sort","they'll sort"],
+    note:"By 2050 = a future deadline → use future perfect."
+  },
+  {
+    context:"The government has a plan to build new houses by 2030.",
+    sentence:"The government ___ lots of new houses here by 2030.",
+    ans:"will have built", opts:["will have built","will be building","builds","will build"],
+    note:"By 2030 = a future deadline. Future perfect = completed before that point."
+  },
+  {
+    context:"Joe is still doing his homework. His dad gets home at 6. It's 5 now.",
+    sentence:"I ___ my homework by the time Dad gets home.",
+    ans:"will have finished", opts:["will have finished","will be finishing","finish","will finish"],
+    note:"'By the time he gets home' = future perfect. It will be done at that point."
+  },
+  {
+    context:"I haven't visited many countries yet. My goal is three years from now.",
+    sentence:"I hope three years from now, I ___ one or two other countries.",
+    ans:"'ll have visited", opts:["'ll have visited","'ll be visiting","visit","'ll visit"],
+    note:"Future perfect = completed before a specified future time point."
+  },
+  {
+    context:"Matt plans to build up his own advertising company in ten years.",
+    sentence:"By then, I ___ up my own advertising company.",
+    ans:"will have built", opts:["will have built","will be building","have built","will build"],
+    note:"'By then' = a future deadline → future perfect."
+  },
+  {
+    context:"The test runs from 9 to 12. What are you doing at 10?",
+    sentence:"At 10 o'clock, I ___ the test yet — I'll be halfway through.",
+    ans:"won't have finished", opts:["won't have finished","won't finish","won't be finishing","haven't finished"],
+    note:"Won't have finished = negative future perfect. It won't be complete at that point."
+  },
+];
+
+// G4 — SHOW ME THE MONEY! quiz show
+// Exact questions and answers from SB p.95 listening exercise
+const G4_QUESTIONS = [
+  {
+    q:"What do experts believe the oldest type of money was?",
+    prize:"£100",
+    ans:"Cows",
+    opts:["Bananas","Shells","Cows","Trees"],
+    fact:"As far back as 9,000 BC, people used cows as money. The first bronze coins were even shaped like cows!"
+  },
+  {
+    q:"A cash machine in Japan gives out money that is...",
+    prize:"£500",
+    ans:"Bacteria-free",
+    opts:["Calorie-free","Bacteria-free","Sugar-free","Paper-free"],
+    fact:"The machine presses banknotes at 200°C for a tenth of a second, making them bacteria-free."
+  },
+  {
+    q:"If all Monopoly play money ever produced was made into a tower, how high would it be?",
+    prize:"£1,000",
+    ans:"2,000 kilometres",
+    opts:["10 kilometres","100 kilometres","200 kilometres","2,000 kilometres"],
+    fact:"2,000 kilometres — incredible! Monopoly has been around for a very long time."
+  },
+  {
+    q:"You have 10 billion banknotes. You spend one per second. How long until you run out?",
+    prize:"£5,000",
+    ans:"317 years",
+    opts:["3 years","31 years","317 years","3,178 years"],
+    fact:"317 years! At one banknote per second, 10 billion takes over three centuries."
+  },
+  {
+    q:"An American named Mueller paid $10,000 for...",
+    prize:"£10,000",
+    ans:"A piece of chewed gum",
+    opts:["A pair of jeans","A piece of chewed gum","A bowl of chicken soup","A used toothbrush"],
+    fact:"It was chewed by his favourite baseball star, Luis Gonzalez! Not pleasant, but $10,000 worth of devotion."
+  },
+];
+
+// G5 — WORDS ABOUT MONEY: etymology quiz
+// All facts verified from WB p.94 "Words About Money" text
+const G5 = [
+  {
+    story:"The Romans made their coins in the temple of <span class='hl'>Juno Moneta</span>, the goddess of marriage and women. The English word for 'to manufacture coins' — '<span class='hl'>mint</span>' — also comes from her name.",
+    question:"Which everyday English word comes from the name Moneta?",
+    ans:"money",
+    opts:["money","mint","bank","cash"],
+    note:"Both 'money' AND 'mint' come from Juno Moneta. The word 'money' is derived directly from her name."
+  },
+  {
+    story:"The Romans were the first to stamp a face on a coin. He had just won a war and decided to put his own portrait on the coins as a reward to himself.",
+    question:"Who was the first person to have their face on a coin?",
+    ans:"Julius Caesar",
+    opts:["Julius Caesar","Augustus","Cleopatra","Mark Antony"],
+    note:"Julius Caesar — the great Roman Emperor — was the first face on a coin."
+  },
+  {
+    story:"The ancient Chinese carried their coins on strings. <span class='hl'>One hundred coins on a string</span> was called one 'cash'. The Chinese may have got the word from the Portuguese, who called their coins '<span class='hl'>caixa</span>' (pronounced 'cash-a').",
+    question:"How many Chinese coins made one 'cash'?",
+    ans:"100",
+    opts:["10","50","100","1,000"],
+    note:"100 coins on a string = one 'cash'. Our modern word 'cash' has this origin."
+  },
+  {
+    story:"The word <span class='hl'>'bankrupt'</span> comes from the Italian phrase '<span class='hl'>banca rotta</span>', meaning 'broken bench'. If a money-lender at his bench ran out of money or was unfair, the bench was broken.",
+    question:"What does 'banca rotta' literally mean?",
+    ans:"broken bench",
+    opts:["empty vault","broken bench","lost gold","failed bank"],
+    note:"'Bankrupt' = banca rotta = broken bench. The bench-breakers gave us the word!"
+  },
+  {
+    story:"The phrase <span class='hl'>'to pay through the nose'</span> comes from Viking times. The Vikings asked for money not to raid a town. If the king refused, his nose was cut off — so he literally <span class='hl'>paid through the nose</span>.",
+    question:"Where did the expression 'pay through the nose' come from?",
+    ans:"Viking times",
+    opts:["Roman times","Viking times","Medieval England","Ancient China"],
+    note:"Viking times — refuse to pay, lose your nose. So you paid through the nose."
+  },
+  {
+    story:"The oldest money ever found was made of <span class='hl'>obsidian</span>, a dark volcanic glass-like rock. These coins were found in what is now <span class='hl'>modern Turkey</span>.",
+    question:"Where were the oldest coins found?",
+    ans:"Turkey",
+    opts:["China","Egypt","Turkey","Greece"],
+    note:"Obsidian coins, found in Turkey. The oldest money known — 12,000 years old."
+  },
+  {
+    story:"Paper money was first invented in <span class='hl'>China in the 9th century AD</span>. It was called '<span class='hl'>flying money</span>' because it would blow away in the wind.",
+    question:"What was Chinese paper money called?",
+    ans:"flying money",
+    opts:["paper gold","wind money","flying money","cloud coins"],
+    note:"'Flying money' — because it literally flew away in the wind if you weren't careful!"
+  },
+];
+
+// G6 — ROB'S WALLET: interactive spending tracker
+// Exact amounts verified from WB p.98 listening exercise answer key
+// Rob starts with £20: spent £5 on CD (on offer, half price), £5 on lunch, £3 on sweets
+// Should have £7 but only has £2 → Matt borrowed £5 that morning
+const G6 = [
+  {
+    spending:[
+      { item:"Started with (mum gave him)", amt:"+£20", start:true },
+      { item:"CD — on offer, half price (usually £10)", amt:"-£5" },
+      { item:"Lunch", amt:"-£5" },
+      { item:"Sweets", amt:"-£3" },
+      { item:"Rob has in his wallet now", amt:"£2", result:true },
+    ],
+    q:"How much ___ Rob have? (Tip: 20 - 5 - 5 - 3 = ?)",
+    ans:"should",
+    fullAns:"£7 — so £5 is missing.",
+    opts:["should","must","might","can't"],
+    note:"SHOULD HAVE = what was expected. 20 - 5 - 5 - 3 = 7. He SHOULD have £7.",
+    explain:"He should have £7, but only has £2. Someone took £5 — or he dropped it. Mystery!"
+  },
+  {
+    spending:[
+      { item:"Rob starts with", amt:"£20", start:true },
+      { item:"Total spent (CD + lunch + sweets)", amt:"-£13" },
+      { item:"Should have", amt:"£7", result:true },
+      { item:"Actually has", amt:"£2", result:true },
+    ],
+    q:"He only has £2, not £7. He ___ dropped a £5 note when paying for the sweets.",
+    ans:"must have",
+    fullAns:"must have dropped it",
+    opts:["must have","can't have","should have","might"],
+    note:"MUST HAVE = strong deduction about a past event based on the evidence.",
+    explain:"'I think you must have dropped a £5 note when you were paying for your sweets.'"
+  },
+  {
+    spending:[
+      { item:"£20 in the wallet all day", amt:"£20", start:true },
+      { item:"Rob was in a shop for five minutes", amt:"—" },
+      { item:"His wallet was in his pocket the whole time", amt:"—", result:true },
+    ],
+    q:"Someone ___ got into his wallet. It was in his pocket the whole time.",
+    ans:"can't have",
+    fullAns:"can't have got in",
+    opts:["can't have","must have","should have","might have"],
+    note:"CAN'T HAVE = logically impossible given the evidence.",
+    explain:"'Could anyone have got into your wallet?' 'No, it's been in my pocket the whole time.'"
+  },
+  {
+    spending:[
+      { item:"Matt borrowed £5 from Rob in the morning", amt:"-£5", start:true },
+      { item:"Rob forgot Matt had borrowed the money", amt:"—" },
+      { item:"Matt pays back £5 at the cinema", amt:"+£5", result:true },
+    ],
+    q:"Mystery solved! Matt ___ the £5. He returns it at the cinema.",
+    ans:"had borrowed",
+    fullAns:"had borrowed the £5",
+    opts:["had borrowed","stole","was given","owed"],
+    note:"Past perfect: the borrowing happened BEFORE the main events of the story.",
+    explain:"'Rob, before I forget — here's that £5 you lent me this morning.' Mystery solved!"
+  },
+];
+
+// G7 — BOMB DEFUSE: true/false
+const G7 = [
+  { q:"James Howells mined Bitcoins that were originally worth about £7,500.",                  ans:true,  t:5 },
+  { q:"Howells stored his Bitcoins in an online bank account.",                                 ans:false, t:4 }, // on a hard disk
+  { q:"The recycling centre told Howells he would have to search an area the size of a football field.", ans:true, t:5 },
+  { q:"The oldest form of money was shells.",                                                    ans:false, t:4 }, // cows
+  { q:"A Japanese cash machine gives out bacteria-free banknotes.",                             ans:true,  t:5 },
+  { q:"All Monopoly play money ever made, stacked in a tower, would reach 2,000 km.",          ans:true,  t:4 },
+  { q:"Mueller paid $10,000 for chewed gum by baseball star Luis Gonzalez.",                   ans:true,  t:5 },
+  { q:"Wayne Rooney earned £15.6 million a year at Manchester United.",                         ans:true,  t:4 },
+  { q:"The average Premiership footballer earns 36 times more than someone in management.",    ans:false, t:5 }, // 14 times more than management; 36 times more than PUBLIC SERVICE
+  { q:"The word 'bankrupt' comes from the Italian 'banca rotta', meaning broken bench.",       ans:true,  t:4 },
+  { q:"Julius Caesar was the first person to put his face on a coin.",                         ans:true,  t:5 },
+  { q:"The Royal Mint is located in Llantrisant, South Wales.",                                ans:true,  t:4 },
+  { q:"The Royal Mint produces 90 million coins per week.",                                    ans:true,  t:5 },
+  { q:"The Royal Mint makes coins for about 60 other countries.",                              ans:true,  t:4 },
+  { q:"Future continuous uses will have + past participle.",                                   ans:false, t:5 }, // that's future perfect; FC = will be + -ing
+];
+
+// G8 — WORD ORDER: exact sentences from SB/WB
+const G8 = [
+  { words:["By","the","end","of","his","contract,","he'll","have","earned","£70","million","."], ans:"By the end of his contract, he'll have earned £70 million ." },
+  { words:["Tomorrow","at","10,","I'll","be","sitting","on","a","train","."],                    ans:"Tomorrow at 10, I'll be sitting on a train ."                 },
+  { words:["Hopefully","by","2050,","they'll","have","sorted","this","mess","out","."],          ans:"Hopefully by 2050, they'll have sorted this mess out ."        },
+  { words:["The","word","'money'","comes","from","the","name","'Moneta'","."],                   ans:"The word 'money' comes from the name 'Moneta' ."              },
+  { words:["Never","mind","—","it's","on","me","this","time","."],                              ans:"Never mind — it's on me this time ."                          },
+  { words:["He","got","the","Bitcoins","by","solving","complicated","maths","problems","."],     ans:"He got the Bitcoins by solving complicated maths problems ."   },
+  { words:["In","ten","years'","time,","I'll","be","working","in","advertising","."],            ans:"In ten years' time, I'll be working in advertising ."         },
+  { words:["The","Royal","Mint","produces","five","billion","coins","a","year","."],             ans:"The Royal Mint produces five billion coins a year ."          },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7bombScore=0;
+let g4idx=0, g4score=0;
+
+/* HELPERS */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.innerHTML=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+function confetti(){
+  const cols=['#f0b429','#d4960f','#10b981','#8b5cf6','#14b8a6','#f43f5e'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#f0b429','#10b981','#8b5cf6','#14b8a6'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=3+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Money Vocab','Future Continuous','Future Perfect','Show Me The Money!','Words About Money','Rob\'s Wallet','Bomb Defuse','Word Order'];
+  const cols=['var(--gold)','var(--emerald)','var(--violet)','var(--gold)','var(--teal)','var(--rose)','var(--gold)','var(--emerald)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    'Use future continuous: "This time next year, I\'ll be…" — describe 3 things.',
+    'Use future perfect: "By the time I\'m 25, I will have…" — make 3 predictions.',
+    '"It\'s on me!" — use the conversation phrases in a café dialogue with a partner.',
+    'Discuss: Should footballers earn more than nurses and teachers? Use the data from the unit.',
+    'Rob\'s wallet — retell the story using must have, can\'t have, and should have.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════
+   G1 — MONEY VOCAB
+═══════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Money Words</div>
+      <div class="gh-name" style="color:var(--gold)">Money Vocab</div>
+      <div class="gh-instr">Read the sentence — which money word completes it?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="vocab-card">
+      <div class="vocab-eyebrow">Complete the sentence</div>
+      <div class="vocab-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="gold-note" id="g1note"></div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g1note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g1next');
+  }));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ═══════════════════════════════════
+   G2 — FUTURE CONTINUOUS
+═══════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Future Continuous</div>
+      <div class="gh-name" style="color:var(--emerald)">Future Continuous</div>
+      <div class="gh-instr">An action in progress at a future time — choose the correct form.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="fc-card">
+      <div class="fc-eyebrow">Context</div>
+      <div class="fc-context">${q.context}</div>
+      <div class="fc-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="emerald-note" id="g2note"></div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--emerald)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--emerald);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g2note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══════════════════════════════════
+   G3 — FUTURE PERFECT
+═══════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Future Perfect</div>
+      <div class="gh-name" style="color:var(--violet)">Future Perfect</div>
+      <div class="gh-instr">Completed before a future point — will have + past participle.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="fp-card">
+      <div class="fp-eyebrow">Context</div>
+      <div class="fp-context">${q.context}</div>
+      <div class="fp-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="violet-note" id="g3note"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--violet)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g3note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══════════════════════════════════
+   G4 — SHOW ME THE MONEY!
+   Quiz show mechanic: 5 questions with increasing prize values.
+   A prize ladder shows current position.
+   All 5 questions in sequence — not randomised (to preserve the show feel).
+═══════════════════════════════════ */
+function g4Init(){
+  g4idx=0; g4score=0;
+  totalQs+=G4_QUESTIONS.length;
+  setProgress(0,G4_QUESTIONS.length);
+  g4Render();
+}
+function g4Render(){
+  if(g4idx>=G4_QUESTIONS.length){ finishGame(); return; }
+  const q=G4_QUESTIONS[g4idx];
+  const opts=rnd([...q.opts]);
+  const ladder=G4_QUESTIONS.map((qq,i)=>`<div class="prize-rung ${i<g4idx?'won':i===g4idx?'current':''}">${qq.prize}</div>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Reading · Quiz Show</div>
+      <div class="gh-name" style="color:var(--gold)">Show Me The Money!</div>
+      <div class="gh-instr">You're a contestant! Answer correctly to win more money.</div>
+    </div>
+    <div class="quiz-show">
+      <div class="quiz-logo">Show Me The Money!</div>
+      <div class="prize-ladder">${ladder}</div>
+      <div class="quiz-prize">${q.prize}</div>
+      <div class="quiz-prize-lbl">This question</div>
+      <div class="quiz-q">${q.q}</div>
+    </div>
+    <div class="opts2" id="g4opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--gold);color:var(--bg)">Next question ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+    if(el.dataset.a===q.ans){
+      el.classList.add('opt-ok'); addScore(3);
+      showFb('g4fb','ok',`Correct — ${q.fact} +3 ⭐`); miniConfetti(el);
+    } else {
+      el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); });
+      showFb('g4fb','bad',`The answer is <strong>${q.ans}</strong>. ${q.fact}`);
+    }
+    show('g4next');
+  }));
+  $('g4next').addEventListener('click',()=>{ g4idx++; setProgress(g4idx,G4_QUESTIONS.length); g4Render(); });
+}
+
+/* ═══════════════════════════════════
+   G5 — WORDS ABOUT MONEY
+═══════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Reading · Etymology of Money Words</div>
+      <div class="gh-name" style="color:var(--teal)">Words About Money</div>
+      <div class="gh-instr">Read the origin story — answer the question about it.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="etym-card">
+      <div class="etym-eyebrow">Etymology — ${g5i+1} of ${g5q.length}</div>
+      <div class="etym-story">${q.story}</div>
+      <div class="etym-question">${q.question}</div>
+      <div class="teal-note" id="g5note"></div>
+    </div>
+    <div class="opts2" id="g5opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g5opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g5opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g5note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g5opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g5fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══════════════════════════════════
+   G6 — ROB'S WALLET
+   A visual spending tracker is shown. Student completes deduction sentences.
+═══════════════════════════════════ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=[...G6]; g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd([...q.opts]);
+  const rows=q.spending.map(r=>`
+    <div class="spend-row${r.start?' start':''}${r.result?' result':''}">
+      <span class="spend-item">${r.item}</span>
+      <span class="spend-amt">${r.amt}</span>
+    </div>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Reading · Rob's Missing Money</div>
+      <div class="gh-name" style="color:var(--rose)">Rob's Wallet</div>
+      <div class="gh-instr">Track Rob's spending — use modal deduction to complete the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wallet-card">
+      <div class="wallet-eyebrow">The evidence — ${g6i+1} of ${g6q.length}</div>
+      <div class="spending-list">${rows}</div>
+      <div class="wallet-q">${q.q.replace('___','<span class="blank">___</span>')}</div>
+      <div class="rose-note" id="g6note"></div>
+    </div>
+    <div class="opts2" id="g6opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--rose)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--rose);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g6note'); note.style.display='block'; note.innerHTML='💡 '+q.note+'<br><em style="font-size:11px;opacity:.8">'+q.explain+'</em>';
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g6next');
+  }));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ═══════════════════════════════════
+   G7 — BOMB DEFUSE
+═══════════════════════════════════ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7streak=0; g7bombScore=0; g7Setup(); }
+function g7Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Review · Timed True / False</div>
+      <div class="gh-name" style="color:var(--gold)">Bomb Defuse</div>
+      <div class="gh-instr">Unit 10 facts — true or false? Defuse before time runs out.</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" id="bQ">1/${g7q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--gold);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+  g7Render();
+}
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++;
+  $('bQ').textContent=`${g7i+1}/${g7q.length}`; hideFb('g7fb'); hide('g7next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`<div class="opt" style="--opt-col:var(--ok)" data-a="true">True</div><div class="opt" style="--opt-col:var(--bad)" data-a="false">False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g7Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill'); tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g7TimeUp(q.ans),q.t*1000);
+}
+function g7Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g7streak++; g7bombScore+=3;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('bStreak').textContent=g7streak; $('bScore').textContent=g7bombScore;
+    addScore(3); showFb('g7fb','ok','Correct! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g7streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g7fb','bad',ans?'That is TRUE.':'That is FALSE.');
+  }
+  show('g7next');
+}
+function g7TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji'; g7streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g7fb','bad','Time up — it was '+(ans?'TRUE':'FALSE')+'.'); show('g7next');
+}
+
+/* ═══════════════════════════════════
+   G8 — WORD ORDER
+═══════════════════════════════════ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · Unit 10 Sentences</div>
+      <div class="gh-name" style="color:var(--emerald)">Word Order</div>
+      <div class="gh-instr">Tap tiles in the correct order to reconstruct the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">Tap tiles to build the sentence…</div>
+    <div class="word-pool" id="g8pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--emerald);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--emerald);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='Tap tiles to build the sentence…'; hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 ⭐'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
+}
+</script>
+</body>
+</html>
