@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 12 — Playing by the Rules!</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #03050e;
+  --deep:    #060912;
+  --card:    #0a0f1e;
+  --card2:   #0e1528;
+  --border:  #182040;
+  --gold:    #ffd700;
+  --gold2:   #ffe566;
+  --blue:    #1a6fff;
+  --blue2:   #6aa8ff;
+  --green:   #00e676;
+  --red:     #ff3030;
+  --red2:    #ff7070;
+  --purple:  #b040ff;
+  --purple2: #d890ff;
+  --teal:    #00d4aa;
+  --teal2:   #60eedd;
+  --orange:  #ff8020;
+  --orange2: #ffb070;
+  --white:   #f0f4ff;
+  --muted:   #1a2448;
+  --ok:      #00e676;
+  --bad:     #ff3030;
+  --font-h:  'Syne', sans-serif;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'JetBrains Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(255,215,0,.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(26,111,255,.07) 0%, transparent 55%);
+}
+
+/* ══ GOAL burst ══ */
+.goal-burst {
+  position:fixed; inset:0; z-index:9998; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0;
+}
+.goal-burst.active { animation:goalPop .7s ease forwards; }
+@keyframes goalPop {
+  0%   { opacity:0; transform:scale(.2) rotate(-10deg); }
+  30%  { opacity:1; transform:scale(1.2) rotate(3deg); }
+  60%  { opacity:1; transform:scale(1) rotate(0deg); }
+  100% { opacity:0; transform:scale(1.08); }
+}
+.goal-text {
+  font-family:var(--font-h); font-size:4.5rem; font-weight:800;
+  color:var(--gold); letter-spacing:8px; text-transform:uppercase;
+  text-shadow:0 0 50px rgba(255,215,0,.9), 0 0 100px rgba(255,215,0,.4);
+}
+
+/* ══ STADIUM lights strip ══ */
+.stadium-strip {
+  display:flex; justify-content:center; gap:6px; margin-bottom:14px; flex-wrap:wrap; padding:0 8px;
+}
+.stadium-light {
+  width:8px; height:8px; border-radius:50%; background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+  animation:lightPulse 2s ease-in-out infinite;
+}
+.stadium-light:nth-child(2n)  { animation-delay:.3s; background:var(--blue2); box-shadow:0 0 8px var(--blue2); }
+.stadium-light:nth-child(3n)  { animation-delay:.6s; background:var(--white); box-shadow:0 0 8px var(--white); }
+.stadium-light:nth-child(4n)  { animation-delay:.9s; }
+@keyframes lightPulse { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 70px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px; background:var(--card);
+  border:1px solid var(--border); color:var(--gold2);
+  font-family:var(--font-m); font-size:10px; letter-spacing:2px;
+  padding:5px 16px; border-radius:4px; margin-bottom:12px; text-transform:uppercase;
+}
+.kickoff-badge {
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  color:var(--bg); font-family:var(--font-h); font-size:12px; font-weight:800;
+  padding:4px 18px; border-radius:4px; letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:12px; box-shadow:0 0 20px rgba(255,215,0,.4);
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,9vw,3.8rem); font-weight:800;
+  text-align:center; line-height:1.0; margin-bottom:6px; letter-spacing:-1px;
+  text-shadow:0 0 40px rgba(255,215,0,.3);
+}
+.home-title span { color:var(--gold); display:block; }
+.home-sub { font-family:var(--font-m); font-size:10px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:6px 18px; margin-bottom:28px;
+  font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--gold);
+}
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 12px; cursor:pointer; text-align:center; position:relative; transition:transform .15s, border-color .15s, box-shadow .15s; }
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 22%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--ok); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--ok); font-weight:900; font-size:13px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.7rem; margin-bottom:6px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:5px; color:var(--gold2); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 16px; background:rgba(3,5,14,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--gold); color:var(--gold2); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:680px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.55rem; font-weight:800; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 18px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.qcard-text  { font-family:var(--font-h); font-size:1.1rem; font-weight:700; line-height:1.75; color:var(--white); }
+.qcard-text .hl  { color:var(--gold2); }
+.qcard-text .hl2 { color:var(--teal2); }
+.qcard-text .gap { border-bottom:2px solid var(--gold); color:var(--gold2); padding:0 8px; min-width:70px; display:inline-block; font-family:var(--font-m); font-size:13px; }
+
+/* OPTIONS */
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt {
+  background:var(--card); border:2px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-h); font-size:15px; font-weight:700;
+  color:var(--white); padding:15px 10px; cursor:pointer; text-align:center;
+  transition:all .14s; line-height:1.4;
+}
+.opt:hover:not(.locked) {
+  border-color:var(--opt-col,var(--gold2)); color:var(--opt-col,var(--gold2));
+  background:color-mix(in srgb, var(--opt-col,var(--gold2)) 10%, transparent);
+  transform:translateY(-2px);
+}
+.opt.opt-ok  { border-color:var(--ok)!important; color:#fff!important; background:rgba(0,230,118,.18)!important; animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:#ffb0b0!important; background:rgba(255,48,48,.12)!important; animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.45; }
+
+/* EXPLAIN BOX */
+.explain-box {
+  background:rgba(255,215,0,.05); border:1px solid rgba(255,215,0,.18);
+  border-left:3px solid var(--gold); border-radius:var(--r-sm);
+  padding:12px 14px; font-size:13px; line-height:1.6; color:var(--white);
+  margin-bottom:10px; display:none;
+}
+.explain-box .rule-tag { font-family:var(--font-m); font-size:9px; color:var(--gold2); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:6px; }
+.explain-box.show { display:block; animation:slideIn .25s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-h); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,230,118,.1); color:#86efac; border:1px solid rgba(0,230,118,.25); }
+.fb.bad { display:block; background:rgba(255,48,48,.08); color:#ffb0b0; border:1px solid rgba(255,48,48,.2); }
+
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:13px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--gold); transform:scale(1.4); }
+
+/* ══ G2: RULES REFEREE ══ */
+.ref-situation {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 16px; margin-bottom:14px;
+}
+.ref-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.ref-text  { font-family:var(--font-h); font-size:1.1rem; font-weight:700; color:var(--white); line-height:1.65; }
+.ref-text .hl { color:var(--gold2); }
+.verdict-btns { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.verdict-btn {
+  border:2px solid; border-radius:var(--r); font-family:var(--font-h); font-size:17px; font-weight:800;
+  padding:22px 10px; cursor:pointer; transition:all .15s; text-align:center;
+}
+.v-allowed { background:rgba(0,230,118,.1); color:#86efac; border-color:rgba(0,230,118,.35); }
+.v-not     { background:rgba(255,48,48,.08); color:#ffb0b0; border-color:rgba(255,48,48,.28); }
+.verdict-btn:hover:not(.locked) { transform:scale(1.04); }
+.verdict-btn.vd-ok    { background:var(--ok)!important; color:#fff!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.verdict-btn.vd-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.verdict-btn.locked   { pointer-events:none; }
+.ref-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+.ref-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.25);
+  border-radius:20px; padding:4px 12px; margin-bottom:10px;
+  font-family:var(--font-m); font-size:10px; color:var(--gold2); font-weight:700; letter-spacing:1px;
+}
+
+/* ══ G3: PERMISSION TRANSFORMER ══ */
+.perm-wrap { margin-bottom:14px; }
+.perm-orig {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:10px;
+}
+.po-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.po-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:var(--white); line-height:1.6; }
+.arrow-row { text-align:center; font-size:1.3rem; color:var(--gold); margin-bottom:8px; }
+.perm-target {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 16px; margin-bottom:12px;
+}
+.pt-label { font-family:var(--font-m); font-size:9px; color:var(--gold); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pt-text  { font-family:var(--font-h); font-size:1.05rem; font-weight:700; color:var(--white); line-height:1.6; }
+.pt-text .gap { border-bottom:2px solid var(--gold); color:var(--gold2); padding:0 8px; font-family:var(--font-m); font-size:13px; min-width:130px; display:inline-block; }
+
+/* ══ G4: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,128,32,.08); border:1px solid rgba(255,128,32,.22); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--orange); }
+.bomb-visual { text-align:center; margin-bottom:10px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1.05rem; font-weight:700; text-align:center; line-height:1.55; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; color:var(--white); }
+
+/* ══ G5: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big    { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--gold); }
+.streak-lbl    { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag      { font-family:var(--font-m); font-size:10px; color:var(--gold2); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:20px 16px; text-align:center; margin-bottom:12px; }
+.rule-text { font-family:var(--font-h); font-size:1.05rem; font-weight:700; line-height:1.7; color:var(--white); }
+.rule-text .hl  { color:var(--gold2); }
+.rule-text .hl2 { color:var(--teal2); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.tf-btn { border:2px solid; border-radius:var(--r); font-family:var(--font-h); font-size:15px; font-weight:700; padding:16px; cursor:pointer; transition:all .15s; text-align:center; color:var(--white); }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,230,118,.1); color:#86efac; border-color:rgba(0,230,118,.35); }
+.tf-no  { background:rgba(255,48,48,.08); color:#ffb0b0; border-color:rgba(255,48,48,.28); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:#fff!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked   { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G6: CHAMPION'S CHALLENGE (collocation snap) ══ */
+.sport-display {
+  background:linear-gradient(160deg,var(--card2),#03050e);
+  border:2px solid var(--border); border-radius:var(--r);
+  padding:28px 16px; text-align:center; margin-bottom:18px;
+}
+.sport-word { font-family:var(--font-h); font-size:2rem; font-weight:800; color:var(--white); margin-bottom:6px; }
+.sport-example { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+.colloc-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.colloc-btn {
+  border:2px solid; border-radius:var(--r); font-family:var(--font-h); font-size:20px; font-weight:800;
+  padding:22px 8px; cursor:pointer; text-align:center; transition:all .15s;
+}
+.cb-play { background:rgba(26,111,255,.1); color:var(--blue2); border-color:rgba(26,111,255,.3); }
+.cb-go   { background:rgba(0,212,170,.08); color:var(--teal2); border-color:rgba(0,212,170,.25); }
+.cb-do   { background:rgba(176,64,255,.08); color:var(--purple2); border-color:rgba(176,64,255,.25); }
+.colloc-btn:hover:not(.locked) { transform:scale(1.06); }
+.colloc-btn.col-ok   { background:var(--ok)!important; color:#fff!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.colloc-btn.col-bad  { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.colloc-btn.locked   { pointer-events:none; opacity:.4; }
+.champ-counter { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:10px; }
+
+/* ══ G7: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:2px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:12px; font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--gold); border-style:solid; }
+.wo-display.empty { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--gold); color:var(--bg); font-family:var(--font-h); font-size:14px; font-weight:700; padding:8px 14px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--gold2); }
+.wtile.used { opacity:.18; pointer-events:none; }
+
+/* ══ G8: DIALOGUE ══ */
+.dialogue-stage { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:14px; }
+.stage-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.stage-label  { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.stage-badge  { background:var(--gold); color:var(--bg); font-family:var(--font-m); font-size:9px; font-weight:700; padding:3px 10px; border-radius:10px; letter-spacing:1px; }
+.chat-thread  { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.bubble-wrap  { display:flex; gap:8px; align-items:flex-start; }
+.bubble-wrap.b-right { flex-direction:row-reverse; }
+.bubble-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:var(--font-h); font-size:12px; font-weight:700; color:var(--bg); }
+.av-a { background:linear-gradient(135deg,var(--gold),var(--orange)); }
+.av-b { background:linear-gradient(135deg,var(--blue),var(--blue2)); color:#fff; }
+.bubble { max-width:80%; padding:10px 14px; border-radius:var(--r); font-size:13px; line-height:1.6; font-weight:600; color:var(--white); }
+.bubble-a { background:rgba(255,215,0,.07); border:1px solid rgba(255,215,0,.15); border-radius:4px 14px 14px 14px; }
+.bubble-b { background:rgba(26,111,255,.07); border:1px solid rgba(26,111,255,.14); border-radius:14px 4px 14px 14px; }
+.bubble-speaker { font-family:var(--font-m); font-size:9px; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.bubble-speaker-a { color:var(--gold2); }
+.bubble-speaker-b { color:var(--blue2); }
+.bubble-text .key-phrase { color:var(--gold2); font-weight:800; }
+.phrase-bank { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px; }
+.pb-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.pb-grid  { display:flex; flex-wrap:wrap; gap:6px; }
+.pb-chip  { background:rgba(255,215,0,.08); border:1px solid rgba(255,215,0,.2); color:var(--gold2); font-family:var(--font-b); font-size:12px; font-weight:700; padding:5px 12px; border-radius:20px; }
+.pb-chip.blue { background:rgba(26,111,255,.08); border-color:rgba(26,111,255,.2); color:var(--blue2); }
+.scenario-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.nav-btn-small { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:all .15s; }
+.nav-btn-small:hover { border-color:var(--gold); color:var(--gold2); }
+.scenario-count { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+
+/* BTN ROW */
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-h); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:13px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* WIN — CHAMPIONS EDITION */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.trophy-spin { font-size:80px; display:block; animation:trophySpin 1s ease; margin-bottom:14px; }
+@keyframes trophySpin { 0%{transform:scale(0) rotate(-360deg);opacity:0} 60%{transform:scale(1.2) rotate(10deg)} 100%{transform:scale(1) rotate(0deg);opacity:1} }
+.win-title { font-family:var(--font-h); font-size:2.8rem; font-weight:800; color:var(--gold); text-shadow:0 0 40px rgba(255,215,0,.5); margin-bottom:6px; letter-spacing:-1px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:130px; height:130px; border-radius:50%; background:conic-gradient(var(--gold) 0%, var(--orange) 25%, var(--blue) 50%, var(--ok) 75%, var(--gold) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 50px rgba(255,215,0,.4), 0 0 100px rgba(255,215,0,.15); animation:ringGlow 2s ease-in-out infinite; }
+@keyframes ringGlow { 0%,100%{box-shadow:0 0 50px rgba(255,215,0,.4)} 50%{box-shadow:0 0 80px rgba(255,215,0,.7)} }
+.win-num { font-family:var(--font-h); font-size:36px; font-weight:800; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.55); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:#86efac; }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:420px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--gold2); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--gold); font-weight:900; }
+.btn-play { background:linear-gradient(135deg,var(--gold),var(--orange)); color:var(--bg); font-family:var(--font-h); font-size:15px; font-weight:800; padding:14px 40px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 24px rgba(255,215,0,.4); transition:all .15s; letter-spacing:1px; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(255,215,0,.5); }
+
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<div class="goal-burst" id="goalBurst"><div class="goal-text">⚽ GOAL!</div></div>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Level 2 · Unit 12 · Elite2_2</div>
+  <div class="kickoff-badge">🏆 FINAL UNIT · CHAMPIONSHIP</div>
+  <div class="stadium-strip">
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+    <div class="stadium-light"></div><div class="stadium-light"></div><div class="stadium-light"></div>
+  </div>
+  <h1 class="home-title">Playing by<br><span>the Rules!</span></h1>
+  <p class="home-sub">// 8 games · permission · obligation · sports vocab · modals · dialogue //</p>
+  <div class="total-stars">⭐ Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#ffe566" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span><span class="gc-icon">🏟️</span>
+      <div class="gc-title">Sports Spotter</div>
+      <div class="gc-desc">Read the clue — name the sports term!</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#6aa8ff" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span><span class="gc-icon">⚖️</span>
+      <div class="gc-title">Rules Referee</div>
+      <div class="gc-desc">ALLOWED or NOT ALLOWED? You decide!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#d890ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span><span class="gc-icon">🔄</span>
+      <div class="gc-title">Permission Transformer</div>
+      <div class="gc-desc">allowed to / let / make — choose the form!</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffb070" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span><span class="gc-icon">💣</span>
+      <div class="gc-title">Modal Bomb!</div>
+      <div class="gc-desc">should / must / need to — beat the timer!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff7070" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span><span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#60eedd" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span><span class="gc-icon">🏆</span>
+      <div class="gc-title">Champion's Challenge</div>
+      <div class="gc-desc">PLAY / GO / DO — which goes with the sport?</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffe566" onclick="launch(6)" id="gc6">
+      <span class="gc-num">07</span><span class="gc-icon">🔤</span>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Build the permission sentence!</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#6aa8ff" onclick="launch(7)" id="gc7">
+      <span class="gc-num">08</span><span class="gc-icon">🎤</span>
+      <div class="gc-title">Locker Room Dialogue</div>
+      <div class="gc-desc">Photostory phrases + sports conversations!</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN — CHAMPIONS EDITION ══ -->
+<div id="win">
+  <span class="trophy-spin">🏆</span>
+  <div class="win-title">CHAMPIONS!</div>
+  <div class="win-sub">You completed the entire course. Elite performance.</div>
+  <div class="win-ring"><div class="win-num" id="winScore">0</div><div class="win-lbl">STARS</div></div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Final Speaking Challenges 🗣️</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again 🔄</button>
+</div>
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════
+   DATA — Think Level 2 Unit 12 "Playing by the Rules"
+   p.114–123 SB + Workbook p.107–114 (TB numbering)
+   Grammar: allowed to / let / make + modals
+   Vocab: sports vocabulary + collocations
+═══════════════════════════════════════════ */
+
+// G1 — Sports Spotter: definitions → sports terms
+const G1 = [
+  { def:"The person who makes sure the rules are followed in a game, gives penalties and yellow cards.",        ans:'referee',     opts:['referee','coach','captain','umpire']         },
+  { def:"The area of ground where outdoor sports like football or rugby are played.",                          ans:'pitch',       opts:['pitch','court','track','arena']              },
+  { def:"The surface where indoor sports like tennis, basketball or squash are played.",                       ans:'court',       opts:['court','pitch','field','ring']               },
+  { def:"The path around which runners, cyclists or racing cars compete.",                                      ans:'track',       opts:['track','pitch','court','lane']               },
+  { def:"To win a game against another player or team.",                                                       ans:'beat',        opts:['beat','score','defeat','win']                },
+  { def:"When both teams or players end a game with the same number of points.",                               ans:'draw',        opts:['draw','tie','equal','level']                 },
+  { def:"A prize given to the winner of a competition, usually made of metal.",                                ans:'trophy',      opts:['trophy','medal','prize','award']             },
+  { def:"A kick or shot that gives one team a free shot at goal as a punishment for breaking a rule.",        ans:'penalty',     opts:['penalty','foul','free kick','card']          },
+  { def:"A player who comes on to the field to replace another player during a game.",                         ans:'substitute',  opts:['substitute','reserve','captain','midfielder']},
+  { def:"A competition in which teams or players play against each other to decide a winner.",                 ans:'tournament',  opts:['tournament','league','cup','series']         },
+  { def:"A person who watches a sports event but does not take part.",                                         ans:'spectator',   opts:['spectator','fan','supporter','audience']     },
+  { def:"An action by a player that breaks the rules of the game.",                                            ans:'foul',        opts:['foul','penalty','tackle','offside']          },
+];
+
+// G2 — Rules Referee: situation → ALLOWED or NOT ALLOWED
+// Based directly on WB p.107-108 exercises + SB p.114-115 reading
+const G2_QS = [
+  { situation:"In football, a player can <span class='hl'>push another player from behind</span> to get the ball.", allowed:false, explain:"Not allowed — pushing from behind is a foul. The referee can give a yellow or red card." },
+  { situation:"Students at this school <span class='hl'>are allowed to use their phones</span> during lunch break.", allowed:true,  explain:"Allowed — the school rule permits phone use during break time, not during lessons." },
+  { situation:"In basketball, players <span class='hl'>can walk with the ball</span> without dribbling it.", allowed:false, explain:"Not allowed — walking without dribbling is called a 'travel' and results in the ball being given to the other team." },
+  { situation:"The teacher <span class='hl'>lets students eat</span> a snack during class if they're quiet.", allowed:true,  explain:"Allowed — the teacher permits this behaviour (let + object + base verb)." },
+  { situation:"Players in a tennis match <span class='hl'>are allowed to touch the net</span> during a point.", allowed:false, explain:"Not allowed — touching the net during a point results in losing that point." },
+  { situation:"In most schools, students <span class='hl'>don't have to wear</span> a uniform on Fridays.", allowed:true,  explain:"Allowed — 'don't have to' means it is not necessary; students have the choice." },
+  { situation:"In football, the goalkeeper <span class='hl'>is allowed to pick up</span> the ball with their hands inside the penalty area.", allowed:true, explain:"Allowed — only the goalkeeper may handle the ball inside their own penalty area." },
+  { situation:"You <span class='hl'>are allowed to use a dictionary</span> during this test.", allowed:false, explain:"Not allowed — using a dictionary during a test is usually considered cheating." },
+];
+
+// G3 — Permission Transformer: choose correct allowed to / let / make / have to form
+const G3 = [
+  {
+    origLabel:"Direct rule", orig:"You cannot use your phone in class.",
+    targLabel:"Transformed", targ:"Students ___ use their phones in class.",
+    ans:"aren't allowed to", opts:["aren't allowed to","don't let","don't make","needn't"],
+    explain:"NOT ALLOWED TO = passive form of prohibition. 'Aren't allowed to' is natural for written/spoken rules.",
+    ruleTag:"not allowed to + base verb"
+  },
+  {
+    origLabel:"Teacher's rule", orig:"The teacher says: You can send your homework by email.",
+    targLabel:"Transformed", targ:"The teacher ___ them send homework by email.",
+    ans:"lets", opts:["lets","allows","makes","has"],
+    explain:"LET + object + base verb (no 'to'). 'The teacher lets them send' — natural and informal.",
+    ruleTag:"let + object + base verb"
+  },
+  {
+    origLabel:"School rule", orig:"Everyone must wear a uniform.",
+    targLabel:"Transformed", targ:"The school ___ students wear a uniform.",
+    ans:"makes", opts:["makes","lets","allows","has"],
+    explain:"MAKE + object + base verb = force someone to do something. Not their choice.",
+    ruleTag:"make + object + base verb (obligation)"
+  },
+  {
+    origLabel:"Club rule", orig:"You can bring guests to the sports centre.",
+    targLabel:"Transformed", targ:"Members ___ bring guests to the sports centre.",
+    ans:"are allowed to", opts:["are allowed to","let","make","have to"],
+    explain:"ARE ALLOWED TO + base verb = permission given. Passive construction — commonly used for rules.",
+    ruleTag:"are allowed to + base verb"
+  },
+  {
+    origLabel:"Coach's instruction", orig:"The coach says: You must train every day.",
+    targLabel:"Transformed", targ:"The coach ___ them train every day.",
+    ans:"makes", opts:["makes","lets","allows to","has to"],
+    explain:"MAKE = force/require. The players have no choice — the coach insists.",
+    ruleTag:"make + object + base verb"
+  },
+  {
+    origLabel:"Negative rule", orig:"Spectators cannot enter the players' area.",
+    targLabel:"Transformed", targ:"Spectators ___ enter the players' area.",
+    ans:"aren't allowed to", opts:["aren't allowed to","don't let","can't make","needn't"],
+    explain:"AREN'T ALLOWED TO = clear, formal prohibition. Common in rule signs and notices.",
+    ruleTag:"not allowed to + base verb"
+  },
+];
+
+// G4 — Bomb Defuse: modals true/false timed
+const G4 = [
+  { q:"'You should warm up before exercise.' — SHOULD gives advice.", ans:true,  t:5 },
+  { q:"'You needn't bring your kit — it's optional.' — NEEDN'T = not necessary.", ans:true, t:4 },
+  { q:"'You must to wear shin pads.' — This is grammatically CORRECT.", ans:false, t:5 }, // must + base verb (no 'to')
+  { q:"'You ought to practise every day.' — OUGHT TO gives recommendation.", ans:true, t:5 },
+  { q:"'You had better train harder, or you won't make the team.' — HAD BETTER = strong advice.", ans:true, t:4 },
+  { q:"'You don't have to attend — it's compulsory.' — TRUE?", ans:false, t:4 }, // don't have to = not necessary (NOT compulsory)
+  { q:"'Players mustn't argue with the referee.' — MUSTN'T = prohibition.", ans:true, t:5 },
+  { q:"'She don't need to train today — there's no session.' — Grammatically CORRECT?", ans:false, t:4 }, // doesn't need to
+  { q:"SHOULD and OUGHT TO have a similar meaning in advice sentences.", ans:true, t:5 },
+  { q:"'You need to sign in before the match.' — NEED TO = it is necessary.", ans:true, t:4 },
+];
+
+// G5 — Streak Challenge: permission/obligation correct/wrong
+const G5 = [
+  { rule:"Students aren't allowed to use phones during lessons.",                             correct:true  },
+  { rule:"The teacher makes them to do their homework every day.",                            correct:false }, // make + object + BASE VERB (no to)
+  { rule:"You don't have to come — it's completely optional.",                                correct:true  },
+  { rule:"She lets us to leave early on Fridays.",                                            correct:false }, // let + object + BASE VERB (no to)
+  { rule:"You ought to stretch before running to avoid injury.",                              correct:true  },
+  { rule:"Players must to wear shin pads during matches.",                                    correct:false }, // must + BASE VERB (no to)
+  { rule:"We're allowed to bring guests to the sports centre.",                               correct:true  },
+  { rule:"You had better to arrive on time, or the coach will be angry.",                    correct:false }, // had better + BASE VERB (no to)
+  { rule:"The referee doesn't let players argue with his decisions.",                         correct:true  },
+  { rule:"You needn't to bring your own equipment — the club provides everything.",           correct:false }, // needn't + BASE VERB (no to)
+  { rule:"In football, players aren't allowed to handle the ball with their hands.",          correct:true  },
+  { rule:"The school makes students wearing uniforms every day.",                             correct:false }, // makes students WEAR
+  { rule:"You should take a water bottle to every training session.",                        correct:true  },
+  { rule:"Visitors mustn't park in the players' car park.",                                   correct:true  },
+];
+
+// G6 — Champion's Challenge: PLAY / GO / DO sports collocations
+// Confirmed from SB p.121 + WB p.110 + Teacher's Book
+const G6_SPORTS = [
+  { sport:'football',     ans:'play', explain:"PLAY + team/ball sports: football, basketball, tennis, cricket, volleyball." },
+  { sport:'swimming',     ans:'go',   explain:"GO + activity sports (often ending in -ing): swimming, cycling, running, skiing." },
+  { sport:'gymnastics',   ans:'do',   explain:"DO + individual/martial arts/fitness activities: gymnastics, karate, yoga, judo." },
+  { sport:'cycling',      ans:'go',   explain:"GO + -ing sports: cycling, hiking, rock climbing, skiing, sailing." },
+  { sport:'karate',       ans:'do',   explain:"DO + martial arts and fitness disciplines: karate, judo, boxing, aerobics." },
+  { sport:'tennis',       ans:'play', explain:"PLAY + ball/racket sports: tennis, badminton, squash, table tennis." },
+  { sport:'running',      ans:'go',   explain:"GO + -ing activities: running, jogging, swimming, cycling, climbing." },
+  { sport:'basketball',   ans:'play', explain:"PLAY + team sports: basketball, volleyball, rugby, hockey." },
+  { sport:'yoga',         ans:'do',   explain:"DO + exercise/fitness disciplines without a ball: yoga, pilates, aerobics." },
+  { sport:'rock climbing',ans:'go',   explain:"GO + outdoor/adventure sports: rock climbing, hiking, sailing, horse riding." },
+  { sport:'judo',         ans:'do',   explain:"DO + martial arts: judo, karate, taekwondo, kickboxing." },
+  { sport:'volleyball',   ans:'play', explain:"PLAY + team ball sports: volleyball, football, basketball, rugby." },
+];
+
+// G7 — Word Order: permission/obligation sentences from WB
+const G7 = [
+  { words:["Students","aren't","allowed","to","use","phones","in","class","."],                ans:"Students aren't allowed to use phones in class ."                },
+  { words:["The","coach","makes","them","train","for","two","hours","every","day","."],        ans:"The coach makes them train for two hours every day ."            },
+  { words:["You","don't","have","to","wear","a","uniform","on","Fridays","."],                 ans:"You don't have to wear a uniform on Fridays ."                   },
+  { words:["The","teacher","lets","us","leave","five","minutes","early","."],                   ans:"The teacher lets us leave five minutes early ."                  },
+  { words:["You","had","better","arrive","on","time","or","you'll","miss","the","match","."],  ans:"You had better arrive on time or you'll miss the match ."        },
+  { words:["Players","mustn't","argue","with","the","referee","."],                            ans:"Players mustn't argue with the referee ."                        },
+];
+
+// G8 — Dialogue Stage: photostory phrases + sports/rules conversations
+const G8_DIALOGUES = [
+  {
+    title:"In the Changing Room",
+    topic:"Players discussing the rules and what they're allowed to do — using permission language and photostory phrases.",
+    roleA:"Player A", roleB:"Player B",
+    exchanges:[
+      { speaker:'A', text:"Check this out — the coach says we aren't allowed to wear anything except the official kit. Not even our own trainers.", key_phrase:"Check this out / aren't allowed to" },
+      { speaker:'B', text:"Seriously? But we don't have to wear the captain's armband unless we're actually captain, right?", key_phrase:"don't have to" },
+      { speaker:'A', text:"Exactly. But here's the thing — she makes us do a full warm-up even if we've already trained in the morning.", key_phrase:"makes us do" },
+      { speaker:'B', text:"I'm just saying, that seems excessive. We ought to have some say in our own training schedule.", key_phrase:"I'm just saying / ought to" },
+      { speaker:'A', text:"I know. But it's not worth it to argue. She had better let us take a break soon, or we'll all be exhausted.", key_phrase:"It's not worth it / had better let" },
+      { speaker:'B', text:"We're talking about a championship game here. I suppose we have to follow the rules.", key_phrase:"We're talking about / have to" },
+    ],
+    phrases_a:["Check this out / aren't allowed to","makes us do","It's not worth it / had better let","We're talking about / have to"],
+    phrases_b:["don't have to","I'm just saying / ought to","You should / You need to","have a word with the coach"],
+  },
+  {
+    title:"Referee's Decision",
+    topic:"A post-match discussion about the referee's calls — using permission, obligation and sports vocabulary.",
+    roleA:"Fan A", roleB:"Fan B",
+    exchanges:[
+      { speaker:'A', text:"Did you see that? The referee let the other team get away with a foul. Our player was clearly tripped!", key_phrase:"let the other team / foul" },
+      { speaker:'B', text:"I know! Players aren't allowed to tackle from behind like that. It should have been a penalty.", key_phrase:"aren't allowed to / penalty" },
+      { speaker:'A', text:"And we're talking about the final here. The referee really ought to be more careful in a tournament like this.", key_phrase:"We're talking about / ought to" },
+      { speaker:'B', text:"I'm just saying, they need to have a word with the match officials. That substitute came on without permission.", key_phrase:"have a word / I'm just saying" },
+      { speaker:'A', text:"Check this out — the rules say substitutes aren't allowed to enter the pitch until the referee signals.", key_phrase:"Check this out / aren't allowed to" },
+      { speaker:'B', text:"It's not worth it to complain now. The game is over. But they should report it to the officials.", key_phrase:"It's not worth it / should" },
+    ],
+    phrases_a:["let the other team / foul","We're talking about / ought to","Check this out / aren't allowed to","make / let / allowed to"],
+    phrases_b:["aren't allowed to / penalty","have a word / I'm just saying","It's not worth it / should","don't have to / mustn't"],
+  },
+  {
+    title:"School Sports Day",
+    topic:"Discussing school sports rules and obligations — using all grammar from Unit 12.",
+    roleA:"Student A", roleB:"Student B",
+    exchanges:[
+      { speaker:'A', text:"We're talking about Sports Day this Friday. Are we allowed to choose our own events, or does the teacher decide?", key_phrase:"We're talking about / allowed to" },
+      { speaker:'B', text:"I think the teacher lets us choose two events, but she makes us do the relay race as a class.", key_phrase:"lets us / makes us do" },
+      { speaker:'A', text:"Check this out — it says here we aren't allowed to wear jewellery during any running event. It's a safety rule.", key_phrase:"Check this out / aren't allowed to" },
+      { speaker:'B', text:"I'm just saying, you should enter the long jump. You're really good at it and you needn't worry about the relay.", key_phrase:"I'm just saying / should / needn't" },
+      { speaker:'A', text:"You had better sign up before Friday morning, or all the places will be taken.", key_phrase:"had better" },
+      { speaker:'B', text:"It's not worth it to wait. Let's have a word with the PE teacher now and sign up today.", key_phrase:"It's not worth it / have a word" },
+    ],
+    phrases_a:["We're talking about / allowed to","Check this out / aren't allowed to","had better","make / let distinction"],
+    phrases_b:["lets us / makes us do","I'm just saying / should / needn't","It's not worth it / have a word","don't have to vs mustn't"],
+  },
+];
+
+/* STATE */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g4streak=0, g4bombScore=0, g5streak=0, g5best=0;
+let g2correct=0, g2i=0, g2q=[];
+let g6q=[], g6i=0;
+let g8scenIdx=0;
+
+/* HELPERS */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{if(typeof el==='string')el=$(el);if(!el)return;el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block';};
+const hide=el=>{if(typeof el==='string')el=$(el);if(!el)return;el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none';};
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function goal(){
+  const b=$('goalBurst'); b.classList.remove('active');
+  void b.offsetWidth; b.classList.add('active');
+  setTimeout(()=>b.classList.remove('active'),800);
+}
+function confetti(){
+  const cols=['#ffd700','#ffe566','#6aa8ff','#00e676','#d890ff','#ff8020','#ffffff'];
+  const box=$('cfx');
+  for(let i=0;i<90;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*11;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#ffd700','#ffe566','#6aa8ff','#00e676'];
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*7;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*70}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+function correctAnswer(el){ addScore(3); miniConfetti(el); goal(); }
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ const el=$('best'+i); if(el)el.textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Sports Spotter','Rules Referee','Permission Transformer','Modal Bomb!','Streak Challenge',"Champion's Challenge",'Word Order','Locker Room Dialogue'];
+  const cols=['var(--gold2)','var(--blue2)','var(--purple2)','var(--orange2)','var(--red2)','var(--teal2)','var(--gold2)','var(--blue2)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"Students aren\'t allowed to use phones in class." — describe 5 rules at your school using allowed to / have to / mustn\'t.',
+    '"The coach makes them train every day. The teacher lets them choose." — compare MAKE and LET in two contrasting situations.',
+    '"You should / ought to / had better warm up before exercise." — what\'s the difference? Use all three in sports advice.',
+    '"Check this out / I\'m just saying / We\'re talking about / It\'s not worth it / have a word" — use ALL 5 photostory phrases in one conversation.',
+    '"Do you play football or go swimming more?" — PLAY / GO / DO: quiz your partner on 10 sports collocations.',
+    'Roleplay a referee giving decisions. Your partner is the player who argues. Use: allowed to / mustn\'t / you have to / had better.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,4).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0;totalCorrect=0;totalQs=0;bestStreak=0;
+  gameScores=Array(8).fill(0);gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(g=>g.classList.remove('done'));
+  showHome();
+});
+
+/* ── G1: SPORTS SPOTTER ── */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  totalQs++; const q=g1q[g1i]; setProgress(g1i,g1q.length);
+  const optsHtml=rnd(q.opts).map(o=>`<button class="opt" style="--opt-col:var(--gold2)" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Sports Terms</div>
+      <div class="gh-name" style="color:var(--gold2)">Sports Spotter 🏟️</div>
+      <div class="gh-instr">Read the definition. What's the sports term?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="qcard">
+      <div class="qcard-label">Term ${g1i+1} of ${g1q.length}</div>
+      <div class="qcard-text">${q.def}</div>
+    </div>
+    <div class="opts2">${optsHtml}</div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      if(btn.dataset.ans===q.ans){ btn.classList.add('opt-ok'); correctAnswer(btn); totalCorrect++; showFb('g1fb','ok','GOAL! Correct! +3 ⭐'); }
+      else { btn.classList.add('opt-bad'); document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+q.ans); }
+      show('g1next');
+    });
+  });
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ── G2: RULES REFEREE ── */
+function g2Init(){ g2q=rnd(G2_QS); g2i=0; g2correct=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  totalQs++; const q=g2q[g2i]; setProgress(g2i,g2q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Permission & Rules</div>
+      <div class="gh-name" style="color:var(--blue2)">Rules Referee ⚖️</div>
+      <div class="gh-instr">Read the situation. Is this ALLOWED or NOT ALLOWED?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="ref-situation">
+      <div class="ref-badge">⚽ Situation ${g2i+1} of ${g2q.length}</div>
+      <div class="ref-text">${q.situation}</div>
+    </div>
+    <div class="verdict-btns">
+      <button class="verdict-btn v-allowed" id="vAllowed">✅ ALLOWED</button>
+      <button class="verdict-btn v-not"     id="vNot">❌ NOT ALLOWED</button>
+    </div>
+    <div class="explain-box" id="g2exp"><span class="rule-tag">Referee's Decision</span>${q.explain}</div>
+    <div class="ref-tally">${g2correct} correct so far</div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--blue);color:#fff">Next ›</button>`;
+  $('vAllowed').addEventListener('click',()=>g2Ans(true, q.allowed));
+  $('vNot'    ).addEventListener('click',()=>g2Ans(false,q.allowed));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(chosen,allowed){
+  $('vAllowed').classList.add('locked'); $('vNot').classList.add('locked');
+  $('g2exp').classList.add('show');
+  const yBtn=$('vAllowed'), nBtn=$('vNot');
+  if(chosen===allowed){
+    (allowed?yBtn:nBtn).classList.add('vd-ok');
+    g2correct++; addScore(3); totalCorrect++;
+    showFb('g2fb','ok','Correct decision, referee! +3 ⭐');
+    miniConfetti(allowed?yBtn:nBtn); goal();
+  } else {
+    (chosen?yBtn:nBtn).classList.add('vd-wrong');
+    (allowed?yBtn:nBtn).classList.add('vd-ok');
+    showFb('g2fb','bad','Wrong call! It is '+(allowed?'ALLOWED':'NOT ALLOWED'));
+  }
+  show('g2next');
+}
+
+/* ── G3: PERMISSION TRANSFORMER ── */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  totalQs++; const q=g3q[g3i]; setProgress(g3i,g3q.length);
+  const targHtml=q.targ.replace('___',`<span class="gap">___</span>`);
+  const optsHtml=rnd(q.opts).map(o=>`<button class="opt" style="--opt-col:var(--purple2)" data-ans="${o}">${o}</button>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Permission Forms</div>
+      <div class="gh-name" style="color:var(--purple2)">Permission Transformer 🔄</div>
+      <div class="gh-instr">Choose the correct permission form!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="perm-wrap">
+      <div class="perm-orig">
+        <div class="po-label">${q.origLabel}</div>
+        <div class="po-text">${q.orig}</div>
+      </div>
+      <div class="arrow-row">↓ Transform ↓</div>
+      <div class="perm-target">
+        <div class="pt-label">⚡ ${q.targLabel}</div>
+        <div class="pt-text">${targHtml}</div>
+      </div>
+    </div>
+    <div class="opts2">${optsHtml}</div>
+    <div class="explain-box" id="g3exp"><span class="rule-tag">${q.ruleTag}</span>${q.explain}</div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--purple);color:#fff">Next ›</button>`;
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      $('g3exp').classList.add('show');
+      if(btn.dataset.ans===q.ans){ btn.classList.add('opt-ok'); correctAnswer(btn); totalCorrect++; showFb('g3fb','ok','Perfect transformation! +3 ⭐'); }
+      else { btn.classList.add('opt-bad'); document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('opt-ok'); }); showFb('g3fb','bad','The answer is: '+q.ans); }
+      show('g3next');
+    });
+  });
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ── G4: MODAL BOMB ── */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4streak=0; g4bombScore=0; g4Render(); }
+function g4Render(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  if(g4i>=g4q.length){ finishGame(); return; }
+  totalQs++; const q=g4q[g4i]; const secs=q.t||5; setProgress(g4i,g4q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Modal Verbs Timed!</div>
+      <div class="gh-name" style="color:var(--orange2)">Modal Bomb! 💣</div>
+      <div class="gh-instr">TRUE or FALSE about modal verbs? Answer before the bomb explodes!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">SCORE</div><div class="hud-val" style="color:var(--orange)" id="g4sc">${g4bombScore}</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="g4str">${g4streak}</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--orange)">${g4i+1}/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji ticking" id="g4bomb">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="g4bar" style="background:var(--orange);width:100%"></div></div>
+    </div>
+    <div class="bomb-q">${q.q}</div>
+    <div class="opts2">
+      <button class="opt" style="--opt-col:var(--ok)" data-ans="true">✅ TRUE</button>
+      <button class="opt" style="--opt-col:var(--bad)" data-ans="false">❌ FALSE</button>
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--orange);color:var(--bg)">Next ›</button>`;
+  const bar=$('g4bar');
+  bar.style.transition='none'; bar.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    bar.style.transition=`width ${secs*1000}ms linear`; bar.style.width='0%';
+  }));
+  bombTimer=setTimeout(()=>{
+    document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+    bar.style.transition='none'; bar.style.background='var(--bad)';
+    $('g4bomb').textContent='💥'; $('g4bomb').className='bomb-emoji';
+    document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===(q.ans?'true':'false')) b.classList.add('opt-ok'); else b.classList.add('opt-bad'); });
+    g4streak=0; if($('g4str'))$('g4str').textContent=0;
+    showFb('g4fb','bad','⏱ Time\'s up! Answer: '+(q.ans?'TRUE':'FALSE'));
+    show('g4next');
+  }, secs*1000);
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+      document.querySelectorAll('.opt').forEach(b=>b.classList.add('locked'));
+      bar.style.transition='none'; $('g4bomb').className='bomb-emoji';
+      const correct=(btn.dataset.ans==='true')===q.ans;
+      if(correct){
+        btn.classList.add('opt-ok'); g4streak++;
+        if(g4streak>bestStreak) bestStreak=g4streak;
+        const bonus=3+(g4streak>2?g4streak-2:0);
+        g4bombScore+=bonus; $('g4sc').textContent=g4bombScore; $('g4str').textContent=g4streak;
+        $('g4bomb').textContent='😅';
+        addScore(bonus); totalCorrect++;
+        showFb('g4fb','ok',`Defused! +${bonus} ⭐${g4streak>2?' 🔥 Streak!':''}`);
+        miniConfetti(btn); goal();
+      } else {
+        btn.classList.add('opt-bad');
+        document.querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ans===(q.ans?'true':'false')) b.classList.add('opt-ok'); });
+        g4streak=0; if($('g4str'))$('g4str').textContent=0;
+        $('g4bomb').textContent='💥'; bar.style.background='var(--bad)';
+        showFb('g4fb','bad','BOOM! Answer: '+(q.ans?'TRUE':'FALSE'));
+      }
+      show('g4next');
+    });
+  });
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+
+/* ── G5: STREAK CHALLENGE ── */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  totalQs++; const q=g5q[g5i]; setProgress(g5i,g5q.length);
+  const ruleHtml=q.rule
+    .replace(/(aren't allowed to|allowed to|don't have to|have to|makes|lets|let|had better|ought to|should|must|mustn't|needn't|need to)/gi,m=>`<span class="hl">${m}</span>`)
+    .replace(/\b(to)\b/g,m=>`<span class="hl2">${m}</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Streak Challenge</div>
+      <div class="gh-name" style="color:var(--red2)">Streak Challenge 🔥</div>
+      <div class="gh-instr">Is this sentence CORRECT or does it have a MISTAKE?</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="g5flames">🔥</div>
+        <div><div class="streak-big" id="g5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">Best: ${g5best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="g5yes">✅ Correct!</button>
+      <button class="tf-btn tf-no"  id="g5no">❌ Mistake!</button>
+    </div>
+    <div class="streak-tally">Question ${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--red)">Next ›</button>`;
+  $('g5yes').addEventListener('click',()=>g5Ans(true, q.correct));
+  $('g5no' ).addEventListener('click',()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(chosen,correct){
+  $('g5yes').classList.add('locked'); $('g5no').classList.add('locked');
+  const yBtn=$('g5yes'), nBtn=$('g5no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best) g5best=g5streak;
+    if(g5streak>bestStreak) bestStreak=g5streak;
+    $('g5num').textContent=g5streak;
+    $('g5flames').textContent='🔥'.repeat(Math.min(g5streak,5));
+    addScore(2); totalCorrect++;
+    showFb('g5fb','ok',`Correct! Streak: ${g5streak}${g5streak>=3?' 🔥🔥':''} +2 ⭐`);
+    miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong');
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('g5num').textContent=0; $('g5flames').textContent='🔥';
+    showFb('g5fb','bad','Not quite — streak reset!');
+  }
+  show('g5next');
+}
+
+/* ── G6: CHAMPION'S CHALLENGE (collocation snap) ── */
+function g6Init(){ g6q=rnd(G6_SPORTS); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  totalQs++; const q=g6q[g6i]; setProgress(g6i,g6q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Vocabulary · Sports Collocations</div>
+      <div class="gh-name" style="color:var(--teal2)">Champion's Challenge 🏆</div>
+      <div class="gh-instr">Which verb goes with this sport? Tap <strong>PLAY</strong>, <strong>GO</strong> or <strong>DO</strong>!</div>
+    </div>
+    <div class="champ-counter">Sport ${g6i+1} of ${g6q.length}</div>
+    <div class="sport-display">
+      <div class="sport-word">${q.sport}</div>
+    </div>
+    <div class="colloc-btns">
+      <button class="colloc-btn cb-play" data-ans="play">play</button>
+      <button class="colloc-btn cb-go"   data-ans="go">go</button>
+      <button class="colloc-btn cb-do"   data-ans="do">do</button>
+    </div>
+    <div class="explain-box" id="g6exp"><span class="rule-tag">Collocation Rule</span>${q.explain}</div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.colloc-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.colloc-btn').forEach(b=>b.classList.add('locked'));
+      $('g6exp').classList.add('show');
+      if(btn.dataset.ans===q.ans){ btn.classList.add('col-ok'); correctAnswer(btn); totalCorrect++; showFb('g6fb','ok',`"${q.ans} ${q.sport}" — correct! +3 ⭐`); }
+      else { btn.classList.add('col-bad'); document.querySelectorAll('.colloc-btn').forEach(b=>{ if(b.dataset.ans===q.ans) b.classList.add('col-ok'); }); showFb('g6fb','bad',`It's "${q.ans} ${q.sport}"!`); }
+      show('g6next');
+    });
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ── G7: WORD ORDER ── */
+let g7q=[], g7i=0, g7built=[], g7locked=false;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7Render(); }
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  g7built=[]; g7locked=false; totalQs++;
+  const q=g7q[g7i]; setProgress(g7i,g7q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Grammar · Word Order</div>
+      <div class="gh-name" style="color:var(--gold2)">Word Order 🔤</div>
+      <div class="gh-instr">Tap the tiles in the correct order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g7q,g7i)}</div>
+    <div class="wo-display empty" id="g7disp">Tap words to build the sentence…</div>
+    <div class="word-pool" id="g7pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g7clr">Clear</button>
+      <button class="btn-check" id="g7chk" style="background:var(--gold);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g7pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g7locked||el.classList.contains('used')) return;
+      el.classList.add('used'); g7built.push({w:el.dataset.w,el});
+      const d=$('g7disp'); d.classList.remove('empty'); d.textContent=g7built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g7clr').addEventListener('click',()=>{
+    g7built.forEach(x=>x.el.classList.remove('used')); g7built=[];
+    const d=$('g7disp'); d.className='wo-display empty'; d.textContent='Tap words to build the sentence…'; hideFb('g7fb');
+  });
+  $('g7chk').addEventListener('click',()=>{
+    if(g7locked||g7built.length===0) return; g7locked=true;
+    const built=g7built.map(x=>x.w).join(' ');
+    if(built===q.ans){ addScore(3); totalCorrect++; showFb('g7fb','ok','Perfect sentence! +3 ⭐'); miniConfetti($('g7chk')); goal(); }
+    else { showFb('g7fb','bad','Correct: '+q.ans); }
+    show('g7next');
+  });
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+}
+
+/* ── G8: LOCKER ROOM DIALOGUE ── */
+function g8Init(){ g8scenIdx=0; g8Render(); }
+function g8Render(){
+  if(g8scenIdx>=G8_DIALOGUES.length){ finishGame(); return; }
+  const sc=G8_DIALOGUES[g8scenIdx];
+  const bubblesHtml=sc.exchanges.map(ex=>{
+    const isA=ex.speaker==='A';
+    const kp=ex.key_phrase;
+    const textHtml=ex.text.replace(kp,`<span class="key-phrase">${kp}</span>`);
+    return `<div class="bubble-wrap${isA?'':' b-right'}">
+      <div class="bubble-avatar ${isA?'av-a':'av-b'}">${ex.speaker}</div>
+      <div class="bubble ${isA?'bubble-a':'bubble-b'}">
+        <div class="bubble-speaker ${isA?'bubble-speaker-a':'bubble-speaker-b'}">${isA?sc.roleA:sc.roleB}</div>
+        <div class="bubble-text">${textHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const phrA=sc.phrases_a.map(p=>`<span class="pb-chip">${p}</span>`).join('');
+  const phrB=sc.phrases_b.map(p=>`<span class="pb-chip blue">${p}</span>`).join('');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Speaking · Locker Room Dialogue</div>
+      <div class="gh-name" style="color:var(--blue2)">Locker Room Dialogue 🎤</div>
+      <div class="gh-instr">Study the dialogue and key phrases, then practise with a partner!</div>
+    </div>
+    <div class="scenario-nav">
+      <button class="nav-btn-small" id="g8prev" ${g8scenIdx===0?'disabled style="opacity:.4;cursor:default"':''}>‹ Prev</button>
+      <span class="scenario-count">Scenario ${g8scenIdx+1}/${G8_DIALOGUES.length}: <strong>${sc.title}</strong></span>
+      <button class="nav-btn-small" id="g8nx">${g8scenIdx<G8_DIALOGUES.length-1?'Next ›':'Finish ✓'}</button>
+    </div>
+    <div class="dialogue-stage">
+      <div class="stage-header">
+        <div class="stage-label">${sc.topic}</div>
+        <div class="stage-badge">🏆 LIVE</div>
+      </div>
+      <div class="chat-thread">${bubblesHtml}</div>
+      <div class="phrase-bank">
+        <div class="pb-label">Key phrases — ${sc.roleA}</div>
+        <div class="pb-grid">${phrA}</div>
+      </div>
+      <div class="phrase-bank" style="margin-top:8px">
+        <div class="pb-label">Key phrases — ${sc.roleB}</div>
+        <div class="pb-grid">${phrB}</div>
+      </div>
+    </div>
+    <div class="fb" id="g8fb"></div>`;
+  $('g8prev').addEventListener('click',()=>{ if(g8scenIdx>0){ g8scenIdx--; g8Render(); } });
+  $('g8nx').addEventListener('click',()=>{
+    addScore(3); totalCorrect++;
+    if(g8scenIdx<G8_DIALOGUES.length-1){ g8scenIdx++; g8Render(); }
+    else { showFb('g8fb','ok','Locker Room complete! +3 ⭐'); goal(); setTimeout(finishGame,1200); }
+  });
+}
+</script>
+</body>
+</html>
