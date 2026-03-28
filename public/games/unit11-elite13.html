@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 11 — Help!</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0f0608;
+  --deep:    #140809;
+  --card:    #1c0d0f;
+  --card2:   #22111a;
+  --border:  #361825;
+  --red:     #e53e3e;
+  --crimson: #c53030;
+  --amber:   #f6ad55;
+  --teal:    #38b2ac;
+  --sky:     #63b3ed;
+  --lime:    #68d391;
+  --violet:  #9f7aea;
+  --green:   #48bb78;
+  --bad:     #fc8181;
+  --white:   #fff5f5;
+  --muted:   #3d1520;
+  --muted2:  #7a3f50;
+  --ok:      #48bb78;
+  --font-h:  'DM Serif Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:14px; --r-sm:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image: radial-gradient(ellipse at 20% 15%, rgba(229,62,62,.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 85%, rgba(56,178,172,.04) 0%, transparent 50%); }
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes spinIn { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes slideIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* HOME */
+#home { display:flex; flex-direction:column; align-items:center; padding:32px 20px 70px; min-height:100vh; }
+.home-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:10px; text-align:center; }
+.home-title { font-family:var(--font-h); font-size:clamp(2.2rem,8vw,3.4rem); text-align:center; line-height:1.08; margin-bottom:6px; }
+.home-title em { color:var(--red); font-style:italic; }
+.home-unit { font-size:12px; color:var(--muted2); font-weight:500; margin-bottom:8px; letter-spacing:1px; }
+.home-divider { width:40px; height:2px; background:var(--red); border-radius:2px; margin:12px auto 20px; }
+.total-stars { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:7px 18px; margin-bottom:30px; font-size:14px; font-weight:600; color:var(--amber); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 14px; cursor:pointer; position:relative; transition:transform .15s, border-color .15s, background .15s; }
+.gc:hover { transform:translateY(-3px); border-color:var(--gc-col); background:var(--card2); }
+.gc:active { transform:scale(.98); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:10px; right:12px; color:var(--green); font-weight:700; font-size:13px; }
+.gc-num  { font-size:9px; font-weight:700; color:var(--gc-col); letter-spacing:2px; text-transform:uppercase; opacity:.8; margin-bottom:6px; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); margin-bottom:4px; line-height:1.2; }
+.gc-desc { font-size:11px; color:var(--muted2); line-height:1.5; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--amber); font-weight:600; min-height:14px; }
+
+/* SHELL */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(15,6,8,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--red); color:var(--red); }
+.tb-title { font-family:var(--font-h); font-size:16px; }
+.tb-score { background:var(--red); color:#fff; font-size:13px; font-weight:700; padding:5px 14px; border-radius:20px; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:24px 20px; max-width:680px; width:100%; margin:0 auto; }
+
+/* SHARED */
+.game-header { margin-bottom:20px; }
+.gh-eyebrow { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:5px; }
+.gh-name  { font-family:var(--font-h); font-size:1.7rem; line-height:1.1; margin-bottom:6px; }
+.gh-instr { font-size:13px; color:var(--muted2); line-height:1.6; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:12px 10px; cursor:pointer; text-align:center; transition:all .13s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--red)); color:var(--opt-col,var(--red)); background:var(--card2); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(72,187,120,.08); animation:popIn .25s; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(252,129,129,.07); animation:shake .35s; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.7; }
+.fb { padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; text-align:center; display:none; margin-bottom:12px; line-height:1.5; }
+.fb.ok  { display:block; background:rgba(72,187,120,.08); color:var(--ok); border:1px solid rgba(72,187,120,.2); }
+.fb.bad { display:block; background:rgba(252,129,129,.07); color:var(--bad); border:1px solid rgba(252,129,129,.18); }
+.next-btn { display:none; margin-left:auto; padding:9px 22px; font-size:13px; font-weight:600; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.next-btn.visible { display:block; }
+.prog-dots { display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done { background:var(--muted); }
+.dot.current { background:var(--red); transform:scale(1.5); }
+
+/* G1: RESCUE VOCAB — sentence gap fill */
+.vocab-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(229,62,62,.25); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px; position:relative; overflow:hidden;
+}
+.vocab-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--red),var(--amber)); }
+.vocab-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--red); text-transform:uppercase; margin-bottom:10px; }
+.vocab-sentence { font-size:1.05rem; line-height:1.8; color:var(--white); }
+.vocab-sentence .blank { color:var(--amber); font-weight:700; }
+.red-note { background:rgba(229,62,62,.07); border:1px solid rgba(229,62,62,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--amber); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G2: GERUND OR INFINITIVE? — unique card design */
+/* A sentence has a verb underlined. Student chooses gerund or to-inf form. */
+.verb-card {
+  background:var(--card2); border:1px solid rgba(99,179,237,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.verb-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--sky); text-transform:uppercase; margin-bottom:10px; }
+.verb-trigger { background:rgba(99,179,237,.08); border:1px solid rgba(99,179,237,.18); border-radius:8px; padding:8px 14px; font-size:13px; color:var(--sky); font-weight:600; margin-bottom:10px; }
+.verb-sentence { font-size:1rem; line-height:1.8; color:var(--white); }
+.verb-sentence .blank { color:var(--sky); font-weight:700; }
+.sky-note { background:rgba(99,179,237,.07); border:1px solid rgba(99,179,237,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--sky); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G3: PURPOSE CLAUSE BUILDER — to / in order to / so as to */
+/* Unique: Two sentences shown → student taps the correct purpose connector and sees the combined sentence rewrite. */
+.purpose-card {
+  background:var(--card2); border:1px solid rgba(159,122,234,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.purpose-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--violet); text-transform:uppercase; margin-bottom:10px; }
+.sentence-pair { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.sentence-a, .sentence-b {
+  background:var(--card); border-radius:7px; padding:9px 13px;
+  font-size:.95rem; line-height:1.6; color:var(--white);
+}
+.sentence-a::before { content:'Action: '; font-size:9px; font-weight:700; color:var(--violet); letter-spacing:1.5px; text-transform:uppercase; display:block; margin-bottom:4px; }
+.sentence-b::before { content:'Purpose: '; font-size:9px; font-weight:700; color:var(--muted2); letter-spacing:1.5px; text-transform:uppercase; display:block; margin-bottom:4px; }
+.combined-result { background:rgba(159,122,234,.07); border:1px solid rgba(159,122,234,.18); border-radius:8px; padding:10px 14px; font-size:13px; color:var(--violet); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+.purpose-q { font-size:1rem; line-height:1.8; color:var(--white); }
+.purpose-q .blank { color:var(--violet); font-weight:700; }
+
+/* G4: SO/SUCH THAT CHALLENGE — fill the blank with so or such */
+.so-card {
+  background:var(--card2); border:1px solid rgba(246,173,85,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.so-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--amber); text-transform:uppercase; margin-bottom:10px; }
+.emergency-call { background:rgba(229,62,62,.07); border-left:3px solid var(--red); padding:10px 14px; font-style:italic; font-size:1rem; line-height:1.7; margin-bottom:12px; border-radius:0 6px 6px 0; color:var(--white); }
+.so-sentence { font-size:1rem; line-height:1.8; color:var(--white); }
+.so-sentence .blank { color:var(--amber); font-weight:700; }
+.amber-note { background:rgba(246,173,85,.07); border:1px solid rgba(246,173,85,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--amber); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G5: NEGATIVE PREFIX SPRINT — fast-fire streak game */
+/* A word appears large on screen. Student taps the correct negative prefix. */
+.sprint-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.sprint-streak { font-family:var(--font-h); font-size:2.2rem; color:var(--amber); }
+.sprint-lbl { font-size:9px; font-weight:700; color:var(--muted2); letter-spacing:1.5px; text-transform:uppercase; }
+.sprint-word-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(104,211,145,.2); border-radius:var(--r);
+  padding:30px 18px; margin-bottom:14px; text-align:center;
+}
+.sprint-base { font-family:var(--font-h); font-size:2.4rem; color:var(--white); margin-bottom:4px; animation:slideIn .2s ease; }
+.sprint-hint { font-size:12px; color:var(--muted2); }
+.prefix-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.pfx-btn { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:1.1rem; color:var(--white); padding:14px 6px; cursor:pointer; text-align:center; transition:all .13s; }
+.pfx-btn:hover:not(.locked) { border-color:var(--lime); color:var(--lime); background:var(--card2); }
+.pfx-btn.pfx-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(72,187,120,.08); animation:popIn .25s; pointer-events:none; }
+.pfx-btn.pfx-wrong { border-color:var(--bad)!important; color:var(--bad)!important; animation:shake .35s; pointer-events:none; }
+.pfx-btn.locked { pointer-events:none; }
+
+/* G6: REEDER RESCUE COMPREHENSION — unique mechanic: cause → effect match */
+/* 5 causes listed. Student taps a cause then taps its effect. */
+.match-col-label { font-size:10px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; margin-bottom:8px; text-align:center; }
+.match-scene { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+.match-col { display:flex; flex-direction:column; gap:6px; }
+.match-tile { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:12px; font-weight:500; color:var(--white); padding:10px 10px; cursor:pointer; transition:all .14s; text-align:center; line-height:1.4; }
+.match-tile:hover { border-color:var(--red); color:var(--red); }
+.match-tile.selected { border-color:var(--amber); color:var(--amber); background:rgba(246,173,85,.07); }
+.match-tile.matched  { border-color:var(--ok); color:var(--ok); background:rgba(72,187,120,.07); pointer-events:none; animation:popIn .25s; }
+.match-tile.wrong    { border-color:var(--bad); animation:shake .35s; }
+.match-tile.locked   { pointer-events:none; opacity:.5; }
+.match-progress { text-align:center; font-size:12px; color:var(--muted2); margin-top:8px; }
+
+/* G7: BOMB DEFUSE */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:1.4rem; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(229,62,62,.08); border:1px solid rgba(229,62,62,.2); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:1.4rem; color:var(--red); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:54px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:5px; background:var(--border); border-radius:3px; margin-bottom:8px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; }
+.bomb-q { font-size:1rem; text-align:center; line-height:1.6; min-height:50px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* G8: WORD ORDER */
+.wo-display { background:var(--deep); border:1px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-size:15px; font-weight:500; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--red); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:400; color:var(--muted2); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--card2); border:1px solid var(--red); color:var(--red); font-size:13px; font-weight:600; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .13s; user-select:none; }
+.wtile:hover:not(.used) { background:var(--red); color:#fff; transform:translateY(-2px); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:12px; }
+.btn-clear { background:var(--border); color:var(--white); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:7px; cursor:pointer; }
+.btn-check { font-size:13px; font-weight:700; padding:9px 22px; border:none; border-radius:7px; cursor:pointer; transition:all .13s; }
+
+/* WIN */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:40px 24px; flex-direction:column; }
+.win-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:12px; }
+.win-title { font-family:var(--font-h); font-size:3rem; color:var(--red); text-shadow:0 0 30px rgba(229,62,62,.3); margin-bottom:8px; }
+.win-sub   { font-size:14px; color:var(--muted2); margin-bottom:28px; max-width:380px; line-height:1.6; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--red) 0%, var(--amber) 40%, var(--teal) 80%, var(--red) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 28px; box-shadow:0 0 40px rgba(229,62,62,.2); }
+.win-num { font-family:var(--font-h); font-size:2.4rem; color:#fff; line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(255,255,255,.6); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:400px; margin-bottom:24px; }
+.win-stat { background:var(--card); border-radius:var(--r); padding:14px 8px; text-align:center; border:1px solid var(--border); }
+.ws-lbl  { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; margin-bottom:4px; }
+.ws-val  { font-family:var(--font-h); font-size:1.4rem; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; max-width:440px; width:100%; margin-bottom:24px; text-align:left; }
+.ws-title { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:10px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:2; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'—'; position:absolute; left:0; color:var(--red); }
+.btn-play { background:var(--red); color:#fff; font-size:14px; font-weight:700; padding:13px 36px; border:none; border-radius:30px; cursor:pointer; transition:all .15s; }
+.btn-play:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(229,62,62,.3); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-eyebrow">Think Level 3 · Unit 11 · Elite1_3</div>
+  <h1 class="home-title"><em>Help!</em></h1>
+  <div class="home-unit">RESCUE · GERUNDS & INFINITIVES · PURPOSE CLAUSES · SO/SUCH</div>
+  <div class="home-divider"></div>
+  <div class="total-stars">⭐ <span id="totalStars">0</span> stars earned</div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#e53e3e" onclick="launch(0)" id="gc0">
+      <div class="gc-num">01</div>
+      <div class="gc-title">Rescue Vocab</div>
+      <div class="gc-desc">rescue · survive · out of danger · miracle…</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#63b3ed" onclick="launch(1)" id="gc1">
+      <div class="gc-num">02</div>
+      <div class="gc-title">Gerund or Infinitive?</div>
+      <div class="gc-desc">avoid doing vs decide to do — choose the right form</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#9f7aea" onclick="launch(2)" id="gc2">
+      <div class="gc-num">03</div>
+      <div class="gc-title">Purpose Builder</div>
+      <div class="gc-desc">to / in order to / so as to — combine sentences</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f6ad55" onclick="launch(3)" id="gc3">
+      <div class="gc-num">04</div>
+      <div class="gc-title">So or Such?</div>
+      <div class="gc-desc">Emergency calls — complete with so or such</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#68d391" onclick="launch(4)" id="gc4">
+      <div class="gc-num">05</div>
+      <div class="gc-title">Prefix Sprint</div>
+      <div class="gc-desc">Tap the right negative prefix — streak challenge!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e53e3e" onclick="launch(5)" id="gc5">
+      <div class="gc-num">06</div>
+      <div class="gc-title">Reeder Rescue</div>
+      <div class="gc-desc">Match causes to effects from the baby rescue story</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#f6ad55" onclick="launch(6)" id="gc6">
+      <div class="gc-num">07</div>
+      <div class="gc-title">Bomb Defuse</div>
+      <div class="gc-desc">Unit 11 facts — true or false, timed</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#38b2ac" onclick="launch(7)" id="gc7">
+      <div class="gc-num">08</div>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Reconstruct the sentence</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <div class="win-eyebrow">Unit 11 Complete</div>
+  <div class="win-title">Help!</div>
+  <div class="win-sub">You've mastered rescue vocabulary, gerunds, infinitives, purpose clauses and so/such. You're ready to save the day.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════
+   ALL DATA 100% from the book.
+   Sources:
+   · Wordlist PDF — every vocabulary item
+   · SB pp.102-109 + WB pp.100-107 — full content + answer keys
+   · George Reeder baby rescue (SB p.102-103) — exact T/F answer key + cause/effect
+   · Donkey in the Well fable (SB p.105) — exact purpose sentences
+   · Emergency calls text (SB p.106-107) — exact so/such sentences
+   · Gerund/infinitive exercises (SB p.104, WB p.100) — exact answer keys
+   · Negative prefix exercises (SB p.107, WB pp.102-103) — exact wordlist
+   · Penguin rescue (WB p.104) — exact numbers
+   · Whale rescue (WB p.105) — exact adjectives
+═══════════════════════════════════════ */
+
+// G1 — RESCUE VOCAB: sentence → word
+// All definitions verified from wordlist PDF
+const G1 = [
+  {
+    sentence:"The helicopter took the survivors <span class='blank'>___</span>, away from the wreck.",
+    ans:"to safety", opts:["to safety","in danger","out of danger","recover"],
+    note:"TO SAFETY = to a place where you won't be harmed."
+  },
+  {
+    sentence:"The baby spent five minutes underwater. It was a <span class='blank'>___</span> that he survived.",
+    ans:"miracle", opts:["miracle","tragedy","safety record","consequence"],
+    note:"MIRACLE = something very good that seems almost impossible."
+  },
+  {
+    sentence:"Mr Reeder was <span class='blank'>___</span> about his own safety — he just jumped straight in.",
+    ans:"unconcerned", opts:["unconcerned","unafraid","dangerous","impatient"],
+    note:"UNCONCERNED = not worried or concerned about something."
+  },
+  {
+    sentence:"The ship had <span class='blank'>___</span> and was now lying 30 metres below the surface.",
+    ans:"sunk", opts:["sunk","wrecked","drilled","survived"],
+    note:"SUNK = gone down below the surface of water (past participle of 'sink')."
+  },
+  {
+    sentence:"Okene found an <span class='blank'>___</span> in the ship and put his head in it to breathe.",
+    ans:"air pocket", opts:["air pocket","safety record","wheelbarrow","drill"],
+    note:"AIR POCKET = a small area with trapped air inside a sunken vessel."
+  },
+  {
+    sentence:"The news that 33 miners had survived was incredible — it was almost a <span class='blank'>___</span> for many families.",
+    ans:"miracle", opts:["miracle","tragedy","consequence","wreck"],
+    note:"MIRACLE = an amazing event that's very difficult to believe."
+  },
+  {
+    sentence:"Two people died in the crash, but luckily the driver <span class='blank'>___</span>.",
+    ans:"survived", opts:["survived","recovered","rescued","saved"],
+    note:"SURVIVE = to continue to live after almost dying."
+  },
+  {
+    sentence:"After two weeks in hospital, she finally <span class='blank'>___</span> and was allowed to go home.",
+    ans:"recovered", opts:["recovered","survived","rescued","saved"],
+    note:"RECOVER = to become healthy again after an illness or injury."
+  },
+  {
+    sentence:"The firefighters pulled Za'Quan out of the mud and brought him <span class='blank'>___</span>.",
+    ans:"to safety", opts:["to safety","in danger","out of danger","survive"],
+    note:"TO SAFETY = to a place where the danger is over."
+  },
+  {
+    sentence:"The baby boy was <span class='blank'>___</span> by Mr Reeder, who dived into the freezing water.",
+    ans:"rescued", opts:["rescued","recovered","survived","saved"],
+    note:"RESCUED = saved from a dangerous or unpleasant situation."
+  },
+];
+
+// G2 — GERUND OR INFINITIVE?
+// All trigger verbs + forms verified from SB p.104 grammar box + WB p.100 answer key
+const G2 = [
+  {
+    trigger:"remember",
+    rule:"remember + GERUND",
+    sentence:"Mr Reeder remembered ___ a little bit of breath from the baby's mouth.",
+    ans:"seeing", opts:["seeing","to see","to seeing","see"],
+    note:"REMEMBER + gerund = remembering a past event. 'He remembered seeing...' = he remembered something that happened."
+  },
+  {
+    trigger:"avoid",
+    rule:"avoid + GERUND",
+    sentence:"The council advised people to avoid ___ along the seafront in windy weather.",
+    ans:"walking", opts:["walking","to walk","walk","walked"],
+    note:"AVOID + gerund (always). You cannot say 'avoid to do' — it's always 'avoid doing'."
+  },
+  {
+    trigger:"decide",
+    rule:"decide + to-INFINITIVE",
+    sentence:"Mr Reeder quickly decided ___ something.",
+    ans:"to do", opts:["to do","doing","do","to doing"],
+    note:"DECIDE + to-infinitive. He decided to do = he made a choice about a future action."
+  },
+  {
+    trigger:"manage",
+    rule:"manage + to-INFINITIVE",
+    sentence:"They managed ___ the buggy out of the water and to safety.",
+    ans:"to pull", opts:["to pull","pulling","pull","to pulling"],
+    note:"MANAGE + to-infinitive. 'Manage to do' = succeed in doing something difficult."
+  },
+  {
+    trigger:"finish",
+    rule:"finish + GERUND",
+    sentence:"After he'd finished ___ the baby, Mr Reeder went home to recover.",
+    ans:"helping", opts:["helping","to help","help","to helping"],
+    note:"FINISH + gerund (always). You finish doing something, not 'finish to do'."
+  },
+  {
+    trigger:"suggest",
+    rule:"suggest + GERUND",
+    sentence:"My wife suggested ___ back immediately when the fog came in.",
+    ans:"going", opts:["going","to go","go","to going"],
+    note:"SUGGEST + gerund (always). 'She suggested going' — never 'suggested to go'."
+  },
+  {
+    trigger:"expect",
+    rule:"expect + to-INFINITIVE",
+    sentence:"Mr Reeder expected ___ a dog in the sea, not a baby's buggy.",
+    ans:"to see", opts:["to see","seeing","see","to seeing"],
+    note:"EXPECT + to-infinitive. 'He expected to see' = he anticipated a future sight."
+  },
+  {
+    trigger:"feel like",
+    rule:"feel like + GERUND",
+    sentence:"After two hours of climbing, we felt like ___ a rest.",
+    ans:"having", opts:["having","to have","have","to having"],
+    note:"FEEL LIKE + gerund (always). 'Feel like doing something' = you want to do it."
+  },
+  {
+    trigger:"imagine",
+    rule:"imagine + GERUND",
+    sentence:"I had never imagined ___ to make an emergency phone call.",
+    ans:"needing", opts:["needing","to need","need","to needing"],
+    note:"IMAGINE + gerund (always). 'Imagine meeting your favourite star' — always gerund."
+  },
+  {
+    trigger:"promise",
+    rule:"promise + to-INFINITIVE",
+    sentence:"I promised myself never ___ into the hills when the forecast is bad.",
+    ans:"to go", opts:["to go","going","go","to going"],
+    note:"PROMISE + to-infinitive. 'He promised to tell us' — always to + base form."
+  },
+];
+
+// G3 — PURPOSE BUILDER: action + purpose → complete with to/in order to/so as to
+// All sentences verified from SB p.105 exercise + WB p.101 answer keys
+const G3 = [
+  {
+    action:"The farmer got a wheelbarrow full of earth.",
+    purpose:"He wanted to bury the donkey.",
+    ans:"to", opts:["to","in order to","so as to","in order not to"],
+    combined:"The farmer got a wheelbarrow full of earth to bury the donkey.",
+    note:"TO is the simplest and most common purpose connector."
+  },
+  {
+    action:"Mr Reeder jumped into the water.",
+    purpose:"He wanted to rescue a small boy.",
+    ans:"in order to", opts:["to","in order to","so as not to","so as to"],
+    combined:"Mr Reeder jumped into the water in order to rescue a small boy.",
+    note:"IN ORDER TO = more formal. Used to emphasise the purpose."
+  },
+  {
+    action:"The farmer looked into the well.",
+    purpose:"He wanted to see why the donkey was quiet.",
+    ans:"so as to", opts:["to","in order to","so as to","so as not to"],
+    combined:"The farmer looked into the well so as to see why the donkey was quiet.",
+    note:"SO AS TO = same meaning as 'in order to'. Slightly more formal."
+  },
+  {
+    action:"The nurse stopped on the seafront.",
+    purpose:"She wanted to help the baby boy.",
+    ans:"in order to", opts:["to","in order to","so as not to","so as to"],
+    combined:"The nurse stopped on the seafront in order to help the baby boy.",
+    note:"IN ORDER TO + infinitive = clearly states the reason for the action."
+  },
+  {
+    action:"We got to the stadium early.",
+    purpose:"We didn't want to miss the start of the game.",
+    ans:"so as not to", opts:["to","in order to","so as to","so as not to"],
+    combined:"We got to the stadium early so as not to miss the start of the game.",
+    note:"SO AS NOT TO = negative purpose. 'So as not to + verb' = to avoid doing something."
+  },
+  {
+    action:"I didn't tell my parents about the accident.",
+    purpose:"I didn't want to worry them.",
+    ans:"so as not to", opts:["to","in order to","so as to","so as not to"],
+    combined:"I didn't tell my parents about the accident so as not to worry them.",
+    note:"SO AS NOT TO = prevent something negative from happening."
+  },
+  {
+    action:"He's saving his money.",
+    purpose:"He wants to buy a new computer.",
+    ans:"so as to", opts:["so as to","in order not to","to not","in order to"],
+    combined:"He's saving his money so as to buy a new computer.",
+    note:"SO AS TO = in order to achieve a goal."
+  },
+  {
+    action:"Jordan dresses in T-shirt and jeans.",
+    purpose:"He doesn't want to be different from other teenagers.",
+    ans:"in order not to", opts:["in order to","so as to","so as not to","in order not to"],
+    combined:"Jordan dresses like this in order not to be different from other teenagers.",
+    note:"IN ORDER NOT TO = a formal way to express a negative purpose."
+  },
+];
+
+// G4 — SO OR SUCH? — from the emergency calls text (SB p.106-107)
+// All verified from SB p.107 grammar exercise + WB p.101 answer keys
+const G4 = [
+  {
+    call:"\"My brother-in-law has been here two weeks.\"",
+    sentence:"He's ___ boring that I can't stand it any more.",
+    ans:"so", opts:["so","such","so a","such a"],
+    note:"SO + adjective (no noun). 'So boring' — boring is an adjective on its own."
+  },
+  {
+    call:"\"My children are making a lot of noise upstairs.\"",
+    sentence:"They're making ___ loud noise upstairs that I can't think properly.",
+    ans:"such a", opts:["so","such","such a","so a"],
+    note:"SUCH A + adj + singular noun. 'Such a loud noise' — noun = noise."
+  },
+  {
+    call:"\"Someone is calling the emergency services for silly reasons.\"",
+    sentence:"Some people call for ___ unimportant reasons that it's hard to believe.",
+    ans:"such", opts:["so","such","such a","so a"],
+    note:"SUCH + adj + plural noun. 'Such unimportant reasons' — reasons is plural."
+  },
+  {
+    call:"\"There's a black cat in the garden.\"",
+    sentence:"Black cats are ___ unlucky animals that I can't have one near me.",
+    ans:"such", opts:["so","such","such a","so a"],
+    note:"SUCH + adj + plural noun. 'Such unlucky animals' — animals is plural."
+  },
+  {
+    call:"\"I'm trying to find a shop and I can't.\"",
+    sentence:"I'm ___ tired that I'm almost in tears.",
+    ans:"so", opts:["so","such","such a","so a"],
+    note:"SO + adjective. 'So tired' — tired is an adjective alone."
+  },
+  {
+    call:"\"I think the Prime Minister is really attractive.\"",
+    sentence:"He's ___ good-looking man that I want to phone him.",
+    ans:"such a", opts:["so","such","such a","so a"],
+    note:"SUCH A + adj + singular noun. 'Such a good-looking man'."
+  },
+  {
+    call:"\"The explanation in class today was very complex.\"",
+    sentence:"The teacher's explanation was ___ complicated that we couldn't understand it.",
+    ans:"so", opts:["so","such","such a","so a"],
+    note:"SO + adjective. No noun follows. Compare: 'such a complicated explanation'."
+  },
+  {
+    call:"\"The party last week was amazing.\"",
+    sentence:"It was ___ great success that we're going to have another one.",
+    ans:"such a", opts:["so","such","such a","so a"],
+    note:"SUCH A + adj + singular countable noun. 'Such a great success'."
+  },
+];
+
+// G5 — NEGATIVE PREFIX SPRINT: word → correct prefix
+// All words + prefixes verified from SB p.107 table + WB pp.102-103 exercise answer key
+const G5_WORDS = [
+  { word:"happy",       prefix:"un" },
+  { word:"healthy",     prefix:"un" },
+  { word:"comfortable", prefix:"un" },
+  { word:"important",   prefix:"un" },
+  { word:"necessary",   prefix:"un" },
+  { word:"true",        prefix:"un" },
+  { word:"helpful",     prefix:"un" },
+  { word:"afraid",      prefix:"un" },
+  { word:"surprising",  prefix:"un" },
+  { word:"patient",     prefix:"im" },
+  { word:"polite",      prefix:"im" },
+  { word:"possible",    prefix:"im" },
+  { word:"formal",      prefix:"in" },
+  { word:"expensive",   prefix:"in" },
+  { word:"responsible", prefix:"ir" },
+  { word:"regular",     prefix:"ir" },
+  { word:"legal",       prefix:"il" },
+  { word:"logical",     prefix:"il" },
+];
+
+// G6 — REEDER RESCUE: cause → effect match
+// Exact cause/effect pairs from SB p.103 exercise 5 answer key
+const G6_PAIRS = [
+  { cause:"The baby was in great danger.", effect:"He jumped in the water without thinking." },
+  { cause:"He heard a noise.", effect:"He cycled quickly to see what was happening." },
+  { cause:"A nurse gave first aid.", effect:"He saved the baby's life." },
+  { cause:"He learned that the baby was OK.", effect:"He felt very relieved." },
+  { cause:"The baby wasn't breathing.", effect:"A nurse gave the baby CPR." },
+];
+
+// G7 — BOMB DEFUSE: true/false
+const G7 = [
+  { q:"George Reeder was the local harbour master at Watchet in Somerset.",                       ans:true,  t:5 },
+  { q:"He expected to see a baby's buggy in the sea.",                                            ans:false, t:4 }, // he expected to see a dog
+  { q:"The baby spent around five minutes in the freezing water.",                                ans:true,  t:5 },
+  { q:"Tanya Allen, a passer-by who was a nurse, gave the baby CPR.",                            ans:true,  t:5 },
+  { q:"Mr Reeder said he had been very brave that day.",                                          ans:false, t:4 }, // he said he hadn't really been brave
+  { q:"In 'The Donkey in the Well', the farmer buried the donkey in order to help it die quickly.", ans:true, t:5 },
+  { q:"The donkey escaped by standing on the growing pile of earth.",                             ans:true,  t:4 },
+  { q:"The verb 'avoid' is followed by a to-infinitive.",                                         ans:false, t:4 }, // avoid + gerund
+  { q:"'Suggest', 'finish' and 'imagine' are all followed by a gerund.",                         ans:true,  t:5 },
+  { q:"'In order not to' and 'so as not to' express a negative purpose.",                        ans:true,  t:4 },
+  { q:"'So' is used before an adjective; 'such' is used before a noun phrase.",                  ans:true,  t:5 },
+  { q:"Phoning the emergency services with untrue information is irresponsible but not illegal.", ans:false, t:5 }, // it IS illegal — "irresponsible and illegal"
+  { q:"The MV Treasure oil spill affected 20,000 penguins near Cape Town in 2000.",              ans:true,  t:4 },
+  { q:"45,000 volunteers helped to save the penguins in the Great Penguin Rescue.",              ans:true,  t:5 },
+];
+
+// G8 — WORD ORDER: exact sentences from SB/WB
+const G8 = [
+  { words:["He","jumped","in","to","rescue","the","baby","without","thinking","."],                ans:"He jumped in to rescue the baby without thinking ."                 },
+  { words:["The","farmer","looked","into","the","well","so","as","to","see","why","it","was","quiet","."], ans:"The farmer looked into the well so as to see why it was quiet ." },
+  { words:["Some","people","call","999","for","such","unimportant","reasons","that","it's","hard","to","believe","."], ans:"Some people call 999 for such unimportant reasons that it's hard to believe ." },
+  { words:["It","was","so","windy","that","it","was","dangerous","to","walk","there","."],          ans:"It was so windy that it was dangerous to walk there ."               },
+  { words:["She","suggested","going","back","immediately","when","the","fog","came","in","."],      ans:"She suggested going back immediately when the fog came in ."         },
+  { words:["I","promised","myself","never","to","go","into","the","hills","again","."],             ans:"I promised myself never to go into the hills again ."              },
+  { words:["The","baby","was","taken","to","hospital","by","air","ambulance","helicopter","."],     ans:"The baby was taken to hospital by air ambulance helicopter ."       },
+  { words:["It's","irresponsible","and","also","illegal","to","phone","with","untrue","information","."], ans:"It's irresponsible and also illegal to phone with untrue information ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7bombScore=0;
+let g5streak=0, g5best=0, g5words=[], g5i=0;
+let g6sel=null, g6matched=0;
+
+/* HELPERS */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.innerHTML=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+function confetti(){
+  const cols=['#e53e3e','#f6ad55','#38b2ac','#9f7aea','#68d391','#63b3ed'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#e53e3e','#f6ad55','#38b2ac','#68d391'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=3+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Rescue Vocab','Gerund or Infinitive?','Purpose Builder','So or Such?','Prefix Sprint','Reeder Rescue','Bomb Defuse','Word Order'];
+  const cols=['var(--red)','var(--sky)','var(--violet)','var(--amber)','var(--lime)','var(--red)','var(--amber)','var(--teal)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    'Retell the George Reeder rescue story using: in order to, so as to, managed to, decided to.',
+    'Use so/such to describe: the Donkey in the Well, the Chilean miners, the penguin rescue.',
+    '"I avoid studying when I feel like watching TV." — Add your own gerund/infinitive sentences.',
+    'Discuss: Should you always call the emergency services if you see someone in danger? Why?',
+    'Make un-/im-/in-/ir-/il- words into sentences: "It\'s illegal to… It\'s irresponsible to…"',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══ G1 — RESCUE VOCAB ═══ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Rescue & Survival</div>
+      <div class="gh-name" style="color:var(--red)">Rescue Vocab</div>
+      <div class="gh-instr">Choose the correct word to complete the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="vocab-card">
+      <div class="vocab-eyebrow">Complete the sentence</div>
+      <div class="vocab-sentence">${q.sentence}</div>
+      <div class="red-note" id="g1note"></div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--red)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--red);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g1note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g1next');
+  }));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+
+/* ═══ G2 — GERUND OR INFINITIVE? ═══ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Gerund vs Infinitive</div>
+      <div class="gh-name" style="color:var(--sky)">Gerund or Infinitive?</div>
+      <div class="gh-instr">The trigger verb is shown — does it take a gerund or to-infinitive?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="verb-card">
+      <div class="verb-eyebrow">Trigger verb</div>
+      <div class="verb-trigger">${q.trigger} → <em>${q.rule}</em></div>
+      <div class="verb-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="sky-note" id="g2note"></div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g2note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g2next');
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══ G3 — PURPOSE BUILDER ═══ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Purpose Clauses</div>
+      <div class="gh-name" style="color:var(--violet)">Purpose Builder</div>
+      <div class="gh-instr">These two sentences need combining. Choose the right connector.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="purpose-card">
+      <div class="purpose-eyebrow">Combine these sentences</div>
+      <div class="sentence-pair">
+        <div class="sentence-a">${q.action}</div>
+        <div class="sentence-b">${q.purpose}</div>
+      </div>
+      <div class="purpose-q">Which connector fits? — Action ___ purpose.</div>
+      <div class="combined-result" id="g3result"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--violet)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const result=$('g3result'); result.style.display='block'; result.textContent='✓ '+q.combined;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐ 💡 '+q.note); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','The connector is: <strong>'+q.ans+'</strong>. 💡 '+q.note); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══ G4 — SO OR SUCH? ═══ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · so / such … that</div>
+      <div class="gh-name" style="color:var(--amber)">So or Such?</div>
+      <div class="gh-instr">Read the emergency call — complete with so, such, or such a.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="so-card">
+      <div class="so-eyebrow">Emergency call</div>
+      <div class="emergency-call">${q.call}</div>
+      <div class="so-sentence">${q.sentence.replace('___','<span class="blank">___</span>')}</div>
+      <div class="amber-note" id="g4note"></div>
+    </div>
+    <div class="opts2" id="g4opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g4opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g4opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g4note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g4fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g4opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g4fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g4next');
+  }));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+
+/* ═══ G5 — PREFIX SPRINT ═══
+   A word appears big. Student taps the prefix. Streak counter top-left.
+   Wrong tap = streak broken. Next word appears immediately after correct.
+═══════════════════════════════════════════ */
+function g5Init(){
+  g5words=rnd([...G5_WORDS]); g5i=0; g5streak=0; g5best=0;
+  totalQs+=g5words.length; setProgress(0,g5words.length);
+  g5Render();
+}
+function g5Render(){
+  if(g5i>=g5words.length){ finishGame(); return; }
+  const w=g5words[g5i];
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Vocabulary · Negative Prefixes</div>
+      <div class="gh-name" style="color:var(--lime)">Prefix Sprint</div>
+      <div class="gh-instr">Tap the correct negative prefix for the word. Build your streak!</div>
+    </div>
+    <div class="sprint-hud">
+      <div><div class="sprint-streak">${g5streak}</div><div class="sprint-lbl">streak</div></div>
+      <div style="font-size:12px;color:var(--muted2)">${g5i+1} / ${g5words.length}</div>
+      <div style="font-size:11px;color:var(--muted2)">Best: ${g5best}</div>
+    </div>
+    <div class="sprint-word-card">
+      <div class="sprint-base" id="spWord">${w.word}</div>
+      <div class="sprint-hint">Add the correct negative prefix</div>
+    </div>
+    <div class="prefix-grid" id="pfxGrid">
+      ${['un','im','in','ir','il'].map(p=>`<div class="pfx-btn" data-p="${p}">${p}-</div>`).join('')}
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('.pfx-btn').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('.pfx-btn').forEach(b=>b.classList.add('locked'));
+    if(el.dataset.p===w.prefix){
+      el.classList.add('pfx-ok'); g5streak++; if(g5streak>g5best)g5best=g5streak; if(g5streak>bestStreak)bestStreak=g5streak;
+      addScore(2); setProgress(g5i+1,g5words.length);
+      showFb('g5fb','ok',`<strong>${w.prefix}-${w.word}</strong> — correct! +2 ⭐`); miniConfetti(el);
+    } else {
+      el.classList.add('pfx-wrong'); document.querySelectorAll('.pfx-btn').forEach(b=>{ if(b.dataset.p===w.prefix)b.classList.add('pfx-ok'); });
+      g5streak=0; showFb('g5fb','bad',`It's <strong>${w.prefix}-</strong>. So: <strong>${w.prefix}${w.word}</strong>`);
+    }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══ G6 — REEDER RESCUE: cause→effect match ═══ */
+function g6Init(){
+  g6sel=null; g6matched=0;
+  totalQs+=G6_PAIRS.length; setProgress(0,G6_PAIRS.length);
+  const pairs=rnd([...G6_PAIRS]);
+  const effects=rnd(pairs.map((p,i)=>({...p,idx:i})));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Reading · George Reeder Baby Rescue</div>
+      <div class="gh-name" style="color:var(--red)">Reeder Rescue</div>
+      <div class="gh-instr">Tap a cause, then tap its effect. Match all five pairs.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="match-col-label">Cause</div>
+      <div class="match-col-label">Effect</div>
+    </div>
+    <div class="match-scene">
+      <div class="match-col" id="causeCol">
+        ${pairs.map((p,i)=>`<div class="match-tile" data-idx="${i}" id="ca${i}">${p.cause}</div>`).join('')}
+      </div>
+      <div class="match-col" id="effectCol">
+        ${effects.map(e=>`<div class="match-tile" data-idx="${e.idx}" id="ef${e.idx}">${e.effect}</div>`).join('')}
+      </div>
+    </div>
+    <div class="match-progress" id="g6prog">Matched: 0 / ${G6_PAIRS.length}</div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6fin" style="background:var(--red);color:#fff">Finish ›</button>`;
+
+  document.querySelectorAll('#causeCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched')||el.classList.contains('locked'))return;
+      document.querySelectorAll('#causeCol .match-tile').forEach(t=>{ if(!t.classList.contains('matched'))t.classList.remove('selected'); });
+      el.classList.add('selected'); g6sel={idx:parseInt(el.dataset.idx)};
+    });
+  });
+  document.querySelectorAll('#effectCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched'))return;
+      if(!g6sel){ showFb('g6fb','bad','Tap a cause first.'); return; }
+      const efIdx=parseInt(el.dataset.idx);
+      if(g6sel.idx===efIdx){
+        $('ca'+g6sel.idx).classList.remove('selected'); $('ca'+g6sel.idx).classList.add('matched');
+        el.classList.add('matched');
+        g6matched++; addScore(2); setProgress(g6matched,G6_PAIRS.length);
+        showFb('g6fb','ok','Correct match! +2 ⭐'); miniConfetti(el);
+        $('g6prog').textContent=`Matched: ${g6matched} / ${G6_PAIRS.length}`;
+        g6sel=null;
+        if(g6matched===G6_PAIRS.length) setTimeout(()=>show('g6fin'),300);
+      } else {
+        $('ca'+g6sel.idx).classList.add('wrong'); el.classList.add('wrong');
+        setTimeout(()=>{ $('ca'+g6sel.idx).classList.remove('wrong','selected'); el.classList.remove('wrong'); },500);
+        showFb('g6fb','bad','Not quite — re-read the story carefully.'); g6sel=null;
+      }
+    });
+  });
+  $('g6fin').addEventListener('click',()=>finishGame());
+}
+
+/* ═══ G7 — BOMB DEFUSE ═══ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7streak=0; g7bombScore=0; g7Setup(); }
+function g7Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Review · Timed True / False</div>
+      <div class="gh-name" style="color:var(--amber)">Bomb Defuse</div>
+      <div class="gh-instr">Unit 11 facts — true or false? Defuse before time runs out.</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" id="bQ">1/${g7q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--red);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+  g7Render();
+}
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++;
+  $('bQ').textContent=`${g7i+1}/${g7q.length}`; hideFb('g7fb'); hide('g7next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`<div class="opt" style="--opt-col:var(--ok)" data-a="true">True</div><div class="opt" style="--opt-col:var(--bad)" data-a="false">False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g7Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill'); tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g7TimeUp(q.ans),q.t*1000);
+}
+function g7Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g7streak++; g7bombScore+=3;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('bStreak').textContent=g7streak; $('bScore').textContent=g7bombScore;
+    addScore(3); showFb('g7fb','ok','Correct! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g7streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g7fb','bad',ans?'That is TRUE.':'That is FALSE.');
+  }
+  show('g7next');
+}
+function g7TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji'; g7streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g7fb','bad','Time up — it was '+(ans?'TRUE':'FALSE')+'.'); show('g7next');
+}
+
+/* ═══ G8 — WORD ORDER ═══ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · Unit 11 Sentences</div>
+      <div class="gh-name" style="color:var(--teal)">Word Order</div>
+      <div class="gh-instr">Tap tiles in the correct order to reconstruct the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">Tap tiles to build the sentence…</div>
+    <div class="word-pool" id="g8pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--teal);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='Tap tiles to build the sentence…'; hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 ⭐'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
+}
+</script>
+</body>
+</html>
