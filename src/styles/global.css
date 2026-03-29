@@ -226,3 +226,196 @@ select.form-input { cursor: pointer; }
 .sc-good      { color: var(--accent2); }
 .sc-average   { color: var(--gold); }
 .sc-weak      { color: var(--red); }
+
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVENESS
+   ══════════════════════════════════════ */
+
+/* Base padding for all main content */
+#root > * { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+
+/* ── Layout ── */
+@media (max-width: 640px) {
+
+  /* Main content padding */
+  .main-content {
+    padding: 16px !important;
+  }
+
+  /* Tabs — scroll horizontally instead of wrapping */
+  .tabs-row {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding-bottom: 2px;
+  }
+  .tabs-row::-webkit-scrollbar { display: none; }
+
+  /* Tab buttons — don't shrink */
+  .tabs-row .btn,
+  .tabs-row button {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* Card grids → single column */
+  .card-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Class cards — full width */
+  .class-card {
+    width: 100% !important;
+  }
+
+  /* Modal — full screen on mobile */
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  .modal {
+    border-radius: 20px 20px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+    padding: 24px 20px !important;
+  }
+
+  /* Form rows → stack on mobile */
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Buttons in header area → stack */
+  .header-btn-group {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* Class detail action buttons → 2 column grid */
+  .class-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .class-actions .btn {
+    justify-content: center !important;
+    font-size: 9px !important;
+    padding: 8px 6px !important;
+  }
+
+  /* Leaderboard podium — scale down */
+  .podium-wrap {
+    gap: 8px !important;
+    height: 120px !important;
+  }
+
+  /* Student rows — tighter padding */
+  .student-row {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Skill bars section */
+  .skill-slider-row {
+    gap: 8px !important;
+  }
+  .skill-slider-label {
+    width: 72px !important;
+    font-size: 11px !important;
+  }
+
+  /* Analytics cards → stack */
+  .analytics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Stat numbers — smaller */
+  .stat-number {
+    font-size: 28px !important;
+  }
+
+  /* Back button */
+  .btn-back {
+    margin-bottom: 14px !important;
+  }
+
+  /* Student profile sections */
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Race track — smaller */
+  .race-track-row {
+    padding: 4px 0 !important;
+  }
+
+  /* Spin of Doom / Star Slots modal */
+  .spin-pop {
+    padding: 12px !important;
+  }
+
+  /* Attendance calendar — scroll if needed */
+  .attendance-calendar {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Tab bar at bottom for main navigation if present */
+  .main-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .main-tabs::-webkit-scrollbar { display: none; }
+}
+
+/* ── Small phones (< 400px) ── */
+@media (max-width: 400px) {
+  .header-brand-name { font-size: 15px !important; }
+
+  .class-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .modal {
+    padding: 20px 16px !important;
+  }
+
+  .podium-wrap {
+    height: 100px !important;
+  }
+}
+
+/* ── Tablet (641px – 900px) ── */
+@media (min-width: 641px) and (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .analytics-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .class-actions {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .class-actions .btn {
+    font-size: 9px !important;
+    padding: 8px 10px !important;
+  }
+}
+
+/* ── Touch targets — minimum 44px on mobile ── */
+@media (max-width: 640px) {
+  .btn { min-height: 40px; }
+  .btn-ghost { min-height: 36px; min-width: 36px; }
+  .form-input { padding: 13px 14px; font-size: 16px; } /* 16px prevents iOS zoom */
+  select.form-input { font-size: 16px; }
+}
