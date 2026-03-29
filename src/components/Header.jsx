@@ -27,9 +27,14 @@ export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme
           style={{
             background: 'rgba(255,255,255,0.08)',
             border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: 9, color: '#fff', cursor: 'pointer',
-            fontSize: 16, padding: '7px 11px', transition: 'all 0.15s',
-            display: 'inline-flex', alignItems: 'center',
+            borderRadius: 9,
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: 16,
+            padding: '7px 11px',
+            transition: 'all 0.15s',
+            display: 'inline-flex',
+            alignItems: 'center',
           }}
         >
           {isDark ? '☀️' : '🌙'}
