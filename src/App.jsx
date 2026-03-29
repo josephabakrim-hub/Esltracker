@@ -181,7 +181,7 @@ export default function App() {
         onSwitchRole={() => setAccess(null)}
       />
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "clamp(12px, 3vw, 32px) clamp(12px, 3vw, 24px) 80px" }}>
         <Tabs active={activeTab} onChange={handleTabChange} />
 
         {isLoading && (
