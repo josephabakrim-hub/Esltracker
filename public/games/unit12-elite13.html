@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 12 — A First Time for Everything</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07060f;
+  --deep:    #0a0912;
+  --card:    #100f1e;
+  --card2:   #161527;
+  --border:  #252340;
+  --indigo:  #818cf8;
+  --violet:  #a78bfa;
+  --coral:   #fb7185;
+  --teal:    #2dd4bf;
+  --amber:   #fbbf24;
+  --lime:    #86efac;
+  --sky:     #7dd3fc;
+  --green:   #4ade80;
+  --red:     #f87171;
+  --white:   #eef2ff;
+  --muted:   #1e1d38;
+  --muted2:  #5855a0;
+  --ok:      #4ade80;
+  --bad:     #f87171;
+  --font-h:  'DM Serif Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --r:14px; --r-sm:8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image: radial-gradient(ellipse at 20% 20%, rgba(129,140,248,.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(167,139,250,.04) 0%, transparent 50%); }
+#cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+@keyframes cffall { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes popIn  { 0%{transform:scale(.85)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes shake  { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 60%{transform:translateX(6px)} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes slideUp{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@keyframes glow   { 0%,100%{text-shadow:0 0 8px rgba(129,140,248,.3)} 50%{text-shadow:0 0 20px rgba(129,140,248,.7)} }
+
+/* HOME */
+#home { display:flex; flex-direction:column; align-items:center; padding:32px 20px 70px; min-height:100vh; }
+.home-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:10px; text-align:center; }
+.home-title { font-family:var(--font-h); font-size:clamp(2rem,7vw,3.2rem); text-align:center; line-height:1.08; margin-bottom:6px; }
+.home-title em { color:var(--indigo); font-style:italic; }
+.home-unit { font-size:12px; color:var(--muted2); font-weight:500; margin-bottom:8px; letter-spacing:1px; text-align:center; }
+.home-divider { width:40px; height:2px; background:var(--indigo); border-radius:2px; margin:12px auto 20px; }
+.total-stars { display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:30px; padding:7px 18px; margin-bottom:30px; font-size:14px; font-weight:600; color:var(--amber); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:560px; }
+.gc { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 14px; cursor:pointer; position:relative; transition:transform .15s, border-color .15s, background .15s; }
+.gc:hover { transform:translateY(-3px); border-color:var(--gc-col); background:var(--card2); }
+.gc:active { transform:scale(.98); }
+.gc.done { border-color:var(--green); }
+.gc.done::after { content:'✓'; position:absolute; top:10px; right:12px; color:var(--green); font-weight:700; font-size:13px; }
+.gc-num  { font-size:9px; font-weight:700; color:var(--gc-col); letter-spacing:2px; text-transform:uppercase; opacity:.8; margin-bottom:6px; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); margin-bottom:4px; line-height:1.2; }
+.gc-desc { font-size:11px; color:var(--muted2); line-height:1.5; }
+.gc-best { font-size:10px; margin-top:6px; color:var(--amber); font-weight:600; min-height:14px; }
+
+/* SHELL */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:rgba(7,6,15,.95); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:20; backdrop-filter:blur(12px); }
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-size:12px; font-weight:500; padding:6px 14px; border-radius:20px; cursor:pointer; transition:border-color .15s; }
+.back-btn:hover { border-color:var(--indigo); color:var(--indigo); }
+.tb-title { font-family:var(--font-h); font-size:16px; }
+.tb-score { background:var(--indigo); color:var(--bg); font-size:13px; font-weight:700; padding:5px 14px; border-radius:20px; }
+.prog-bar-wrap { height:2px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:24px 20px; max-width:680px; width:100%; margin:0 auto; }
+
+/* SHARED */
+.game-header { margin-bottom:20px; }
+.gh-eyebrow { font-size:10px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:5px; }
+.gh-name  { font-family:var(--font-h); font-size:1.7rem; line-height:1.1; margin-bottom:6px; }
+.gh-instr { font-size:13px; color:var(--muted2); line-height:1.6; }
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--white); padding:12px 10px; cursor:pointer; text-align:center; transition:all .13s; line-height:1.4; }
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--indigo)); color:var(--opt-col,var(--indigo)); background:var(--card2); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(74,222,128,.08); animation:popIn .25s; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(248,113,113,.07); animation:shake .35s; pointer-events:none; }
+.opt.locked  { pointer-events:none; opacity:.7; }
+.fb { padding:10px 16px; border-radius:8px; font-size:13px; font-weight:500; text-align:center; display:none; margin-bottom:12px; line-height:1.5; }
+.fb.ok  { display:block; background:rgba(74,222,128,.08); color:var(--ok); border:1px solid rgba(74,222,128,.2); }
+.fb.bad { display:block; background:rgba(248,113,113,.07); color:var(--bad); border:1px solid rgba(248,113,113,.18); }
+.next-btn { display:none; margin-left:auto; padding:9px 22px; font-size:13px; font-weight:600; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.next-btn.visible { display:block; }
+.prog-dots { display:flex; justify-content:center; gap:5px; margin-bottom:14px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done { background:var(--muted); }
+.dot.current { background:var(--indigo); transform:scale(1.5); }
+
+/* G1: PHRASAL VERB DEFINITIONS — tap-to-match */
+.match-scene { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+.match-col-label { font-size:10px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; margin-bottom:8px; text-align:center; }
+.match-col { display:flex; flex-direction:column; gap:6px; }
+.match-tile { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-size:12px; font-weight:500; color:var(--white); padding:10px 10px; cursor:pointer; transition:all .14s; text-align:center; line-height:1.4; }
+.match-tile:hover { border-color:var(--indigo); color:var(--indigo); }
+.match-tile.selected { border-color:var(--amber); color:var(--amber); background:rgba(251,191,36,.07); }
+.match-tile.matched  { border-color:var(--ok); color:var(--ok); background:rgba(74,222,128,.07); pointer-events:none; animation:popIn .25s; }
+.match-tile.wrong    { border-color:var(--bad); animation:shake .35s; }
+.match-tile.locked   { pointer-events:none; opacity:.5; }
+.match-progress { text-align:center; font-size:12px; color:var(--muted2); margin-top:8px; }
+
+/* G2: WISH/IF ONLY — unique regret rewriter */
+/* A situation is shown. Student taps whether it needs I WISH or IF ONLY, then chooses the correct past perfect form. Two-step mechanic. */
+.regret-card {
+  background:linear-gradient(160deg,var(--card2),var(--deep));
+  border:1px solid rgba(129,140,248,.22); border-radius:var(--r);
+  padding:22px 18px; margin-bottom:14px; position:relative; overflow:hidden;
+}
+.regret-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--indigo),var(--violet)); }
+.regret-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--indigo); text-transform:uppercase; margin-bottom:10px; }
+.regret-situation { background:rgba(129,140,248,.07); border-left:3px solid var(--indigo); padding:10px 14px; font-size:1rem; line-height:1.7; margin-bottom:12px; border-radius:0 6px 6px 0; color:var(--white); }
+.regret-q { font-size:1rem; line-height:1.8; color:var(--white); }
+.regret-q .blank { color:var(--indigo); font-weight:700; }
+.indigo-note { background:rgba(129,140,248,.07); border:1px solid rgba(129,140,248,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--indigo); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G3: INTERNET HISTORY QUIZ — "FIRST EVER" trivia show */
+/* A statement about an internet first — student fills in the missing detail */
+.internet-card {
+  background:var(--card2); border:1px solid rgba(125,211,252,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.internet-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--sky); text-transform:uppercase; margin-bottom:10px; }
+.internet-q { font-size:1.05rem; line-height:1.8; color:var(--white); }
+.internet-q .blank { color:var(--sky); font-weight:700; }
+.sky-note { background:rgba(125,211,252,.07); border:1px solid rgba(125,211,252,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--sky); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G4: WHO IS IT? — character identification (Paul/Hanif/Roseli/Ingrid/Pauline/Billy) */
+.story-card {
+  background:var(--card2); border:1px solid rgba(251,113,133,.18);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.story-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--coral); text-transform:uppercase; margin-bottom:10px; }
+.story-quote { font-family:var(--font-h); font-size:1rem; font-style:italic; line-height:1.7; color:var(--white); }
+.story-hint { font-size:11px; color:var(--muted2); margin-top:8px; font-weight:500; }
+.coral-note { background:rgba(251,113,133,.07); border:1px solid rgba(251,113,133,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--coral); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+.char-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.char-btn { background:var(--card); border:1px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-h); font-size:13px; color:var(--white); padding:12px 8px; cursor:pointer; text-align:center; transition:all .13s; }
+.char-btn:hover:not(.locked) { border-color:var(--coral); color:var(--coral); }
+.char-btn.ch-ok    { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(74,222,128,.08); animation:popIn .25s; pointer-events:none; }
+.char-btn.ch-wrong { border-color:var(--bad)!important; color:var(--bad)!important; animation:shake .35s; pointer-events:none; }
+.char-btn.locked   { pointer-events:none; }
+
+/* G5: SEPARABLE PHRASAL VERB CHALLENGE — unique mechanic */
+/* A sentence is shown with a pronoun. Student decides: CAN the verb be separated (tap YES) or NOT (tap NO). */
+.sep-card {
+  background:var(--card2); border:1px solid rgba(134,239,172,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.sep-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--lime); text-transform:uppercase; margin-bottom:10px; }
+.sep-sentence { font-size:1.05rem; line-height:1.8; color:var(--white); margin-bottom:10px; }
+.sep-sentence .hl  { color:var(--lime); font-weight:700; }
+.sep-question { font-size:1rem; color:var(--muted2); }
+.lime-note { background:rgba(134,239,172,.07); border:1px solid rgba(134,239,172,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--lime); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+.yesno-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.yn-btn { background:var(--card); border:2px solid var(--border); border-radius:var(--r); padding:16px 10px; cursor:pointer; text-align:center; transition:all .14s; }
+.yn-btn:hover:not(.locked) { border-color:var(--lime); }
+.yn-btn .yn-label { font-family:var(--font-h); font-size:1.2rem; display:block; margin-bottom:4px; }
+.yn-btn .yn-sub   { font-size:10px; color:var(--muted2); }
+.yn-btn.yn-ok    { border-color:var(--ok)!important; background:rgba(74,222,128,.08); animation:popIn .25s; pointer-events:none; }
+.yn-btn.yn-wrong { border-color:var(--bad)!important; animation:shake .35s; pointer-events:none; }
+.yn-btn.locked   { pointer-events:none; }
+
+/* G6: NERVOUS BODY LANGUAGE — description → vocabulary word */
+.nerves-card {
+  background:var(--card2); border:1px solid rgba(167,139,250,.2);
+  border-radius:var(--r); padding:22px 18px; margin-bottom:14px;
+}
+.nerves-eyebrow { font-size:10px; font-weight:700; letter-spacing:2.5px; color:var(--violet); text-transform:uppercase; margin-bottom:10px; }
+.nerves-situation { font-size:1rem; line-height:1.8; color:var(--white); }
+.nerves-situation .hl { color:var(--violet); font-weight:600; }
+.violet-note { background:rgba(167,139,250,.07); border:1px solid rgba(167,139,250,.18); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--violet); font-weight:500; line-height:1.6; margin-top:8px; display:none; }
+
+/* G7: BOMB DEFUSE */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-size:9px; font-weight:600; letter-spacing:2px; color:var(--muted2); text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:1.4rem; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(129,140,248,.08); border:1px solid rgba(129,140,248,.2); border-radius:20px; padding:5px 12px; }
+.streak-num  { font-family:var(--font-h); font-size:1.4rem; color:var(--indigo); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:54px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:pulse .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:5px; background:var(--border); border-radius:3px; margin-bottom:8px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; }
+.bomb-q { font-size:1rem; text-align:center; line-height:1.6; min-height:50px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+/* G8: WORD ORDER */
+.wo-display { background:var(--deep); border:1px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:54px; margin-bottom:12px; font-size:15px; font-weight:500; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--indigo); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:400; color:var(--muted2); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:12px; }
+.wtile { background:var(--card2); border:1px solid var(--indigo); color:var(--indigo); font-size:13px; font-weight:600; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .13s; user-select:none; }
+.wtile:hover:not(.used) { background:var(--indigo); color:var(--bg); transform:translateY(-2px); }
+.wtile.used { opacity:.18; pointer-events:none; }
+.btn-row { display:flex; gap:8px; margin-bottom:12px; }
+.btn-clear { background:var(--border); color:var(--white); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:7px; cursor:pointer; }
+.btn-check { font-size:13px; font-weight:700; padding:9px 22px; border:none; border-radius:7px; cursor:pointer; transition:all .13s; }
+
+/* WIN */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:40px 24px; flex-direction:column; }
+.win-eyebrow { font-size:10px; font-weight:600; letter-spacing:3px; color:var(--muted2); text-transform:uppercase; margin-bottom:12px; }
+.win-title { font-family:var(--font-h); font-size:3rem; color:var(--indigo); text-shadow:0 0 30px rgba(129,140,248,.3); margin-bottom:8px; }
+.win-sub   { font-size:14px; color:var(--muted2); margin-bottom:28px; max-width:380px; line-height:1.6; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--indigo) 0%, var(--violet) 40%, var(--teal) 80%, var(--indigo) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 28px; box-shadow:0 0 40px rgba(129,140,248,.2); }
+.win-num { font-family:var(--font-h); font-size:2.4rem; color:var(--bg); line-height:1; }
+.win-lbl { font-size:9px; font-weight:700; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:400px; margin-bottom:24px; }
+.win-stat { background:var(--card); border-radius:var(--r); padding:14px 8px; text-align:center; border:1px solid var(--border); }
+.ws-lbl  { font-size:9px; font-weight:700; letter-spacing:1.5px; color:var(--muted2); text-transform:uppercase; margin-bottom:4px; }
+.ws-val  { font-family:var(--font-h); font-size:1.4rem; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; max-width:440px; width:100%; margin-bottom:24px; text-align:left; }
+.ws-title { font-size:10px; font-weight:700; letter-spacing:2px; color:var(--indigo); text-transform:uppercase; margin-bottom:10px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:2; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'—'; position:absolute; left:0; color:var(--indigo); }
+.btn-play { background:var(--indigo); color:var(--bg); font-size:14px; font-weight:700; padding:13px 36px; border:none; border-radius:30px; cursor:pointer; transition:all .15s; }
+.btn-play:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(129,140,248,.3); }
+</style>
+</head>
+<body>
+
+<div id="home">
+  <div class="home-eyebrow">Think Level 3 · Unit 12 · Elite1_3</div>
+  <h1 class="home-title">A First Time for<br><em>Everything</em></h1>
+  <div class="home-unit">I WISH / IF ONLY · PHRASAL VERBS · INTERNET FIRSTS · NERVOUSNESS</div>
+  <div class="home-divider"></div>
+  <div class="total-stars">⭐ <span id="totalStars">0</span> stars earned</div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#818cf8" onclick="launch(0)" id="gc0">
+      <div class="gc-num">01</div>
+      <div class="gc-title">Phrasal Verb Match</div>
+      <div class="gc-desc">stand out · sort out · carry out · work out…</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#818cf8" onclick="launch(1)" id="gc1">
+      <div class="gc-num">02</div>
+      <div class="gc-title">Regret Rewriter</div>
+      <div class="gc-desc">I wish / If only + past perfect — express regret</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#7dd3fc" onclick="launch(2)" id="gc2">
+      <div class="gc-num">03</div>
+      <div class="gc-title">Internet Firsts</div>
+      <div class="gc-desc">Test your memory of the history of the Internet</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#fb7185" onclick="launch(3)" id="gc3">
+      <div class="gc-num">04</div>
+      <div class="gc-title">Who Said It?</div>
+      <div class="gc-desc">Paul · Hanif · Roseli · Ingrid · Pauline · Billy</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#86efac" onclick="launch(4)" id="gc4">
+      <div class="gc-num">05</div>
+      <div class="gc-title">Separable or Not?</div>
+      <div class="gc-desc">Can the pronoun go in the middle — yes or no?</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#a78bfa" onclick="launch(5)" id="gc5">
+      <div class="gc-num">06</div>
+      <div class="gc-title">Nervous Reactions</div>
+      <div class="gc-desc">Body language vocab from the nervousness texts</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+    <div class="gc" style="--gc-col:#fbbf24" onclick="launch(6)" id="gc6">
+      <div class="gc-num">07</div>
+      <div class="gc-title">Bomb Defuse</div>
+      <div class="gc-desc">Unit 12 facts — true or false, timed</div>
+      <div class="gc-best" id="best6"></div>
+    </div>
+    <div class="gc" style="--gc-col:#2dd4bf" onclick="launch(7)" id="gc7">
+      <div class="gc-num">08</div>
+      <div class="gc-title">Word Order</div>
+      <div class="gc-desc">Reconstruct the sentence</div>
+      <div class="gc-best" id="best7"></div>
+    </div>
+  </div>
+</div>
+
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<div id="win">
+  <div class="win-eyebrow">Unit 12 Complete · Think Level 3 Finished!</div>
+  <div class="win-title">A First Time for Everything</div>
+  <div class="win-sub">You've completed the entire book. From Unit 7 to Unit 12 — every grammar, every text, every word. Well done.</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">Speaking Challenges</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════
+   ALL DATA 100% from the book.
+   Sources used:
+   · SB pp.110-119 + WB pp.108-117 — full content + answer keys
+   · SB p.112 — phrasal verb definitions + separability rules
+   · SB p.113 — Internet history presentation — exact facts + dates
+   · SB p.114 — My First (and Last) Time — Paul, Hanif, Roseli, Ingrid
+   · SB p.115 — I wish / If only grammar box + exercises
+   · SB p.117 — Pauline's story — exact wish/if only sentences
+   · WB pp.108-109 — I wish / If only exercises + answer key
+   · WB p.111 — nervousness vocab crossword + answer key
+   · WB p.114 — Jamie/Anna + Clare/Dave dialogues — exact wish sentences
+   · WB p.116 — Billy surfing story — emotions sequence
+   · WB p.117 — Edgar Davids / Barnet fans story
+═══════════════════════════════════════ */
+
+// G1 — PHRASAL VERB MATCH: verb → definition
+// All definitions verified from SB p.112 matching exercise + answer key
+const G1_PAIRS = [
+  { pv:"stand out",      def:"be easy to notice; be different from others" },
+  { pv:"look forward to",def:"be happy or excited about something in the future" },
+  { pv:"carry out",      def:"do or complete (a task or plan)" },
+  { pv:"look into",      def:"investigate or examine the facts about a situation" },
+  { pv:"sort out",       def:"fix a problem or deal with a difficult situation" },
+  { pv:"blow out",       def:"use air to stop something burning (e.g. candles)" },
+  { pv:"break down",     def:"stop working (usually a machine or vehicle)" },
+  { pv:"work out",       def:"understand or find the answer to something" },
+];
+
+// G2 — I WISH / IF ONLY: regret rewriter
+// All situations + exact wish/if only sentences verified from:
+// SB p.115 exercise + answer key, SB p.117 Pauline text, WB pp.108-109, WB p.114 dialogues
+const G2 = [
+  {
+    situation:"Roseli went on the 41-metre waterslide and was terrified the whole way down.",
+    q:"___ I ___ up there! (She didn't stay — she went down.)",
+    prefix:"I wish", verb:"'d stayed",
+    ans:"I wish / 'd stayed",
+    opts_prefix:["I wish","If only"],
+    opts_verb:["'d stayed","hadn't stayed","stayed","didn't stay"],
+    note:"I WISH + past perfect ('d stayed). She regrets going down — wishes she had stayed."
+  },
+  {
+    situation:"Paul panicked during bungee jumping and they took the rope off. His friend saw everything.",
+    q:"___ I ___ a photo! (His friend didn't take one — he wishes he had.)",
+    prefix:"If only", verb:"'d taken",
+    ans:"If only / 'd taken",
+    opts_prefix:["I wish","If only"],
+    opts_verb:["'d taken","hadn't taken","took","didn't take"],
+    note:"IF ONLY + past perfect ('d taken). His friend regrets not taking a photo."
+  },
+  {
+    situation:"Hanif stumbled through a wedding speech. Two years later, he did a public speaking course.",
+    q:"___ I ___ of doing that before the wedding!",
+    prefix:"If only", verb:"'d thought",
+    ans:"If only / 'd thought",
+    opts_prefix:["If only","I wish"],
+    opts_verb:["'d thought","hadn't thought","thought","didn't think"],
+    note:"IF ONLY + past perfect. He regrets not doing the course before the wedding."
+  },
+  {
+    situation:"Pauline went to university even though she didn't want to. She was lonely and left after 6 months.",
+    q:"___ she ___ her parents she didn't want to go!",
+    prefix:"I wish", verb:"'d told",
+    ans:"I wish / 'd told",
+    opts_prefix:["I wish","If only"],
+    opts_verb:["'d told","hadn't told","told","didn't tell"],
+    note:"I WISH + past perfect. The narrator wishes Pauline had told her parents before going."
+  },
+  {
+    situation:"Jamie paid £290 for a tablet in a shop. He later learned it was cheaper online.",
+    q:"___ I ___ last week! (He didn't know — wishes he had.)",
+    prefix:"I wish", verb:"'d known",
+    ans:"I wish / 'd known",
+    opts_prefix:["I wish","If only"],
+    opts_verb:["'d known","hadn't known","knew","didn't know"],
+    note:"I WISH + past perfect ('d known). Regret about not knowing something before acting."
+  },
+  {
+    situation:"Clare told Dave a secret about John's dad, then also told Sam. Dave is unhappy.",
+    q:"___ you ___ quiet! (Clare didn't keep quiet — Dave wishes she had.)",
+    prefix:"If only", verb:"'d kept",
+    ans:"If only / 'd kept",
+    opts_prefix:["If only","I wish"],
+    opts_verb:["'d kept","hadn't kept","kept","didn't keep"],
+    note:"IF ONLY + past perfect. Dave regrets Clare sharing the secret."
+  },
+  {
+    situation:"Pauline's parents were shocked she hated university. She never told them beforehand.",
+    q:"'___ you ___ us!' said her parents.",
+    prefix:"If only", verb:"'d told",
+    ans:"If only / 'd told",
+    opts_prefix:["If only","I wish"],
+    opts_verb:["'d told","hadn't told","told","didn't tell"],
+    note:"IF ONLY + past perfect. Her parents wish she had told them about not wanting to go."
+  },
+  {
+    situation:"Paul went bungee jumping even though he was terrified. He panicked and couldn't do it.",
+    q:"___ I ___ (bungee jumping)!",
+    prefix:"I wish", verb:"hadn't gone",
+    ans:"I wish / hadn't gone",
+    opts_prefix:["I wish","If only"],
+    opts_verb:["hadn't gone","had gone","didn't go","hadn't been going"],
+    note:"I WISH + past perfect negative (hadn't gone). Regret about a past action taken."
+  },
+];
+
+// G3 — INTERNET FIRSTS: exact facts from SB p.113 presentation
+const G3 = [
+  {
+    q:"The first email was sent in ___ by Ray Tomlinson — and he sent it to himself.",
+    ans:"1971", opts:["1971","1991","1981","1965"],
+    note:"1971 — Ray Tomlinson. He can't even remember what it said — probably 'qwertyuiop'."
+  },
+  {
+    q:"The first website appeared in 1991. It was all about ___.",
+    ans:"the World Wide Web itself",
+    opts:["the World Wide Web itself","online shopping","email services","news"],
+    note:"1991 — the first website explained what the World Wide Web was and how to use it."
+  },
+  {
+    q:"The first item ever bought on Amazon in 1995 was ___.",
+    ans:"a book about science",
+    opts:["a book about science","a music CD","a video game","a mobile phone"],
+    note:"1995 — Amazon launched. The first purchase was a book about science."
+  },
+  {
+    q:"The first sentence spoken on Skype in 2003 was in ___ and meant 'Hello, can you hear me?'",
+    ans:"Estonian",
+    opts:["Estonian","Finnish","Swedish","Dutch"],
+    note:"2003 — said by someone in the Skype development team. Estonian: 'Tere, kas sa kuuled mind?'"
+  },
+  {
+    q:"Facebook was founded in 2004. The first account belonged to Mark Zuckerberg. His account number was ___.",
+    ans:"4",
+    opts:["4","1","2","10"],
+    note:"Account number 4 — because the first three numbers were used in tests."
+  },
+  {
+    q:"YouTube started in 2005. The first ever video showed Jawed Karim at ___ and has been watched 10 million+ times.",
+    ans:"San Diego Zoo",
+    opts:["San Diego Zoo","the Eiffel Tower","a beach in California","his living room"],
+    note:"Jawed Karim helped create YouTube. His zoo video was the very first upload."
+  },
+  {
+    q:"The first email Ray Tomlinson sent probably contained the letters ___.",
+    ans:"qwertyuiop",
+    opts:["qwertyuiop","hello world","test123","abcdefgh"],
+    note:"He can't actually remember what it said, but thinks it was something like 'qwertyuiop' — the top row of a keyboard."
+  },
+];
+
+// G4 — WHO SAID IT? character identification
+// All quotes verified directly from SB pp.114-117 + WB p.114-116
+const G4 = [
+  {
+    quote:"'I wish I hadn't gone! I was terrified. I stood there with the rope round my ankle and I was really sweating. In the end, I just panicked.'",
+    ans:"Paul",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Paul (USA) — bungee jumping. He panicked and they took the rope off.",
+    country:"USA — bungee jumping"
+  },
+  {
+    quote:"'When I stood up, my mouth went dry and I started to tremble. I stumbled through about two minutes of something and sat down again.'",
+    ans:"Hanif",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Hanif (UK) — wedding speech. Nervousness led to a very difficult two minutes.",
+    country:"UK — wedding speech"
+  },
+  {
+    quote:"'When I started to fall, I thought, I wish I'd stayed up there! I was petrified the whole time. I was shaking for about fifteen minutes afterwards.'",
+    ans:"Roseli",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Roseli (Brazil) — 41-metre waterslide at a beach park.",
+    country:"Brazil — 41m waterslide"
+  },
+  {
+    quote:"'It exploded in my mouth! I started to breathe hard and I had to drink about a hundred glasses of water!'",
+    ans:"Ingrid",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Ingrid (Sweden) — jalapeño pepper at a Mexican restaurant.",
+    country:"Sweden — jalapeño pepper"
+  },
+  {
+    quote:"'From the first moment, she wished she hadn't gone to university. She hated it. She was lonely and homesick. After six months, she left.'",
+    ans:"Pauline",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Pauline — went to university against her wishes. Now works happily in her parents' shop.",
+    country:"SB p.117 — Pauline's bad decision"
+  },
+  {
+    quote:"'A really huge wave came crashing down on me and ripped the surfboard from my arms. I panicked. I was terrified. I waved my arms and shouted for help.'",
+    ans:"Billy",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Billy (WB p.116) — first time surfing aged 13. Rescued by a lifeguard.",
+    country:"WB p.116 — first time surfing"
+  },
+  {
+    quote:"'If only I'd taken a photo! That was so funny!' (said by his FRIEND, laughing at him standing there terrified.)",
+    ans:"Paul",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Paul's friend said this about Paul frozen with the bungee rope on his ankle.",
+    country:"USA — bungee jumping"
+  },
+  {
+    quote:"'If only I'd thought of doing that before the wedding!' (He did a public speaking course two years later.)",
+    ans:"Hanif",
+    chars:["Paul","Hanif","Roseli","Ingrid","Pauline","Billy"],
+    note:"Hanif regrets not taking a public speaking course before his brother's wedding.",
+    country:"UK — wedding speech"
+  },
+];
+
+// G5 — SEPARABLE OR NOT?
+// Verified from SB p.112 grammar rule + exercise answer key
+// Separable: blow out, sort out, work out, carry out
+// Inseparable: look into, look forward to, look after, get on, hang out
+const G5 = [
+  {
+    sentence:"She blew <span class='hl'>the candles</span> out. → Can you say: 'She blew them out'?",
+    verb:"blow out", separable:true,
+    note:"BLOW OUT is separable. 'She blew them out' ✓ OR 'She blew out the candles' ✓"
+  },
+  {
+    sentence:"I need to sort <span class='hl'>the problem</span> out. → Can you say: 'I need to sort it out'?",
+    verb:"sort out", separable:true,
+    note:"SORT OUT is separable. 'Sort it out' ✓ OR 'sort out the problem' ✓"
+  },
+  {
+    sentence:"The police are looking into <span class='hl'>the robbery</span>. → Can you say: 'They're looking it into'?",
+    verb:"look into", separable:false,
+    note:"LOOK INTO is inseparable. You CANNOT say 'looking it into' ✗ — must keep them together."
+  },
+  {
+    sentence:"I'm really looking forward to <span class='hl'>the concert</span>. → Can you say: 'I'm looking it forward to'?",
+    verb:"look forward to", separable:false,
+    note:"LOOK FORWARD TO is inseparable. You cannot put anything between the parts."
+  },
+  {
+    sentence:"The scientists are carrying out <span class='hl'>their research</span>. → Can you say: 'They're carrying it out'?",
+    verb:"carry out", separable:true,
+    note:"CARRY OUT is separable. 'Carrying it out' ✓ OR 'carry out their research' ✓"
+  },
+  {
+    sentence:"We have to look after <span class='hl'>the children</span>. → Can you say: 'We have to look them after'?",
+    verb:"look after", separable:false,
+    note:"LOOK AFTER is inseparable. 'Look them after' ✗ — must always say 'look after them'."
+  },
+  {
+    sentence:"I can't work out <span class='hl'>the answer</span>. → Can you say: 'I can't work it out'?",
+    verb:"work out", separable:true,
+    note:"WORK OUT is separable. 'Work it out' ✓ OR 'work out the answer' ✓"
+  },
+  {
+    sentence:"They like to hang out <span class='hl'>with friends</span>. → Can you say: 'They hang friends out'?",
+    verb:"hang out", separable:false,
+    note:"HANG OUT is inseparable in this meaning. 'Hang friends out' ✗ — can't split."
+  },
+];
+
+// G6 — NERVOUS REACTIONS: description → vocabulary word
+// All words verified from WB p.111 crossword answer key + SB p.114-115 context
+const G6 = [
+  {
+    situation:"Hanif was at the wedding, just about to speak. He couldn't stop doing this to his fingers — chewing on them.",
+    ans:"biting nails",
+    opts:["biting nails","trembling","sweating","shaking"],
+    note:"BITING NAILS — Hanif was biting his nails just before he stood up to speak."
+  },
+  {
+    situation:"Paul was standing at the top with the bungee rope round his ankle. His skin was very wet because he was so scared.",
+    ans:"sweating",
+    opts:["sweating","trembling","panic","mouth dry"],
+    note:"SWEATING — Paul was really sweating standing there with the bungee rope."
+  },
+  {
+    situation:"When Hanif stood up at the wedding, suddenly he couldn't speak — his mouth felt completely dry.",
+    ans:"mouth dry",
+    opts:["mouth dry","trembling","biting nails","breathing heavily"],
+    note:"MOUTH DRY — 'When I stood up, my mouth went dry and I started to tremble.'"
+  },
+  {
+    situation:"Roseli was shaking for fifteen minutes after the waterslide. Her whole body was doing this involuntarily.",
+    ans:"trembling / shaking",
+    opts:["trembling / shaking","sweating","panic","mouth dry"],
+    note:"TREMBLING / SHAKING — both words describe uncontrolled body movement from fear."
+  },
+  {
+    situation:"Paul completely lost control at the top. He said 'I can't do this' and they had to remove the rope.",
+    ans:"panic",
+    opts:["panic","biting nails","sweating","trembling"],
+    note:"PANIC — 'In the end, I just panicked and said, I can't do this.'"
+  },
+  {
+    situation:"Ingrid bit into the jalapeño and started doing this very hard and fast — as if she needed more air.",
+    ans:"breathing heavily",
+    opts:["breathing heavily","sweating","trembling","biting nails"],
+    note:"BREATHING HEAVILY — 'I started to breathe hard' after the jalapeño exploded in her mouth."
+  },
+  {
+    situation:"Roseli felt extreme fear on the waterslide. One single word describes this feeling completely.",
+    ans:"terrified",
+    opts:["terrified","panic","trembling","shaking"],
+    note:"TERRIFIED = very, very scared. 'It was one of the most terrifying moments of my life.'"
+  },
+];
+
+// G7 — BOMB DEFUSE: true/false
+const G7 = [
+  { q:"Children aged 10 and over tend to give the same early memory in two interviews two years apart.",    ans:true,  t:5 },
+  { q:"Research suggests most early memories are about stressful events.",                                 ans:false, t:4 }, // most are HAPPY
+  { q:"The first email was sent in 1971 by Ray Tomlinson to a colleague.",                               ans:false, t:4 }, // he sent it to HIMSELF
+  { q:"The first website was about how to use the World Wide Web.",                                       ans:true,  t:5 },
+  { q:"The first item ever sold on Amazon was a music CD.",                                               ans:false, t:4 }, // a book about science
+  { q:"The first sentence on Skype was spoken in Estonian in 2003.",                                      ans:true,  t:4 },
+  { q:"Mark Zuckerberg had Facebook account number 4.",                                                   ans:true,  t:5 },
+  { q:"The first YouTube video featured Jawed Karim at a beach.",                                        ans:false, t:4 }, // at San Diego Zoo
+  { q:"Paul (USA) successfully completed his first bungee jump.",                                        ans:false, t:5 }, // he panicked and they took the rope off
+  { q:"Hanif (UK) stumbled through about two minutes of his wedding speech.",                             ans:true,  t:4 },
+  { q:"Roseli (Brazil) was shaking for about fifteen minutes after the waterslide.",                      ans:true,  t:4 },
+  { q:"Pauline left university after six months because she was lonely and homesick.",                   ans:true,  t:5 },
+  { q:"I wish / If only are followed by a past perfect to express regret about the past.",               ans:true,  t:4 },
+  { q:"'Sort out' and 'blow out' are separable phrasal verbs.",                                         ans:true,  t:5 },
+  { q:"'Look into' and 'look forward to' are separable phrasal verbs.",                                 ans:false, t:5 }, // they are INSEPARABLE
+];
+
+// G8 — WORD ORDER: exact sentences from SB/WB
+const G8 = [
+  { words:["I","wish","I'd","stayed","up","there","—","it","was","terrifying","."],           ans:"I wish I'd stayed up there — it was terrifying ."              },
+  { words:["If","only","I'd","done","a","bit","of","research","first","!"],                    ans:"If only I'd done a bit of research first !"                    },
+  { words:["If","only","you'd","told","us","—","we","would","have","helped","."],             ans:"If only you'd told us — we would have helped ."               },
+  { words:["The","first","email","was","sent","in","1971","by","Ray","Tomlinson","."],         ans:"The first email was sent in 1971 by Ray Tomlinson ."          },
+  { words:["Children's","memories","crystallise","at","around","the","age","of","ten","."],    ans:"Children's memories crystallise at around the age of ten ."   },
+  { words:["Sort","out","is","separable","—","you","can","say","sort","it","out","."],         ans:"Sort out is separable — you can say sort it out ."            },
+  { words:["I","wish","I","hadn't","gone","—","I","just","panicked","the","whole","time","."], ans:"I wish I hadn't gone — I just panicked the whole time ."      },
+  { words:["The","first","Facebook","account","belonged","to","Mark","Zuckerberg","."],        ans:"The first Facebook account belonged to Mark Zuckerberg ."     },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=Array(8).fill(0), gameDone=Array(8).fill(false);
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g7streak=0, g7bombScore=0;
+let g1sel=null, g1matched=0, g1pairs=[];
+
+/* HELPERS */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.innerHTML=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+function confetti(){
+  const cols=['#818cf8','#a78bfa','#fb7185','#2dd4bf','#fbbf24','#86efac','#7dd3fc'];
+  const box=$('cfx');
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#818cf8','#fb7185','#2dd4bf','#fbbf24'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=3+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;animation-delay:0s;animation-duration:${.7+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* NAVIGATION */
+function showHome(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Phrasal Verb Match','Regret Rewriter','Internet Firsts','Who Said It?','Separable or Not?','Nervous Reactions','Bomb Defuse','Word Order'];
+  const cols=['var(--indigo)','var(--indigo)','var(--sky)','var(--coral)','var(--lime)','var(--violet)','var(--amber)','var(--teal)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  $('gameBody').style.animation='fadeUp .2s ease';
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init,g7Init,g8Init][n]();
+}
+function finishGame(){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"I wish I\'d…" — tell a partner about a real regret using I wish / If only + past perfect.',
+    'Describe your own "first and last time" experience using phrasal verbs from Unit 12.',
+    'Quiz a partner: can you remember all 6 Internet firsts without looking?',
+    'Use separable verbs: "I sorted it out / carried it out / worked it out" — make 3 sentences.',
+    '"If only I\'d known then what I know now" — discuss something you wish you had done differently.',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=Array(8).fill(0); gameDone=Array(8).fill(false);
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══ G1 — PHRASAL VERB MATCH ═══ */
+function g1Init(){
+  g1pairs=rnd([...G1_PAIRS]); g1sel=null; g1matched=0;
+  totalQs+=g1pairs.length; setProgress(0,g1pairs.length);
+  const defs=rnd(g1pairs.map((p,i)=>({...p,idx:i})));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Phrasal Verbs</div>
+      <div class="gh-name" style="color:var(--indigo)">Phrasal Verb Match</div>
+      <div class="gh-instr">Tap a phrasal verb, then tap its definition. Match all eight.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="match-col-label">Phrasal verb</div>
+      <div class="match-col-label">Definition</div>
+    </div>
+    <div class="match-scene">
+      <div class="match-col" id="pvCol">
+        ${g1pairs.map((p,i)=>`<div class="match-tile" data-idx="${i}" id="pv${i}">${p.pv}</div>`).join('')}
+      </div>
+      <div class="match-col" id="defCol">
+        ${defs.map(d=>`<div class="match-tile" data-idx="${d.idx}" id="def${d.idx}">${d.def}</div>`).join('')}
+      </div>
+    </div>
+    <div class="match-progress" id="g1prog">Matched: 0 / ${g1pairs.length}</div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1fin" style="background:var(--indigo);color:var(--bg)">Finish ›</button>`;
+
+  document.querySelectorAll('#pvCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched')||el.classList.contains('locked'))return;
+      document.querySelectorAll('#pvCol .match-tile').forEach(t=>{ if(!t.classList.contains('matched'))t.classList.remove('selected'); });
+      el.classList.add('selected'); g1sel={idx:parseInt(el.dataset.idx)};
+    });
+  });
+  document.querySelectorAll('#defCol .match-tile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('matched'))return;
+      if(!g1sel){ showFb('g1fb','bad','Tap a phrasal verb first.'); return; }
+      const defIdx=parseInt(el.dataset.idx);
+      if(g1sel.idx===defIdx){
+        $('pv'+g1sel.idx).classList.remove('selected'); $('pv'+g1sel.idx).classList.add('matched');
+        el.classList.add('matched'); g1matched++; addScore(2);
+        showFb('g1fb','ok',`"${g1pairs[g1sel.idx].pv}" — correct! +2 ⭐`); miniConfetti(el);
+        $('g1prog').textContent=`Matched: ${g1matched} / ${g1pairs.length}`;
+        setProgress(g1matched,g1pairs.length); g1sel=null;
+        if(g1matched===g1pairs.length) setTimeout(()=>show('g1fin'),300);
+      } else {
+        $('pv'+g1sel.idx).classList.add('wrong'); el.classList.add('wrong');
+        setTimeout(()=>{ $('pv'+g1sel.idx).classList.remove('wrong','selected'); el.classList.remove('wrong'); },500);
+        showFb('g1fb','bad','Not quite — try again.'); g1sel=null;
+      }
+    });
+  });
+  $('g1fin').addEventListener('click',()=>finishGame());
+}
+
+/* ═══ G2 — REGRET REWRITER ═══
+   Step 1: pick I WISH or IF ONLY
+   Step 2: pick the correct past perfect verb form
+   Both steps count as separate micro-interactions; score on step 2 only.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0, g2step=0, g2chosen_prefix='';
+function g2Init(){ g2q=rnd(G2); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; g2step=1; g2chosen_prefix=''; totalQs++; setProgress(g2i,g2q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · I wish / If only + Past Perfect</div>
+      <div class="gh-name" style="color:var(--indigo)">Regret Rewriter</div>
+      <div class="gh-instr">Two steps: pick I WISH or IF ONLY, then choose the verb form.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="regret-card">
+      <div class="regret-eyebrow">The situation</div>
+      <div class="regret-situation">${q.situation}</div>
+      <div class="regret-q">${q.q.replace('___','<span class="blank">___</span>')}</div>
+      <div class="indigo-note" id="g2note"></div>
+    </div>
+    <div id="g2step1">
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;text-align:center">Step 1 — Which phrase starts the sentence?</div>
+      <div class="opts2">
+        <div class="opt" style="--opt-col:var(--indigo)" data-p="I wish">I wish</div>
+        <div class="opt" style="--opt-col:var(--indigo)" data-p="If only">If only</div>
+      </div>
+    </div>
+    <div id="g2step2" style="display:none">
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:8px;text-align:center">Step 2 — Choose the correct verb form</div>
+      <div class="opts2" id="g2verbOpts"></div>
+    </div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--indigo);color:var(--bg)">Next ›</button>`;
+
+  document.querySelectorAll('#g2step1 .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g2step1 .opt').forEach(o=>o.classList.add('locked'));
+    g2chosen_prefix=el.dataset.p;
+    if(el.dataset.p===q.prefix){ el.classList.add('opt-ok'); showFb('g2fb','ok',`${el.dataset.p} ✓ — now choose the verb form.`); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g2step1 .opt').forEach(o=>{ if(o.dataset.p===q.prefix)o.classList.add('opt-ok'); }); showFb('g2fb','bad',`Both work, but <strong>${q.prefix}</strong> fits better here. Now pick the verb.`); }
+    // Show step 2
+    const verbOpts=rnd([...q.opts_verb]);
+    $('g2verbOpts').innerHTML=verbOpts.map(v=>`<div class="opt" style="--opt-col:var(--violet)" data-v="${v}">${v}</div>`).join('');
+    $('g2step2').style.display='block';
+    document.querySelectorAll('#g2verbOpts .opt').forEach(el2=>el2.addEventListener('click',()=>{
+      document.querySelectorAll('#g2verbOpts .opt').forEach(o=>o.classList.add('locked'));
+      const note=$('g2note'); note.style.display='block'; note.textContent='💡 '+q.note;
+      if(el2.dataset.v===q.verb){
+        el2.classList.add('opt-ok'); addScore(3);
+        showFb('g2fb','ok',`<strong>${q.prefix} ${q.verb}</strong> — correct! +3 ⭐`); miniConfetti(el2);
+      } else {
+        el2.classList.add('opt-bad'); document.querySelectorAll('#g2verbOpts .opt').forEach(o=>{ if(o.dataset.v===q.verb)o.classList.add('opt-ok'); });
+        showFb('g2fb','bad',`The verb is <strong>${q.verb}</strong>. Full sentence: ${q.prefix} ${q.verb}…`);
+      }
+      show('g2next');
+    }));
+  }));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+
+/* ═══ G3 — INTERNET FIRSTS ═══ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Reading · History of the Internet</div>
+      <div class="gh-name" style="color:var(--sky)">Internet Firsts</div>
+      <div class="gh-instr">Fill in the missing detail about each internet milestone.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="internet-card">
+      <div class="internet-eyebrow">Internet Milestone ${g3i+1} of ${g3q.length}</div>
+      <div class="internet-q">${q.q.replace('___','<span class="blank">___</span>')}</div>
+      <div class="sky-note" id="g3note"></div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g3note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g3next');
+  }));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+
+/* ═══ G4 — WHO SAID IT? ═══ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4); g4i=0; g4Render(); }
+function g4Render(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++; setProgress(g4i,g4q.length);
+  const chars=rnd([...q.chars]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Reading · My First (and Last) Time</div>
+      <div class="gh-name" style="color:var(--coral)">Who Said It?</div>
+      <div class="gh-instr">Read the quote or description — which person does it belong to?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g4q,g4i)}</div>
+    <div class="story-card">
+      <div class="story-eyebrow">Who is this?</div>
+      <div class="story-quote">${q.quote}</div>
+      <div class="coral-note" id="g4note"></div>
+    </div>
+    <div class="char-grid" id="g4chars">
+      ${chars.map(c=>`<div class="char-btn" data-c="${c}">${c}</div>`).join('')}
+    </div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--coral);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g4chars .char-btn').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g4chars .char-btn').forEach(b=>b.classList.add('locked'));
+    const note=$('g4note'); note.style.display='block'; note.textContent='💡 '+q.note+' — '+q.country;
+    if(el.dataset.c===q.ans){ el.classList.add('ch-ok'); addScore(2); showFb('g4fb','ok',`${q.ans} — correct! +2 ⭐`); miniConfetti(el); }
+    else { el.classList.add('ch-wrong'); document.querySelectorAll('#g4chars .char-btn').forEach(b=>{ if(b.dataset.c===q.ans)b.classList.add('ch-ok'); }); showFb('g4fb','bad','It\'s <strong>'+q.ans+'</strong>.'); }
+    show('g4next');
+  }));
+  $('g4next').addEventListener('click',()=>{ g4i++; g4Render(); });
+}
+
+/* ═══ G5 — SEPARABLE OR NOT? ═══ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5); g5i=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Separable Phrasal Verbs</div>
+      <div class="gh-name" style="color:var(--lime)">Separable or Not?</div>
+      <div class="gh-instr">Can the pronoun go in the middle of the verb? Tap YES or NO.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g5q,g5i)}</div>
+    <div class="sep-card">
+      <div class="sep-eyebrow">Verb: <strong>${q.verb}</strong></div>
+      <div class="sep-sentence">${q.sentence}</div>
+      <div class="sep-question">Can the verb be <strong>separated</strong> by a pronoun?</div>
+      <div class="lime-note" id="g5note"></div>
+    </div>
+    <div class="yesno-row" id="g5opts">
+      <div class="yn-btn" data-a="yes">
+        <span class="yn-label" style="color:var(--lime)">YES</span>
+        <span class="yn-sub">It can be separated</span>
+      </div>
+      <div class="yn-btn" data-a="no">
+        <span class="yn-label" style="color:var(--coral)">NO</span>
+        <span class="yn-sub">It cannot be separated</span>
+      </div>
+    </div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--lime);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g5opts .yn-btn').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g5opts .yn-btn').forEach(b=>b.classList.add('locked'));
+    const note=$('g5note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    const chosen=el.dataset.a==='yes';
+    if(chosen===q.separable){ el.classList.add('yn-ok'); addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('yn-wrong'); document.querySelectorAll('#g5opts .yn-btn').forEach(b=>{ if((b.dataset.a==='yes')===q.separable)b.classList.add('yn-ok'); }); showFb('g5fb','bad',q.separable?'YES — it CAN be separated.':'NO — it CANNOT be separated.'); }
+    show('g5next');
+  }));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+
+/* ═══ G6 — NERVOUS REACTIONS ═══ */
+let g6q=[], g6i=0;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const opts=rnd([...q.opts]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Vocabulary · Nervousness & Fear</div>
+      <div class="gh-name" style="color:var(--violet)">Nervous Reactions</div>
+      <div class="gh-instr">Read the description — which nervousness word matches?</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="nerves-card">
+      <div class="nerves-eyebrow">The situation</div>
+      <div class="nerves-situation">${q.situation}</div>
+      <div class="violet-note" id="g6note"></div>
+    </div>
+    <div class="opts2" id="g6opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--violet)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--violet);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g6opts .opt').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#g6opts .opt').forEach(o=>o.classList.add('locked'));
+    const note=$('g6note'); note.style.display='block'; note.textContent='💡 '+q.note;
+    if(el.dataset.a===q.ans){ el.classList.add('opt-ok'); addScore(2); showFb('g6fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+    else { el.classList.add('opt-bad'); document.querySelectorAll('#g6opts .opt').forEach(o=>{ if(o.dataset.a===q.ans)o.classList.add('opt-ok'); }); showFb('g6fb','bad','The answer is: <strong>'+q.ans+'</strong>'); }
+    show('g6next');
+  }));
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+
+/* ═══ G7 — BOMB DEFUSE ═══ */
+let g7q=[], g7i=0;
+function g7Init(){ g7q=rnd(G7); g7i=0; g7streak=0; g7bombScore=0; g7Setup(); }
+function g7Setup(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 7 · Review · Timed True / False</div>
+      <div class="gh-name" style="color:var(--amber)">Bomb Defuse</div>
+      <div class="gh-instr">Unit 12 facts — true or false? Defuse before time runs out.</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber)" id="bScore">0</div></div>
+      <div class="streak-pill">🔥 <span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" id="bQ">1/${g7q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--indigo);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ"></div>
+    <div class="opts2" id="bombOpts"></div>
+    <div class="fb" id="g7fb"></div>
+    <button class="next-btn" id="g7next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  $('g7next').addEventListener('click',()=>{ g7i++; g7Render(); });
+  g7Render();
+}
+function g7Render(){
+  if(g7i>=g7q.length){ finishGame(); return; }
+  const q=g7q[g7i]; totalQs++;
+  $('bQ').textContent=`${g7i+1}/${g7q.length}`; hideFb('g7fb'); hide('g7next');
+  $('bombEmoji').className='bomb-emoji ticking'; $('bombQ').textContent=q.q;
+  $('bombOpts').innerHTML=`<div class="opt" style="--opt-col:var(--ok)" data-a="true">True</div><div class="opt" style="--opt-col:var(--bad)" data-a="false">False</div>`;
+  document.querySelectorAll('#bombOpts .opt').forEach(el=>el.addEventListener('click',()=>g7Ans(el,el.dataset.a==='true',q.ans)));
+  const tf=$('timerFill'); tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g7TimeUp(q.ans),q.t*1000);
+}
+function g7Ans(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g7streak++; g7bombScore+=3;
+    if(g7streak>bestStreak)bestStreak=g7streak;
+    $('bStreak').textContent=g7streak; $('bScore').textContent=g7bombScore;
+    addScore(3); showFb('g7fb','ok','Correct! +3 ⭐'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g7streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+    showFb('g7fb','bad',ans?'That is TRUE.':'That is FALSE.');
+  }
+  show('g7next');
+}
+function g7TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji'; g7streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts .opt').forEach(o=>{ if(o.dataset.a===(ans?'true':'false'))o.classList.add('opt-ok'); });
+  showFb('g7fb','bad','Time up — it was '+(ans?'TRUE':'FALSE')+'.'); show('g7next');
+}
+
+/* ═══ G8 — WORD ORDER ═══ */
+let g8q=[], g8i=0, g8built=[], g8locked=false;
+function g8Init(){ g8q=rnd(G8); g8i=0; g8Render(); }
+function g8Render(){
+  if(g8i>=g8q.length){ finishGame(); return; }
+  g8built=[]; g8locked=false;
+  const q=g8q[g8i]; totalQs++; setProgress(g8i,g8q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 8 · Word Order · Unit 12 Sentences</div>
+      <div class="gh-name" style="color:var(--teal)">Word Order</div>
+      <div class="gh-instr">Tap tiles in the correct order to reconstruct the sentence.</div>
+    </div>
+    <div class="prog-dots">${mkDots(g8q,g8i)}</div>
+    <div class="wo-display empty" id="g8disp">Tap tiles to build the sentence…</div>
+    <div class="word-pool" id="g8pool">${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}</div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g8clr">Clear</button>
+      <button class="btn-check" id="g8chk" style="background:var(--teal);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g8fb"></div>
+    <button class="next-btn" id="g8next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g8pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g8locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g8built.push({w:el.dataset.w,el});
+      const d=$('g8disp'); d.classList.remove('empty'); d.textContent=g8built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g8clr').addEventListener('click',()=>{
+    g8built.forEach(x=>x.el.classList.remove('used')); g8built=[];
+    const d=$('g8disp'); d.className='wo-display empty'; d.textContent='Tap tiles to build the sentence…'; hideFb('g8fb');
+  });
+  $('g8chk').addEventListener('click',()=>{
+    if(g8locked||g8built.length===0)return; g8locked=true;
+    const built=g8built.map(x=>x.w).join(' ');
+    if(built===g8q[g8i].ans){ addScore(3); showFb('g8fb','ok','Perfect! +3 ⭐'); miniConfetti($('g8chk')); }
+    else showFb('g8fb','bad','Correct: '+g8q[g8i].ans);
+    show('g8next');
+  });
+  $('g8next').addEventListener('click',()=>{ g8i++; g8Render(); });
+}
+</script>
+</body>
+</html>
