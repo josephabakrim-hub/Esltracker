@@ -84,7 +84,7 @@ export default function AccessGate({ onAccess }) {
   useEffect(() => {
     if (step !== 'student-class') return
     setLoadingClasses(true)
-    getDocs(collection(db, 'classes'))
+    getDocs(collection(db, 'tj_classes'))
       .then(snap => setClasses(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
       .finally(() => setLoadingClasses(false))
   }, [step])
@@ -93,7 +93,7 @@ export default function AccessGate({ onAccess }) {
   useEffect(() => {
     if (!selectedClass) return
     setLoadingStudents(true)
-    getDocs(query(collection(db, 'students'), where('classId', '==', selectedClass.id)))
+    getDocs(query(collection(db, 'tj_students'), where('classId', '==', selectedClass.id)))
       .then(snap => setStudents(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
       .finally(() => setLoadingStudents(false))
   }, [selectedClass])
