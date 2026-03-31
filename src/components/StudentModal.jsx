@@ -6,25 +6,44 @@ export default function StudentModal({ student, classes, onSave, onClose }) {
   const [form, setForm] = useState({
     nameEn: '', nameVn: '', classId: '', level: 'pro', attendance: 100, goal: 'On track',
     speaking: 0, listening: 0, reading: 0, writing: 0, grammar: 0, vocabulary: 0,
+    pin: '',
   })
+  const [pinError, setPinError] = useState('')
 
   useEffect(() => {
     if (student) {
       setForm({
-        nameEn: student.nameEn || '', nameVn: student.nameVn || '',
-        classId: student.classId || '', level: student.level || 'pro',
-        attendance: student.attendance ?? 100, goal: student.goal || 'On track',
-        speaking: student.speaking || 0, listening: student.listening || 0,
-        reading: student.reading || 0, writing: student.writing || 0,
-        grammar: student.grammar || 0, vocabulary: student.vocabulary || 0,
+        nameEn:     student.nameEn     || '',
+        nameVn:     student.nameVn     || '',
+        classId:    student.classId    || '',
+        level:      student.level      || 'pro',
+        attendance: student.attendance ?? 100,
+        goal:       student.goal       || 'On track',
+        speaking:   student.speaking   || 0,
+        listening:  student.listening  || 0,
+        reading:    student.reading    || 0,
+        writing:    student.writing    || 0,
+        grammar:    student.grammar    || 0,
+        vocabulary: student.vocabulary || 0,
+        pin:        student.pin        || '',
       })
     }
   }, [student])
 
   function set(k, v) { setForm(f => ({ ...f, [k]: v })) }
 
+  function handlePinChange(v) {
+    const digits = v.replace(/\D/g, '').slice(0, 4)
+    set('pin', digits)
+    setPinError('')
+  }
+
   function handleSave() {
     if (!form.nameEn.trim()) return
+    if (form.pin && form.pin.length !== 4) {
+      setPinError('PIN must be exactly 4 digits')
+      return
+    }
     onSave({ ...form, attendance: parseInt(form.attendance) || 100 })
   }
 
@@ -74,6 +93,40 @@ export default function StudentModal({ student, classes, onSave, onClose }) {
               {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
+        </div>
+
+        {/* ── Student PIN ── */}
+        <div className="form-group">
+          <label className="form-label">Student Portal PIN</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <input
+              className="form-input"
+              type="text"
+              inputMode="numeric"
+              placeholder="4-digit PIN  e.g. 1234"
+              value={form.pin}
+              onChange={e => handlePinChange(e.target.value)}
+              maxLength={4}
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 20,
+                letterSpacing: 8,
+                maxWidth: 160,
+                borderColor: pinError ? 'var(--red)' : undefined,
+              }}
+            />
+            <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
+              Students use this PIN<br />to log into their portal
+            </span>
+          </div>
+          {pinError && (
+            <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 5 }}>{pinError}</div>
+          )}
+          {!form.pin && (
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 5 }}>
+              Leave blank if not using the student portal yet
+            </div>
+          )}
         </div>
 
         {editing && (
