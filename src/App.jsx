@@ -16,6 +16,7 @@ import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
 import LessonsHub from './components/LessonsHub'
+import StudentPortal from './components/StudentPortal'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -23,9 +24,11 @@ export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
-  // ── Access control ──────────────────────────────────────────────────────────
   const [access, setAccess] = useState(null)
-  const readOnly = access?.readOnly ?? true
+
+  // Only teacher has write access — hard boolean, not just readOnly flag
+  const isTeacher = access?.role === 'teacher'
+  const isStudent = access?.role === 'student'
 
   // Theme
   const [isDark, setIsDark] = useState(() => {
@@ -74,7 +77,9 @@ export default function App() {
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
 
+  // ── Teacher-only write handlers ──────────────────────────────────────────
   async function handleSaveClass(data) {
+    if (!isTeacher) return
     if (classModal && classModal.id) {
       await updateClass(classModal.id, data)
       if (selectedClass?.id === classModal.id) setSelectedClass(prev => ({ ...prev, ...data }))
@@ -85,11 +90,13 @@ export default function App() {
   }
 
   async function handleDeleteClass(id) {
+    if (!isTeacher) return
     await deleteClass(id)
     if (selectedClass?.id === id) setSelectedClass(null)
   }
 
   async function handleSaveStudent(data) {
+    if (!isTeacher) return
     if (studentModal && studentModal.id) {
       await updateStudent(studentModal.id, data)
     } else {
@@ -99,12 +106,14 @@ export default function App() {
   }
 
   async function handleDeleteStudent(id) {
+    if (!isTeacher) return
     await deleteStudent(id)
     setSelectedStudent(null)
     setTab(studentOrigin === 'class' ? 'classDetail' : 'students')
   }
 
   async function handleAddNote(text, date) {
+    if (!isTeacher) return
     const s = students.find(st => st.id === noteModal)
     if (!s) return
     const notes = [...(s.notes || []), { date, text }]
@@ -114,6 +123,7 @@ export default function App() {
   }
 
   async function handleSaveAttendance(classId, dateKey, records) {
+    if (!isTeacher) return
     const classStudents = students.filter(s => s.classId === classId)
     for (const s of classStudents) {
       const log = { ...(s.attendanceLog || {}), [dateKey]: records[s.id] || 'absent' }
@@ -125,6 +135,7 @@ export default function App() {
   }
 
   async function handleSaveStarSession(sessionStars) {
+    if (!isTeacher) return
     const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     for (const [studentId, count] of Object.entries(sessionStars)) {
       if (count === 0) continue
@@ -137,6 +148,7 @@ export default function App() {
   }
 
   async function handleAwardStars(studentId, count, reason, date) {
+    if (!isTeacher) return
     const s = students.find(st => st.id === studentId)
     if (!s) return
     const dateLabel = date || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -146,6 +158,7 @@ export default function App() {
   }
 
   async function handleDeleteStar(studentId, index) {
+    if (!isTeacher) return
     const s = students.find(st => st.id === studentId)
     if (!s) return
     const starsLog = (s.starsLog || []).filter((_, i) => i !== index)
@@ -154,8 +167,8 @@ export default function App() {
   }
 
   function openClass(cls) { setSelectedClass(cls); setTab('classDetail') }
-  function openStudentFromClass(student) { setSelectedStudent(student); setStudentOrigin('class'); setTab('studentProfile') }
-  function openStudentFromList(student) { setSelectedStudent(student); setStudentOrigin('students'); setTab('studentProfile') }
+  function openStudentFromClass(s) { setSelectedStudent(s); setStudentOrigin('class'); setTab('studentProfile') }
+  function openStudentFromList(s) { setSelectedStudent(s); setStudentOrigin('students'); setTab('studentProfile') }
   function handleBackFromStudent() { setSelectedStudent(null); setTab(studentOrigin === 'class' ? 'classDetail' : 'students') }
 
   const isLoading = loadingClasses || loadingStudents
@@ -165,18 +178,32 @@ export default function App() {
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
-  if (!access) {
-    return <AccessGate onAccess={setAccess} />
+  // ── Gate ─────────────────────────────────────────────────────────────────
+  if (!access) return <AccessGate onAccess={setAccess} />
+
+  // ── Student portal — completely separate UI, zero access to teacher data ──
+  if (isStudent) {
+    return (
+      <StudentPortal
+        student={access.student}
+        classes={classes}
+        students={students}
+        isDark={isDark}
+        onToggleTheme={() => setIsDark(d => !d)}
+        onLogout={() => setAccess(null)}
+      />
+    )
   }
 
+  // ── Teacher / parent / colleague dashboard ────────────────────────────────
   return (
     <div>
       <Header
-        onAddClass={readOnly ? null : () => setClassModal('add')}
-        onAddStudent={readOnly ? null : () => setStudentModal('add')}
+        onAddClass={isTeacher ? () => setClassModal('add') : null}
+        onAddStudent={isTeacher ? () => setStudentModal('add') : null}
         isDark={isDark}
         onToggleTheme={() => setIsDark(d => !d)}
-        readOnly={readOnly}
+        readOnly={!isTeacher}
         role={access.role}
         onSwitchRole={() => setAccess(null)}
       />
@@ -192,10 +219,10 @@ export default function App() {
           {tab === 'classes' && (
             <><StatsBar students={students} classes={classes} />
             <ClassesView classes={classes} students={students} onSelectClass={openClass}
-              onAddClass={readOnly ? null : () => setClassModal('add')}
-              onEditClass={readOnly ? null : c => setClassModal(c)}
-              onDeleteClass={readOnly ? null : handleDeleteClass}
-              readOnly={readOnly}
+              onAddClass={isTeacher ? () => setClassModal('add') : null}
+              onEditClass={isTeacher ? c => setClassModal(c) : null}
+              onDeleteClass={isTeacher ? handleDeleteClass : null}
+              readOnly={!isTeacher}
             /></>
           )}
 
@@ -203,35 +230,35 @@ export default function App() {
             <ClassDetail cls={liveClass} students={students.filter(s => s.classId === liveClass.id)}
               onBack={() => { setSelectedClass(null); setTab('classes') }}
               onSelectStudent={openStudentFromClass}
-              onAddStudent={readOnly ? null : () => setStudentModal('add')}
-              onEditClass={readOnly ? null : c => setClassModal(c)}
-              onOpenAttendance={() => setAttendanceModal(liveClass.id)}
-              onOpenStarSession={() => setStarSessionModal(liveClass.id)}
-              onOpenSpinOfDoom={() => setSpinModal(liveClass.id)}
-              onOpenStarSlots={() => setStarSlotsModal(liveClass.id)}
+              onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+              onEditClass={isTeacher ? c => setClassModal(c) : null}
+              onOpenAttendance={isTeacher ? () => setAttendanceModal(liveClass.id) : null}
+              onOpenStarSession={isTeacher ? () => setStarSessionModal(liveClass.id) : null}
+              onOpenSpinOfDoom={isTeacher ? () => setSpinModal(liveClass.id) : null}
+              onOpenStarSlots={isTeacher ? () => setStarSlotsModal(liveClass.id) : null}
               onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
-              readOnly={readOnly}
+              readOnly={!isTeacher}
             />
           )}
 
           {tab === 'students' && (
             <><StatsBar students={students} classes={classes} />
             <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
-              onAddStudent={readOnly ? null : () => setStudentModal('add')}
-              onEditStudent={readOnly ? null : s => setStudentModal(s)}
-              readOnly={readOnly}
+              onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+              onEditStudent={isTeacher ? s => setStudentModal(s) : null}
+              readOnly={!isTeacher}
             /></>
           )}
 
           {tab === 'studentProfile' && liveStudent && (
             <StudentProfile student={liveStudent} classes={classes}
               onBack={handleBackFromStudent}
-              onEdit={readOnly ? null : () => setStudentModal(liveStudent)}
-              onAddNote={readOnly ? null : () => setNoteModal(liveStudent.id)}
-              onDelete={readOnly ? null : handleDeleteStudent}
-              onAddStars={readOnly ? null : handleAwardStars}
-              onDeleteStar={readOnly ? null : handleDeleteStar}
-              readOnly={readOnly}
+              onEdit={isTeacher ? () => setStudentModal(liveStudent) : null}
+              onAddNote={isTeacher ? () => setNoteModal(liveStudent.id) : null}
+              onDelete={isTeacher ? handleDeleteStudent : null}
+              onAddStars={isTeacher ? handleAwardStars : null}
+              onDeleteStar={isTeacher ? handleDeleteStar : null}
+              readOnly={!isTeacher}
             />
           )}
 
@@ -242,15 +269,15 @@ export default function App() {
         </>}
       </div>
 
-      {/* Modals */}
-      {classModal && !readOnly    && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
-      {studentModal && !readOnly  && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
-      {noteModal && !readOnly     && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
-      {attendanceModal && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={readOnly} />}
-      {starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={readOnly} />}
-      {spinModal && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={readOnly} />}
-      {starSlotsModal && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={readOnly} />}
-      {lessonsHubModal && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
+      {/* Modals — teacher only, every single one gated */}
+      {isTeacher && classModal       && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
+      {isTeacher && studentModal     && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
+      {isTeacher && noteModal        && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
+      {isTeacher && attendanceModal  && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={false} />}
+      {isTeacher && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={false} />}
+      {isTeacher && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={false} />}
+      {isTeacher && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={false} />}
+      {isTeacher && lessonsHubModal  && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
     </div>
   )
 }
