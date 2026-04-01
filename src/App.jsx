@@ -16,7 +16,6 @@ import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
 import LessonsHub from './components/LessonsHub'
-import StudentPortal from './components/StudentPortal'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -26,9 +25,10 @@ export default function App() {
 
   const [access, setAccess] = useState(null)
 
-  // Only teacher has write access — hard boolean, not just readOnly flag
+  // Only teacher has write access — everyone else including students is read-only
   const isTeacher = access?.role === 'teacher'
   const isStudent = access?.role === 'student'
+  const studentName = isStudent ? access?.student?.nameEn : null
 
   // Theme
   const [isDark, setIsDark] = useState(() => {
@@ -77,7 +77,7 @@ export default function App() {
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
 
-  // ── Teacher-only write handlers ──────────────────────────────────────────
+  // ── Teacher-only write handlers — all guarded ────────────────────────────
   async function handleSaveClass(data) {
     if (!isTeacher) return
     if (classModal && classModal.id) {
@@ -181,21 +181,7 @@ export default function App() {
   // ── Gate ─────────────────────────────────────────────────────────────────
   if (!access) return <AccessGate onAccess={setAccess} />
 
-  // ── Student portal — completely separate UI, zero access to teacher data ──
-  if (isStudent) {
-    return (
-      <StudentPortal
-        student={access.student}
-        classes={classes}
-        students={students}
-        isDark={isDark}
-        onToggleTheme={() => setIsDark(d => !d)}
-        onLogout={() => setAccess(null)}
-      />
-    )
-  }
-
-  // ── Teacher / parent / colleague dashboard ────────────────────────────────
+  // ── Main app — teacher gets full control, everyone else read-only ─────────
   return (
     <div>
       <Header
@@ -206,6 +192,7 @@ export default function App() {
         readOnly={!isTeacher}
         role={access.role}
         onSwitchRole={() => setAccess(null)}
+        studentName={studentName}
       />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
@@ -236,7 +223,7 @@ export default function App() {
               onOpenStarSession={isTeacher ? () => setStarSessionModal(liveClass.id) : null}
               onOpenSpinOfDoom={isTeacher ? () => setSpinModal(liveClass.id) : null}
               onOpenStarSlots={isTeacher ? () => setStarSlotsModal(liveClass.id) : null}
-              onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
+              onOpenLessonsHub={isTeacher ? () => setLessonsHubModal(liveClass) : null}
               readOnly={!isTeacher}
             />
           )}
@@ -269,7 +256,7 @@ export default function App() {
         </>}
       </div>
 
-      {/* Modals — teacher only, every single one gated */}
+      {/* Modals — teacher only, hard-gated */}
       {isTeacher && classModal       && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
       {isTeacher && studentModal     && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
       {isTeacher && noteModal        && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}

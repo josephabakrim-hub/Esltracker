@@ -1,4 +1,6 @@
-export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme, readOnly, role, onSwitchRole }) {
+export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme, readOnly, role, onSwitchRole, studentName }) {
+  const isStudent = role === 'student'
+
   return (
     <div style={{
       background: isDark ? '#0f0e0c' : '#1a1814',
@@ -12,21 +14,57 @@ export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme
       zIndex: 100,
       transition: 'background 0.2s',
     }}>
+
+      {/* Left — always Teacher Joseph branding */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
         <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px' }}>
           Teacher <span style={{ color: 'var(--accent)' }}>Joseph</span>
         </div>
         <div style={{
           fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 3,
-          color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase'
+          color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
         }}>
           ESL Student Tracker
         </div>
       </div>
 
+      {/* Centre — student name badge (only when a student is logged in) */}
+      {isStudent && studentName && (
+        <div style={{
+          position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2,
+          pointerEvents: 'none',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'rgba(59,130,246,0.18)',
+            border: '1px solid rgba(59,130,246,0.35)',
+            borderRadius: 20, padding: '5px 16px 5px 10px',
+          }}>
+            {/* Avatar circle */}
+            <div style={{
+              width: 26, height: 26, borderRadius: '50%',
+              background: 'rgba(59,130,246,0.4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0,
+            }}>
+              {studentName[0]}
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{studentName}</div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: 2, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase' }}>
+                Student
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Right — actions */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        {/* Role badge */}
-        {role && (
+
+        {/* Role badge — only for non-student roles */}
+        {role && !isStudent && (
           <div style={{
             fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 1.5,
             color: readOnly ? 'rgba(255,255,255,0.35)' : 'rgba(232,93,38,0.8)',
@@ -69,7 +107,7 @@ export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme
         {onSwitchRole && (
           <button
             onClick={onSwitchRole}
-            title="Switch role"
+            title={isStudent ? 'Log out' : 'Switch role'}
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.12)',
@@ -79,7 +117,7 @@ export default function Header({ onAddClass, onAddStudent, isDark, onToggleTheme
               textTransform: 'uppercase',
             }}
           >
-            Switch
+            {isStudent ? 'Log out' : 'Switch'}
           </button>
         )}
       </div>
