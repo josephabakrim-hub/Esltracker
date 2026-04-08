@@ -16,6 +16,7 @@ import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
 import LessonsHub from './components/LessonsHub'
+import TeacherAcademy from './components/TeacherAcademy'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -196,7 +197,16 @@ export default function App() {
       />
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 80px' }}>
-        <Tabs active={activeTab} onChange={handleTabChange} />
+        <Tabs
+          active={activeTab}
+          onChange={handleTabChange}
+          tabs={isTeacher ? [
+            { id: 'classes',   label: '🏫 Classes'   },
+            { id: 'students',  label: '👤 Students'  },
+            { id: 'analytics', label: '📊 Analytics' },
+            { id: 'academy',   label: '🎓 Academy'   },
+          ] : undefined}
+        />
 
         {isLoading && (
           <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>Loading...</div>
@@ -252,6 +262,10 @@ export default function App() {
           {tab === 'analytics' && (
             <><StatsBar students={students} classes={classes} />
             <AnalyticsView students={students} classes={classes} /></>
+          )}
+
+          {tab === 'academy' && isTeacher && (
+            <TeacherAcademy />
           )}
         </>}
       </div>

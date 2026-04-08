@@ -1,10 +1,11 @@
-const TABS = [
+const DEFAULT_TABS = [
   { id: 'classes',   label: '🏫 Classes'   },
   { id: 'students',  label: '👤 Students'  },
   { id: 'analytics', label: '📊 Analytics' },
 ]
 
-export default function Tabs({ active, onChange }) {
+export default function Tabs({ active, onChange, tabs }) {
+  const TABS = tabs || DEFAULT_TABS
   return (
     <div style={{
       display: 'flex', gap: 4,
