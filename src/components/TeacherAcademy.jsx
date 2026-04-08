@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FLASHCARD DATA (unchanged)
+// ─────────────────────────────────────────────────────────────────────────────
 const CARDS = [
   {
     id: 1,
@@ -258,6 +261,63 @@ const CARDS = [
   },
 ]
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LESSON BUILDER DATA
+// ─────────────────────────────────────────────────────────────────────────────
+const ACTIVITY_BANK = {
+  warmup: [
+    { label: 'Vocab Retrieval Quiz', desc: 'No-notes recall of last session\'s words. 3–5 mins of pure retrieval practice.', mins: 5, icon: '🧠' },
+    { label: 'Error Hunt', desc: 'Write 5 sentences on the board — 3 with deliberate errors. Students find & fix.', mins: 5, icon: '🔍' },
+    { label: 'Spin of Doom (Recall)', desc: 'Spin to a student, ask them to recall a word/phrase from last class.', mins: 4, icon: '🎡' },
+    { label: 'Picture Prompt', desc: 'Show an image. Students produce 3 sentences about it — uses previous vocab.', mins: 5, icon: '🖼️' },
+    { label: 'Two Truths, One Lie', desc: 'Students write 3 sentences about the topic — two true, one false. Class guesses.', mins: 6, icon: '🤥' },
+    { label: 'Word Association Chain', desc: 'First student says a word; each student adds a connected word. Goes around the room.', mins: 4, icon: '🔗' },
+  ],
+  input: [
+    { label: 'Story Listening (i+1)', desc: 'Tell a comprehensible story slightly above level. Students listen, then retell it.', mins: 15, icon: '📖' },
+    { label: 'Authentic Video Clip', desc: 'Watch a 2–3 min clip. Pause, notice language, discuss.', mins: 15, icon: '🎬' },
+    { label: 'Teacher Talk + Noticing', desc: 'Teacher narrates a situation using target grammar. Students raise hands when they notice the form.', mins: 12, icon: '👂' },
+    { label: 'Read Aloud + Annotation', desc: 'Students read a text, underline unknown words, circle target grammar.', mins: 15, icon: '📝' },
+    { label: 'Dialogues in Context', desc: 'Model dialogue demonstrating target language in a realistic situation.', mins: 12, icon: '💬' },
+  ],
+  practice: [
+    { label: 'Controlled Drills', desc: 'Substitution drills targeting one specific error pattern. Fast-paced, immediate correction.', mins: 8, icon: '🎯' },
+    { label: 'Information Gap Task', desc: 'Partner A has info Partner B needs — must communicate to complete the task.', mins: 15, icon: '🔄' },
+    { label: 'Role Play', desc: 'Students act out a realistic scenario using target language (e.g., at a restaurant, job interview).', mins: 15, icon: '🎭' },
+    { label: 'Minimal Pairs Drill', desc: 'Focus on confusable sounds — /p/ vs /b/, /l/ vs /r/ etc. Great for Vietnamese learners.', mins: 8, icon: '👄' },
+    { label: 'Sentence Transformation', desc: 'Students convert sentences between tenses/forms. Builds structural flexibility.', mins: 10, icon: '🔃' },
+    { label: 'Collocation Matching', desc: 'Match verbs to nouns (make/do, get/take) — builds vocabulary depth per Nation\'s model.', mins: 8, icon: '🧩' },
+  ],
+  production: [
+    { label: 'Communicative Task (TBLT)', desc: 'Open-ended task: plan a trip, debate a topic, solve a problem. Language is the tool.', mins: 20, icon: '🗣️' },
+    { label: 'Write & Share', desc: 'Students write 5–8 sentences on a topic, then share with a partner for peer feedback.', mins: 15, icon: '✍️' },
+    { label: 'Presentation (1 min each)', desc: 'Each student speaks for 60 seconds on a given prompt. No notes. Push for full sentences.', mins: 20, icon: '🎤' },
+    { label: 'Debate / Discussion', desc: 'Give two positions on a topic. Groups argue their side — accuracy secondary to fluency here.', mins: 18, icon: '⚡' },
+    { label: 'Dictogloss', desc: 'Teacher reads a short text twice. Students reconstruct it from memory — targets listening + grammar.', mins: 15, icon: '📋' },
+  ],
+  wrap: [
+    { label: 'Exit Ticket', desc: 'Students write 1 thing they learned + 1 thing still unclear before leaving.', mins: 4, icon: '🎫' },
+    { label: 'Spaced Review Preview', desc: 'Teacher announces next week\'s retrieval quiz topics — primes students to review.', mins: 3, icon: '📅' },
+    { label: 'Star of the Session', desc: 'Award session stars to standout contributors. Reinforce growth mindset praise.', mins: 3, icon: '⭐' },
+    { label: 'Self-Assessment', desc: 'Students rate themselves: "Today I could _____ but I still struggle with ___."', mins: 4, icon: '📊' },
+    { label: 'Vocab Record', desc: 'Students add today\'s new words to their personal vocab log with example sentences.', mins: 5, icon: '📒' },
+  ],
+}
+
+const PHASE_META = {
+  warmup:    { label: 'Warm-Up',    color: '#2d6be4', emoji: '🔥', desc: 'Retrieval & activation' },
+  input:     { label: 'Input',      color: '#7c3aed', emoji: '📥', desc: 'Comprehensible input & noticing' },
+  practice:  { label: 'Practice',   color: '#d4900a', emoji: '⚙️',  desc: 'Controlled & guided practice' },
+  production:{ label: 'Production', color: '#e85d26', emoji: '🚀', desc: 'Free & communicative use' },
+  wrap:      { label: 'Wrap-Up',    color: '#1a9e5c', emoji: '✅', desc: 'Consolidation & review prep' },
+}
+
+const LEVELS = ['Pro 1', 'Pro 2', 'Pro 3', 'Pro 4', 'Pro 5', 'Elite 1', 'Elite 2', 'Elite 3']
+const DURATIONS = [60, 75, 90, 105, 120]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILITY
+// ─────────────────────────────────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -283,7 +343,318 @@ const TAG_COLORS = {
   'Instruction Design':{ bg: 'rgba(124,58,237,0.12)',   color: 'var(--elite)'   },
 }
 
-export default function TeacherAcademy() {
+// ─────────────────────────────────────────────────────────────────────────────
+// LESSON BUILDER COMPONENT
+// ─────────────────────────────────────────────────────────────────────────────
+function LessonBuilder() {
+  const [className, setClassName] = useState('')
+  const [level, setLevel] = useState('Pro 3')
+  const [topic, setTopic] = useState('')
+  const [targetLang, setTargetLang] = useState('')
+  const [duration, setDuration] = useState(90)
+  const [plan, setPlan] = useState({ warmup: [], input: [], practice: [], production: [], wrap: [] })
+  const [expandedPhase, setExpandedPhase] = useState('warmup')
+  const [notes, setNotes] = useState('')
+  const [printed, setPrinted] = useState(false)
+
+  const totalMins = Object.values(plan).flat().reduce((s, a) => s + a.mins, 0)
+  const remaining = duration - totalMins
+  const overBudget = remaining < 0
+
+  function addActivity(phase, act) {
+    setPlan(p => ({ ...p, [phase]: [...p[phase], { ...act, id: Date.now() + Math.random() }] }))
+  }
+
+  function removeActivity(phase, id) {
+    setPlan(p => ({ ...p, [phase]: p[phase].filter(a => a.id !== id) }))
+  }
+
+  function adjustTime(phase, id, delta) {
+    setPlan(p => ({
+      ...p,
+      [phase]: p[phase].map(a => a.id === id ? { ...a, mins: Math.max(1, a.mins + delta) } : a)
+    }))
+  }
+
+  function clearPlan() {
+    setPlan({ warmup: [], input: [], practice: [], production: [], wrap: [] })
+    setNotes('')
+    setPrinted(false)
+  }
+
+  const phases = ['warmup', 'input', 'practice', 'production', 'wrap']
+
+  // Print view
+  if (printed) {
+    const now = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    return (
+      <div style={{ maxWidth: 700, margin: '0 auto', fontFamily: 'Georgia, serif' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 6, textTransform: 'uppercase' }}>Lesson Plan — {now}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{topic || 'Untitled Lesson'}</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)' }}>{className || 'Class'} · {level} · {duration} mins</div>
+            {targetLang && <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 4 }}>🎯 Target: {targetLang}</div>}
+          </div>
+          <button className="btn btn-outline" style={{ fontSize: 11 }} onClick={() => setPrinted(false)}>← Edit</button>
+        </div>
+
+        {/* Time bar */}
+        <div style={{ display: 'flex', gap: 3, marginBottom: 28, height: 12, borderRadius: 6, overflow: 'hidden' }}>
+          {phases.map(ph => {
+            const phMins = plan[ph].reduce((s, a) => s + a.mins, 0)
+            const pct = (phMins / duration) * 100
+            if (pct === 0) return null
+            return <div key={ph} style={{ width: `${pct}%`, background: PHASE_META[ph].color, opacity: 0.85 }} title={`${PHASE_META[ph].label}: ${phMins} min`} />
+          })}
+          {remaining > 0 && <div style={{ flex: 1, background: 'var(--surface2)' }} />}
+        </div>
+
+        {phases.map(ph => {
+          const acts = plan[ph]
+          if (!acts.length) return null
+          const meta = PHASE_META[ph]
+          const phMins = acts.reduce((s, a) => s + a.mins, 0)
+          return (
+            <div key={ph} style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, paddingBottom: 8, borderBottom: `2px solid ${meta.color}30` }}>
+                <span style={{ fontSize: 16 }}>{meta.emoji}</span>
+                <span style={{ fontWeight: 700, fontSize: 13, color: meta.color, letterSpacing: 1, textTransform: 'uppercase', fontFamily: 'var(--mono)' }}>{meta.label}</span>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginLeft: 'auto' }}>{phMins} min</span>
+              </div>
+              {acts.map((act, i) => (
+                <div key={act.id} style={{ display: 'flex', gap: 14, marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', paddingTop: 2, minWidth: 28 }}>{act.mins}m</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 3 }}>{act.icon} {act.label}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{act.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        })}
+
+        {notes && (
+          <div style={{ marginTop: 16, padding: '14px 18px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 8, textTransform: 'uppercase' }}>Teacher Notes</div>
+            <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text)', whiteSpace: 'pre-wrap' }}>{notes}</div>
+          </div>
+        )}
+
+        <div style={{ marginTop: 32, textAlign: 'center' }}>
+          <button className="btn btn-accent" onClick={() => window.print()}>🖨️ Print / Save PDF</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ maxWidth: 820, margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>ESL Lesson Builder</div>
+        <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Build Your Lesson Plan</div>
+        <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
+          Pick activities for each phase. Every activity is grounded in research from your flashcard deck. Budget your time, then export a clean plan.
+        </div>
+      </div>
+
+      {/* Setup row */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, marginBottom: 24,
+        padding: 20, background: 'var(--surface)', border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)',
+      }}>
+        <div>
+          <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Class Name</label>
+          <input value={className} onChange={e => setClassName(e.target.value)} placeholder="e.g. ATB_Pro3_S"
+            style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12, fontFamily: 'var(--mono)', boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Topic</label>
+          <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. Past tenses in stories"
+            style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12, boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Target Language</label>
+          <input value={targetLang} onChange={e => setTargetLang(e.target.value)} placeholder="e.g. Past simple + continuous"
+            style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12, boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Duration</label>
+          <select value={duration} onChange={e => setDuration(Number(e.target.value))}
+            style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12, fontFamily: 'var(--mono)' }}>
+            {DURATIONS.map(d => <option key={d} value={d}>{d} min</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Time budget bar */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>Time Budget</div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: overBudget ? 'var(--red)' : remaining === 0 ? 'var(--green)' : 'var(--muted)' }}>
+            {overBudget ? `⚠️ ${Math.abs(remaining)} min over` : remaining === 0 ? '✓ Perfect fit' : `${remaining} min remaining`}
+          </div>
+        </div>
+        <div style={{ height: 10, background: 'var(--surface2)', borderRadius: 6, overflow: 'hidden', display: 'flex', gap: 2 }}>
+          {phases.map(ph => {
+            const phMins = plan[ph].reduce((s, a) => s + a.mins, 0)
+            const pct = Math.min((phMins / duration) * 100, 100)
+            if (pct === 0) return null
+            return <div key={ph} style={{ width: `${pct}%`, background: PHASE_META[ph].color, opacity: 0.85, transition: 'width 0.3s ease', borderRadius: 4 }} />
+          })}
+        </div>
+        <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
+          {phases.map(ph => {
+            const phMins = plan[ph].reduce((s, a) => s + a.mins, 0)
+            return (
+              <div key={ph} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: 2, background: PHASE_META[ph].color }} />
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>{PHASE_META[ph].label} {phMins}m</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Phase builder */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+        {phases.map(ph => {
+          const meta = PHASE_META[ph]
+          const acts = plan[ph]
+          const phMins = acts.reduce((s, a) => s + a.mins, 0)
+          const isOpen = expandedPhase === ph
+          return (
+            <div key={ph} style={{
+              background: 'var(--surface)', border: `1px solid ${isOpen ? meta.color + '50' : 'var(--border)'}`,
+              borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)',
+              transition: 'border-color 0.2s',
+            }}>
+              {/* Phase header */}
+              <div
+                onClick={() => setExpandedPhase(isOpen ? null : ph)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px',
+                  cursor: 'pointer', borderLeft: `4px solid ${meta.color}`,
+                }}
+              >
+                <span style={{ fontSize: 18 }}>{meta.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: meta.color }}>{meta.label}</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', marginTop: 2 }}>{meta.desc}</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {acts.length > 0 && (
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: meta.color, fontWeight: 700 }}>{phMins}m · {acts.length} act.</span>
+                  )}
+                  <span style={{ color: 'var(--muted)', fontSize: 12 }}>{isOpen ? '▲' : '▼'}</span>
+                </div>
+              </div>
+
+              {isOpen && (
+                <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--border)' }}>
+
+                  {/* Added activities */}
+                  {acts.length > 0 && (
+                    <div style={{ marginTop: 16, marginBottom: 16 }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Your Plan</div>
+                      {acts.map(act => (
+                        <div key={act.id} style={{
+                          display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+                          borderRadius: 10, background: `${meta.color}10`, border: `1px solid ${meta.color}25`,
+                          marginBottom: 8,
+                        }}>
+                          <span style={{ fontSize: 16 }}>{act.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{act.label}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <button onClick={() => adjustTime(ph, act.id, -5)}
+                              style={{ width: 24, height: 24, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                            <span style={{ fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 700, minWidth: 32, textAlign: 'center', color: meta.color }}>{act.mins}m</span>
+                            <button onClick={() => adjustTime(ph, act.id, 5)}
+                              style={{ width: 24, height: 24, borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                            <button onClick={() => removeActivity(ph, act.id)}
+                              style={{ width: 24, height: 24, borderRadius: 6, border: 'none', background: 'rgba(214,59,59,0.1)', color: 'var(--red)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Activity bank */}
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginTop: acts.length ? 0 : 16, marginBottom: 10 }}>Activity Bank</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {ACTIVITY_BANK[ph].map((act, i) => (
+                      <div key={i}
+                        onClick={() => addActivity(ph, act)}
+                        style={{
+                          padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
+                          background: 'var(--surface2)', border: '1px solid var(--border)',
+                          transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = `${meta.color}12`; e.currentTarget.style.borderColor = `${meta.color}40` }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface2)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                          <span style={{ fontSize: 14 }}>{act.icon}</span>
+                          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: meta.color, fontWeight: 700 }}>{act.mins}m</span>
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4, color: 'var(--text)' }}>{act.label}</div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{act.desc}</div>
+                        <div style={{ marginTop: 8, fontSize: 10, color: meta.color, fontWeight: 600 }}>+ Add →</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Notes */}
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Teacher Notes (optional)</label>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="Materials needed, student groupings, things to watch for, anticipated errors..."
+          rows={4}
+          style={{
+            width: '100%', padding: '12px 16px', borderRadius: 10,
+            border: '1px solid var(--border)', background: 'var(--surface)',
+            color: 'var(--text)', fontSize: 13, lineHeight: 1.6,
+            resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit',
+          }}
+        />
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button
+          className="btn btn-accent"
+          style={{ flex: 1, opacity: totalMins === 0 ? 0.4 : 1 }}
+          disabled={totalMins === 0}
+          onClick={() => setPrinted(true)}
+        >
+          📄 Preview & Print Plan
+        </button>
+        <button className="btn btn-outline" onClick={clearPlan}>🗑️ Clear</button>
+      </div>
+
+      <style>{`@keyframes fadeSlideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FLASHCARD GAME COMPONENT (unchanged logic, extracted for cleanliness)
+// ─────────────────────────────────────────────────────────────────────────────
+function FlashcardGame() {
   const [deck, setDeck]           = useState(() => shuffle(CARDS))
   const [index, setIndex]         = useState(0)
   const [flipped, setFlipped]     = useState(false)
@@ -291,12 +662,10 @@ export default function TeacherAcademy() {
   const [confirmed, setConfirmed] = useState(false)
   const [sessionScore, setSessionScore] = useState({ correct: 0, total: 0 })
   const [finished, setFinished]   = useState(false)
+  const [currentOptions, setCurrentOptions] = useState([])
 
   const card = deck[index]
-  const shuffledOptions = useState(() => shuffle(card?.options || []))[0]
 
-  // Re-shuffle options when card changes
-  const [currentOptions, setCurrentOptions] = useState([])
   useEffect(() => {
     if (card) setCurrentOptions(shuffle(card.options))
     setFlipped(false)
@@ -305,46 +674,29 @@ export default function TeacherAcademy() {
   }, [index, card?.id])
 
   function handleFlip() { setFlipped(true) }
-
-  function handleSelect(opt) {
-    if (confirmed) return
-    setSelected(opt)
-  }
-
+  function handleSelect(opt) { if (confirmed) return; setSelected(opt) }
   function handleConfirm() {
     if (!selected || confirmed) return
     setConfirmed(true)
-    setSessionScore(s => ({
-      correct: s.correct + (selected.correct ? 1 : 0),
-      total: s.total + 1,
-    }))
+    setSessionScore(s => ({ correct: s.correct + (selected.correct ? 1 : 0), total: s.total + 1 }))
   }
-
   function handleNext() {
-    if (index + 1 >= deck.length) {
-      setFinished(true)
-    } else {
-      setIndex(i => i + 1)
-    }
+    if (index + 1 >= deck.length) setFinished(true)
+    else setIndex(i => i + 1)
   }
-
   function handleRestart() {
-    setDeck(shuffle(CARDS))
-    setIndex(0)
-    setSessionScore({ correct: 0, total: 0 })
-    setFinished(false)
+    setDeck(shuffle(CARDS)); setIndex(0)
+    setSessionScore({ correct: 0, total: 0 }); setFinished(false)
   }
 
   const tagStyle = TAG_COLORS[card?.tag] || { bg: 'var(--surface2)', color: 'var(--muted)' }
 
-  // ── Finished screen ──────────────────────────────────────────────────────
   if (finished) {
     const pct = Math.round((sessionScore.correct / sessionScore.total) * 100)
     const grade = pct >= 90 ? { emoji: '🧠', label: 'Master Educator', color: 'var(--elite)' }
                 : pct >= 70 ? { emoji: '⭐', label: 'Strong Session',  color: 'var(--gold)'  }
                 : pct >= 50 ? { emoji: '📈', label: 'Keep Practicing', color: 'var(--pro)'   }
                 :             { emoji: '🔁', label: 'Review Needed',   color: 'var(--accent)' }
-
     return (
       <div style={{ maxWidth: 580, margin: '0 auto', textAlign: 'center', padding: '60px 24px' }}>
         <div style={{ fontSize: 64, marginBottom: 16 }}>{grade.emoji}</div>
@@ -352,80 +704,37 @@ export default function TeacherAcademy() {
         <div style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--muted)', marginBottom: 32 }}>
           You got <span style={{ color: grade.color, fontWeight: 700 }}>{sessionScore.correct}</span> out of <span style={{ fontWeight: 700 }}>{sessionScore.total}</span> correct — {pct}%
         </div>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-          <button className="btn btn-accent" onClick={handleRestart}>🔁 New Session</button>
-        </div>
+        <button className="btn btn-accent" onClick={handleRestart}>🔁 New Session</button>
       </div>
     )
   }
 
-  // ── Main card ────────────────────────────────────────────────────────────
   return (
     <div style={{ maxWidth: 680, margin: '0 auto' }}>
-
-      {/* Progress bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
         <div style={{ flex: 1, height: 5, background: 'var(--surface2)', borderRadius: 3, overflow: 'hidden' }}>
-          <div style={{
-            height: '100%', borderRadius: 3,
-            width: `${((index + 1) / deck.length) * 100}%`,
-            background: 'linear-gradient(90deg, var(--pro), var(--elite))',
-            transition: 'width 0.4s ease',
-          }} />
+          <div style={{ height: '100%', borderRadius: 3, width: `${((index + 1) / deck.length) * 100}%`, background: 'linear-gradient(90deg, var(--pro), var(--elite))', transition: 'width 0.4s ease' }} />
         </div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-          {index + 1} / {deck.length}
-        </div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--green)', whiteSpace: 'nowrap' }}>
-          ✓ {sessionScore.correct}
-        </div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{index + 1} / {deck.length}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--green)', whiteSpace: 'nowrap' }}>✓ {sessionScore.correct}</div>
       </div>
 
-      {/* Card */}
-      <div style={{
-        background: 'var(--surface)', border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)', padding: 32,
-        boxShadow: 'var(--shadow)', marginBottom: 16,
-      }}>
-        {/* Tag + author row */}
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 32, boxShadow: 'var(--shadow)', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
-          <span style={{
-            fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, letterSpacing: 2,
-            padding: '4px 12px', borderRadius: 20, textTransform: 'uppercase',
-            background: tagStyle.bg, color: tagStyle.color,
-          }}>{card.tag}</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1 }}>
-            {card.author}
-          </span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, letterSpacing: 2, padding: '4px 12px', borderRadius: 20, textTransform: 'uppercase', background: tagStyle.bg, color: tagStyle.color }}>{card.tag}</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1 }}>{card.author}</span>
         </div>
-
-        {/* Technique name */}
         <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>{card.technique}</div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1, marginBottom: 20 }}>
-          📄 {card.research}
-        </div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1, marginBottom: 20 }}>📄 {card.research}</div>
+        <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text)', padding: '16px 18px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)', marginBottom: flipped ? 20 : 0 }}>{card.summary}</div>
 
-        {/* Summary — always visible */}
-        <div style={{
-          fontSize: 14, lineHeight: 1.7, color: 'var(--text)',
-          padding: '16px 18px', borderRadius: 10,
-          background: 'var(--surface2)', border: '1px solid var(--border)',
-          marginBottom: flipped ? 20 : 0,
-        }}>
-          {card.summary}
-        </div>
-
-        {/* Flip reveals detail + example */}
         {flipped && (
           <div style={{ animation: 'fadeSlideIn 0.3s ease' }}>
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 8, textTransform: 'uppercase' }}>The Science</div>
               <div style={{ fontSize: 13, lineHeight: 1.75, color: 'var(--text)' }}>{card.detail}</div>
             </div>
-            <div style={{
-              padding: '14px 18px', borderRadius: 10,
-              background: 'rgba(232,93,38,0.06)', border: '1px solid rgba(232,93,38,0.15)',
-            }}>
+            <div style={{ padding: '14px 18px', borderRadius: 10, background: 'rgba(232,93,38,0.06)', border: '1px solid rgba(232,93,38,0.15)' }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--accent)', letterSpacing: 2, marginBottom: 8, textTransform: 'uppercase' }}>Your Classroom</div>
               <div style={{ fontSize: 13, lineHeight: 1.75, color: 'var(--text)' }}>{card.example}</div>
             </div>
@@ -433,60 +742,26 @@ export default function TeacherAcademy() {
         )}
       </div>
 
-      {/* Flip button */}
       {!flipped && (
-        <button
-          className="btn btn-outline"
-          style={{ width: '100%', marginBottom: 16, padding: '14px 0', fontSize: 13, fontWeight: 700 }}
-          onClick={handleFlip}
-        >
+        <button className="btn btn-outline" style={{ width: '100%', marginBottom: 16, padding: '14px 0', fontSize: 13, fontWeight: 700 }} onClick={handleFlip}>
           🔍 Reveal Detail + Classroom Example
         </button>
       )}
 
-      {/* MCQ — only after flip */}
       {flipped && (
-        <div style={{
-          background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)', padding: 24,
-          boxShadow: 'var(--shadow)', marginBottom: 16,
-        }}>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 16, textTransform: 'uppercase' }}>
-            🎯 Test Your Recall
-          </div>
-
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 24, boxShadow: 'var(--shadow)', marginBottom: 16 }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 16, textTransform: 'uppercase' }}>🎯 Test Your Recall</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {currentOptions.map((opt, i) => {
-              let bg = 'var(--surface2)'
-              let border = '1px solid var(--border)'
-              let color = 'var(--text)'
-
+              let bg = 'var(--surface2)', border = '1px solid var(--border)', color = 'var(--text)'
               if (confirmed) {
-                if (opt.correct) {
-                  bg = 'rgba(26,158,92,0.1)'; border = '1.5px solid var(--green)'; color = 'var(--green)'
-                } else if (opt === selected && !opt.correct) {
-                  bg = 'rgba(214,59,59,0.1)'; border = '1.5px solid var(--red)'; color = 'var(--red)'
-                } else {
-                  bg = 'var(--surface2)'; color = 'var(--muted)'
-                }
-              } else if (opt === selected) {
-                bg = 'rgba(45,107,228,0.1)'; border = '1.5px solid var(--pro)'; color = 'var(--pro)'
-              }
-
+                if (opt.correct) { bg = 'rgba(26,158,92,0.1)'; border = '1.5px solid var(--green)'; color = 'var(--green)' }
+                else if (opt === selected && !opt.correct) { bg = 'rgba(214,59,59,0.1)'; border = '1.5px solid var(--red)'; color = 'var(--red)' }
+                else { bg = 'var(--surface2)'; color = 'var(--muted)' }
+              } else if (opt === selected) { bg = 'rgba(45,107,228,0.1)'; border = '1.5px solid var(--pro)'; color = 'var(--pro)' }
               return (
-                <div key={i}
-                  onClick={() => handleSelect(opt)}
-                  style={{
-                    padding: '12px 16px', borderRadius: 10, cursor: confirmed ? 'default' : 'pointer',
-                    background: bg, border, color,
-                    fontSize: 13, fontWeight: opt === selected || (confirmed && opt.correct) ? 600 : 400,
-                    transition: 'all 0.15s',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                  }}
-                >
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.5, flexShrink: 0 }}>
-                    {String.fromCharCode(65 + i)}
-                  </span>
+                <div key={i} onClick={() => handleSelect(opt)} style={{ padding: '12px 16px', borderRadius: 10, cursor: confirmed ? 'default' : 'pointer', background: bg, border, color, fontSize: 13, fontWeight: opt === selected || (confirmed && opt.correct) ? 600 : 400, transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.5, flexShrink: 0 }}>{String.fromCharCode(65 + i)}</span>
                   {opt.text}
                   {confirmed && opt.correct && <span style={{ marginLeft: 'auto' }}>✓</span>}
                   {confirmed && opt === selected && !opt.correct && <span style={{ marginLeft: 'auto' }}>✗</span>}
@@ -494,49 +769,73 @@ export default function TeacherAcademy() {
               )
             })}
           </div>
-
-          {/* Explanation after confirming */}
           {confirmed && (
-            <div style={{
-              marginTop: 16, padding: '12px 16px', borderRadius: 10,
-              background: selected?.correct ? 'rgba(26,158,92,0.08)' : 'rgba(214,59,59,0.08)',
-              border: `1px solid ${selected?.correct ? 'rgba(26,158,92,0.2)' : 'rgba(214,59,59,0.2)'}`,
-              fontSize: 12, lineHeight: 1.6, color: 'var(--text)',
-              animation: 'fadeSlideIn 0.25s ease',
-            }}>
-              <span style={{ fontWeight: 700, color: selected?.correct ? 'var(--green)' : 'var(--red)' }}>
-                {selected?.correct ? '✓ Correct — ' : '✗ Not quite — '}
-              </span>
+            <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: selected?.correct ? 'rgba(26,158,92,0.08)' : 'rgba(214,59,59,0.08)', border: `1px solid ${selected?.correct ? 'rgba(26,158,92,0.2)' : 'rgba(214,59,59,0.2)'}`, fontSize: 12, lineHeight: 1.6, color: 'var(--text)', animation: 'fadeSlideIn 0.25s ease' }}>
+              <span style={{ fontWeight: 700, color: selected?.correct ? 'var(--green)' : 'var(--red)' }}>{selected?.correct ? '✓ Correct — ' : '✗ Not quite — '}</span>
               {card.explanation}
             </div>
           )}
-
-          {/* Confirm / Next buttons */}
           <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
             {!confirmed ? (
-              <button
-                className="btn btn-accent"
-                style={{ flex: 1, opacity: selected ? 1 : 0.4, cursor: selected ? 'pointer' : 'not-allowed' }}
-                onClick={handleConfirm}
-                disabled={!selected}
-              >
-                Check Answer
-              </button>
+              <button className="btn btn-accent" style={{ flex: 1, opacity: selected ? 1 : 0.4, cursor: selected ? 'pointer' : 'not-allowed' }} onClick={handleConfirm} disabled={!selected}>Check Answer</button>
             ) : (
-              <button className="btn btn-accent" style={{ flex: 1 }} onClick={handleNext}>
-                {index + 1 >= deck.length ? '🏁 See Results' : 'Next Card →'}
-              </button>
+              <button className="btn btn-accent" style={{ flex: 1 }} onClick={handleNext}>{index + 1 >= deck.length ? '🏁 See Results' : 'Next Card →'}</button>
             )}
           </div>
         </div>
       )}
+      <style>{`@keyframes fadeSlideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
+    </div>
+  )
+}
 
-      <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN TeacherAcademy — tab switcher between the two tools
+// ─────────────────────────────────────────────────────────────────────────────
+export default function TeacherAcademy() {
+  const [tool, setTool] = useState('flashcards')
+
+  const TOOLS = [
+    { id: 'flashcards', label: '🃏 Research Flashcards', desc: 'Quiz yourself on 15 evidence-based ESL methods' },
+    { id: 'builder',    label: '📋 Lesson Builder',      desc: 'Build a timed lesson plan from research-backed activities' },
+  ]
+
+  return (
+    <div>
+      {/* Academy header */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Teacher Academy</div>
+        <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Professional Development Hub</div>
+        <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 560, lineHeight: 1.7 }}>
+          Two tools to sharpen your teaching. Study the research, then put it into practice by designing your next lesson.
+        </div>
+      </div>
+
+      {/* Tool switcher */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 36, maxWidth: 700 }}>
+        {TOOLS.map(t => (
+          <div
+            key={t.id}
+            onClick={() => setTool(t.id)}
+            style={{
+              padding: '18px 22px', borderRadius: 'var(--radius)', cursor: 'pointer',
+              background: tool === t.id ? 'var(--accent)' : 'var(--surface)',
+              border: `1px solid ${tool === t.id ? 'var(--accent)' : 'var(--border)'}`,
+              color: tool === t.id ? '#fff' : 'var(--text)',
+              transition: 'all 0.18s', boxShadow: tool === t.id ? '0 4px 16px rgba(232,93,38,0.25)' : 'var(--shadow)',
+            }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>{t.label}</div>
+            <div style={{ fontSize: 11, opacity: 0.75, lineHeight: 1.5 }}>{t.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: 'var(--border)', marginBottom: 36 }} />
+
+      {/* Active tool */}
+      {tool === 'flashcards' ? <FlashcardGame /> : <LessonBuilder />}
     </div>
   )
 }
