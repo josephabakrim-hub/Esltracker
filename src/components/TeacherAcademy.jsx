@@ -1225,13 +1225,659 @@ function ErrorTracker() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MAIN TeacherAcademy — tab switcher across three tools
+// SCENARIO SIMULATOR
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SCENARIOS = [
+  {
+    id: 1,
+    tag: 'Error Correction',
+    difficulty: 'Everyday',
+    setup: 'Mid-speaking task, your Pro 3 student Minh says confidently: "Yesterday I go to the market and buyed some vegetables." Two errors. The class is listening. What do you do right now?',
+    choices: [
+      {
+        text: 'Stop Minh immediately. Say "No — it\'s WENT and BOUGHT. Repeat after me: went, bought."',
+        score: 2,
+        verdict: 'Partially effective',
+        explanation: 'Explicit correction works for accuracy-focused tasks, but stopping a fluency activity raises the affective filter and teaches students to fear speaking. The error IS corrected, but the cost is a chilling effect on the whole class.',
+        principle: 'Affective Filter (Krashen) + Lyster & Ranta on corrective feedback',
+      },
+      {
+        text: 'Recast naturally: respond "Oh, you went to the market! What did you buy?" — keeping the conversation alive.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'This is textbook recasting. You model both correct forms (went, buy) in a natural response without breaking flow. Minh and the class hear the correct forms in context. The conversation continues. Affective filter stays low.',
+        principle: 'Recasting (Lyster & Ranta, 1997) + Affective Filter Hypothesis',
+      },
+      {
+        text: 'Ignore both errors — fluency is the goal right now, accuracy can wait.',
+        score: 3,
+        verdict: 'Situationally okay',
+        explanation: 'If this were a high-speed fluency drill, ignoring is defensible. But two systematic errors (go/went, buyed/bought) that you hear regularly deserve at least a quiet recast. Ignoring repeatedly lets patterns fossilize.',
+        principle: 'Deliberate Practice (Ericsson) — ignoring repeated errors = no feedback loop',
+      },
+      {
+        text: 'Let Minh finish, then write both errors on the board anonymously and ask the class to fix them.',
+        score: 4,
+        verdict: 'Strong move',
+        explanation: 'Delayed metalinguistic feedback protects Minh\'s face, involves the whole class, and turns the error into a noticing moment. Slightly less immediate than recasting but very effective for systematic errors.',
+        principle: 'Noticing Hypothesis (Schmidt) + Metalinguistic feedback (Lyster & Ranta)',
+      },
+    ],
+  },
+  {
+    id: 2,
+    tag: 'Classroom Energy',
+    difficulty: 'Everyday',
+    setup: 'It\'s 8pm Thursday. Your Elite 2 class looks exhausted — three students haven\'t spoken in 20 minutes. Your grammar explanation is halfway done. You have 40 minutes left.',
+    choices: [
+      {
+        text: 'Push through — the grammar must be finished. Speed up and deliver the rest of the explanation.',
+        score: 1,
+        verdict: 'Least effective',
+        explanation: 'Comprehensible input requires a receptive, low-anxiety state. An exhausted class with raised affective filters is not acquiring anything. Speeding up a grammar explanation to disengaged students is the definition of wasted time.',
+        principle: 'Affective Filter Hypothesis (Krashen) — high filter = no acquisition',
+      },
+      {
+        text: 'Abandon the grammar. Pivot to a fast pair-speaking game using the grammar you\'ve already taught — energy first.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'This applies TBLT instincts perfectly. Students produce the grammar through a live task — which consolidates what you\'ve already taught — while the energy shift resets the room. You\'re losing nothing; you\'re gaining productive output.',
+        principle: 'TBLT (Long) + Output Hypothesis (Swain) + Affective Filter',
+      },
+      {
+        text: 'Give a 5-minute break, then return to the explanation.',
+        score: 3,
+        verdict: 'Reasonable',
+        explanation: 'A break does reset energy. But returning to the same explanation risks the same slide. Better to pair the break with a format change — come back to a task, not more teacher talk.',
+        principle: 'Affective Filter — breaks help but format change is the real reset',
+      },
+      {
+        text: 'Call on the three silent students directly — use the Spin of Doom to re-engage them.',
+        score: 4,
+        verdict: 'Good instinct',
+        explanation: 'Targeted cold-calling re-engages passive students and signals accountability. Keep it warm and low-stakes — a playful spin rather than a test. Works best if the question is achievable so they succeed and re-engage.',
+        principle: 'ZPD (Vygotsky) — challenge at the right level, not a trap',
+      },
+    ],
+  },
+  {
+    id: 3,
+    tag: 'Vocabulary Teaching',
+    difficulty: 'Everyday',
+    setup: 'You\'re teaching the word "persuade." You\'ve said it, translated it to Vietnamese, and students nodded. A student uses it 5 minutes later: "I persuade happy." What went wrong and what do you do now?',
+    choices: [
+      {
+        text: 'Translate it again more clearly. They didn\'t understand the Vietnamese equivalent.',
+        score: 1,
+        verdict: 'Misses the point',
+        explanation: 'The student knew the meaning — they tried to use it. The problem is grammatical behavior: persuade is a transitive verb requiring an object + infinitive (persuade someone TO do). Translation gives meaning but zero grammar knowledge.',
+        principle: 'Vocabulary Depth vs. Breadth (Nation) — translation = breadth only',
+      },
+      {
+        text: 'Model the correct grammar pattern: "I persuade + person + to + verb. I persuaded her to stay. Now you try."',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'This is exactly how vocabulary depth is built. You\'re teaching the grammatical behavior — the collocation frame — not just the meaning. Then pushing for immediate production cements the pattern. Nation\'s model in action.',
+        principle: 'Vocabulary Depth (Nation) + Output Hypothesis (Swain)',
+      },
+      {
+        text: 'Recast: "Oh — you feel persuaded? Or you want to persuade someone?" and let them work it out.',
+        score: 4,
+        verdict: 'Good elicitation',
+        explanation: 'Eliciting self-repair through a question works well here. The student has to think about the structure, which deepens the memory trace. Less explicit than option B but triggers noticing.',
+        principle: 'Noticing Hypothesis (Schmidt) + Elicitation (Lyster & Ranta)',
+      },
+      {
+        text: 'Write 3 example sentences on the board using "persuade" and ask students to copy them.',
+        score: 2,
+        verdict: 'Passive and slow',
+        explanation: 'Copying examples builds zero productive knowledge. Students need to GENERATE sentences, not copy them. This is the "re-reading" equivalent in vocabulary teaching — feels productive, builds little.',
+        principle: 'Retrieval Practice (Roediger) — production > copying',
+      },
+    ],
+  },
+  {
+    id: 4,
+    tag: 'Motivation',
+    difficulty: 'Challenging',
+    setup: 'Linh is your strongest Pro 5 student. She just aced a difficult grammar task. You want to praise her in a way that actually helps her keep growing. What do you say?',
+    choices: [
+      {
+        text: '"Linh, you\'re so talented! You\'re the best in this class."',
+        score: 1,
+        verdict: 'Actively harmful',
+        explanation: 'Dweck\'s research is unambiguous: intelligence praise creates fragility. Linh will now avoid risks that might undermine her "talented" status. She will play it safe, choose easier tasks, and become less resilient over time.',
+        principle: 'Growth Mindset (Dweck) — intelligence praise = fixed mindset',
+      },
+      {
+        text: '"Linh, that was a hard task. I noticed you re-read it twice before answering — that strategy worked."',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'You\'re praising the process, naming the specific strategy, and connecting effort to outcome. This is precisely what Dweck calls for. Linh learns that re-reading and checking = success. That behavior will repeat.',
+        principle: 'Growth Mindset (Dweck) + Deliberate Practice (Ericsson)',
+      },
+      {
+        text: '"Well done, Linh!" with a warm smile and move on.',
+        score: 2,
+        verdict: 'Neutral but missed',
+        explanation: 'Inoffensive, but a missed opportunity. Generic praise lands nowhere. Linh doesn\'t learn what she did right. Two seconds of specific process praise would have been far more powerful.',
+        principle: 'Growth Mindset (Dweck) — specificity is what makes praise work',
+      },
+      {
+        text: '"Great Linh — now let\'s try an even harder version. Can you do it without the example?"',
+        score: 4,
+        verdict: 'Strong move',
+        explanation: 'Immediately raising the challenge signals you believe in her capacity — that\'s growth mindset in action. The slight risk: jumping straight to harder without acknowledging effort can feel dismissive. A brief acknowledgment first is ideal.',
+        principle: 'ZPD (Vygotsky) — push to the next edge + Growth Mindset (Dweck)',
+      },
+    ],
+  },
+  {
+    id: 5,
+    tag: 'Lesson Design',
+    difficulty: 'Challenging',
+    setup: 'You\'re planning Wednesday\'s Pro 3 class (90 min). You want to teach past simple vs past continuous. A colleague suggests: "Do 30 min of past simple exercises, then 30 min of past continuous exercises, then 30 min of both." You feel something is off. What\'s the better approach?',
+    choices: [
+      {
+        text: 'Follow the colleague\'s plan — it\'s logical and structured.',
+        score: 1,
+        verdict: 'Common but weak',
+        explanation: 'This is pure blocked practice. Students master one form in isolation, then the other, with a brief mix at the end. Research consistently shows this produces the illusion of mastery that collapses when forms are tested together in real use.',
+        principle: 'Interleaving (Kornell & Bjork) — blocked practice = shallow learning',
+      },
+      {
+        text: 'Mix both tenses from minute one — design tasks that naturally require choosing between them.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'Interleaving forces students to discriminate: "Which form does this moment require?" That decision-making IS the learning. It\'s harder, students will struggle more — and retain far more. Design a storytelling task where they need both tenses together from the start.',
+        principle: 'Interleaving (Kornell & Bjork) + TBLT (Long)',
+      },
+      {
+        text: 'Teach past simple for 20 min, then jump straight to a task requiring both tenses without teaching past continuous explicitly.',
+        score: 4,
+        verdict: 'Bold and good',
+        explanation: 'This is close to TBLT — you let students encounter the gap (past continuous) through a real task rather than pre-teaching it. The noticing that occurs when they lack the form is a powerful acquisition moment. Slightly risky with lower-level Pro groups.',
+        principle: 'TBLT (Long) + Noticing Hypothesis (Schmidt)',
+      },
+      {
+        text: 'Teach past simple only and do it really deeply — don\'t rush into two tenses.',
+        score: 2,
+        verdict: 'Safe but missed',
+        explanation: 'Depth on one form is valuable, but in Pro 3, past simple is largely known. The real learning challenge is discriminating between the two — which requires both in the same context. Avoiding the harder thing is not good lesson design.',
+        principle: 'ZPD (Vygotsky) — stay in the zone of challenge, not comfort',
+      },
+    ],
+  },
+  {
+    id: 6,
+    tag: 'Pronunciation',
+    difficulty: 'Everyday',
+    setup: 'Every class, your HTB Pro 2 students say "tree" instead of "three" and "dis" instead of "this." You\'ve corrected it many times. It keeps happening. What\'s going wrong and what do you do differently?',
+    choices: [
+      {
+        text: 'Keep correcting it every time it comes up — repetition will eventually work.',
+        score: 2,
+        verdict: 'Not enough',
+        explanation: 'If correction alone worked, it would have already worked. Incidental correction without explicit phonological training doesn\'t rewire L1 interference. Vietnamese phonology doesn\'t have the /θ/ sound — students\' ears and mouths aren\'t built for it yet.',
+        principle: 'Phonological Awareness — L1 interference requires explicit training, not just correction',
+      },
+      {
+        text: 'Dedicate 5 focused minutes to the /θ/ sound: where the tongue goes, minimal pairs, physical awareness. Do this weekly.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'This is explicit phonological training. You\'re building the sound from the ground up — tongue position, airflow, the physical sensation. Minimal pairs (three/tree, this/dis) make the contrast audible. Weekly repetition over a month will produce real change.',
+        principle: 'Phonological Awareness (Ehri) + Spaced Repetition (Ebbinghaus)',
+      },
+      {
+        text: 'Accept it — the /θ/ sound is notoriously hard for Vietnamese speakers and it won\'t affect comprehension much.',
+        score: 1,
+        verdict: 'Gives up too early',
+        explanation: 'The /θ/ sound IS hard, but it\'s teachable with explicit instruction. Accepting fossilized errors at Pro level is underselling your students. "three" vs "tree" is a meaningful distinction — and your students are Pro level, they can do this.',
+        principle: 'Deliberate Practice (Ericsson) — difficulty is not a reason to stop, it\'s where growth happens',
+      },
+      {
+        text: 'Use peer correction — have students listen to each other and flag the error.',
+        score: 3,
+        verdict: 'Helpful supplement',
+        explanation: 'Peer correction raises awareness and creates accountability. But if students can\'t reliably produce the sound themselves, they may not catch it in others either. Works best after some explicit instruction has given them the reference point.',
+        principle: 'Noticing Hypothesis (Schmidt) — noticing requires a known target',
+      },
+    ],
+  },
+  {
+    id: 7,
+    tag: 'Scaffolding',
+    difficulty: 'Challenging',
+    setup: 'You ask your Pro 1 class to write a short paragraph about their weekend. Blank faces. Nobody writes anything for 3 minutes. What do you do?',
+    choices: [
+      {
+        text: 'Wait. Give them more time — the productive struggle is good for them.',
+        score: 2,
+        verdict: 'Misreads the situation',
+        explanation: 'Productive struggle works when students are close to the edge of their ability. But a blank page with no scaffold means they\'re outside the ZPD entirely — they don\'t know WHERE to start. Waiting without helping isn\'t desirable difficulty, it\'s abandonment.',
+        principle: 'ZPD (Vygotsky) — outside the ZPD is not growth, it\'s shutdown',
+      },
+      {
+        text: 'Tell them the topic is too hard today. Switch to a speaking activity instead.',
+        score: 1,
+        verdict: 'Avoids the problem',
+        explanation: 'Avoiding a task because it\'s hard denies students the chance to grow. Writing IS a key skill. The solution is not to remove the task — it\'s to scaffold it so they can succeed.',
+        principle: 'ZPD (Vygotsky) — scaffolding enables, avoidance prevents growth',
+      },
+      {
+        text: 'Write a model paragraph on the board. Then give a sentence frame: "On Saturday, I ___. Then I ___. It was ___ because ___." Let them fill it.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'This is scaffolding by the book. The model shows them what "done" looks like. The sentence frame gives the structure without doing the thinking for them. Students fill in their own content — meaning is theirs, form is supported. This is exactly how writing skill is built across a term.',
+        principle: 'ZPD + Scaffolding (Vygotsky) + Multimodal Learning (Mayer)',
+      },
+      {
+        text: 'Ask them verbally first: "Tell your partner about your weekend." Then say: "Now write what you just said."',
+        score: 4,
+        verdict: 'Smart bridge',
+        explanation: 'Speaking before writing is a powerful scaffold — students generate their ideas orally (lower effort) and then transfer to writing. It removes the double cognitive load of idea generation + language production simultaneously.',
+        principle: 'Output Hypothesis (Swain) + Cognitive Load — reduce load before increasing it',
+      },
+    ],
+  },
+  {
+    id: 8,
+    tag: 'Input Design',
+    difficulty: 'Intermediate',
+    setup: 'You want to introduce the passive voice to your Elite 1 class. You have 15 minutes. A colleague says: "Just put the rule on the board and drill it." What do you do instead?',
+    choices: [
+      {
+        text: 'Follow the colleague\'s advice — rules first, then drilling is efficient.',
+        score: 2,
+        verdict: 'Old-fashioned',
+        explanation: 'Presenting the rule before encountering the language in context means students memorize a formula without understanding its communicative function. Drills cement form, but students won\'t know when or why to use the passive in real speech.',
+        principle: 'TBLT (Long) — form without function doesn\'t produce real acquisition',
+      },
+      {
+        text: 'Tell a short story heavily using passive voice naturally. Then ask: "Did you notice anything unusual about how I described things?"',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'You\'re front-loading comprehensible input at i+1, then triggering a noticing moment. Students encounter the passive in real use before they know what it\'s called. That noticing — "wait, there\'s a pattern here" — is the gateway to acquisition according to Schmidt.',
+        principle: 'Comprehensible Input (Krashen) + Noticing Hypothesis (Schmidt)',
+      },
+      {
+        text: 'Show a news article with passive voice examples highlighted. Discuss: "Why does news use this form so much?"',
+        score: 4,
+        verdict: 'Excellent context',
+        explanation: 'Authentic text with a real communicative question gives the passive meaning: it hides the agent, it sounds formal, it\'s everywhere in news. Students understand WHY this form exists, which deepens acquisition beyond rule-following.',
+        principle: 'TBLT (Long) + Vocabulary Depth model — form must have function',
+      },
+      {
+        text: 'Do a task first: students describe a crime scene where nobody knows who did it. Debrief: "What language did you need?"',
+        score: 5,
+        verdict: '✓ Also best',
+        explanation: 'Pure TBLT. Students hit a communicative need — "I need to describe this without naming a subject" — and feel the gap (Schmidt\'s Noticing) before you name the form. The grammar emerges from necessity, not prescription.',
+        principle: 'TBLT (Long) + Noticing Hypothesis (Schmidt) + Output Hypothesis (Swain)',
+      },
+    ],
+  },
+  {
+    id: 9,
+    tag: 'Memory & Review',
+    difficulty: 'Everyday',
+    setup: 'It\'s the start of class. You taught 8 new vocabulary words last Tuesday. You want students to actually remember them long-term. What do you do in the next 5 minutes?',
+    choices: [
+      {
+        text: 'Show the words on the board and read through them together as a class.',
+        score: 1,
+        verdict: 'Almost useless',
+        explanation: 'This is passive re-exposure — the weakest form of review. Students see the words but don\'t retrieve them. Ebbinghaus showed re-reading creates a familiarity illusion without actually rebuilding the memory. You\'ll all feel like you reviewed. Nobody will remember more.',
+        principle: 'Retrieval Practice (Roediger) — re-reading ≠ remembering',
+      },
+      {
+        text: 'Cover the board. Ask students to write down as many of the 8 words as they can remember. No notes.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'Pure retrieval practice. The effortful act of pulling words from memory — especially when it\'s hard — is the mechanism that rebuilds and strengthens the memory trace. Even failing to recall a word and then seeing it is more powerful than just re-reading it.',
+        principle: 'Retrieval Practice (Roediger & Karpicke) + Spaced Repetition (Ebbinghaus)',
+      },
+      {
+        text: 'Play a quick game: students give definitions and others guess the word.',
+        score: 4,
+        verdict: 'Strong retrieval',
+        explanation: 'Producing a definition forces retrieval and builds vocabulary depth — they have to know the word well enough to explain it. The game format lowers the affective filter. Slightly less controlled than a written recall test but very effective.',
+        principle: 'Retrieval Practice + Vocabulary Depth (Nation) + Affective Filter',
+      },
+      {
+        text: 'Give students 3 minutes to re-read their vocabulary notes, then test them.',
+        score: 2,
+        verdict: 'Backwards',
+        explanation: 'Testing after re-reading feels more humane but actually reduces learning. The re-reading removes the productive struggle of retrieval. Test first, review what they missed — not the other way around.',
+        principle: 'Retrieval Practice — test before review, not after',
+      },
+    ],
+  },
+  {
+    id: 10,
+    tag: 'Student Resistance',
+    difficulty: 'Challenging',
+    setup: 'You ask Tuan, a quiet Pro 4 student, to give a 1-minute talk in front of the class. He shakes his head and says "I can\'t, Teacher." The class is watching. What do you do?',
+    choices: [
+      {
+        text: 'Accept it. Say "That\'s okay" and move to another student.',
+        score: 2,
+        verdict: 'Too accommodating',
+        explanation: 'Letting Tuan opt out permanently teaches him that avoidance works. His speaking anxiety will compound. He also misses the output practice he most needs. A gentle push — with support — is kinder long-term than letting him hide.',
+        principle: 'ZPD (Vygotsky) — staying in the comfort zone is not growth',
+      },
+      {
+        text: 'Insist firmly: "Yes you can, Tuan. Everyone does this. Stand up."',
+        score: 1,
+        verdict: 'Counterproductive',
+        explanation: 'Force raises the affective filter immediately — for Tuan and for every shy student watching. Even if Tuan speaks, he will be traumatized, not developed. The class will learn that speaking = humiliation risk.',
+        principle: 'Affective Filter (Krashen) — high anxiety = no acquisition, no growth',
+      },
+      {
+        text: 'Offer a smaller step: "Okay, just tell your partner. Then maybe next week you\'ll try the class." Scaffold it down.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'You\'re locating Tuan\'s actual ZPD — partner speaking is achievable today. You preserve his dignity, keep him producing language, and plant the seed for next week. Scaffolding means finding the step he CAN do, not forcing the step he can\'t.',
+        principle: 'ZPD + Scaffolding (Vygotsky) + Affective Filter (Krashen)',
+      },
+      {
+        text: 'Say: "Tell me one sentence about your weekend, Tuan. Just one." Lower the bar immediately.',
+        score: 4,
+        verdict: 'Smart reduction',
+        explanation: 'Reducing from 1 minute to 1 sentence is a good on-the-spot scaffold. It keeps Tuan participating and gives him a success. The risk: one sentence in front of the class may still feel as daunting as one minute. Partner work first is safer.',
+        principle: 'ZPD (Vygotsky) — find the achievable challenge, not the impossible one',
+      },
+    ],
+  },
+  {
+    id: 11,
+    tag: 'Grammar Instruction',
+    difficulty: 'Intermediate',
+    setup: 'Halfway through a communicative task, a student asks: "Teacher, what is the difference between WILL and GOING TO?" The whole class leans in. You have two minutes. What do you do?',
+    choices: [
+      {
+        text: 'Stop the task. Deliver a full 10-minute explanation with rules and examples on the board.',
+        score: 2,
+        verdict: 'Breaks the moment',
+        explanation: 'The question emerged from a real communicative need — that\'s golden. But stopping the task kills the communicative context that made the question meaningful. A 10-minute detour means students return to the task cold.',
+        principle: 'TBLT (Long) — address form, but don\'t abandon the communicative context',
+      },
+      {
+        text: 'Say: "Great question — WILL is a decision made right now; GOING TO is a plan made before. Use GOING TO here. Back to your task."',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'Two sentences. Meaning in context. Immediate return to the task. This is reactive form focus — you address the form at the moment of communicative need, which is exactly when the learner\'s brain is most ready to absorb it. Perfect.',
+        principle: 'TBLT + Focus on Form (Long) — address grammar reactively, in context',
+      },
+      {
+        text: 'Tell them to finish the task first, then you\'ll explain at the end.',
+        score: 3,
+        verdict: 'Reasonable but delayed',
+        explanation: 'Finishing the task is right. But deferring the explanation means the moment of genuine need has passed. Students will be less motivated to absorb the rule 20 minutes later. Address it briefly now, deeply later if needed.',
+        principle: 'Noticing Hypothesis (Schmidt) — the moment of noticing is the optimal teaching moment',
+      },
+      {
+        text: 'Ask the class: "Does anyone know the difference? Can anyone help?" Turn it into peer teaching.',
+        score: 4,
+        verdict: 'Good instinct',
+        explanation: 'Eliciting from peers involves the whole class, and explaining something is one of the deepest forms of encoding. But the risk is an inaccurate student explanation going uncorrected. Always confirm or refine what comes from the class.',
+        principle: 'ZPD (Vygotsky) — peer as more capable other + retrieval practice',
+      },
+    ],
+  },
+  {
+    id: 12,
+    tag: 'Feedback & Assessment',
+    difficulty: 'Intermediate',
+    setup: 'You collect written paragraphs from your Pro 5 class. Most have 5–8 errors each. You want to give feedback that actually makes them better writers. What do you do?',
+    choices: [
+      {
+        text: 'Correct every error in red pen with the right answer written above it.',
+        score: 2,
+        verdict: 'Feels thorough, isn\'t',
+        explanation: 'Research on written corrective feedback (Truscott, Ferris) shows that correcting every error produces minimal improvement. Students look at the grade, glance at corrections, and repeat the same errors next time. You did all the cognitive work — they did none.',
+        principle: 'Deliberate Practice (Ericsson) — the learner must do the effortful work',
+      },
+      {
+        text: 'Underline errors only. Write the error category in the margin (G = grammar, V = vocab). Students correct their own work.',
+        score: 5,
+        verdict: '✓ Best move',
+        explanation: 'Coded indirect feedback forces students to retrieve the correct form themselves — the retrieval is where learning happens. They engage with their own errors rather than passively receiving corrections. This is deliberate practice built into feedback.',
+        principle: 'Retrieval Practice (Roediger) + Deliberate Practice (Ericsson)',
+      },
+      {
+        text: 'Pick the 2 most common errors across the whole class. Address only those on the board — anonymously.',
+        score: 4,
+        verdict: 'Efficient and face-saving',
+        explanation: 'Focused feedback on high-frequency errors is far more effective than exhaustive correction. Anonymous whole-class feedback removes shame and makes the correction a shared learning moment. Pair this with a noticing task.',
+        principle: 'Noticing Hypothesis + Deliberate Practice — depth on a few > surface on everything',
+      },
+      {
+        text: 'Grade the work and hand it back without written feedback — just a score.',
+        score: 1,
+        verdict: 'No learning value',
+        explanation: 'A score with no feedback tells students nothing actionable. They know they got 6/10 but not why or how to improve. Assessment without feedback is just measurement — it produces no learning.',
+        principle: 'Deliberate Practice (Ericsson) — feedback is the mechanism of improvement',
+      },
+    ],
+  },
+]
+
+const DIFF_COLORS = {
+  'Everyday':     { bg: 'rgba(26,158,92,0.12)',   color: 'var(--green)'  },
+  'Intermediate': { bg: 'rgba(212,144,10,0.12)',   color: 'var(--gold)'   },
+  'Challenging':  { bg: 'rgba(214,59,59,0.12)',    color: 'var(--red)'    },
+}
+
+const SIM_STORAGE_KEY = 'esltracker_sim_scores_v1'
+
+function ScenarioSimulator() {
+  const [deck, setDeck]               = useState(() => shuffle(SCENARIOS))
+  const [index, setIndex]             = useState(0)
+  const [selected, setSelected]       = useState(null)
+  const [revealed, setRevealed]       = useState(false)
+  const [sessionScore, setSessionScore] = useState({ points: 0, max: 0, played: 0 })
+  const [finished, setFinished]       = useState(false)
+  const [history, setHistory]         = useState(() => {
+    try { return JSON.parse(localStorage.getItem(SIM_STORAGE_KEY) || '[]') } catch { return [] }
+  })
+  const [shuffledChoices, setShuffledChoices] = useState([])
+
+  const scenario = deck[index]
+
+  useEffect(() => {
+    if (scenario) setShuffledChoices(shuffle(scenario.choices))
+    setSelected(null)
+    setRevealed(false)
+  }, [index, scenario?.id])
+
+  function handleChoose(choice) {
+    if (revealed) return
+    setSelected(choice)
+  }
+
+  function handleReveal() {
+    if (!selected) return
+    setRevealed(true)
+    setSessionScore(s => ({ points: s.points + selected.score, max: s.max + 5, played: s.played + 1 }))
+  }
+
+  function handleNext() {
+    if (index + 1 >= deck.length) {
+      const entry = { date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }), points: sessionScore.points + selected.score, max: sessionScore.max + 5, played: sessionScore.played + 1 }
+      const newHistory = [entry, ...history].slice(0, 20)
+      setHistory(newHistory)
+      try { localStorage.setItem(SIM_STORAGE_KEY, JSON.stringify(newHistory)) } catch {}
+      setFinished(true)
+    } else {
+      setIndex(i => i + 1)
+    }
+  }
+
+  function handleRestart() {
+    setDeck(shuffle(SCENARIOS))
+    setIndex(0)
+    setSessionScore({ points: 0, max: 0, played: 0 })
+    setFinished(false)
+    setSelected(null)
+    setRevealed(false)
+  }
+
+  const bestScore = history.length > 0 ? Math.max(...history.map(h => Math.round((h.points / h.max) * 100))) : null
+
+  if (finished) {
+    const finalPoints  = sessionScore.points + (selected?.score || 0)
+    const finalMax     = sessionScore.max + 5
+    const pct = Math.round((finalPoints / finalMax) * 100)
+    const grade = pct >= 90 ? { emoji: '🏆', label: 'Master Teacher',     sub: 'Your instincts are research-aligned. You\'d thrive in any classroom.',   color: 'var(--elite)' }
+                : pct >= 75 ? { emoji: '🎓', label: 'Strong Practitioner', sub: 'Solid decisions. A few moments to sharpen — review the explanations.',   color: 'var(--gold)'  }
+                : pct >= 55 ? { emoji: '📈', label: 'Growing Educator',    sub: 'Good awareness. The tough scenarios reveal where theory meets reality.',  color: 'var(--pro)'   }
+                :             { emoji: '🔁', label: 'Keep Practicing',     sub: 'Every wrong choice is data. Read the explanations — they\'re the lesson.', color: 'var(--accent)'}
+    return (
+      <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', padding: '48px 24px' }}>
+        <div style={{ fontSize: 60, marginBottom: 16 }}>{grade.emoji}</div>
+        <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8, color: grade.color }}>{grade.label}</div>
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8, lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>{grade.sub}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 22, fontWeight: 800, color: grade.color, marginBottom: 4 }}>{finalPoints} / {finalMax} pts</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--muted)', marginBottom: 32 }}>{pct}% · {deck.length} scenarios</div>
+        {bestScore !== null && (
+          <div style={{ marginBottom: 24, padding: '12px 20px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)', display: 'inline-block' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>Personal Best: </span>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 800, color: 'var(--green)' }}>{bestScore}%</span>
+          </div>
+        )}
+        {history.length > 1 && (
+          <div style={{ marginBottom: 28, textAlign: 'left', padding: '16px 20px', borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Recent Sessions</div>
+            {history.slice(0, 5).map((h, i) => {
+              const p = Math.round((h.points / h.max) * 100)
+              return (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12 }}>
+                  <span style={{ color: 'var(--muted)' }}>{h.date}</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, color: p >= 80 ? 'var(--green)' : p >= 60 ? 'var(--gold)' : 'var(--muted)' }}>{p}%</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+        <button className="btn btn-accent" style={{ fontSize: 14, padding: '14px 32px' }} onClick={handleRestart}>🔀 New Session</button>
+      </div>
+    )
+  }
+
+  const diffStyle = DIFF_COLORS[scenario.difficulty] || DIFF_COLORS['Intermediate']
+  const bestChoice = shuffledChoices.reduce((best, c) => c.score > best.score ? c : best, shuffledChoices[0] || { score: 0 })
+
+  return (
+    <div style={{ maxWidth: 700, margin: '0 auto' }}>
+
+      {/* Progress */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+        <div style={{ flex: 1, height: 5, background: 'var(--surface2)', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ height: '100%', borderRadius: 3, width: `${((index + 1) / deck.length) * 100}%`, background: 'linear-gradient(90deg, var(--pro), var(--elite))', transition: 'width 0.4s ease' }} />
+        </div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{index + 1} / {deck.length}</div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--green)', whiteSpace: 'nowrap' }}>
+          {sessionScore.played > 0 ? `${Math.round((sessionScore.points / sessionScore.max) * 100)}%` : '—'}
+        </div>
+      </div>
+
+      {/* Scenario card */}
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 28, boxShadow: 'var(--shadow)', marginBottom: 16 }}>
+        {/* Tags */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, letterSpacing: 2, padding: '4px 12px', borderRadius: 20, textTransform: 'uppercase', background: 'rgba(45,107,228,0.1)', color: 'var(--pro)' }}>
+            {scenario.tag}
+          </span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, letterSpacing: 2, padding: '4px 12px', borderRadius: 20, textTransform: 'uppercase', background: diffStyle.bg, color: diffStyle.color }}>
+            {scenario.difficulty}
+          </span>
+        </div>
+
+        {/* Setup */}
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>📍 The Situation</div>
+        <div style={{ fontSize: 15, lineHeight: 1.75, color: 'var(--text)', fontWeight: 500 }}>{scenario.setup}</div>
+      </div>
+
+      {/* Choices */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+        {shuffledChoices.map((choice, i) => {
+          const isSelected = selected === choice
+          const isRevealed = revealed
+
+          let bg = 'var(--surface2)'
+          let border = '1px solid var(--border)'
+          let color = 'var(--text)'
+          let leftBar = 'transparent'
+
+          if (isRevealed) {
+            if (choice.score === 5) { bg = 'rgba(26,158,92,0.08)'; border = '1.5px solid rgba(26,158,92,0.4)'; leftBar = 'var(--green)' }
+            else if (choice.score === 4) { bg = 'rgba(212,144,10,0.08)'; border = '1.5px solid rgba(212,144,10,0.3)'; leftBar = 'var(--gold)' }
+            else if (choice.score <= 2) { bg = 'rgba(214,59,59,0.06)'; border = '1px solid rgba(214,59,59,0.2)'; color = 'var(--muted)'; leftBar = choice === selected ? 'var(--red)' : 'transparent' }
+            if (choice === selected) { border = `2px solid ${choice.score >= 4 ? 'var(--green)' : choice.score === 3 ? 'var(--gold)' : 'var(--red)'}` }
+          } else if (isSelected) {
+            bg = 'rgba(45,107,228,0.08)'; border = '1.5px solid var(--pro)'; color = 'var(--pro)'
+          }
+
+          return (
+            <div key={i} onClick={() => handleChoose(choice)} style={{
+              padding: '14px 18px', borderRadius: 12, cursor: isRevealed ? 'default' : 'pointer',
+              background: bg, border, color, transition: 'all 0.15s',
+              borderLeft: `4px solid ${leftBar}`,
+              display: 'flex', flexDirection: 'column', gap: revealed ? 8 : 0,
+            }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.45, flexShrink: 0, paddingTop: 2 }}>{String.fromCharCode(65 + i)}</span>
+                <span style={{ fontSize: 13, fontWeight: isSelected || (revealed && choice.score === 5) ? 600 : 400, lineHeight: 1.6 }}>{choice.text}</span>
+                {revealed && (
+                  <span style={{ marginLeft: 'auto', flexShrink: 0, fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 800, color: choice.score === 5 ? 'var(--green)' : choice.score === 4 ? 'var(--gold)' : choice.score === 3 ? 'var(--muted)' : 'var(--red)' }}>
+                    {choice.score}/5
+                  </span>
+                )}
+              </div>
+
+              {/* Revealed explanation */}
+              {revealed && (
+                <div style={{ marginLeft: 22, animation: 'fadeSlideIn 0.25s ease' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4, color: choice.score === 5 ? 'var(--green)' : choice.score === 4 ? 'var(--gold)' : choice.score <= 2 ? 'var(--red)' : 'var(--muted)' }}>
+                    {choice.verdict}
+                  </div>
+                  <div style={{ fontSize: 12, lineHeight: 1.65, color: 'var(--text)', marginBottom: 6 }}>{choice.explanation}</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--accent)', letterSpacing: 1 }}>📖 {choice.principle}</div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Action button */}
+      <div style={{ display: 'flex', gap: 10 }}>
+        {!revealed ? (
+          <button className="btn btn-accent" style={{ flex: 1, opacity: selected ? 1 : 0.4, cursor: selected ? 'pointer' : 'not-allowed', padding: '14px 0', fontSize: 13 }} onClick={handleReveal} disabled={!selected}>
+            See How Each Choice Plays Out →
+          </button>
+        ) : (
+          <button className="btn btn-accent" style={{ flex: 1, padding: '14px 0', fontSize: 13 }} onClick={handleNext}>
+            {index + 1 >= deck.length ? '🏁 See Results' : 'Next Scenario →'}
+          </button>
+        )}
+      </div>
+
+      <style>{`@keyframes fadeSlideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }`}</style>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN TeacherAcademy — tab switcher across four tools
 // ─────────────────────────────────────────────────────────────────────────────
 export default function TeacherAcademy() {
   const [tool, setTool] = useState('flashcards')
 
   const TOOLS = [
     { id: 'flashcards', label: '🃏 Research Flashcards', desc: 'Quiz yourself on 15 evidence-based ESL methods' },
+    { id: 'simulator',  label: '🎭 Scenario Simulator',  desc: 'Make real classroom decisions. See how each plays out.' },
     { id: 'builder',    label: '📋 Lesson Builder',      desc: 'Build a timed lesson plan from research-backed activities' },
     { id: 'errors',     label: '🔬 Error Tracker',       desc: 'Log student errors, spot patterns, get targeted drills' },
   ]
@@ -1242,27 +1888,27 @@ export default function TeacherAcademy() {
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Teacher Academy</div>
         <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Professional Development Hub</div>
-        <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 580, lineHeight: 1.7 }}>
-          Three tools to make you a sharper educator. Study the research, design your lessons, track what your students struggle with.
+        <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 620, lineHeight: 1.7 }}>
+          Four tools. Study the research, test your instincts in real classroom scenarios, design better lessons, and track what your students struggle with.
         </div>
       </div>
 
       {/* Tool switcher */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 36 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 36 }}>
         {TOOLS.map(t => (
           <div
             key={t.id}
             onClick={() => setTool(t.id)}
             style={{
-              padding: '18px 22px', borderRadius: 'var(--radius)', cursor: 'pointer',
+              padding: '16px 18px', borderRadius: 'var(--radius)', cursor: 'pointer',
               background: tool === t.id ? 'var(--accent)' : 'var(--surface)',
               border: `1px solid ${tool === t.id ? 'var(--accent)' : 'var(--border)'}`,
               color: tool === t.id ? '#fff' : 'var(--text)',
               transition: 'all 0.18s', boxShadow: tool === t.id ? '0 4px 16px rgba(232,93,38,0.25)' : 'var(--shadow)',
             }}
           >
-            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>{t.label}</div>
-            <div style={{ fontSize: 11, opacity: 0.75, lineHeight: 1.5 }}>{t.desc}</div>
+            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{t.label}</div>
+            <div style={{ fontSize: 10, opacity: 0.75, lineHeight: 1.5 }}>{t.desc}</div>
           </div>
         ))}
       </div>
@@ -1272,6 +1918,7 @@ export default function TeacherAcademy() {
 
       {/* Active tool */}
       {tool === 'flashcards' && <FlashcardGame />}
+      {tool === 'simulator'  && <ScenarioSimulator />}
       {tool === 'builder'    && <LessonBuilder />}
       {tool === 'errors'     && <ErrorTracker />}
     </div>
