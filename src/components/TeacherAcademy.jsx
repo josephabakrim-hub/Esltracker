@@ -790,7 +790,442 @@ function FlashcardGame() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MAIN TeacherAcademy — tab switcher between the two tools
+// ERROR TRACKER & CORRECTION CLINIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ERROR_CATS = {
+  grammar:     { label: 'Grammar',       color: '#2d6be4', emoji: '⚙️'  },
+  vocabulary:  { label: 'Vocabulary',    color: '#7c3aed', emoji: '📚'  },
+  pronunciation:{ label: 'Pronunciation', color: '#d4900a', emoji: '👄'  },
+  fluency:     { label: 'Fluency',       color: '#e85d26', emoji: '🗣️'  },
+  spelling:    { label: 'Spelling',      color: '#1a9e5c', emoji: '✍️'  },
+}
+
+const DRILL_TEMPLATES = {
+  grammar: (err) => [
+    `Write 5 correct sentences using the same structure as: "${err.correct}"`,
+    `Transform these sentences: change the subject each time but keep the same grammar form.`,
+    `Find the error and fix it: write 3 variations of "${err.wrong}" correctly.`,
+    `Peer check: swap papers and circle any use of this grammar form — correct or incorrect.`,
+    `Dictation drill: teacher says the correct form, students write it without looking at notes.`,
+  ],
+  vocabulary: (err) => [
+    `Use "${err.correct}" in 3 original sentences — each in a different context.`,
+    `Find 2 collocations for the target word and use each in a sentence.`,
+    `Write the word, its part of speech, and one synonym. Then use each in a sentence.`,
+    `Peer quiz: one student gives the definition, the other gives the word — no looking.`,
+    `Use the word correctly in a short 4-sentence story about your day.`,
+  ],
+  pronunciation: (err) => [
+    `Minimal pair drill: teacher reads 10 pairs, students mark which sound they hear (A or B).`,
+    `Record yourself saying "${err.correct}" 5 times — listen back and compare.`,
+    `Shadow the teacher: repeat immediately after hearing "${err.correct}" at natural speed.`,
+    `Tongue position focus: where is your tongue for this sound? Practice in a mirror.`,
+    `Find 5 other words with the same sound as "${err.correct}" and practise as a chain.`,
+  ],
+  fluency: (err) => [
+    `Timed speaking: talk about any topic for 60 seconds without stopping — quantity over accuracy.`,
+    `4-3-2 activity: tell your partner about today's topic in 4 minutes, then 3, then 2.`,
+    `Chunking practice: break "${err.correct}" into natural chunks and repeat until automatic.`,
+    `Communication task: describe a picture to your partner for 1 minute — no preparation.`,
+    `Repeat the sentence at increasing speed: slow → normal → fast. Don't lose accuracy.`,
+  ],
+  spelling: (err) => [
+    `Cover-write-check: look at "${err.correct}", cover it, write it, check. Repeat 5 times.`,
+    `Find 3 other words with the same spelling pattern as "${err.correct}".`,
+    `Dictation: teacher says the word in a sentence, students write the whole sentence.`,
+    `Word build: how many smaller words can you find inside "${err.correct}"?`,
+    `Mnemonics: invent a memory trick for the tricky part of "${err.correct}".`,
+  ],
+}
+
+const FEEDBACK_TYPES = [
+  { id: 'recast',    label: 'Recast',             desc: 'Repeated correctly without highlighting the error' },
+  { id: 'explicit',  label: 'Explicit Correction', desc: 'Directly pointed out the error and gave the correct form' },
+  { id: 'elicit',    label: 'Elicitation',         desc: 'Prompted the student to self-correct' },
+  { id: 'metalingo', label: 'Metalinguistic',      desc: 'Gave a hint about the type of error without the answer' },
+  { id: 'ignored',   label: 'Ignored',             desc: 'Let it pass to maintain fluency' },
+]
+
+const STORAGE_KEY = 'esltracker_errors_v1'
+
+function ErrorTracker() {
+  const [errors, setErrors]         = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') } catch { return [] }
+  })
+  const [view, setView]             = useState('log')   // 'log' | 'clinic' | 'stats'
+  const [form, setForm]             = useState({ student: '', wrong: '', correct: '', cat: 'grammar', feedback: 'recast', classLabel: '', notes: '' })
+  const [drills, setDrills]         = useState(null)
+  const [filterCat, setFilterCat]   = useState('all')
+  const [filterClass, setFilterClass] = useState('all')
+  const [expanded, setExpanded]     = useState(null)
+  const [showForm, setShowForm]     = useState(false)
+  const [search, setSearch]         = useState('')
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(errors)) } catch {}
+  }, [errors])
+
+  function addError() {
+    if (!form.wrong.trim() || !form.correct.trim()) return
+    const entry = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      ...form,
+      count: 1,
+    }
+    setErrors(prev => {
+      // If same student + same wrong form already exists, increment count
+      const existing = prev.findIndex(e => e.student.trim().toLowerCase() === form.student.trim().toLowerCase() && e.wrong.trim().toLowerCase() === form.wrong.trim().toLowerCase())
+      if (existing !== -1) {
+        const updated = [...prev]
+        updated[existing] = { ...updated[existing], count: updated[existing].count + 1, date: entry.date, feedback: form.feedback, notes: form.notes || updated[existing].notes }
+        return updated
+      }
+      return [entry, ...prev]
+    })
+    setForm(f => ({ ...f, wrong: '', correct: '', notes: '' }))
+    setShowForm(false)
+  }
+
+  function deleteError(id) {
+    setErrors(prev => prev.filter(e => e.id !== id))
+  }
+
+  function generateDrills(err) {
+    const templates = DRILL_TEMPLATES[err.cat] || DRILL_TEMPLATES.grammar
+    const selected = [...templates].sort(() => Math.random() - 0.5).slice(0, 3)
+    setDrills({ err, activities: selected })
+    setView('clinic')
+  }
+
+  // Derived
+  const classes = [...new Set(errors.map(e => e.classLabel).filter(Boolean))]
+  const filtered = errors.filter(e => {
+    if (filterCat !== 'all' && e.cat !== filterCat) return false
+    if (filterClass !== 'all' && e.classLabel !== filterClass) return false
+    if (search && !e.wrong.toLowerCase().includes(search.toLowerCase()) && !e.student.toLowerCase().includes(search.toLowerCase()) && !e.correct.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  // Stats
+  const catCounts = Object.keys(ERROR_CATS).map(c => ({ cat: c, count: errors.filter(e => e.cat === c).length })).sort((a, b) => b.count - a.count)
+  const topErrors = [...errors].sort((a, b) => b.count - a.count).slice(0, 5)
+  const studentCounts = {}
+  errors.forEach(e => { if (e.student) studentCounts[e.student] = (studentCounts[e.student] || 0) + e.count })
+  const topStudents = Object.entries(studentCounts).sort((a, b) => b[1] - a[1]).slice(0, 5)
+  const feedbackCounts = {}
+  errors.forEach(e => { feedbackCounts[e.feedback] = (feedbackCounts[e.feedback] || 0) + 1 })
+
+  const inputStyle = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12, boxSizing: 'border-box', fontFamily: 'inherit' }
+
+  // ── CLINIC VIEW ──
+  if (view === 'clinic' && drills) {
+    const meta = ERROR_CATS[drills.err.cat]
+    return (
+      <div style={{ maxWidth: 680, margin: '0 auto' }}>
+        <button className="btn btn-outline" style={{ marginBottom: 24, fontSize: 11 }} onClick={() => setView('log')}>← Back to Error Log</button>
+
+        <div style={{ padding: '20px 24px', borderRadius: 'var(--radius)', background: 'var(--surface)', border: `1px solid ${meta.color}40`, boxShadow: 'var(--shadow)', marginBottom: 24 }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>Correction Clinic</div>
+          <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>{meta.emoji} {meta.label} Error</div>
+          {drills.err.student && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Student: <strong>{drills.err.student}</strong>{drills.err.classLabel ? ` · ${drills.err.classLabel}` : ''}</div>}
+          <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+            <div style={{ flex: 1, padding: '12px 16px', borderRadius: 10, background: 'rgba(214,59,59,0.07)', border: '1px solid rgba(214,59,59,0.15)' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>❌ Error Said</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>"{drills.err.wrong}"</div>
+            </div>
+            <div style={{ flex: 1, padding: '12px 16px', borderRadius: 10, background: 'rgba(26,158,92,0.07)', border: '1px solid rgba(26,158,92,0.15)' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--green)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>✓ Correct Form</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>"{drills.err.correct}"</div>
+            </div>
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>
+            Occurred <strong style={{ color: meta.color }}>{drills.err.count}×</strong> · Last: {drills.err.date}
+          </div>
+        </div>
+
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>🎯 Targeted Drill Activities</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
+          {drills.activities.map((act, i) => (
+            <div key={i} style={{ padding: '18px 20px', borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${meta.color}20`, color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{i + 1}</div>
+                <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--text)' }}>{act}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ padding: '16px 20px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 10 }}>📖 Research Reminder</div>
+          <div style={{ fontSize: 12, lineHeight: 1.7, color: 'var(--text)' }}>
+            Ericsson's <strong>Deliberate Practice</strong>: target this specific error with 3–5 minutes of focused, feedback-rich reps — not a full grammar lesson. Lyster & Ranta found that <strong>elicitation</strong> (prompting self-correction) produces higher uptake than recasting alone. If this error has occurred {drills.err.count > 2 ? <strong style={{ color: 'var(--red)' }}>{drills.err.count}+ times, it may be fossilizing</strong> : 'more than once, give it deliberate attention'}. Log feedback type each class to see if your correction strategy is working.
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+          <button className="btn btn-accent" onClick={() => { setDrills({ ...drills, activities: [...DRILL_TEMPLATES[drills.err.cat]].sort(() => Math.random() - 0.5).slice(0, 3) }) }}>🔀 New Drills</button>
+          <button className="btn btn-outline" onClick={() => setView('log')}>← Back</button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── STATS VIEW ──
+  if (view === 'stats') {
+    return (
+      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Error Analytics</div>
+            <div style={{ fontSize: 20, fontWeight: 800 }}>Class Error Patterns</div>
+          </div>
+          <button className="btn btn-outline" style={{ fontSize: 11 }} onClick={() => setView('log')}>← Back</button>
+        </div>
+
+        {errors.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--muted)', fontSize: 13 }}>No errors logged yet. Start logging during class to see patterns emerge.</div>
+        ) : (
+          <div style={{ display: 'grid', gap: 20 }}>
+
+            {/* Error by category */}
+            <div style={{ padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Errors by Category</div>
+              {catCounts.filter(c => c.count > 0).map(({ cat, count }) => {
+                const meta = ERROR_CATS[cat]
+                const pct = Math.round((count / errors.length) * 100)
+                return (
+                  <div key={cat} style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600 }}>{meta.emoji} {meta.label}</span>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: meta.color }}>{count} errors · {pct}%</span>
+                    </div>
+                    <div style={{ height: 8, background: 'var(--surface2)', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: meta.color, borderRadius: 4, transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              {/* Top recurring errors */}
+              <div style={{ padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>⚠️ Most Recurring</div>
+                {topErrors.length === 0 ? <div style={{ fontSize: 12, color: 'var(--muted)' }}>None yet</div> : topErrors.map(e => (
+                  <div key={e.id} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', marginBottom: 2 }}>"{e.wrong}"</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>→ "{e.correct}"</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: ERROR_CATS[e.cat]?.color }}>{ERROR_CATS[e.cat]?.label}</span>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: e.count >= 3 ? 'var(--red)' : 'var(--muted)', fontWeight: e.count >= 3 ? 700 : 400 }}>{e.count}× {e.count >= 3 ? '⚠️' : ''}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Students needing attention */}
+              <div style={{ padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>👤 Most Errors by Student</div>
+                {topStudents.length === 0 ? <div style={{ fontSize: 12, color: 'var(--muted)' }}>None yet</div> : topStudents.map(([name, count]) => (
+                  <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, padding: '8px 12px', borderRadius: 8, background: 'var(--surface2)' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>{name}</span>
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: count >= 5 ? 'var(--red)' : 'var(--muted)', fontWeight: count >= 5 ? 700 : 400 }}>{count} total {count >= 5 ? '⚠️' : ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Feedback strategy breakdown */}
+            <div style={{ padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Your Correction Strategy Mix</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.6 }}>Research tip: Lyster & Ranta found <strong>elicitation</strong> produces highest learner uptake. Over-relying on recasts may feel productive but learners often don't notice the correction.</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {FEEDBACK_TYPES.map(ft => {
+                  const count = feedbackCounts[ft.id] || 0
+                  const total = errors.length
+                  const pct = total > 0 ? Math.round((count / total) * 100) : 0
+                  return (
+                    <div key={ft.id} style={{ flex: '1 1 140px', padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 800, color: count > 0 ? 'var(--accent)' : 'var(--muted)', marginBottom: 4 }}>{pct}%</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 2 }}>{ft.label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--muted)' }}>{count} times</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ── LOG VIEW (default) ──
+  return (
+    <div style={{ maxWidth: 760, margin: '0 auto' }}>
+
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Error Tracker</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Error Log & Correction Clinic</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, maxWidth: 500 }}>
+            Log student errors during or after class. Spot patterns. Hit <strong>Clinic</strong> on any error for targeted drill activities.
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-outline" style={{ fontSize: 11 }} onClick={() => setView('stats')}>📊 Analytics</button>
+          <button className="btn btn-accent" style={{ fontSize: 11 }} onClick={() => setShowForm(f => !f)}>{showForm ? '✕ Cancel' : '+ Log Error'}</button>
+        </div>
+      </div>
+
+      {/* Log error form */}
+      {showForm && (
+        <div style={{ padding: 24, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', marginBottom: 24, animation: 'fadeSlideIn 0.2s ease' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>New Error Entry</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Student Name</label>
+              <input value={form.student} onChange={e => setForm(f => ({ ...f, student: e.target.value }))} placeholder="e.g. Minh, Linh..." style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Class</label>
+              <input value={form.classLabel} onChange={e => setForm(f => ({ ...f, classLabel: e.target.value }))} placeholder="e.g. ATB_Pro3_S" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>❌ What They Said</label>
+              <input value={form.wrong} onChange={e => setForm(f => ({ ...f, wrong: e.target.value }))} placeholder='e.g. "She go to school"' style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>✓ Correct Form</label>
+              <input value={form.correct} onChange={e => setForm(f => ({ ...f, correct: e.target.value }))} placeholder='e.g. "She goes to school"' style={inputStyle} />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Error Type</label>
+              <select value={form.cat} onChange={e => setForm(f => ({ ...f, cat: e.target.value }))} style={{ ...inputStyle, width: 'auto', minWidth: '100%' }}>
+                {Object.entries(ERROR_CATS).map(([k, v]) => <option key={k} value={k}>{v.emoji} {v.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Feedback Given</label>
+              <select value={form.feedback} onChange={e => setForm(f => ({ ...f, feedback: e.target.value }))} style={{ ...inputStyle, width: 'auto', minWidth: '100%' }}>
+                {FEEDBACK_TYPES.map(ft => <option key={ft.id} value={ft.id}>{ft.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Notes (optional)</label>
+            <input value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Context, pattern, next steps..." style={inputStyle} />
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="btn btn-accent" onClick={addError} style={{ opacity: form.wrong && form.correct ? 1 : 0.4 }} disabled={!form.wrong || !form.correct}>💾 Save Error</button>
+            <button className="btn btn-outline" onClick={() => setShowForm(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Filters */}
+      {errors.length > 0 && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="🔍 Search errors..." style={{ ...inputStyle, width: 180, flex: 'none' }} />
+          <select value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12 }}>
+            <option value="all">All Types</option>
+            {Object.entries(ERROR_CATS).map(([k, v]) => <option key={k} value={k}>{v.emoji} {v.label}</option>)}
+          </select>
+          {classes.length > 0 && (
+            <select value={filterClass} onChange={e => setFilterClass(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 12 }}>
+              <option value="all">All Classes</option>
+              {classes.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          )}
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginLeft: 'auto' }}>{filtered.length} entries</span>
+        </div>
+      )}
+
+      {/* Error list */}
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--muted)' }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>No errors logged yet</div>
+          <div style={{ fontSize: 12, lineHeight: 1.7, maxWidth: 380, margin: '0 auto' }}>
+            After each class, log the errors you heard. Over time you'll see which mistakes are fossilizing — and the Clinic will give you drills to fix them.
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {filtered.map(err => {
+            const meta = ERROR_CATS[err.cat] || ERROR_CATS.grammar
+            const isOpen = expanded === err.id
+            const fossilizing = err.count >= 3
+            return (
+              <div key={err.id} style={{
+                background: 'var(--surface)', border: `1px solid ${fossilizing ? 'rgba(214,59,59,0.3)' : 'var(--border)'}`,
+                borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)',
+                borderLeft: `4px solid ${meta.color}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', cursor: 'pointer' }} onClick={() => setExpanded(isOpen ? null : err.id)}>
+                  <span style={{ fontSize: 16 }}>{meta.emoji}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--red)' }}>"{err.wrong}"</span>
+                      <span style={{ fontSize: 11, color: 'var(--muted)' }}>→</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--green)' }}>"{err.correct}"</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, marginTop: 3, flexWrap: 'wrap' }}>
+                      {err.student && <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>{err.student}</span>}
+                      {err.classLabel && <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>{err.classLabel}</span>}
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>{err.date}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    {fossilizing && <span style={{ fontSize: 10, color: 'var(--red)', fontWeight: 700 }}>⚠️ {err.count}×</span>}
+                    {!fossilizing && err.count > 1 && <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>{err.count}×</span>}
+                    <button
+                      className="btn btn-accent"
+                      style={{ fontSize: 10, padding: '5px 12px' }}
+                      onClick={e => { e.stopPropagation(); generateDrills(err) }}
+                    >Clinic →</button>
+                    <span style={{ color: 'var(--muted)', fontSize: 11 }}>{isOpen ? '▲' : '▼'}</span>
+                  </div>
+                </div>
+
+                {isOpen && (
+                  <div style={{ padding: '0 18px 16px', borderTop: '1px solid var(--border)', animation: 'fadeSlideIn 0.2s ease' }}>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
+                      <div style={{ padding: '6px 12px', borderRadius: 8, background: `${meta.color}12`, border: `1px solid ${meta.color}25`, fontSize: 11 }}>
+                        {meta.emoji} {meta.label}
+                      </div>
+                      <div style={{ padding: '6px 12px', borderRadius: 8, background: 'var(--surface2)', border: '1px solid var(--border)', fontSize: 11 }}>
+                        Feedback: {FEEDBACK_TYPES.find(f => f.id === err.feedback)?.label || err.feedback}
+                      </div>
+                      <div style={{ padding: '6px 12px', borderRadius: 8, background: fossilizing ? 'rgba(214,59,59,0.08)' : 'var(--surface2)', border: `1px solid ${fossilizing ? 'rgba(214,59,59,0.2)' : 'var(--border)'}`, fontSize: 11, color: fossilizing ? 'var(--red)' : 'var(--text)', fontWeight: fossilizing ? 700 : 400 }}>
+                        {err.count}× logged {fossilizing ? '— possible fossilization ⚠️' : ''}
+                      </div>
+                    </div>
+                    {err.notes && <div style={{ marginTop: 12, fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, fontStyle: 'italic' }}>"{err.notes}"</div>}
+                    <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
+                      <button className="btn btn-accent" style={{ fontSize: 11 }} onClick={() => generateDrills(err)}>🎯 Open Clinic</button>
+                      <button className="btn btn-outline" style={{ fontSize: 11, color: 'var(--red)' }} onClick={() => deleteError(err.id)}>🗑️ Delete</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <style>{`@keyframes fadeSlideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN TeacherAcademy — tab switcher across three tools
 // ─────────────────────────────────────────────────────────────────────────────
 export default function TeacherAcademy() {
   const [tool, setTool] = useState('flashcards')
@@ -798,6 +1233,7 @@ export default function TeacherAcademy() {
   const TOOLS = [
     { id: 'flashcards', label: '🃏 Research Flashcards', desc: 'Quiz yourself on 15 evidence-based ESL methods' },
     { id: 'builder',    label: '📋 Lesson Builder',      desc: 'Build a timed lesson plan from research-backed activities' },
+    { id: 'errors',     label: '🔬 Error Tracker',       desc: 'Log student errors, spot patterns, get targeted drills' },
   ]
 
   return (
@@ -806,13 +1242,13 @@ export default function TeacherAcademy() {
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Teacher Academy</div>
         <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Professional Development Hub</div>
-        <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 560, lineHeight: 1.7 }}>
-          Two tools to sharpen your teaching. Study the research, then put it into practice by designing your next lesson.
+        <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 580, lineHeight: 1.7 }}>
+          Three tools to make you a sharper educator. Study the research, design your lessons, track what your students struggle with.
         </div>
       </div>
 
       {/* Tool switcher */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 36, maxWidth: 700 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 36 }}>
         {TOOLS.map(t => (
           <div
             key={t.id}
@@ -825,7 +1261,7 @@ export default function TeacherAcademy() {
               transition: 'all 0.18s', boxShadow: tool === t.id ? '0 4px 16px rgba(232,93,38,0.25)' : 'var(--shadow)',
             }}
           >
-            <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>{t.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>{t.label}</div>
             <div style={{ fontSize: 11, opacity: 0.75, lineHeight: 1.5 }}>{t.desc}</div>
           </div>
         ))}
@@ -835,7 +1271,9 @@ export default function TeacherAcademy() {
       <div style={{ height: 1, background: 'var(--border)', marginBottom: 36 }} />
 
       {/* Active tool */}
-      {tool === 'flashcards' ? <FlashcardGame /> : <LessonBuilder />}
+      {tool === 'flashcards' && <FlashcardGame />}
+      {tool === 'builder'    && <LessonBuilder />}
+      {tool === 'errors'     && <ErrorTracker />}
     </div>
   )
 }
