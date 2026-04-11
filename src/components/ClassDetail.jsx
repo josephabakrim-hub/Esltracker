@@ -17,10 +17,11 @@ const BOOK_UNIT_COUNTS = {
   kidsboxng1: 13, kidsboxng2: 12, kidsboxng3: 9, kidsboxng4: 9,
   thinkstarter: 13, thinkl2: 13, thinkl3: 13,
 }
-function getBookSlug(className) {
+function getBookSlug(cls) {
+  if (cls?.bookSlug) return cls.bookSlug
+  const className = typeof cls === 'string' ? cls : cls?.name
   if (CLASS_BOOK[className]) return CLASS_BOOK[className]
-  const stripped = className?.replace(/^(ATB_|HTB_)/, '')
-  return CLASS_BOOK[stripped] || null
+  return CLASS_BOOK[className?.replace(/^(ATB_|HTB_)/, '')] || null
 }
 
 export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
@@ -36,7 +37,7 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
     'linear-gradient(135deg,#cd7f32,#a05a20)',
   ]
 
-  const bookSlug   = getBookSlug(cls?.name)
+  const bookSlug   = getBookSlug(cls)
   const totalUnits = bookSlug ? (BOOK_UNIT_COUNTS[bookSlug] || 0) : 0
 
   const [vnVisible, setVnVisible] = useState({})

@@ -142,7 +142,9 @@ const CLASS_BOOK = {
   'HTB_Pro4-3': 'kidsboxng4', 'HTB_Pro3_1': 'kidsboxng1',  'HTB_Pro1_2': 'kidsboxng2',
 }
 
-function getBookSlug(className) {
+function getBookSlug(cls) {
+  if (cls?.bookSlug) return cls.bookSlug
+  const className = typeof cls === 'string' ? cls : cls?.name
   if (CLASS_BOOK[className]) return CLASS_BOOK[className]
   return CLASS_BOOK[className?.replace(/^(ATB_|HTB_)/, '')] || null
 }
@@ -160,7 +162,7 @@ async function markUnitComplete(studentId, bookSlug, unitNum) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function LessonsHub({ cls, studentId, completedUnits = {}, students = [], onClose, readOnly, inline = false }) {
-  const bookSlug  = getBookSlug(cls?.name)
+  const bookSlug  = getBookSlug(cls)
   const book      = BOOKS[bookSlug]
   const done      = completedUnits[bookSlug] || []
   const bookColor = book?.color || 'var(--accent)'
