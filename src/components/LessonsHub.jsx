@@ -159,7 +159,7 @@ async function markUnitComplete(studentId, bookSlug, unitNum) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-export default function LessonsHub({ cls, studentId, completedUnits = {}, students = [], onClose, readOnly }) {
+export default function LessonsHub({ cls, studentId, completedUnits = {}, students = [], onClose, readOnly, inline = false }) {
   const bookSlug  = getBookSlug(cls?.name)
   const book      = BOOKS[bookSlug]
   const done      = completedUnits[bookSlug] || []
@@ -181,6 +181,11 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
   }, [handleMessage])
 
   if (!bookSlug || !book) {
+    if (inline) return (
+      <div style={{ padding: '20px', color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>
+        No book assigned to <strong>{cls?.name}</strong>.
+      </div>
+    )
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal" onClick={e => e.stopPropagation()}>
@@ -191,6 +196,7 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
       </div>
     )
   }
+
 
   const units     = book.units
   const totalDone = done.length
@@ -243,9 +249,9 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
     )
   }
 
-  // ── Main modal ────────────────────────────────────────────────────────────
-  return (
-    <div className="modal-overlay" onClick={onClose}>
+  // ── Main render ───────────────────────────────────────────────────────────
+  const innerContent = (
+    <>
       <style>{`
         @keyframes lh-pop     { 0%{transform:scale(0.6);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
         @keyframes lh-pulse   { 0%,100%{box-shadow:0 0 0 0 ${bookColor}66} 60%{box-shadow:0 0 0 12px transparent} }
@@ -255,21 +261,18 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
         .lh-arr   { animation: lh-bounce 2s ease infinite; }
       `}</style>
 
-      <div style={{ width: '100%', maxWidth: 560, maxHeight: '92vh', borderRadius: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', background: 'var(--bg)' }}
-        onClick={e => e.stopPropagation()}>
-
-        {/* Header */}
-        <div style={{ background: 'var(--text)', padding: '20px 24px 0', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: bookColor }} />
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 3, textTransform: 'uppercase' }}>{book.label}</div>
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>📚 {cls?.name} — Lessons</div>
+      {/* Header */}
+      <div style={{ background: 'var(--text)', padding: '20px 24px 0', flexShrink: 0, borderRadius: inline ? '14px 14px 0 0' : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: bookColor }} />
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 3, textTransform: 'uppercase' }}>{book.label}</div>
             </div>
-            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }} onClick={onClose}>✕</button>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>📚 Lessons Hub</div>
           </div>
+          {!inline && <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }} onClick={onClose}>✕</button>}
+        </div>
           {/* Progress bar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 7, background: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden' }}>
@@ -446,6 +449,22 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
             </div>
           )}
         </div>
+    </>
+  )
+
+  if (inline) {
+    return (
+      <div style={{ borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
+        {innerContent}
+      </div>
+    )
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div style={{ width: '100%', maxWidth: 560, maxHeight: '92vh', borderRadius: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', background: 'var(--bg)' }}
+        onClick={e => e.stopPropagation()}>
+        {innerContent}
       </div>
     </div>
   )

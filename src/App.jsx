@@ -15,7 +15,6 @@ import AttendanceModal from './components/AttendanceModal'
 import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
-import LessonsHub from './components/LessonsHub'
 import TeacherAcademy from './components/TeacherAcademy'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
@@ -73,7 +72,6 @@ export default function App() {
   const [starSessionModal, setStarSessionModal] = useState(null)
   const [spinModal,        setSpinModal]        = useState(null)
   const [starSlotsModal,   setStarSlotsModal]   = useState(null)
-  const [lessonsHubModal,  setLessonsHubModal]  = useState(null)
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -233,7 +231,8 @@ export default function App() {
               onOpenStarSession={isTeacher ? () => setStarSessionModal(liveClass.id) : null}
               onOpenSpinOfDoom={isTeacher ? () => setSpinModal(liveClass.id) : null}
               onOpenStarSlots={isTeacher ? () => setStarSlotsModal(liveClass.id) : null}
-              onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
+              studentId={isStudent ? access?.student?.id : null}
+              completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
               readOnly={!isTeacher}
             />
           )}
@@ -278,16 +277,6 @@ export default function App() {
       {isTeacher && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={false} />}
       {isTeacher && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={false} />}
       {isTeacher && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={false} />}
-      {lessonsHubModal && (
-        <LessonsHub
-          cls={lessonsHubModal}
-          students={students.filter(s => s.classId === lessonsHubModal.id)}
-          studentId={isStudent ? access?.student?.id : null}
-          completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
-          readOnly={!isTeacher}
-          onClose={() => setLessonsHubModal(null)}
-        />
-      )}
     </div>
   )
 }

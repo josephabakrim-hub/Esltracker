@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { scoreColor, initials, avgSkills } from '../lib/utils'
+import LessonsHub from './LessonsHub'
 
 // Map class name → book slug (mirrors LessonsHub)
 const CLASS_BOOK = {
@@ -22,7 +23,7 @@ function getBookSlug(className) {
   return CLASS_BOOK[stripped] || null
 }
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenLessonsHub, readOnly }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -88,9 +89,6 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
               style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)', fontWeight: 700 }}
               onClick={onOpenStarSlots}>🃏 Star Slots</button>
           )}
-          <button className="btn btn-outline"
-            style={{ background: 'rgba(45,107,228,0.08)', borderColor: 'rgba(45,107,228,0.3)', color: 'var(--accent2)', fontWeight: 700 }}
-            onClick={onOpenLessonsHub}>📚 Lessons Hub</button>
           {!readOnly && (
             <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
           )}
@@ -212,6 +210,16 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             })}
           </div>
         </div>
+
+        {/* ── LESSONS HUB inline ── */}
+        <LessonsHub
+          cls={cls}
+          students={students}
+          studentId={studentId}
+          completedUnits={completedUnits || {}}
+          readOnly={readOnly}
+          inline
+        />
       </>}
     </div>
   )
