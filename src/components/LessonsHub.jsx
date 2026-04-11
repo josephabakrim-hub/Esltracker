@@ -1,200 +1,177 @@
 // ── LESSONS HUB ──
-// Games live at public/games/unit{N}-{bookSlug}.html
-// Book slugs: kidsboxng1, kidsboxng2, kidsboxng3, kidsboxng4,
-//             thinkstarter, thinkl2, thinkl3
-// Completion: game fires postMessage({ type:'UNIT_COMPLETE', unit:N, book:'slug' })
-// Progress stored in student Firestore doc: unitsCompleted: { slug: [0,1,2,...] }
+// Duolingo-style winding roadmap + race leaderboard
+// Games: public/games/unit{N}-{bookSlug}.html
+// Completion signal: postMessage({ type:'UNIT_COMPLETE', unit:N, book:'slug' })
+// Progress: student.unitsCompleted = { slug: [0,1,2,...] }
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
+import { initials, avgSkills } from '../lib/utils'
 
 const BASE = 'https://teacherjoseph.vercel.app/games'
 
-// ── Book definitions ─────────────────────────────────────────────────────────
 const BOOKS = {
   kidsboxng1: {
-    label: 'Kids Box NG — Level 1',
+    label: 'Kids Box NG — Level 1', color: '#f59e0b',
     units: [
-      { num: 0,  title: 'Hello!'         },
-      { num: 1,  title: 'Hello!'         },
-      { num: 2,  title: 'My School'      },
-      { num: 3,  title: 'Favourite Toys' },
-      { num: 4,  title: 'My Family'      },
-      { num: 5,  title: 'Our Pets'       },
-      { num: 6,  title: 'My Face'        },
-      { num: 7,  title: 'Wild Animals'   },
-      { num: 8,  title: 'My Clothes'     },
-      { num: 9,  title: 'Fun Time!'      },
-      { num: 10, title: 'At the Funfair' },
-      { num: 11, title: 'Our House'      },
-      { num: 12, title: 'Party Time!'    },
+      { num: 0,  title: 'Hello!',         emoji: '👋' },
+      { num: 1,  title: 'Hello!',         emoji: '🌍' },
+      { num: 2,  title: 'My School',      emoji: '🏫' },
+      { num: 3,  title: 'Favourite Toys', emoji: '🧸' },
+      { num: 4,  title: 'My Family',      emoji: '👨‍👩‍👧' },
+      { num: 5,  title: 'Our Pets',       emoji: '🐾' },
+      { num: 6,  title: 'My Face',        emoji: '😊' },
+      { num: 7,  title: 'Wild Animals',   emoji: '🦁' },
+      { num: 8,  title: 'My Clothes',     emoji: '👕' },
+      { num: 9,  title: 'Fun Time!',      emoji: '🎉' },
+      { num: 10, title: 'At the Funfair', emoji: '🎡' },
+      { num: 11, title: 'Our House',      emoji: '🏠' },
+      { num: 12, title: 'Party Time!',    emoji: '🎂' },
     ],
   },
   kidsboxng2: {
-    label: 'Kids Box NG — Level 2',
+    label: 'Kids Box NG — Level 2', color: '#3b82f6',
     units: [
-      { num: 1,  title: 'Hello Again!'   },
-      { num: 2,  title: 'Back to School' },
-      { num: 3,  title: 'Play Time!'     },
-      { num: 4,  title: 'At Home'        },
-      { num: 5,  title: 'Meet My Family' },
-      { num: 6,  title: 'Dinner Time'    },
-      { num: 7,  title: 'At the Farm'    },
-      { num: 8,  title: 'My Town'        },
-      { num: 9,  title: 'Our Clothes'    },
-      { num: 10, title: 'Our Hobbies'    },
-      { num: 11, title: 'My Birthday'    },
-      { num: 12, title: 'On Holiday!'    },
+      { num: 1,  title: 'Hello Again!',   emoji: '👋' },
+      { num: 2,  title: 'Back to School', emoji: '🎒' },
+      { num: 3,  title: 'Play Time!',     emoji: '⚽' },
+      { num: 4,  title: 'At Home',        emoji: '🏠' },
+      { num: 5,  title: 'Meet My Family', emoji: '👨‍👩‍👧' },
+      { num: 6,  title: 'Dinner Time',    emoji: '🍽️' },
+      { num: 7,  title: 'At the Farm',    emoji: '🌾' },
+      { num: 8,  title: 'My Town',        emoji: '🏙️' },
+      { num: 9,  title: 'Our Clothes',    emoji: '👗' },
+      { num: 10, title: 'Our Hobbies',    emoji: '🎨' },
+      { num: 11, title: 'My Birthday',    emoji: '🎁' },
+      { num: 12, title: 'On Holiday!',    emoji: '✈️' },
     ],
   },
   kidsboxng3: {
-    label: 'Kids Box NG — Level 3',
+    label: 'Kids Box NG — Level 3', color: '#22c55e',
     units: [
-      { num: 0, title: 'Hello!'              },
-      { num: 1, title: 'Family Matters'      },
-      { num: 2, title: 'Home Sweet Home'     },
-      { num: 3, title: 'A Day in the Life'   },
-      { num: 4, title: 'In the City'         },
-      { num: 5, title: 'Fit and Well'        },
-      { num: 6, title: 'In the Countryside'  },
-      { num: 7, title: 'World of Animals'    },
-      { num: 8, title: 'Weather Report'      },
+      { num: 0, title: 'Hello!',             emoji: '👋' },
+      { num: 1, title: 'Family Matters',     emoji: '👨‍👩‍👧' },
+      { num: 2, title: 'Home Sweet Home',    emoji: '🏠' },
+      { num: 3, title: 'A Day in the Life',  emoji: '⏰' },
+      { num: 4, title: 'In the City',        emoji: '🏙️' },
+      { num: 5, title: 'Fit and Well',       emoji: '💪' },
+      { num: 6, title: 'In the Countryside', emoji: '🌳' },
+      { num: 7, title: 'World of Animals',   emoji: '🦁' },
+      { num: 8, title: 'Weather Report',     emoji: '⛅' },
     ],
   },
   kidsboxng4: {
-    label: 'Kids Box NG — Level 4',
+    label: 'Kids Box NG — Level 4', color: '#8b5cf6',
     units: [
-      { num: 0, title: 'Hello There!'        },
-      { num: 1, title: 'Back to School'      },
-      { num: 2, title: 'Good Sports'         },
-      { num: 3, title: 'Health Matters'      },
-      { num: 4, title: 'After School Club'   },
-      { num: 5, title: 'Exploring Our World' },
-      { num: 6, title: 'Technology'          },
-      { num: 7, title: 'At the Zoo'          },
-      { num: 8, title: "Let's Party!"        },
+      { num: 0, title: 'Hello There!',        emoji: '👋' },
+      { num: 1, title: 'Back to School',      emoji: '🎒' },
+      { num: 2, title: 'Good Sports',         emoji: '🏅' },
+      { num: 3, title: 'Health Matters',      emoji: '🏥' },
+      { num: 4, title: 'After School Club',   emoji: '🎭' },
+      { num: 5, title: 'Exploring Our World', emoji: '🌍' },
+      { num: 6, title: 'Technology',          emoji: '💻' },
+      { num: 7, title: 'At the Zoo',          emoji: '🦒' },
+      { num: 8, title: "Let's Party!",        emoji: '🎉' },
     ],
   },
   thinkstarter: {
-    label: 'Think — Starter',
+    label: 'Think — Starter', color: '#ec4899',
     units: [
-      { num: 0,  title: 'Welcome'                 },
-      { num: 1,  title: 'One World'               },
-      { num: 2,  title: 'I Feel Happy'            },
-      { num: 3,  title: 'Me and My Family'        },
-      { num: 4,  title: 'In the City'             },
-      { num: 5,  title: 'In My Free Time'         },
-      { num: 6,  title: 'Friends'                 },
-      { num: 7,  title: 'Sporting Life'           },
-      { num: 8,  title: 'Dance to the Music'      },
-      { num: 9,  title: 'Would You Like Dessert?' },
-      { num: 10, title: 'High Flyers'             },
-      { num: 11, title: 'A World of Animals'      },
-      { num: 12, title: 'Getting About'           },
+      { num: 0,  title: 'Welcome',                 emoji: '👋' },
+      { num: 1,  title: 'One World',               emoji: '🌍' },
+      { num: 2,  title: 'I Feel Happy',            emoji: '😊' },
+      { num: 3,  title: 'Me and My Family',        emoji: '👨‍👩‍👧' },
+      { num: 4,  title: 'In the City',             emoji: '🏙️' },
+      { num: 5,  title: 'In My Free Time',         emoji: '🎮' },
+      { num: 6,  title: 'Friends',                 emoji: '🤝' },
+      { num: 7,  title: 'Sporting Life',           emoji: '⚽' },
+      { num: 8,  title: 'Dance to the Music',      emoji: '🎵' },
+      { num: 9,  title: 'Would You Like Dessert?', emoji: '🍰' },
+      { num: 10, title: 'High Flyers',             emoji: '✈️' },
+      { num: 11, title: 'A World of Animals',      emoji: '🦁' },
+      { num: 12, title: 'Getting About',           emoji: '🚌' },
     ],
   },
   thinkl2: {
-    label: 'Think — Level 2',
+    label: 'Think — Level 2', color: '#e85d26',
     units: [
-      { num: 0,  title: 'Welcome'              },
-      { num: 1,  title: 'Amazing People'       },
-      { num: 2,  title: 'The Ways We Learn'    },
-      { num: 3,  title: "That's Entertainment" },
-      { num: 4,  title: 'Social Networking'    },
-      { num: 5,  title: 'My Life in Music'     },
-      { num: 6,  title: 'Making a Difference'  },
-      { num: 7,  title: 'Future Fun'           },
-      { num: 8,  title: 'Science Counts'       },
-      { num: 9,  title: "What a Job!"          },
-      { num: 10, title: 'Keep Healthy'         },
-      { num: 11, title: 'Making the News'      },
-      { num: 12, title: 'Playing by the Rules' },
+      { num: 0,  title: 'Welcome',              emoji: '👋' },
+      { num: 1,  title: 'Amazing People',       emoji: '🌟' },
+      { num: 2,  title: 'The Ways We Learn',    emoji: '📚' },
+      { num: 3,  title: "That's Entertainment", emoji: '🎬' },
+      { num: 4,  title: 'Social Networking',    emoji: '📱' },
+      { num: 5,  title: 'My Life in Music',     emoji: '🎵' },
+      { num: 6,  title: 'Making a Difference',  emoji: '💚' },
+      { num: 7,  title: 'Future Fun',           emoji: '🚀' },
+      { num: 8,  title: 'Science Counts',       emoji: '🔬' },
+      { num: 9,  title: "What a Job!",          emoji: '💼' },
+      { num: 10, title: 'Keep Healthy',         emoji: '💪' },
+      { num: 11, title: 'Making the News',      emoji: '📰' },
+      { num: 12, title: 'Playing by the Rules', emoji: '📋' },
     ],
   },
   thinkl3: {
-    label: 'Think — Level 3',
+    label: 'Think — Level 3', color: '#06b6d4',
     units: [
-      { num: 0,  title: 'Welcome'                     },
-      { num: 1,  title: 'Life Plans'                  },
-      { num: 2,  title: 'Hard Times'                  },
-      { num: 3,  title: "What's in a Name?"           },
-      { num: 4,  title: 'Dilemmas'                    },
-      { num: 5,  title: 'What a Story!'               },
-      { num: 6,  title: 'How Do They Do It?'          },
-      { num: 7,  title: 'All the Same?'               },
-      { num: 8,  title: "It's a Crime"                },
-      { num: 9,  title: 'What Happened?'              },
-      { num: 10, title: 'Money'                       },
-      { num: 11, title: 'Help!'                       },
-      { num: 12, title: 'A First Time for Everything' },
+      { num: 0,  title: 'Welcome',                     emoji: '👋' },
+      { num: 1,  title: 'Life Plans',                  emoji: '🗺️' },
+      { num: 2,  title: 'Hard Times',                  emoji: '💪' },
+      { num: 3,  title: "What's in a Name?",           emoji: '🏷️' },
+      { num: 4,  title: 'Dilemmas',                    emoji: '🤔' },
+      { num: 5,  title: 'What a Story!',               emoji: '📖' },
+      { num: 6,  title: 'How Do They Do It?',          emoji: '🔧' },
+      { num: 7,  title: 'All the Same?',               emoji: '🌐' },
+      { num: 8,  title: "It's a Crime",                emoji: '🔍' },
+      { num: 9,  title: 'What Happened?',              emoji: '❓' },
+      { num: 10, title: 'Money',                       emoji: '💰' },
+      { num: 11, title: 'Help!',                       emoji: '🆘' },
+      { num: 12, title: 'A First Time for Everything', emoji: '🌟' },
     ],
   },
 }
 
-// ── Class → book slug mapping ────────────────────────────────────────────────
 const CLASS_BOOK = {
-  'Elite2_2':  'thinkl2',
-  'Elite3_S':  'thinkstarter',
-  'Elite1_3':  'thinkl3',
-  'ATB_Elite3_S': 'thinkstarter',
-  'ATB_Elite1_3': 'thinkl3',
-  'Pro1_3':    'kidsboxng3',
-  'Pro5_4':    'kidsboxng4',
-  'Pro1_2':    'kidsboxng2',
-  'Pro3_S':    'kidsboxng1',
-  'Pro2_2':    'kidsboxng2',
-  'Pro3_1':    'kidsboxng1',
-  'Pro6_2':    'kidsboxng3',
-  'ATB_Pro1_3': 'kidsboxng3',
-  'ATB_Pro5_4': 'kidsboxng4',
-  'HTB_Pro1-2': 'kidsboxng2',
-  'HTB_Pro2_2': 'kidsboxng2',
-  'HTB_Pro4-3': 'kidsboxng4',
-  'HTB_Pro3_1': 'kidsboxng1',
-  'HTB_Pro1_2': 'kidsboxng2',
+  'Elite2_2': 'thinkl2',      'Elite3_S': 'thinkstarter',  'Elite1_3': 'thinkl3',
+  'ATB_Elite3_S': 'thinkstarter', 'ATB_Elite1_3': 'thinkl3',
+  'Pro1_3': 'kidsboxng3',     'Pro5_4': 'kidsboxng4',      'Pro1_2': 'kidsboxng2',
+  'Pro3_S': 'kidsboxng1',     'Pro2_2': 'kidsboxng2',      'Pro3_1': 'kidsboxng1',
+  'Pro6_2': 'kidsboxng3',
+  'ATB_Pro1_3': 'kidsboxng3', 'ATB_Pro5_4': 'kidsboxng4',
+  'HTB_Pro1-2': 'kidsboxng2', 'HTB_Pro2_2': 'kidsboxng2',
+  'HTB_Pro4-3': 'kidsboxng4', 'HTB_Pro3_1': 'kidsboxng1',  'HTB_Pro1_2': 'kidsboxng2',
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 function getBookSlug(className) {
-  // Try exact match first, then try stripping prefix
   if (CLASS_BOOK[className]) return CLASS_BOOK[className]
-  const stripped = className.replace(/^(ATB_|HTB_)/, '')
-  return CLASS_BOOK[stripped] || null
+  return CLASS_BOOK[className?.replace(/^(ATB_|HTB_)/, '')] || null
 }
 
 async function markUnitComplete(studentId, bookSlug, unitNum) {
   if (!studentId) return
-  const ref = doc(db, 'tj_students', studentId)
+  const ref  = doc(db, 'tj_students', studentId)
   const snap = await getDoc(ref)
   if (!snap.exists()) return
-  const data = snap.data()
-  const existing = data.unitsCompleted || {}
+  const existing = snap.data().unitsCompleted || {}
   const bookDone = existing[bookSlug] || []
-  if (bookDone.includes(unitNum)) return // already recorded
-  await updateDoc(ref, {
-    [`unitsCompleted.${bookSlug}`]: [...bookDone, unitNum],
-  })
+  if (bookDone.includes(unitNum)) return
+  await updateDoc(ref, { [`unitsCompleted.${bookSlug}`]: [...bookDone, unitNum] })
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
-export default function LessonsHub({ cls, studentId, completedUnits = {}, onClose, readOnly }) {
-  const bookSlug = getBookSlug(cls?.name)
-  const book     = BOOKS[bookSlug]
+// ─────────────────────────────────────────────────────────────────────────────
+export default function LessonsHub({ cls, studentId, completedUnits = {}, students = [], onClose, readOnly }) {
+  const bookSlug  = getBookSlug(cls?.name)
+  const book      = BOOKS[bookSlug]
+  const done      = completedUnits[bookSlug] || []
+  const bookColor = book?.color || 'var(--accent)'
 
-  // completed unit numbers for this book
-  const done = completedUnits[bookSlug] || []
-
-  // iframe state
-  const [openUnit, setOpenUnit] = useState(null)
+  const [openUnit,  setOpenUnit]  = useState(null)
+  const [activeTab, setActiveTab] = useState('map')
   const iframeRef = useRef(null)
 
-  // Listen for completion signal from game iframe
   const handleMessage = useCallback(async (e) => {
-    if (e.data?.type !== 'UNIT_COMPLETE') return
-    const { unit, book: msgBook } = e.data
-    if (msgBook !== bookSlug) return
-    await markUnitComplete(studentId, bookSlug, unit)
+    if (e.data?.type !== 'UNIT_COMPLETE' || e.data.book !== bookSlug) return
+    await markUnitComplete(studentId, bookSlug, e.data.unit)
     setOpenUnit(null)
   }, [studentId, bookSlug])
 
@@ -208,181 +185,266 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, onClos
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal" onClick={e => e.stopPropagation()}>
           <div className="modal-title">📚 Lessons Hub</div>
-          <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>
-            No book assigned to class <strong>{cls?.name}</strong>. Add it to CLASS_BOOK in LessonsHub.jsx.
-          </div>
-          <div className="modal-actions">
-            <button className="btn btn-outline" onClick={onClose}>Close</button>
-          </div>
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>No book assigned to <strong>{cls?.name}</strong>.</p>
+          <div className="modal-actions"><button className="btn btn-outline" onClick={onClose}>Close</button></div>
         </div>
       </div>
     )
   }
 
-  const units = book.units
+  const units     = book.units
   const totalDone = done.length
-  const progressPct = Math.round((totalDone / units.length) * 100)
+  const pctDone   = Math.round((totalDone / units.length) * 100)
+  const nextIdx   = units.findIndex((u, i) =>
+    i === 0 ? !done.includes(u.num) : done.includes(units[i-1].num) && !done.includes(u.num)
+  )
 
   function isUnlocked(unitNum, idx) {
-    // Teacher always sees everything unlocked
     if (!readOnly) return true
-    // First unit always unlocked for students
     if (idx === 0) return true
-    // Otherwise previous unit must be completed
-    const prevNum = units[idx - 1].num
-    return done.includes(prevNum)
-  }
-
-  function isDone(unitNum) {
-    return done.includes(unitNum)
+    return done.includes(units[idx - 1].num)
   }
 
   function handleUnitClick(unit, idx) {
     if (!isUnlocked(unit.num, idx)) return
     const url = `${BASE}/unit${unit.num}-${bookSlug}.html`
-    if (!readOnly) {
-      // Teacher: open in new tab
-      window.open(url, '_blank')
-    } else {
-      // Student: open in iframe inside modal
-      setOpenUnit({ ...unit, url })
-    }
+    if (!readOnly) window.open(url, '_blank')
+    else setOpenUnit({ ...unit, url })
   }
 
-  // ── Iframe view ──────────────────────────────────────────────────────────
+  // Race data
+  const raceStudents = [...students]
+    .map(s => ({ ...s, unitsDone: ((s.unitsCompleted || {})[bookSlug] || []).length, skillAvg: avgSkills(s) }))
+    .sort((a, b) => b.unitsDone - a.unitsDone || b.skillAvg - a.skillAvg)
+
+  // Build rows of 3 for zigzag
+  const COLS = 3
+  const rows = []
+  for (let i = 0; i < units.length; i += COLS) rows.push(units.slice(i, i + COLS))
+
+  // ── Iframe ────────────────────────────────────────────────────────────────
   if (openUnit) {
     return (
       <div className="modal-overlay">
-        <div style={{
-          width: '100%', maxWidth: 900, height: '92vh',
-          background: 'var(--surface)', borderRadius: 20,
-          display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
-        }}>
-          {/* iframe header */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '14px 20px', background: 'var(--text)', borderRadius: '20px 20px 0 0',
-          }}>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>
-                Unit {openUnit.num} — {openUnit.title}
-              </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 2, marginTop: 2 }}>
-                {book.label.toUpperCase()}
+        <div style={{ width: '100%', maxWidth: 960, height: '93vh', background: 'var(--surface)', borderRadius: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'var(--text)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ fontSize: 28 }}>{openUnit.emoji}</div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Unit {openUnit.num} — {openUnit.title}</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 2 }}>{book.label.toUpperCase()}</div>
               </div>
             </div>
-            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }}
-              onClick={() => setOpenUnit(null)}>✕</button>
+            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 20 }} onClick={() => setOpenUnit(null)}>✕</button>
           </div>
-          <iframe
-            ref={iframeRef}
-            src={openUnit.url}
-            style={{ flex: 1, border: 'none', width: '100%' }}
-            title={`Unit ${openUnit.num}`}
-          />
+          <iframe ref={iframeRef} src={openUnit.url} style={{ flex: 1, border: 'none', width: '100%' }} title={`Unit ${openUnit.num}`} />
         </div>
       </div>
     )
   }
 
-  // ── Main list view ───────────────────────────────────────────────────────
+  // ── Main modal ────────────────────────────────────────────────────────────
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: 580, maxHeight: '90vh', overflowY: 'auto', padding: 0 }}
+      <style>{`
+        @keyframes lh-pop     { 0%{transform:scale(0.6);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+        @keyframes lh-pulse   { 0%,100%{box-shadow:0 0 0 0 ${bookColor}66} 60%{box-shadow:0 0 0 12px transparent} }
+        @keyframes lh-bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        .lh-node  { animation: lh-pop 0.3s ease both; }
+        .lh-next  { animation: lh-pulse 1.8s ease infinite; }
+        .lh-arr   { animation: lh-bounce 2s ease infinite; }
+      `}</style>
+
+      <div style={{ width: '100%', maxWidth: 560, maxHeight: '92vh', borderRadius: 24, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', background: 'var(--bg)' }}
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
-        <div style={{ background: 'var(--text)', color: '#fff', padding: '20px 24px', borderRadius: '20px 20px 0 0' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ background: 'var(--text)', padding: '20px 24px 0', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>
-                📚 Lessons Hub — <span style={{ color: 'var(--accent)' }}>{cls?.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: bookColor }} />
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: 3, textTransform: 'uppercase' }}>{book.label}</div>
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: 2 }}>
-                {book.label.toUpperCase()} · {totalDone}/{units.length} UNITS DONE
-              </div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>📚 {cls?.name} — Lessons</div>
             </div>
-            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 18 }} onClick={onClose}>✕</button>
+            <button className="btn-ghost" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }} onClick={onClose}>✕</button>
           </div>
           {/* Progress bar */}
-          <div style={{ marginTop: 14, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--accent)', borderRadius: 3, transition: 'width 0.4s ease' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ flex: 1, height: 7, background: 'rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pctDone}%`, background: bookColor, borderRadius: 4, transition: 'width 0.5s ease' }} />
+            </div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>{totalDone}/{units.length}</div>
+          </div>
+          {/* Tabs */}
+          <div style={{ display: 'flex' }}>
+            {[['map','🗺️ Road Map'], ['race','🏁 Race Track']].map(([id, label]) => (
+              <div key={id} onClick={() => setActiveTab(id)} style={{ flex: 1, textAlign: 'center', padding: '9px 0', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 1.5, fontWeight: activeTab === id ? 700 : 400, color: activeTab === id ? '#fff' : 'rgba(255,255,255,0.3)', borderBottom: `3px solid ${activeTab === id ? bookColor : 'transparent'}`, transition: 'all 0.15s', textTransform: 'uppercase' }}>
+                {label}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Unit list */}
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {units.map((unit, idx) => {
-            const unlocked = isUnlocked(unit.num, idx)
-            const completed = isDone(unit.num)
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 20px 36px' }}>
 
-            return (
-              <div
-                key={unit.num}
-                onClick={() => handleUnitClick(unit, idx)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 14,
-                  padding: '14px 16px', borderRadius: 12,
-                  background: completed ? 'rgba(26,158,92,0.06)' : unlocked ? 'var(--surface)' : 'var(--surface2)',
-                  border: `1.5px solid ${completed ? 'rgba(26,158,92,0.25)' : unlocked ? 'var(--border)' : 'transparent'}`,
-                  cursor: unlocked ? 'pointer' : 'default',
-                  opacity: unlocked ? 1 : 0.45,
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { if (unlocked) { e.currentTarget.style.borderColor = completed ? 'var(--green)' : 'var(--accent)'; e.currentTarget.style.transform = 'translateX(4px)' }}}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = completed ? 'rgba(26,158,92,0.25)' : unlocked ? 'var(--border)' : 'transparent'; e.currentTarget.style.transform = '' }}
-              >
-                {/* Unit number circle */}
-                <div style={{
-                  width: 38, height: 38, borderRadius: 10, flexShrink: 0,
-                  background: completed ? 'var(--green)' : unlocked ? 'var(--accent)' : 'var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 800,
-                  color: unlocked ? '#fff' : 'var(--muted)',
-                }}>
-                  {completed ? '✓' : unit.num}
+          {/* ═══ ROAD MAP ═══ */}
+          {activeTab === 'map' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+              {rows.map((row, rowIdx) => {
+                const globalStart = rowIdx * COLS
+                const orderedRow  = rowIdx % 2 === 0 ? row : [...row].reverse()
+
+                return (
+                  <div key={rowIdx} style={{ width: '100%' }}>
+                    {/* Node row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '4px 0' }}>
+                      {orderedRow.map((unit, colIdx) => {
+                        const trueIdx  = rowIdx % 2 === 0 ? globalStart + colIdx : globalStart + (row.length - 1 - colIdx)
+                        const unlocked  = isUnlocked(unit.num, trueIdx)
+                        const completed = done.includes(unit.num)
+                        const isNext    = trueIdx === nextIdx && readOnly
+
+                        const size = isNext ? 72 : 64
+
+                        return (
+                          <div key={unit.num}
+                            className={`lh-node${isNext ? ' lh-next' : ''}`}
+                            style={{ animationDelay: `${trueIdx * 0.04}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, width: 100, cursor: unlocked ? 'pointer' : 'default' }}
+                            onClick={() => handleUnitClick(unit, trueIdx)}
+                          >
+                            {/* Bubble */}
+                            <div style={{
+                              width: size, height: size, borderRadius: '50%',
+                              background: completed
+                                ? `linear-gradient(135deg, ${bookColor}dd, ${bookColor}88)`
+                                : unlocked ? (isNext ? `linear-gradient(135deg, ${bookColor}44, ${bookColor}22)` : 'var(--surface)')
+                                : 'var(--surface2)',
+                              border: `3px solid ${completed || unlocked ? bookColor : 'var(--border)'}`,
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              boxShadow: completed ? `0 6px 24px ${bookColor}44` : isNext ? `0 4px 16px ${bookColor}33` : 'var(--shadow)',
+                              opacity: unlocked ? 1 : 0.35,
+                              position: 'relative',
+                              transition: 'transform 0.15s',
+                            }}
+                              onMouseEnter={e => { if (unlocked) e.currentTarget.style.transform = 'scale(1.08)' }}
+                              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
+                            >
+                              {completed
+                                ? <div style={{ fontSize: 24, color: '#fff', fontWeight: 800 }}>✓</div>
+                                : unlocked
+                                  ? <div style={{ fontSize: isNext ? 26 : 22 }}>{unit.emoji}</div>
+                                  : <div style={{ fontSize: 20 }}>🔒</div>
+                              }
+                              {isNext && !completed && (
+                                <div className="lh-arr" style={{ fontSize: 9, color: bookColor, fontWeight: 800, fontFamily: 'var(--mono)' }}>▼ PLAY</div>
+                              )}
+                              {/* Unit number chip */}
+                              <div style={{ position: 'absolute', top: -5, right: -5, width: 20, height: 20, borderRadius: '50%', background: completed ? bookColor : 'var(--surface)', border: `2px solid ${bookColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--mono)', fontSize: 8, fontWeight: 800, color: completed ? '#fff' : bookColor }}>{unit.num}</div>
+                            </div>
+                            {/* Label */}
+                            <div style={{ textAlign: 'center', fontSize: 10, fontWeight: completed ? 700 : 500, color: unlocked ? 'var(--text)' : 'var(--muted)', lineHeight: 1.3, maxWidth: 90 }}>
+                              {unit.title}
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {/* Pad short rows */}
+                      {Array.from({ length: COLS - row.length }).map((_, i) => (
+                        <div key={`p${i}`} style={{ width: 100 }} />
+                      ))}
+                    </div>
+
+                    {/* Connector dots between rows */}
+                    {rowIdx < rows.length - 1 && (
+                      <div style={{ display: 'flex', justifyContent: rowIdx % 2 === 0 ? 'flex-end' : 'flex-start', paddingRight: rowIdx % 2 === 0 ? 50 : 0, paddingLeft: rowIdx % 2 === 0 ? 0 : 50, margin: '6px 0' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {[0,1,2,3].map(i => (
+                            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--border)' }} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {/* Finish trophy */}
+              {pctDone === 100 && (
+                <div style={{ textAlign: 'center', paddingTop: 28 }}>
+                  <div style={{ fontSize: 52 }}>🏆</div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: bookColor, marginTop: 8 }}>Book Complete!</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>All units finished — incredible work!</div>
                 </div>
+              )}
 
-                {/* Title */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: unlocked ? 'var(--text)' : 'var(--muted)' }}>
-                    {unit.title}
-                  </div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1, marginTop: 2 }}>
-                    {completed ? 'Completed ✓' : unlocked ? 'Vocabulary · Grammar · Games · Activities' : '🔒 Complete previous unit to unlock'}
-                  </div>
-                </div>
-
-                {/* Status badge */}
-                {completed ? (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, padding: '4px 10px', borderRadius: 20, letterSpacing: 1, background: 'rgba(26,158,92,0.12)', color: 'var(--green)', border: '1px solid rgba(26,158,92,0.2)' }}>
-                    DONE
-                  </div>
-                ) : unlocked ? (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, padding: '4px 10px', borderRadius: 20, letterSpacing: 1, background: 'rgba(232,93,38,0.1)', color: 'var(--accent)', border: '1px solid rgba(232,93,38,0.2)' }}>
-                    ▶ PLAY
-                  </div>
-                ) : (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, padding: '4px 10px', borderRadius: 20, letterSpacing: 1, background: 'var(--border)', color: 'var(--muted)' }}>
-                    🔒
-                  </div>
-                )}
+              {/* Tip */}
+              <div style={{ marginTop: 24, padding: '10px 14px', borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.6, width: '100%' }}>
+                {readOnly
+                  ? '🔒 Finish each unit to unlock the next one. Tap a glowing bubble to play!'
+                  : '👁 Teacher view — all units accessible. Students unlock sequentially.'}
               </div>
-            )
-          })}
+            </div>
+          )}
 
-          {/* Info footer */}
-          <div style={{ marginTop: 8, padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 4 }}>
-              {readOnly ? 'HOW TO UNLOCK' : 'TEACHER VIEW — ALL UNITS ACCESSIBLE'}
+          {/* ═══ RACE TRACK ═══ */}
+          {activeTab === 'race' && (
+            <div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 3, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 20 }}>
+                🏁 Unit Race — {book.label}
+              </div>
+
+              {raceStudents.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 40, color: 'var(--muted)', fontSize: 13 }}>No students yet.</div>
+              )}
+
+              <div style={{ position: 'relative' }}>
+                {/* Finish line */}
+                <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 3, background: 'repeating-linear-gradient(180deg,#1a1814 0,#1a1814 8px,#fff 8px,#fff 16px)', borderRadius: 2 }} />
+                <div style={{ position: 'absolute', right: 5, top: -22, fontSize: 18 }}>🏁</div>
+
+                {raceStudents.map((s, i) => {
+                  const pct    = units.length > 0 ? (s.unitsDone / units.length) * 100 : 0
+                  const carPct = Math.round(pct * 0.83)
+                  const medal  = ['🥇','🥈','🥉'][i] || null
+
+                  return (
+                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: i < raceStudents.length - 1 ? '1px dashed var(--border)' : 'none' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: 12, width: 24, textAlign: 'center', flexShrink: 0 }}>
+                        {medal || <span style={{ color: 'var(--muted)' }}>{i+1}</span>}
+                      </div>
+
+                      {/* Track */}
+                      <div style={{ flex: 1, height: 40, background: 'var(--surface2)', borderRadius: 10, position: 'relative', overflow: 'hidden', marginRight: 10 }}>
+                        <div style={{ position: 'absolute', inset: 0, width: `${carPct}%`, background: `${bookColor}18`, borderRadius: 10, minWidth: s.unitsDone > 0 ? 42 : 0, transition: 'width 0.9s cubic-bezier(.34,1.56,.64,1)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 5 }}>
+                          {/* Avatar */}
+                          <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: i === 0 ? `linear-gradient(135deg,${bookColor},${bookColor}88)` : 'var(--surface)', border: `2px solid ${bookColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: i === 0 ? '#fff' : bookColor, boxShadow: `0 2px 8px ${bookColor}33` }}>
+                            {initials(s.nameEn)}
+                          </div>
+                        </div>
+                        {/* Progress label */}
+                        <div style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', opacity: carPct > 75 ? 0 : 1 }}>
+                          {s.unitsDone}/{units.length}
+                        </div>
+                      </div>
+
+                      {/* Name */}
+                      <div style={{ minWidth: 90 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700 }}>{s.nameEn.split(' ')[0]}</div>
+                        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', marginTop: 2 }}>📚 {s.unitsDone} · ⭐ {s.totalStars || 0}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div style={{ marginTop: 20, padding: '10px 14px', borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.6 }}>
+                Ranked by units completed in this book. Complete more units on the Road Map to move up! 🚀
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
-              {readOnly
-                ? 'Complete each unit to unlock the next one. Finish the games and exercises at the end of each lesson to mark it complete.'
-                : 'As teacher you can access any unit directly. Students unlock units sequentially as they complete each one.'}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

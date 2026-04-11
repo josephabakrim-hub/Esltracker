@@ -281,6 +281,7 @@ export default function App() {
       {lessonsHubModal && (
         <LessonsHub
           cls={lessonsHubModal}
+          students={students.filter(s => s.classId === lessonsHubModal.id)}
           studentId={isStudent ? access?.student?.id : null}
           completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
           readOnly={!isTeacher}
