@@ -16,6 +16,7 @@ import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
 import TeacherAcademy from './components/TeacherAcademy'
+import AdminPanel from './components/AdminPanel'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
 
@@ -203,6 +204,7 @@ export default function App() {
             { id: 'students',  label: '👤 Students'  },
             { id: 'analytics', label: '📊 Analytics' },
             { id: 'academy',   label: '🎓 Academy'   },
+            { id: 'admin',     label: '🔐 Admin'     },
           ] : undefined}
         />
 
@@ -265,6 +267,15 @@ export default function App() {
 
           {tab === 'academy' && isTeacher && (
             <TeacherAcademy />
+          )}
+
+          {tab === 'admin' && isTeacher && (
+            <AdminPanel
+              classes={classes}
+              students={students}
+              updateClass={updateClass}
+              updateStudent={updateStudent}
+            />
           )}
         </>}
       </div>
