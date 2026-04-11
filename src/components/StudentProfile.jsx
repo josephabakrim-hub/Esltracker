@@ -1,6 +1,22 @@
 import { useState } from 'react'
 import { SKILLS, SKILL_ICONS, scoreColor, initials, avgSkills } from '../lib/utils'
 
+// Book slug → label (mirrors LessonsHub)
+const BOOK_LABELS = {
+  kidsboxng1: 'Kids Box NG 1',
+  kidsboxng2: 'Kids Box NG 2',
+  kidsboxng3: 'Kids Box NG 3',
+  kidsboxng4: 'Kids Box NG 4',
+  thinkstarter: 'Think Starter',
+  thinkl2: 'Think Level 2',
+  thinkl3: 'Think Level 3',
+}
+
+const BOOK_UNIT_COUNTS = {
+  kidsboxng1: 13, kidsboxng2: 12, kidsboxng3: 9, kidsboxng4: 9,
+  thinkstarter: 13, thinkl2: 13, thinkl3: 13,
+}
+
 const PRESET_REASONS = [
   { label: '🙋 Participation',     value: 'Great participation' },
   { label: '🤝 Teamwork',          value: 'Excellent teamwork' },
@@ -39,7 +55,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
 
   // Stars panel state
   const [showStarPanel,   setShowStarPanel]   = useState(false)
-  const [showStarHistory, setShowStarHistory] = useState(false) // ← collapsible
+  const [showStarHistory, setShowStarHistory] = useState(false)
   const [starCount,       setStarCount]       = useState(1)
   const [starReason,      setStarReason]      = useState('')
   const [customReason,    setCustomReason]    = useState('')
@@ -50,6 +66,10 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
   const notes      = s.notes    || []
   const starsLog   = s.starsLog || []
   const totalStars = s.totalStars || 0
+
+  // Unit progress
+  const unitsCompleted = s.unitsCompleted || {}
+  const bookSlugs = Object.keys(unitsCompleted).filter(k => unitsCompleted[k]?.length > 0)
 
   function formatDate(iso) {
     const d = new Date(iso + 'T00:00:00')
@@ -71,7 +91,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
     await onAddStars(s.id, starCount, finalReason, formatDate(starDateISO))
     setStarSaving(false)
     resetStarPanel()
-    setShowStarHistory(true) // auto-open history after awarding
+    setShowStarHistory(true)
   }
 
   async function handleDeleteStar(index) {
@@ -137,6 +157,44 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
         ))}
       </div>
 
+      {/* UNIT PROGRESS */}
+      {bookSlugs.length > 0 && (
+        <div style={card}>
+          <div style={sectionTitle}>📚 Lessons Progress</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {bookSlugs.map(slug => {
+              const done = unitsCompleted[slug] || []
+              const total = BOOK_UNIT_COUNTS[slug] || done.length
+              const pct = Math.round((done.length / total) * 100)
+              return (
+                <div key={slug}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{BOOK_LABELS[slug] || slug}</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)' }}>
+                      {done.length}/{total} units
+                    </div>
+                  </div>
+                  <div style={{ height: 8, background: 'var(--surface2)', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+                    <div style={{ width: `${pct}%`, height: '100%', borderRadius: 4, background: pct === 100 ? 'var(--green)' : 'var(--accent2)', transition: 'width 0.4s ease' }} />
+                  </div>
+                  {/* Completed unit chips */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {[...done].sort((a,b) => a-b).map(u => (
+                      <span key={u} style={{
+                        fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700,
+                        padding: '3px 8px', borderRadius: 10, letterSpacing: 1,
+                        background: 'rgba(26,158,92,0.1)', color: 'var(--green)',
+                        border: '1px solid rgba(26,158,92,0.2)',
+                      }}>U{u} ✓</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* STARS */}
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -148,18 +206,14 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           )}
         </div>
 
-        {/* ── AWARD PANEL ── */}
         {!readOnly && showStarPanel && (
           <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: 20, marginBottom: 20, border: '1px solid var(--border)' }}>
-
-            {/* Date picker */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Date</div>
               <input type="date" className="form-input" value={starDateISO} onChange={e => setStarDateISO(e.target.value)} style={{ maxWidth: 200 }} />
               <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 4 }}>{formatDate(starDateISO)}</div>
             </div>
 
-            {/* Star count */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Number of Stars</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -177,7 +231,6 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
               </div>
             </div>
 
-            {/* Preset reasons */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 7 }}>Reason</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
@@ -208,7 +261,6 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           </div>
         )}
 
-        {/* ── TOTAL + COLLAPSIBLE HISTORY ── */}
         <div
           onClick={() => starsLog.length > 0 && setShowStarHistory(v => !v)}
           style={{
@@ -217,8 +269,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
             background: totalStars > 0 ? 'rgba(212,144,10,0.08)' : 'var(--surface2)',
             border: '1px solid var(--border)',
             cursor: starsLog.length > 0 ? 'pointer' : 'default',
-            transition: 'all 0.15s',
-            userSelect: 'none',
+            transition: 'all 0.15s', userSelect: 'none',
           }}
         >
           <div style={{ fontSize: 32 }}>⭐</div>
@@ -231,12 +282,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
                 {starsLog.length} {starsLog.length === 1 ? 'entry' : 'entries'}
               </span>
-              <span style={{
-                fontSize: 12, color: 'var(--muted)',
-                transform: showStarHistory ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s',
-                display: 'inline-block',
-              }}>▼</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)', transform: showStarHistory ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', display: 'inline-block' }}>▼</span>
             </div>
           )}
         </div>
@@ -245,17 +291,11 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12, marginTop: 12 }}>No stars awarded yet.</div>
         )}
 
-        {/* History — only shown when expanded */}
         {showStarHistory && starsLog.length > 0 && (
-          <div style={{
-            marginTop: 8, borderRadius: 12, overflow: 'hidden',
-            border: '1px solid var(--border)',
-            animation: 'fadeIn 0.15s ease',
-          }}>
+          <div style={{ marginTop: 8, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', animation: 'fadeIn 0.15s ease' }}>
             {[...starsLog].reverse().map((entry, i) => (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '10px 14px',
+                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
                 borderBottom: i < starsLog.length - 1 ? '1px solid var(--border)' : 'none',
                 background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)',
               }}>

@@ -233,7 +233,7 @@ export default function App() {
               onOpenStarSession={isTeacher ? () => setStarSessionModal(liveClass.id) : null}
               onOpenSpinOfDoom={isTeacher ? () => setSpinModal(liveClass.id) : null}
               onOpenStarSlots={isTeacher ? () => setStarSlotsModal(liveClass.id) : null}
-              onOpenLessonsHub={isTeacher ? () => setLessonsHubModal(liveClass) : null}
+              onOpenLessonsHub={() => setLessonsHubModal(liveClass)}
               readOnly={!isTeacher}
             />
           )}
@@ -278,7 +278,15 @@ export default function App() {
       {isTeacher && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={false} />}
       {isTeacher && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={false} />}
       {isTeacher && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={false} />}
-      {isTeacher && lessonsHubModal  && <LessonsHub cls={lessonsHubModal} onClose={() => setLessonsHubModal(null)} />}
+      {lessonsHubModal && (
+        <LessonsHub
+          cls={lessonsHubModal}
+          studentId={isStudent ? access?.student?.id : null}
+          completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
+          readOnly={!isTeacher}
+          onClose={() => setLessonsHubModal(null)}
+        />
+      )}
     </div>
   )
 }
