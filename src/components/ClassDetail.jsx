@@ -182,35 +182,6 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
           </div>
         </div>
 
-        {/* RACE TRACK */}
-        <div style={card}>
-          <div style={sectionTitle}>🏁 Performance Race Track</div>
-          <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 3, background: 'repeating-linear-gradient(180deg,#1a1814 0,#1a1814 10px,#fff 10px,#fff 20px)', borderRadius: 2 }} />
-            <div style={{ position: 'absolute', right: 6, top: -26, fontSize: 20 }}>🏁</div>
-            {ranked.map((s, i) => {
-              const avg = avgSkills(s)
-              const pct = Math.round((avg / 100) * 86)
-              return (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < ranked.length - 1 ? '1px dashed var(--border)' : 'none' }}>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', width: 18, textAlign: 'center', flexShrink: 0 }}>{i + 1}</div>
-                  <div style={{ flex: 1, height: 36, background: 'var(--surface2)', borderRadius: 8, position: 'relative', overflow: 'hidden', marginRight: 12 }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${pct}%`, background: `${scoreColor(avg)}22`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4, minWidth: 36, transition: 'width 0.8s cubic-bezier(.34,1.56,.64,1)' }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 8, background: scoreColor(avg), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', flexShrink: 0 }}>
-                        {initials(s.nameEn)}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ minWidth: 100 }}>
-                    <NameWithVn s={s} size={11} />
-                  </div>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 700, width: 36, textAlign: 'right', color: scoreColor(avg) }}>{avg}%</div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
         {/* ── LESSONS HUB inline ── */}
         <LessonsHub
           cls={cls}
