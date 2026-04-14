@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 9 — Would You Like Dessert?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0a0a0f;
+  --deep:    #0d0d14;
+  --card:    #121218;
+  --card2:   #16161f;
+  --border:  #222230;
+  --amber:   #f5a623;
+  --amber2:  #ffc857;
+  --rust:    #e8603c;
+  --sage:    #5cba8a;
+  --sky:     #3fa7d6;
+  --lavender:#8b6fd6;
+  --pink:    #e05c8a;
+  --white:   #eeeaf5;
+  --muted:   #3a3a55;
+  --ok:      #5cba8a;
+  --bad:     #e8603c;
+  --font-h:  'Playfair Display', serif;
+  --font-b:  'DM Sans', sans-serif;
+  --font-m:  'DM Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--white);
+  background-image:
+    radial-gradient(ellipse at 15% 0%, rgba(245,166,35,.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(92,186,138,.07) 0%, transparent 55%);
+}
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:28px 16px 60px; min-height:100vh; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--border);
+  color:var(--amber); font-family:var(--font-m); font-size:10px; font-weight:500;
+  letter-spacing:2px; padding:5px 14px; border-radius:4px; margin-bottom:18px; text-transform:uppercase;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2.2rem,9vw,4.2rem); font-weight:900;
+  text-align:center; line-height:1.05; margin-bottom:6px; letter-spacing:-0.5px;
+}
+.home-title em { color:var(--amber); font-style:normal; display:block; }
+.home-sub { font-family:var(--font-m); font-size:11px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:7px 18px; margin-bottom:28px;
+  font-family:var(--font-b); font-size:17px; font-weight:700; color:var(--amber2);
+}
+
+/* menu post card */
+.home-post {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; max-width:500px; width:100%; margin-bottom:22px;
+  position:relative; overflow:hidden;
+}
+.home-post::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--amber),var(--rust)); border-radius:3px 0 0 3px; }
+.menu-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.menu-logo { width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,var(--amber),var(--rust)); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.menu-name  { font-family:var(--font-h); font-size:14px; font-weight:700; }
+.menu-sub   { font-family:var(--font-m); font-size:10px; color:var(--muted); }
+.menu-text  { font-size:13px; line-height:1.65; color:var(--white); }
+.menu-text strong { color:var(--amber); }
+
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:520px; }
+.gc {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 12px; cursor:pointer; text-align:center; position:relative;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 24px color-mix(in srgb, var(--gc-col) 18%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--sage); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--sage); font-weight:900; font-size:14px; }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.9rem; margin-bottom:7px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--gc-col); letter-spacing:-.2px; }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:600; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:6px; color:var(--amber2); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; }
+.topbar {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 16px; background:rgba(10,10,15,.93); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:20; backdrop-filter:blur(14px);
+}
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--white); font-family:var(--font-b); font-size:12px; font-weight:600; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--amber); color:var(--amber); }
+.tb-title { font-family:var(--font-h); font-size:15px; font-weight:700; }
+.tb-score { background:var(--amber); color:var(--bg); font-family:var(--font-b); font-size:14px; font-weight:700; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:3px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.6rem; font-weight:900; line-height:1.1; letter-spacing:-.3px; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:600; margin-top:4px; line-height:1.5; }
+
+/* restaurant menu card */
+.menu-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:14px; position:relative; overflow:hidden;
+}
+.menu-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--amber),var(--rust)); border-radius:3px 0 0 3px; }
+.mc-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.mc-avatar { width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,var(--amber),var(--rust)); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.mc-name   { font-family:var(--font-h); font-size:13px; font-weight:700; }
+.mc-role   { font-family:var(--font-m); font-size:10px; color:var(--muted); }
+.mc-text   { font-size:14px; line-height:1.65; }
+.mc-text strong { color:var(--amber); }
+.mc-text .gap  { border-bottom:2px solid var(--amber); color:var(--amber); padding:0 6px; min-width:60px; display:inline-block; font-family:var(--font-m); font-size:13px; text-align:center; }
+
+/* food display card */
+.food-display {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:24px 16px; text-align:center; margin-bottom:16px;
+}
+.food-emoji { font-size:3.2rem; margin-bottom:8px; display:block; }
+.food-name  { font-family:var(--font-h); font-size:2.2rem; font-weight:900; color:var(--white); margin-bottom:4px; letter-spacing:-.5px; }
+.food-question { font-family:var(--font-m); font-size:11px; color:var(--muted); letter-spacing:1px; }
+
+/* options */
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt {
+  background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-b); font-size:14px; font-weight:600; color:var(--white);
+  padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35;
+}
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--amber)); color:var(--opt-col,var(--amber)); background:color-mix(in srgb, var(--opt-col,var(--amber)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(92,186,138,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(232,96,60,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-b); font-size:14px; font-weight:600; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(92,186,138,.08); color:var(--ok); border:1px solid rgba(92,186,138,.2); }
+.fb.bad { display:block; background:rgba(232,96,60,.08); color:var(--bad); border:1px solid rgba(232,96,60,.2); }
+.grammar-tip { font-family:var(--font-b); font-size:12px; color:var(--sky); padding:8px 12px; background:rgba(63,167,214,.07); border-radius:8px; margin-top:6px; line-height:1.5; display:none; border-left:2px solid var(--sky); }
+
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-b); font-size:14px; font-weight:700; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--amber); transform:scale(1.4); }
+
+/* ══ G2: COUNTABLE OR NOT? ══ */
+.cup-track { display:flex; justify-content:space-between; gap:8px; margin-bottom:16px; }
+.cup-side { flex:1; background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:14px 10px; text-align:center; }
+.cup-label { font-family:var(--font-h); font-size:13px; font-weight:700; margin-bottom:4px; }
+.cup-count { font-family:var(--font-m); font-size:22px; font-weight:500; }
+
+/* ══ G4: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; font-weight:700; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(232,96,60,.1); border:1px solid rgba(232,96,60,.3); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; font-weight:700; color:var(--rust); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-h); font-size:1.1rem; font-weight:700; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--amber); }
+
+/* ══ G5: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames  { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big     { font-family:var(--font-h); font-size:2rem; font-weight:700; color:var(--rust); }
+.streak-lbl     { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag       { font-family:var(--font-m); font-size:10px; color:var(--amber); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:22px 16px; text-align:center; margin-bottom:14px; }
+.rule-text { font-family:var(--font-b); font-size:1.05rem; font-weight:600; line-height:1.6; }
+.rule-text .hl  { color:var(--amber2); font-family:var(--font-m); }
+.rule-text .hl2 { color:var(--bad); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-b); font-size:15px; font-weight:700; padding:16px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(92,186,138,.08); color:var(--ok); border-color:rgba(92,186,138,.3); }
+.tf-no  { background:rgba(232,96,60,.06); color:var(--bad); border-color:rgba(232,96,60,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G6: MENU BUILDER / WORD ORDER ══ */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-b); font-size:15px; font-weight:600; color:var(--white); text-align:center; display:flex; align-items:center; justify-content:center; transition:border-color .2s; flex-wrap:wrap; gap:6px; }
+.wo-display.has-words { border-color:var(--amber); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--amber); color:var(--bg); font-family:var(--font-b); font-size:13px; font-weight:700; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--amber2); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--white); font-family:var(--font-b); font-size:12px; font-weight:600; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-b); font-size:14px; font-weight:700; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* qcard */
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+.qcard-text  { font-family:var(--font-h); font-size:15px; font-weight:700; line-height:1.4; }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.6rem; font-weight:900; color:var(--amber); text-shadow:0 0 40px rgba(245,166,35,.35); margin-bottom:6px; letter-spacing:-.5px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:600; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--amber) 0%, var(--rust) 40%, var(--sage) 75%, var(--sky) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(245,166,35,.28); }
+.win-num { font-family:var(--font-h); font-size:32px; font-weight:900; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; font-weight:700; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--white); line-height:1.9; font-weight:600; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--amber); font-weight:900; }
+.btn-play { background:var(--amber); color:var(--bg); font-family:var(--font-b); font-size:15px; font-weight:700; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(245,166,35,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(245,166,35,.5); background:var(--amber2); }
+
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Think Starter · Unit 9 · Elite3_S</div>
+  <h1 class="home-title">Would You Like<em>Dessert?</em></h1>
+  <p class="home-sub">// A night at Bella Roma Restaurant. Time to order! //</p>
+
+  <div class="home-post">
+    <div class="menu-header">
+      <div class="menu-logo">🍽️</div>
+      <div>
+        <div class="menu-name">Bella Roma</div>
+        <div class="menu-sub">Italian Restaurant · Tonight's Menu</div>
+      </div>
+    </div>
+    <div class="menu-text">Welcome! Would you like <strong>some bread</strong> to start? We have <strong>some pasta</strong>, <strong>some pizza</strong> and — of course — <strong>dessert</strong>. Is there <strong>any cheese</strong> on your pizza? Yes, there is! Do you want <strong>some water</strong>? Let's eat!</div>
+  </div>
+
+  <div class="total-stars">⭐ Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#f5a623" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🍕</span>
+      <div class="gc-title">Menu Match</div>
+      <div class="gc-desc">Restaurant vocab — waiter & customer</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#5cba8a" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">🔢</span>
+      <div class="gc-title">Count It!</div>
+      <div class="gc-desc">Countable or uncountable?</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#3fa7d6" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">📋</span>
+      <div class="gc-title">Order Up!</div>
+      <div class="gc-desc">Fill the gaps at the restaurant</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffc857" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">some / any / a / an — fast!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#e8603c" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak Challenge</div>
+      <div class="gc-desc">Correct or wrong? Build your streak!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#8b6fd6" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Menu Builder</div>
+      <div class="gc-desc">Build the perfect sentence!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🍰</span>
+  <div class="win-title">Dinner Complete!</div>
+  <div class="win-sub">The waiter says: "Would you like the bill?" 🎉</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">// Speaking Challenge //</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again</button>
+</div>
+
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — Think Starter Unit 9
+   "Would You Like Dessert?"
+   Source: food vocab, countable/uncountable,
+   some/any/a/an, Would you like...? I'd like...
+   restaurant dialogue, ordering food
+═══════════════════════════════════════════ */
+
+// G1 — MENU MATCH: Restaurant vocabulary + food/drink words
+// Students read a waiter/customer exchange and pick the right answer
+const G1 = [
+  {
+    speaker:'Waiter', role:'Bella Roma',
+    text:'Good evening! <strong>Would you like</strong> a table for two?',
+    q:'What does "Would you like" mean here?',
+    ans:'Do you want', opts:['Do you want','I want','You like','Give me']
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma',
+    text:'Here is the menu. Can I take your <strong>order</strong>?',
+    q:'What is an "order" in a restaurant?',
+    ans:'What you want to eat', opts:['What you want to eat','The menu list','The bill','A type of food']
+  },
+  {
+    speaker:'Customer', role:'Table 4',
+    text:'I\'d like some <strong>pasta</strong>, please. And a glass of water.',
+    q:'"I\'d like" is short for...?',
+    ans:'I would like', opts:['I would like','I am like','I do like','I have like']
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma',
+    text:'Would you like some <strong>bread</strong> to start? It\'s complimentary!',
+    q:'Bread is an UNCOUNTABLE noun. Which is correct?',
+    ans:'some bread', opts:['some bread','a bread','any bread','breads']
+  },
+  {
+    speaker:'Customer', role:'Table 4',
+    text:'Is there <strong>any</strong> cheese on the pizza?',
+    q:'We use "any" here because the sentence is...?',
+    ans:'a question', opts:['a question','positive','negative','a command']
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma',
+    text:'Would you like <strong>some</strong> dessert? We have chocolate cake and ice cream.',
+    q:'We use "some" here because the sentence is...?',
+    ans:'an offer', opts:['an offer','negative','a question asking to find out','a command']
+  },
+  {
+    speaker:'Customer', role:'Table 4',
+    text:'There aren\'t <strong>any</strong> onions in my salad, are there?',
+    q:'We use "any" here because the sentence is...?',
+    ans:'negative', opts:['negative','positive','an offer','a request']
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma',
+    text:'Here\'s your bill. It\'s <strong>thirty-five euros</strong>.',
+    q:'What is "the bill" in a restaurant?',
+    ans:'The paper showing how much you pay', opts:['The paper showing how much you pay','The food menu','The dessert list','A type of drink']
+  },
+];
+
+// G2 — COUNT IT: Countable or uncountable?
+// Food and drink items from Unit 9 wordlist
+const G2_FOODS = [
+  { food:'bread',      emoji:'🍞', countable:false, reason:'You can\'t say "a bread" or "two breads" — it\'s a mass!' },
+  { food:'pizza',      emoji:'🍕', countable:true,  reason:'"A pizza", "two pizzas" — you can count whole pizzas!' },
+  { food:'pasta',      emoji:'🍝', countable:false, reason:'Pasta is a mass noun — "some pasta", never "a pasta".' },
+  { food:'apple',      emoji:'🍎', countable:true,  reason:'"An apple", "three apples" — easy to count!' },
+  { food:'water',      emoji:'💧', countable:false, reason:'Liquids are uncountable — "some water", not "a water".' },
+  { food:'egg',        emoji:'🥚', countable:true,  reason:'"An egg", "six eggs" — always countable!' },
+  { food:'rice',       emoji:'🍚', countable:false, reason:'Grains like rice are uncountable — "some rice".' },
+  { food:'biscuit',    emoji:'🍪', countable:true,  reason:'"A biscuit", "two biscuits" — you can count them!' },
+  { food:'cheese',     emoji:'🧀', countable:false, reason:'"Some cheese" — it\'s a mass, not individual pieces!' },
+  { food:'sandwich',   emoji:'🥪', countable:true,  reason:'"A sandwich", "two sandwiches" — countable!' },
+  { food:'juice',      emoji:'🧃', countable:false, reason:'Liquids like juice are uncountable — "some juice".' },
+  { food:'burger',     emoji:'🍔', countable:true,  reason:'"A burger", "three burgers" — always countable!' },
+  { food:'milk',       emoji:'🥛', countable:false, reason:'Milk is a liquid mass — "some milk", never "a milk".' },
+  { food:'strawberry', emoji:'🍓', countable:true,  reason:'"A strawberry", "ten strawberries" — countable!' },
+];
+
+// G3 — ORDER UP: Gap-fill restaurant dialogue
+// Would you like...? / I'd like... / some / any / a / an
+const G3_ORDERS = [
+  {
+    speaker:'Waiter', role:'Bella Roma', emoji:'🤵',
+    text:'___ some soup to start?',
+    ans:'Would you like',
+    opts:['Would you like','Do you like','Are you liking','Have you like'],
+    tip:'"Would you like" = polite offer or request in a restaurant. Never use "Do you like" for offers!'
+  },
+  {
+    speaker:'Customer', role:'Table 2', emoji:'👩',
+    text:'Yes, please. ___ some tomato soup.',
+    ans:"I'd like",
+    opts:["I'd like","I like","I'm liking","I want"],
+    tip:'"I\'d like" = I would like. Polite way to order. Much nicer than "I want"!'
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma', emoji:'🤵',
+    text:'Is there ___ fish on the menu today?',
+    ans:'any',
+    opts:['any','some','a','an'],
+    tip:'Use "any" in questions and negative sentences with uncountable nouns and plurals.'
+  },
+  {
+    speaker:'Customer', role:'Table 5', emoji:'👨',
+    text:'Can I have ___ orange juice, please?',
+    ans:'some',
+    opts:['some','any','a','an'],
+    tip:'Use "some" in positive sentences and polite requests/offers.'
+  },
+  {
+    speaker:'Customer', role:'Table 3', emoji:'👧',
+    text:'I\'d like ___ pizza with cheese.',
+    ans:'a',
+    opts:['a','an','some','any'],
+    tip:'Use "a" before countable singular nouns starting with a consonant sound.'
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma', emoji:'🤵',
+    text:'There isn\'t ___ pasta left, I\'m afraid.',
+    ans:'any',
+    opts:['any','some','a','an'],
+    tip:'Use "any" in NEGATIVE sentences: "There isn\'t any..."'
+  },
+  {
+    speaker:'Customer', role:'Table 1', emoji:'👴',
+    text:'Would you like ___ ice cream for dessert?',
+    ans:'some',
+    opts:['some','any','a','an'],
+    tip:'"Would you like some...?" — use "some" in polite questions/offers!'
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma', emoji:'🤵',
+    text:'Here is ___ apple cake — our specialty!',
+    ans:'an',
+    opts:['an','a','some','any'],
+    tip:'Use "an" before countable singular nouns starting with a VOWEL sound (a, e, i, o, u).'
+  },
+  {
+    speaker:'Customer', role:'Table 6', emoji:'👩',
+    text:'Do you have ___ vegetarian dishes?',
+    ans:'any',
+    opts:['any','some','a','an'],
+    tip:'Use "any" in questions about plurals: "Do you have any...?"'
+  },
+  {
+    speaker:'Waiter', role:'Bella Roma', emoji:'🤵',
+    text:'Would you like ___ salad with your steak?',
+    ans:'a',
+    opts:['a','an','some','any'],
+    tip:'Salad can be countable (a salad = a bowl of salad). Use "a" here!'
+  },
+];
+
+// G4 — BOMB: some / any / a / an — fast choices under pressure
+const G4_BOMB = [
+  { q:'I\'d like ___ sandwich please.', ans:'a', opts:['a','an','some','any'], t:5 },
+  { q:'There isn\'t ___ water left.', ans:'any', opts:['any','some','a','an'], t:5 },
+  { q:'Would you like ___ ice cream?', ans:'some', opts:['some','any','a','an'], t:5 },
+  { q:'Is there ___ egg on the menu?', ans:'an', opts:['an','a','some','any'], t:5 },
+  { q:'We don\'t have ___ pizza today.', ans:'any', opts:['any','some','a','an'], t:4 },
+  { q:'Can I have ___ bread, please?', ans:'some', opts:['some','any','a','an'], t:5 },
+  { q:'There is ___ orange on the table.', ans:'an', opts:['an','a','some','any'], t:5 },
+  { q:'There are ___ apples in the kitchen.', ans:'some', opts:['some','any','a','an'], t:4 },
+  { q:'I\'d like ___ burger with chips.', ans:'a', opts:['a','an','some','any'], t:5 },
+  { q:'Are there ___ tomatoes in the salad?', ans:'any', opts:['any','some','a','an'], t:4 },
+  { q:'She doesn\'t want ___ pasta.', ans:'any', opts:['any','some','a','an'], t:4 },
+  { q:'Would you like ___ apple juice?', ans:'some', opts:['some','any','a','an'], t:5 },
+];
+
+// G5 — STREAK: Correct or wrong? Grammar check
+const G5_STREAK = [
+  { rule:"Would you like some pasta?",                    correct:true  },
+  { rule:"I'd like an sandwich, please.",                 correct:false }, // an → a
+  { rule:"There isn't any cheese on the pizza.",          correct:true  },
+  { rule:"Can I have some bread?",                        correct:true  },
+  { rule:"She'd like a ice cream for dessert.",           correct:false }, // a → an
+  { rule:"Is there any milk in the fridge?",              correct:true  },
+  { rule:"I'd like some rice with my chicken.",           correct:true  },
+  { rule:"We don't have any burgers today.",              correct:true  },
+  { rule:"Would you like any dessert?",                   correct:false }, // any → some (offer)
+  { rule:"I want some water, please.",                    correct:true  },
+  { rule:"There are some apple in the bowl.",             correct:false }, // apple → apples
+  { rule:"He'd like an egg and some toast.",              correct:true  },
+  { rule:"Is there a pasta dish on the menu?",            correct:false }, // a pasta → pasta / any pasta
+  { rule:"Would you like some juice to drink?",           correct:true  },
+  { rule:"I don't want any sugar in my coffee.",          correct:true  },
+  { rule:"There is some breads on the table.",            correct:false }, // some breads → some bread
+];
+
+// G6 — MENU BUILDER: Build full sentences (word order)
+const G6 = [
+  { words:["Would","you","like","some","dessert","?"],               ans:"Would you like some dessert ?" },
+  { words:["I'd","like","a","pizza","please","."],                   ans:"I'd like a pizza please ." },
+  { words:["There","isn't","any","cheese","on","the","menu","."],    ans:"There isn't any cheese on the menu ." },
+  { words:["Can","I","have","some","water","please","?"],            ans:"Can I have some water please ?" },
+  { words:["Is","there","any","pasta","today","?"],                  ans:"Is there any pasta today ?" },
+  { words:["She'd","like","an","orange","juice","please","."],       ans:"She'd like an orange juice please ." },
+  { words:["There","are","some","apples","on","the","table","."],    ans:"There are some apples on the table ." },
+  { words:["I","don't","want","any","bread","thank","you","."],      ans:"I don't want any bread thank you ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g5streak=0, g5best=0, g4streak=0, g4bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#f5a623','#e8603c','#5cba8a','#ffc857','#8b6fd6'];
+  const box=$('cfx');
+  for(let i=0;i<72;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#f5a623','#e8603c','#5cba8a','#ffc857'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Menu Match','Count It!','Order Up!','Bomb Defuse!','Streak Challenge','Menu Builder'];
+  const cols=['var(--amber)','var(--sage)','var(--sky)','var(--amber2)','var(--rust)','var(--lavender)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"Would you like some pizza?" — ask a classmate!',
+    '"I\'d like a burger and some chips, please."',
+    '"Is there any cheese on this? No, there isn\'t."',
+    '"There are some apples. There isn\'t any juice."',
+    'Name 3 countable foods and 3 uncountable foods!',
+    '"Can I have an orange juice, please? Would you like some dessert?"',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+  window.parent.postMessage({ type: 'UNIT_COMPLETE', unit: 9, book: 'thinkstarter' }, '*');
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — MENU MATCH
+   Read the restaurant exchange, answer the question
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Restaurant Language</div>
+      <div class="gh-name" style="color:var(--amber)">Menu Match</div>
+      <div class="gh-instr">Read what they say — answer the question!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="menu-card">
+      <div class="mc-header">
+        <div class="mc-avatar">${q.speaker==='Waiter'?'🤵':'🙋'}</div>
+        <div><div class="mc-name">${q.speaker}</div><div class="mc-role">${q.role}</div></div>
+      </div>
+      <div class="mc-text">${q.text}</div>
+    </div>
+    <div class="qcard" id="qblock">
+      <div class="qcard-label">Question</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--amber)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--amber);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 stars 🍕'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','The answer is: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — COUNT IT! (Countable or Uncountable?)
+   Students see a food emoji + name, decide C or UC.
+   Running tally shows their score on both sides.
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0, g2c=0, g2uc=0;
+function g2Init(){ g2q=rnd(G2_FOODS); g2i=0; g2c=0; g2uc=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Grammar · Countable vs Uncountable</div>
+      <div class="gh-name" style="color:var(--sage)">Count It!</div>
+      <div class="gh-instr">Is this food countable or uncountable? Decide fast!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="cup-track">
+      <div class="cup-side">
+        <div class="cup-label" style="color:var(--sky)">Countable ✓</div>
+        <div class="cup-count" style="color:var(--sky)" id="cCount">${g2c}</div>
+      </div>
+      <div class="cup-side">
+        <div class="cup-label" style="color:var(--amber)">Uncountable ∞</div>
+        <div class="cup-count" style="color:var(--amber)" id="ucCount">${g2uc}</div>
+      </div>
+    </div>
+    <div class="food-display">
+      <span class="food-emoji">${q.emoji}</span>
+      <div class="food-name">${q.food}</div>
+      <div class="food-question">a/an ... or some ... ?</div>
+    </div>
+    <div class="opts2" id="g2opts">
+      <div class="opt" style="--opt-col:var(--sky)" data-a="countable">✓ Countable<br><small style="font-family:var(--font-m);font-size:11px;">a/an · two ···</small></div>
+      <div class="opt" style="--opt-col:var(--amber)" data-a="uncountable">∞ Uncountable<br><small style="font-family:var(--font-m);font-size:11px;">some · no plural</small></div>
+    </div>
+    <div class="grammar-tip" id="g2tip"></div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--sage);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.countable,q.reason)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,countable,reason){
+  const correct = countable ? 'countable' : 'uncountable';
+  document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g2tip'); tipEl.style.display='block'; tipEl.textContent='// '+reason;
+  if(chosen===correct){
+    el.classList.add('opt-ok'); addScore(2);
+    if(countable) g2c++; else g2uc++;
+    showFb('g2fb','ok','Correct! +2 stars 🎯'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad');
+    document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===correct)o.classList.add('opt-ok'); });
+    showFb('g2fb','bad','It\'s '+correct+'!');
+  }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — ORDER UP! (Restaurant gap-fill dialogue)
+   Waiter/Customer conversation with gap to complete.
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_ORDERS); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  const displayText=q.text.replace('___',`<span class="gap">???</span>`);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · some / any / a / an</div>
+      <div class="gh-name" style="color:var(--sky)">Order Up!</div>
+      <div class="gh-instr">Complete the restaurant conversation!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="menu-card">
+      <div class="mc-header">
+        <div class="mc-avatar">${q.emoji}</div>
+        <div><div class="mc-name">${q.speaker}</div><div class="mc-role">${q.role}</div></div>
+      </div>
+      <div class="mc-text">${displayText}</div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--sky)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-tip" id="g3tip"></div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--sky);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.tip)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,tip){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g3tip'); tipEl.style.display='block'; tipEl.textContent='// '+tip;
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Order placed! +2 stars 🍽️'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (some / any / a / an — timed)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_BOMB); g4i=0; g4streak=0; g4bombScore=0; g4Shell(); }
+function g4Shell(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Timed Challenge</div>
+      <div class="gh-name" style="color:var(--amber2)">Bomb Defuse!</div>
+      <div class="gh-instr">Choose the correct word before the bomb explodes!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--amber2)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--amber2)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--rust);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ4"></div>
+    <div class="opts2" id="bombOpts4"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--amber2);color:var(--bg)">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4BombRender(); });
+  g4BombRender();
+}
+function g4BombRender(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ4').innerHTML=q.q.replace('___','<span class="hl">___</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts4').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--amber2)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts4 .opt').forEach(el=>el.addEventListener('click',()=>g4BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    g4bombScore+=3; $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 stars 💥'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g4fb','bad','Boom! It\'s: '+ans);
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+ans);
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — STREAK CHALLENGE (correct/wrong sentences)
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_STREAK); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const ruleHtml=q.rule
+    .replace(/\b(some|any)\b/g,'<span class="hl">$1</span>')
+    .replace(/\b(a|an)\b(?=\s+[a-z])/g,'<span class="hl2">$1</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--rust)">Streak Challenge</div>
+      <div class="gh-instr">Is this sentence correct? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s5flames">🔥</div>
+        <div><div class="streak-big" id="s5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">// best: ${g5best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">✓ Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">✗ Wrong</button>
+    </div>
+    <div class="streak-tally">// ${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--rust);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g5Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best)g5best=g5streak;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    $('s5num').textContent=g5streak; $('s5flames').textContent='🔥'.repeat(Math.min(g5streak,5));
+    addScore(2); showFb('g5fb','ok','Correct! +2 stars 🌟'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('s5num').textContent=0; $('s5flames').textContent='🔥';
+    showFb('g5fb','bad','Not quite!');
+  }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — MENU BUILDER (Word Order)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Build the Sentence</div>
+      <div class="gh-name" style="color:var(--lavender)">Menu Builder</div>
+      <div class="gh-instr">Tap the words in the right order to build the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">// tap words to start...</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--lavender);color:#fff">Check</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--lavender);color:#fff">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='// tap words to start...';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Perfect order! +3 stars 🍽️'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
