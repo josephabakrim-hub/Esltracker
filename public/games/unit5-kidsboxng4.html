@@ -292,42 +292,42 @@ body::before {
 
   <div class="total-stars">⭐ Stars: <span id="totalStars">0</span></div>
   <div class="game-grid">
-    <div class="gc" style="--gc-col:#00c9a7" onclick="launch(0)" id="gc0">
+    <div class="gc" style="--gc-col:#00c9a7" id="gc0">
       <span class="gc-num">01</span>
       <span class="gc-icon">🧭</span>
       <div class="gc-title">Explorer Quiz</div>
       <div class="gc-desc">Vocab from pages 46–47</div>
       <div class="gc-best" id="best0"></div>
     </div>
-    <div class="gc" style="--gc-col:#ffcf5c" onclick="launch(1)" id="gc1">
+    <div class="gc" style="--gc-col:#ffcf5c" id="gc1">
       <span class="gc-num">02</span>
       <span class="gc-icon">⏮️</span>
       <div class="gc-title">Past Blast!</div>
       <div class="gc-desc">Irregular past verbs — snap!</div>
       <div class="gc-best" id="best1"></div>
     </div>
-    <div class="gc" style="--gc-col:#a8f0ff" onclick="launch(2)" id="gc2">
+    <div class="gc" style="--gc-col:#a8f0ff" id="gc2">
       <span class="gc-num">03</span>
       <span class="gc-icon">⚖️</span>
       <div class="gc-title">Compare It!</div>
       <div class="gc-desc">Comparative adjectives & adverbs</div>
       <div class="gc-best" id="best2"></div>
     </div>
-    <div class="gc" style="--gc-col:#ff4757" onclick="launch(3)" id="gc3">
+    <div class="gc" style="--gc-col:#ff4757" id="gc3">
       <span class="gc-num">04</span>
       <span class="gc-icon">💣</span>
       <div class="gc-title">Bomb Defuse!</div>
       <div class="gc-desc">Comparatives under pressure — fast!</div>
       <div class="gc-best" id="best3"></div>
     </div>
-    <div class="gc" style="--gc-col:#7c6fe0" onclick="launch(4)" id="gc4">
+    <div class="gc" style="--gc-col:#7c6fe0" id="gc4">
       <span class="gc-num">05</span>
       <span class="gc-icon">🔥</span>
       <div class="gc-title">Streak!</div>
       <div class="gc-desc">Correct or wrong? Build your fire!</div>
       <div class="gc-best" id="best4"></div>
     </div>
-    <div class="gc" style="--gc-col:#00c9a7" onclick="launch(5)" id="gc5">
+    <div class="gc" style="--gc-col:#00c9a7" id="gc5">
       <span class="gc-num">06</span>
       <span class="gc-icon">🔤</span>
       <div class="gc-title">Sentence Rescue</div>
@@ -702,6 +702,12 @@ function showWin(){
   confetti();
   window.parent.postMessage({ type: 'UNIT_COMPLETE', unit: 5, book: 'kidsboxng4' }, '*');
 }
+// Wire game-card clicks via JS — safer than inline onclick inside iframes
+document.querySelectorAll('.gc').forEach(el => {
+  const idx = parseInt(el.id.replace('gc',''), 10);
+  el.addEventListener('click', () => launch(idx));
+});
+
 $('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
 $('replayBtn').addEventListener('click',()=>{
   totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
