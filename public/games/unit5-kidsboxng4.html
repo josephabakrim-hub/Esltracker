@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 5 — Exploring Our World!</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060c14;
+  --deep:    #08101c;
+  --card:    #0d1a28;
+  --card2:   #101f30;
+  --border:  #1a2f45;
+  --teal:    #00c9a7;
+  --teal2:   #00e5c0;
+  --ice:     #a8f0ff;
+  --gold:    #ffcf5c;
+  --gold2:   #ffe08a;
+  --red:     #ff4757;
+  --purple:  #7c6fe0;
+  --snow:    #ddeeff;
+  --muted:   #1e3550;
+  --ok:      #00c9a7;
+  --bad:     #ff4757;
+  --font-h:  'Righteous', cursive;
+  --font-b:  'Nunito', sans-serif;
+  --font-m:  'Share Tech Mono', monospace;
+  --r:       14px;
+  --r-sm:    8px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:var(--font-b); background:var(--bg); min-height:100vh; color:var(--snow);
+  background-image:
+    radial-gradient(ellipse at 10% 5%, rgba(0,201,167,.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 95%, rgba(124,111,224,.09) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0,229,192,.03) 0%, transparent 70%);
+}
+
+/* snowflakes bg */
+body::before {
+  content:'❄ ❅ ✦ ❆ ❄ ✦ ❅ ❆ ❄';
+  position:fixed; top:-20px; left:0; width:100%; color:rgba(168,240,255,.08);
+  font-size:1.2rem; letter-spacing:3vw; pointer-events:none; z-index:0; white-space:nowrap;
+  animation:drift 20s linear infinite;
+}
+@keyframes drift { 0%{transform:translateY(0)} 100%{transform:translateY(110vh)} }
+
+/* ══ HOME ══ */
+#home { display:flex; flex-direction:column; align-items:center; padding:24px 16px 60px; min-height:100vh; position:relative; z-index:1; }
+.home-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--border);
+  color:var(--teal); font-family:var(--font-m); font-size:10px;
+  letter-spacing:2px; padding:5px 14px; border-radius:4px; margin-bottom:16px; text-transform:uppercase;
+}
+.home-title {
+  font-family:var(--font-h); font-size:clamp(2rem,9vw,4rem);
+  text-align:center; line-height:1.05; margin-bottom:4px;
+  text-shadow: 0 0 30px rgba(0,201,167,.3);
+}
+.home-title span { color:var(--teal); display:block; }
+.home-sub { font-family:var(--font-m); font-size:11px; color:var(--muted); margin-bottom:10px; text-align:center; letter-spacing:1px; }
+.total-stars {
+  display:inline-flex; align-items:center; gap:6px; background:var(--card);
+  border:1px solid var(--border); border-radius:6px; padding:7px 18px; margin-bottom:26px;
+  font-family:var(--font-h); font-size:18px; color:var(--gold);
+}
+
+/* intro scene card */
+.scene-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; max-width:500px; width:100%; margin-bottom:22px; position:relative; overflow:hidden;
+}
+.scene-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--teal),var(--purple)); }
+.scene-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+.scene-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.scene-av-s { background:linear-gradient(135deg,var(--teal),#007a68); }
+.scene-av-a { background:linear-gradient(135deg,var(--purple),#4a3faa); }
+.scene-name { font-family:var(--font-h); font-size:13px; }
+.scene-text { font-size:13px; line-height:1.6; }
+.scene-text strong { color:var(--teal2); }
+
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:520px; }
+.gc {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 12px; cursor:pointer; text-align:center; position:relative;
+  transition:transform .15s, border-color .15s, box-shadow .15s;
+}
+.gc:hover { transform:translateY(-4px); border-color:var(--gc-col); box-shadow:0 0 22px color-mix(in srgb, var(--gc-col) 20%, transparent); }
+.gc:active { transform:scale(.97); }
+.gc.done { border-color:var(--teal); }
+.gc.done::after { content:'✓'; position:absolute; top:8px; right:10px; color:var(--teal); font-weight:900; font-size:14px; font-family:var(--font-b); }
+.gc-num  { position:absolute; top:8px; left:10px; font-family:var(--font-m); font-size:9px; color:var(--gc-col); opacity:.6; }
+.gc-icon { font-size:1.9rem; margin-bottom:7px; display:block; }
+.gc-title{ font-family:var(--font-h); font-size:15px; color:var(--gc-col); }
+.gc-desc { font-size:11px; color:var(--muted); margin-top:3px; font-weight:700; line-height:1.4; }
+.gc-best { font-family:var(--font-m); font-size:9px; margin-top:6px; color:var(--gold); min-height:13px; }
+
+/* ══ SHELL ══ */
+#shell { display:none; min-height:100vh; flex-direction:column; position:relative; z-index:1; }
+.topbar {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 16px; background:rgba(6,12,20,.94); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:20; backdrop-filter:blur(14px);
+}
+.back-btn { background:var(--card); border:1px solid var(--border); color:var(--snow); font-family:var(--font-b); font-size:12px; font-weight:700; padding:6px 14px; border-radius:6px; cursor:pointer; transition:border-color .15s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--teal); color:var(--teal); }
+.tb-title { font-family:var(--font-h); font-size:15px; letter-spacing:.3px; }
+.tb-score { background:var(--teal); color:var(--bg); font-family:var(--font-h); font-size:14px; padding:5px 14px; border-radius:6px; white-space:nowrap; }
+.prog-bar-wrap { height:3px; background:var(--border); }
+.prog-bar-fill  { height:100%; transition:width .4s ease; }
+.game-body { flex:1; padding:20px 16px; max-width:640px; width:100%; margin:0 auto; }
+
+/* ══ SHARED ══ */
+.game-header { margin-bottom:18px; }
+.gh-eyebrow { font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gh-name  { font-family:var(--font-h); font-size:1.6rem; line-height:1.1; }
+.gh-instr { font-size:13px; color:var(--muted); font-weight:700; margin-top:4px; line-height:1.5; }
+
+/* dialogue card */
+.dial-card {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:16px; margin-bottom:14px; position:relative; overflow:hidden;
+}
+.dial-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--teal),var(--purple)); border-radius:3px 0 0 3px; }
+.dc-row { display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+.dc-av  { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.dc-av-s { background:linear-gradient(135deg,var(--teal),#007a68); }
+.dc-av-a { background:linear-gradient(135deg,var(--purple),#4a3faa); }
+.dc-name { font-family:var(--font-h); font-size:12px; }
+.dc-text { font-size:14px; line-height:1.65; }
+.dc-text strong { color:var(--teal2); }
+.dc-text .gap { border-bottom:2px solid var(--gold); color:var(--gold); padding:0 5px; min-width:55px; display:inline-block; font-family:var(--font-m); font-size:12px; text-align:center; }
+
+/* verb display */
+.verb-display {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:22px 16px; text-align:center; margin-bottom:16px;
+}
+.verb-base { font-family:var(--font-h); font-size:2.8rem; color:var(--snow); margin-bottom:4px; text-shadow:0 0 20px rgba(0,201,167,.3); }
+.verb-hint { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+
+/* options */
+.opts2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.opts3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+.opt {
+  background:var(--card); border:1.5px solid var(--border); border-radius:var(--r-sm);
+  font-family:var(--font-b); font-size:14px; font-weight:700; color:var(--snow);
+  padding:13px 8px; cursor:pointer; text-align:center; transition:all .14s; line-height:1.35;
+}
+.opt:hover:not(.locked) { border-color:var(--opt-col,var(--teal)); color:var(--opt-col,var(--teal)); background:color-mix(in srgb, var(--opt-col,var(--teal)) 8%, transparent); transform:translateY(-2px); }
+.opt.opt-ok  { border-color:var(--ok)!important; color:var(--ok)!important; background:rgba(0,201,167,.08); animation:popIn .28s ease; pointer-events:none; }
+.opt.opt-bad { border-color:var(--bad)!important; color:var(--bad)!important; background:rgba(255,71,87,.08); animation:shake .4s ease; pointer-events:none; }
+.opt.locked  { pointer-events:none; }
+
+.fb { padding:10px 16px; border-radius:8px; font-family:var(--font-b); font-size:14px; font-weight:700; text-align:center; display:none; margin-bottom:12px; }
+.fb.ok  { display:block; background:rgba(0,201,167,.08); color:var(--ok); border:1px solid rgba(0,201,167,.2); }
+.fb.bad { display:block; background:rgba(255,71,87,.08); color:var(--bad); border:1px solid rgba(255,71,87,.2); }
+.grammar-tip { font-family:var(--font-b); font-size:12px; color:var(--ice); padding:8px 12px; background:rgba(168,240,255,.06); border-radius:8px; margin-top:6px; line-height:1.5; display:none; border-left:2px solid var(--ice); }
+
+.next-btn { margin-left:auto; padding:9px 22px; font-family:var(--font-h); font-size:14px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; display:none; }
+.next-btn.visible { display:block; }
+.next-btn:hover { transform:translateY(-2px); }
+
+.prog-dots { display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all .25s; }
+.dot.done    { background:var(--muted); }
+.dot.current { background:var(--teal); transform:scale(1.4); }
+
+/* ══ G3: COMPARATIVE BUILDER ══ */
+.compare-box {
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r);
+  padding:18px 14px; margin-bottom:16px;
+}
+.compare-items { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; text-align:center; margin-bottom:14px; }
+.compare-item { }
+.ci-emoji { font-size:2.4rem; margin-bottom:4px; display:block; }
+.ci-label { font-family:var(--font-h); font-size:13px; color:var(--snow); }
+.compare-vs { font-family:var(--font-m); font-size:11px; color:var(--muted); }
+.compare-prompt { font-family:var(--font-b); font-size:15px; font-weight:700; text-align:center; }
+.compare-prompt .adj { color:var(--gold2); font-family:var(--font-m); }
+
+/* ══ G4: BOMB ══ */
+.bomb-hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.hud-block { text-align:center; }
+.hud-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.hud-val   { font-family:var(--font-h); font-size:20px; }
+.streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,207,92,.1); border:1px solid rgba(255,207,92,.3); border-radius:20px; padding:5px 12px; }
+.streak-fire { font-size:16px; }
+.streak-num  { font-family:var(--font-h); font-size:18px; color:var(--gold); }
+.bomb-visual { text-align:center; margin-bottom:12px; }
+.bomb-emoji  { font-size:56px; display:inline-block; line-height:1; }
+.bomb-emoji.ticking { animation:bombTick .5s infinite; }
+.bomb-emoji.safe    { filter:grayscale(1); opacity:.3; }
+.timer-track { height:6px; background:var(--border); border-radius:3px; margin-bottom:6px; overflow:hidden; }
+.timer-fill  { height:100%; border-radius:3px; transition:width linear; }
+.bomb-q { font-family:var(--font-b); font-size:1.1rem; font-weight:800; text-align:center; line-height:1.5; min-height:52px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; padding:0 8px; }
+.bomb-q .hl { color:var(--gold); font-family:var(--font-m); }
+
+/* ══ G5: STREAK ══ */
+.streak-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.streak-display { display:flex; align-items:center; gap:8px; }
+.streak-flames  { font-size:22px; letter-spacing:-4px; min-width:60px; }
+.streak-big     { font-family:var(--font-h); font-size:2rem; color:var(--gold); }
+.streak-lbl     { font-family:var(--font-m); font-size:9px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+.best-tag       { font-family:var(--font-m); font-size:10px; color:var(--gold2); }
+.rule-card { background:var(--card2); border:1px solid var(--border); border-radius:var(--r); padding:22px 16px; text-align:center; margin-bottom:14px; }
+.rule-text { font-family:var(--font-b); font-size:1.05rem; font-weight:700; line-height:1.6; }
+.rule-text .hl  { color:var(--teal2); font-family:var(--font-m); }
+.rule-text .hl2 { color:var(--bad); }
+.tf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.tf-btn { border:1.5px solid; border-radius:var(--r); font-family:var(--font-h); font-size:15px; padding:16px; cursor:pointer; transition:all .15s; text-align:center; }
+.tf-btn:hover:not(.locked) { transform:scale(1.04); }
+.tf-yes { background:rgba(0,201,167,.08); color:var(--ok); border-color:rgba(0,201,167,.3); }
+.tf-no  { background:rgba(255,71,87,.06); color:var(--bad); border-color:rgba(255,71,87,.25); }
+.tf-btn.tf-ok    { background:var(--ok)!important; color:var(--bg)!important; border-color:var(--ok)!important; animation:popIn .28s; pointer-events:none; }
+.tf-btn.tf-wrong { background:var(--bad)!important; color:#fff!important; border-color:var(--bad)!important; animation:shake .4s; pointer-events:none; }
+.tf-btn.locked { pointer-events:none; }
+.streak-tally { text-align:center; font-family:var(--font-m); font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+/* ══ G6: WORD ORDER ══ */
+.wo-display { background:var(--deep); border:1.5px dashed var(--border); border-radius:var(--r); padding:14px 18px; min-height:58px; margin-bottom:14px; font-family:var(--font-b); font-size:15px; font-weight:700; color:var(--snow); text-align:center; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; transition:border-color .2s; }
+.wo-display.has-words { border-color:var(--teal); border-style:solid; }
+.wo-display.empty { font-size:12px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
+.word-pool { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:14px; }
+.wtile { background:var(--teal); color:var(--bg); font-family:var(--font-b); font-size:13px; font-weight:800; padding:7px 13px; border-radius:6px; cursor:pointer; transition:all .15s; user-select:none; }
+.wtile:hover:not(.used) { transform:translateY(-2px); background:var(--teal2); }
+.wtile.used { opacity:.15; pointer-events:none; }
+.btn-row { display:flex; gap:8px; }
+.btn-clear { background:var(--border); color:var(--snow); font-family:var(--font-b); font-size:12px; font-weight:700; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+.btn-check { font-family:var(--font-h); font-size:14px; padding:10px 22px; border:none; border-radius:8px; cursor:pointer; transition:all .15s; }
+.btn-check:hover { transform:translateY(-2px); }
+
+/* qcard */
+.qcard { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+.qcard-label { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+.qcard-text  { font-family:var(--font-b); font-size:15px; font-weight:700; line-height:1.4; }
+
+/* ══ WIN ══ */
+#win { display:none; min-height:100vh; align-items:center; justify-content:center; text-align:center; padding:30px 20px; flex-direction:column; position:relative; z-index:1; }
+.win-icon  { font-size:68px; margin-bottom:14px; animation:spinIn .6s ease; display:block; }
+.win-title { font-family:var(--font-h); font-size:2.6rem; color:var(--teal); text-shadow:0 0 40px rgba(0,201,167,.4); margin-bottom:6px; }
+.win-sub   { font-size:14px; color:var(--muted); font-weight:700; margin-bottom:24px; }
+.win-ring  { width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--teal) 0%, var(--purple) 40%, var(--gold) 75%, var(--teal2) 100%); display:flex; align-items:center; justify-content:center; flex-direction:column; margin:0 auto 24px; box-shadow:0 0 40px rgba(0,201,167,.3); }
+.win-num { font-family:var(--font-h); font-size:32px; color:var(--bg); line-height:1; }
+.win-lbl { font-family:var(--font-m); font-size:9px; color:rgba(0,0,0,.5); letter-spacing:1.5px; }
+.win-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; max-width:380px; margin-bottom:22px; }
+.win-stat { background:var(--card); border-radius:10px; padding:12px 8px; text-align:center; border:1px solid var(--border); }
+.ws-icon { font-size:1.3rem; display:block; margin-bottom:4px; }
+.ws-lbl  { font-family:var(--font-m); font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.ws-val  { font-family:var(--font-h); font-size:15px; color:var(--ok); }
+.win-speak { background:var(--card); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; max-width:400px; width:100%; margin-bottom:22px; text-align:left; }
+.ws-title { font-family:var(--font-m); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--teal); text-transform:uppercase; margin-bottom:8px; }
+.ws-list  { list-style:none; font-size:13px; color:var(--snow); line-height:1.9; font-weight:700; }
+.ws-list li { padding-left:16px; position:relative; }
+.ws-list li::before { content:'›'; position:absolute; left:0; color:var(--teal); font-weight:900; }
+.btn-play { background:var(--teal); color:var(--bg); font-family:var(--font-h); font-size:15px; padding:14px 36px; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 20px rgba(0,201,167,.3); transition:all .15s; }
+.btn-play:hover { transform:translateY(-3px); box-shadow:0 6px 28px rgba(0,201,167,.5); background:var(--teal2); }
+
+.cfx { position:fixed; inset:0; pointer-events:none; z-index:999; overflow:hidden; }
+.cp  { position:absolute; opacity:0; animation:cffall linear forwards; }
+
+@keyframes popIn    { 0%{transform:scale(.82)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)} }
+@keyframes spinIn   { 0%{transform:rotate(-200deg) scale(0);opacity:0} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes bombTick { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.06) rotate(-3deg)} }
+@keyframes cffall   { 0%{transform:translateY(-10px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-badge">Kids Box NG · Level 4 · Unit 5</div>
+  <h1 class="home-title">Exploring<span>Our World! 🌍</span></h1>
+  <p class="home-sub">// Shackleton, Cousteau, Antarctica & more! //</p>
+
+  <div class="scene-card">
+    <div class="scene-row">
+      <div class="scene-avatar scene-av-s">🧒</div>
+      <div class="scene-name">Simon</div>
+    </div>
+    <div class="scene-text" style="margin-bottom:10px">Hi Alex! I finished my homework about <strong>Sir Ernest Shackleton</strong>. He was an <strong>explorer</strong> who went on an <strong>expedition</strong> to Antarctica. He crossed the open sea and had to <strong>make camp</strong> on the ice!</div>
+    <div class="scene-row">
+      <div class="scene-avatar scene-av-a">👧</div>
+      <div class="scene-name">Alex</div>
+    </div>
+    <div class="scene-text">I wrote about <strong>Jacques Cousteau</strong>. He's <strong>more famous</strong> than Shackleton! But Shackleton's adventures were <strong>more difficult</strong>. Let's play and find out more!</div>
+  </div>
+
+  <div class="total-stars">⭐ Stars: <span id="totalStars">0</span></div>
+  <div class="game-grid">
+    <div class="gc" style="--gc-col:#00c9a7" onclick="launch(0)" id="gc0">
+      <span class="gc-num">01</span>
+      <span class="gc-icon">🧭</span>
+      <div class="gc-title">Explorer Quiz</div>
+      <div class="gc-desc">Vocab from pages 46–47</div>
+      <div class="gc-best" id="best0"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ffcf5c" onclick="launch(1)" id="gc1">
+      <span class="gc-num">02</span>
+      <span class="gc-icon">⏮️</span>
+      <div class="gc-title">Past Blast!</div>
+      <div class="gc-desc">Irregular past verbs — snap!</div>
+      <div class="gc-best" id="best1"></div>
+    </div>
+    <div class="gc" style="--gc-col:#a8f0ff" onclick="launch(2)" id="gc2">
+      <span class="gc-num">03</span>
+      <span class="gc-icon">⚖️</span>
+      <div class="gc-title">Compare It!</div>
+      <div class="gc-desc">Comparative adjectives & adverbs</div>
+      <div class="gc-best" id="best2"></div>
+    </div>
+    <div class="gc" style="--gc-col:#ff4757" onclick="launch(3)" id="gc3">
+      <span class="gc-num">04</span>
+      <span class="gc-icon">💣</span>
+      <div class="gc-title">Bomb Defuse!</div>
+      <div class="gc-desc">Comparatives under pressure — fast!</div>
+      <div class="gc-best" id="best3"></div>
+    </div>
+    <div class="gc" style="--gc-col:#7c6fe0" onclick="launch(4)" id="gc4">
+      <span class="gc-num">05</span>
+      <span class="gc-icon">🔥</span>
+      <div class="gc-title">Streak!</div>
+      <div class="gc-desc">Correct or wrong? Build your fire!</div>
+      <div class="gc-best" id="best4"></div>
+    </div>
+    <div class="gc" style="--gc-col:#00c9a7" onclick="launch(5)" id="gc5">
+      <span class="gc-num">06</span>
+      <span class="gc-icon">🔤</span>
+      <div class="gc-title">Sentence Rescue</div>
+      <div class="gc-desc">Put the explorer's words in order!</div>
+      <div class="gc-best" id="best5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <button class="back-btn" id="backBtn">← Back</button>
+    <div class="tb-title" id="shellTitle"></div>
+    <div class="tb-score">⭐ <span id="shellScore">0</span></div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="shellProg" style="width:0%"></div></div>
+  <div class="game-body" id="gameBody"></div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win">
+  <span class="win-icon">🌍</span>
+  <div class="win-title">Expedition Complete!</div>
+  <div class="win-sub">Shackleton says: "Well done, explorer!" 🧊</div>
+  <div class="win-ring">
+    <div class="win-num" id="winScore">0</div>
+    <div class="win-lbl">STARS</div>
+  </div>
+  <div class="win-grid">
+    <div class="win-stat"><span class="ws-icon">🎯</span><div class="ws-lbl">Accuracy</div><div class="ws-val" id="wAcc">—</div></div>
+    <div class="win-stat"><span class="ws-icon">✅</span><div class="ws-lbl">Correct</div><div class="ws-val" id="wCor">—</div></div>
+    <div class="win-stat"><span class="ws-icon">🔥</span><div class="ws-lbl">Best Streak</div><div class="ws-val" id="wStreak">—</div></div>
+  </div>
+  <div class="win-speak">
+    <div class="ws-title">// Speaking Challenge //</div>
+    <ul class="ws-list" id="speakList"></ul>
+  </div>
+  <button class="btn-play" id="replayBtn">Play Again!</button>
+</div>
+
+<div class="cfx" id="cfx"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════
+   DATA — Kids Box New Generation Level 4
+   UNIT 5: Exploring Our World (pp. 46–51)
+   Topics: explorer/expedition vocab, past simple
+   irregular verbs, could/couldn't + so clauses,
+   comparative adjectives (2+ syllables) & adverbs
+═══════════════════════════════════════════ */
+
+// G1 — EXPLORER QUIZ: vocab + story comprehension from pp. 46–47
+// Shackleton story + school trip dialogue
+const G1 = [
+  {
+    speaker:'Simon', av:'s',
+    text:'My homework is about a man who went to <strong>Antarctica</strong>.',
+    q:'What is Antarctica?',
+    ans:'The coldest continent on Earth', opts:['The coldest continent on Earth','A type of ship','An explorer from France','A natural history museum']
+  },
+  {
+    speaker:'Simon', av:'s',
+    text:'Shackleton was an <strong>explorer</strong> who wanted to cross Antarctica.',
+    q:'What is an explorer?',
+    ans:'Someone who travels to discover new places', opts:['Someone who travels to discover new places','Someone who works in a museum','A type of ship','Someone who catches fish']
+  },
+  {
+    speaker:'Alex', av:'a',
+    text:'Cousteau went on an <strong>expedition</strong> in his ship, the Calypso.',
+    q:'What is an expedition?',
+    ans:'A long journey to explore somewhere', opts:['A long journey to explore somewhere','A room in a museum','A type of food','A school lesson']
+  },
+  {
+    speaker:'David', av:'s',
+    text:'We went on a <strong>school trip</strong> to the Natural History Museum!',
+    q:'What is a school trip?',
+    ans:'When a class visits a place to learn', opts:['When a class visits a place to learn','A type of exam','A school lesson with a test','Homework about explorers']
+  },
+  {
+    speaker:'David', av:'s',
+    text:'We walked around an <strong>exhibition</strong> about explorers first.',
+    q:'What is an exhibition?',
+    ans:'A display of interesting things to look at', opts:['A display of interesting things to look at','A school test','A type of map','A long boat journey']
+  },
+  {
+    speaker:'Simon', av:'s',
+    text:'Shackleton\'s ship got stuck in the <strong>ice</strong>. They had to camp on the snow.',
+    q:'Why did Shackleton camp on the snow?',
+    ans:"His ship couldn't move through the ice", opts:["His ship couldn't move through the ice","He wanted to sleep outside","There was no room on the ship","He lost his map"]
+  },
+  {
+    speaker:'Alex', av:'a',
+    text:'The <strong>open sea</strong> was very dangerous — there was no land near them.',
+    q:'What does "open sea" mean?',
+    ans:'Sea with no land nearby', opts:['Sea with no land nearby','A type of museum','The sea near the beach','A calm, safe ocean']
+  },
+  {
+    speaker:'Simon', av:'s',
+    text:'Shackleton <strong>made camp</strong> on the ice and melted snow for water.',
+    q:'What does "make camp" mean?',
+    ans:'Set up a place to sleep outside', opts:['Set up a place to sleep outside','Cook food on a fire','Build a ship','Find a museum']
+  },
+  {
+    speaker:'Alex', av:'a',
+    text:'There are <strong>7 continents</strong> on Earth. Antarctica is one of them.',
+    q:'How many continents are there on Earth?',
+    ans:'7', opts:['7','5','9','6']
+  },
+  {
+    speaker:'David', av:'s',
+    text:'He got a toy polar bear from the <strong>museum</strong> shop for his sister.',
+    q:'What did David buy at the museum shop?',
+    ans:'A toy polar bear', opts:['A toy polar bear','A poster','A book about Cousteau','A souvenir ship']
+  },
+];
+
+// G2 — PAST BLAST: Irregular past verbs from pp. 46–47
+// Students see base verb, choose correct past simple
+const G2_VERBS = [
+  { base:'find',      past:'found',    wrong1:'finded',   wrong2:'founded',  tip:'find → found (like wind → wound)' },
+  { base:'catch',     past:'caught',   wrong1:'catched',  wrong2:'cought',   tip:'catch → caught (rhymes with taught)' },
+  { base:'take',      past:'took',     wrong1:'taked',    wrong2:'takked',   tip:'take → took (think: bake/book? No — take → TOOK!)' },
+  { base:'go',        past:'went',     wrong1:'goed',     wrong2:'gone',     tip:"go → went. It's a completely different word!" },
+  { base:'make',      past:'made',     wrong1:'maked',    wrong2:'meade',    tip:'make → made (drop the e, it becomes made)' },
+  { base:'get',       past:'got',      wrong1:'geted',    wrong2:'getted',   tip:'get → got (short and sharp!)' },
+  { base:'lose',      past:'lost',     wrong1:'losed',    wrong2:'loosed',   tip:'lose → lost (the e disappears and t appears)' },
+  { base:'come',      past:'came',     wrong1:'comed',    wrong2:'come',     tip:'come → came (the vowel changes: o → a)' },
+  { base:'have',      past:'had',      wrong1:'haved',    wrong2:'have',     tip:'have → had (short and snappy!)' },
+  { base:'can',       past:'could',    wrong1:'canned',   wrong2:'caned',    tip:"can → could (ability in the past — don't say 'canned'!)" },
+  { base:'write',     past:'wrote',    wrong1:'writed',   wrong2:'written',  tip:'write → wrote (the vowel changes: i → o)' },
+  { base:'swim',      past:'swam',     wrong1:'swimmed',  wrong2:'swum',     tip:'swim → swam (not swum — that is past participle!)' },
+];
+
+// G3 — COMPARE IT: Comparative adjectives & adverbs (2+ syllable)
+// Exact sentences from p.48–49 dialogue & activities
+const G3_COMPARE = [
+  {
+    emoji1:'⛵', label1:'Shackleton',
+    emoji2:'🤿', label2:'Cousteau',
+    adj:'difficult', adj2syl:true,
+    prompt:"Shackleton's adventures were ___ than Cousteau's.",
+    ans:'more difficult than',
+    opts:['more difficult than','difficulter than','most difficult than','difficultier than'],
+    tip:"Two+ syllable adjectives: MORE + adjective + THAN. Never add '-er'!"
+  },
+  {
+    emoji1:'🤿', label1:'Cousteau',
+    emoji2:'⛵', label2:'Shackleton',
+    adj:'famous', adj2syl:true,
+    prompt:"Cousteau is ___ Shackleton.",
+    ans:'more famous than',
+    opts:['more famous than','famouser than','more famous','famousest than'],
+    tip:'famous → more famous (2 syllables → use MORE... THAN)'
+  },
+  {
+    emoji1:'🧗', label1:'Climbing',
+    emoji2:'🚶', label2:'Walking',
+    adj:'exciting', adj2syl:true,
+    prompt:"Climbing is ___ walking.",
+    ans:'more exciting than',
+    opts:['more exciting than','excitinger than','more exciting','excitingest'],
+    tip:'exciting → more exciting than. Always use MORE with -ing adjectives!'
+  },
+  {
+    emoji1:'📚', label1:"Explorers book",
+    emoji2:'📖', label2:'Their book',
+    adj:'interesting', adj2syl:true,
+    prompt:"My book on explorers is ___ yours.",
+    ans:'more interesting than',
+    opts:['more interesting than','interestinger than','more interesting','most interesting than'],
+    tip:'interesting: 4 syllables! Always MORE... THAN, never -er!'
+  },
+  {
+    emoji1:'⛵', label1:'Sailing',
+    emoji2:'🚶', label2:'Walking',
+    adj:'exciting', adj2syl:true,
+    prompt:"Sailing is ___ walking.",
+    ans:'more exciting than',
+    opts:['more exciting than','excitinger than','most exciting than','excitingly than'],
+    tip:'Two+ syllable adjectives always use MORE... THAN!'
+  },
+  {
+    emoji1:'✏️', label1:'Simon',
+    emoji2:'👧', label2:'Suzy',
+    adj:'carefully', adj2syl:true,
+    prompt:"Simon writes ___ Suzy.",
+    ans:'more carefully than',
+    opts:['more carefully than','more careful than','carefullier than','more careful that'],
+    tip:'Adverbs also use MORE: carefully → more carefully than'
+  },
+  {
+    emoji1:'🧒', label1:'Lenny',
+    emoji2:'🧒', label2:'Simon',
+    adj:'easy', adj2syl:false,
+    prompt:"Lenny's homework was ___ Simon's.",
+    ans:'easier than',
+    opts:['easier than','more easy than','easyer than','easy than'],
+    tip:"easy → easier (2 syllables but ends in -y: drop y, add -ier!)"
+  },
+  {
+    emoji1:'🦁', label1:'The elephant',
+    emoji2:'🐕', label2:'The dog',
+    adj:'strong', adj2syl:false,
+    prompt:"The elephant is ___ the dog.",
+    ans:'stronger than',
+    opts:['stronger than','more strong than','strongger than','more stronger than'],
+    tip:'strong: 1 syllable! Use -ER + THAN (not MORE).'
+  },
+  {
+    emoji1:'🐵', label1:'The monkey',
+    emoji2:'🐼', label2:'The panda',
+    adj:'happy', adj2syl:false,
+    prompt:"The monkey is ___ the panda.",
+    ans:'happier than',
+    opts:['happier than','more happy than','happyer than','more happier than'],
+    tip:'happy → happier (ends in -y: drop y, add -ier!)'
+  },
+  {
+    emoji1:'🗺️', label1:'Christopher Columbus',
+    emoji2:'🤿', label2:'Jacques Cousteau',
+    adj:'famous', adj2syl:true,
+    prompt:"Christopher Columbus is ___ Jacques Cousteau.",
+    ans:'more famous than',
+    opts:['more famous than','famouser than','most famous than','more famous that'],
+    tip:'famous: 2 syllables → MORE + famous + THAN'
+  },
+];
+
+// G4 — BOMB DEFUSE: Fast comparative + so-clause + could/couldn't
+const G4_BOMB = [
+  { q:'Shackleton\'s life was ___ exciting than Cousteau\'s. (more/most/much)', ans:'more', opts:['more','most','much','many'], t:5 },
+  { q:'He ___ swim across the river. It was too fast! (could/couldn\'t)', ans:"couldn't", opts:["couldn't",'could','can','can\'t'], t:5 },
+  { q:'He lost his map so he ___ find the museum. (couldn\'t/could)', ans:"couldn't", opts:["couldn't",'could','can','was'], t:4 },
+  { q:'Cousteau\'s films are more ___ than Shackleton\'s. (famous/fame/famously)', ans:'famous', opts:['famous','fame','famously','famed'], t:5 },
+  { q:'The ship got stuck so they had to ___ camp. (make/do/go/take)', ans:'make', opts:['make','do','go','take'], t:5 },
+  { q:'Antarctica is ___ than Australia. (bigger/more big/most big/biger)', ans:'bigger', opts:['bigger','more big','most big','biger'], t:5 },
+  { q:"Simon writes more carefully ___ Alex. (than/then/that/as)", ans:'than', opts:['than','then','that','as'], t:4 },
+  { q:'The exhibition was great ___ they had a wonderful time! (so/but/because/and)', ans:'so', opts:['so','but','because','and'], t:5 },
+  { q:'He found water ___ they didn\'t die of thirst. (so/because/but/then)', ans:'so', opts:['so','because','but','then'], t:5 },
+  { q:'Maths is more ___ than English. (difficult/difficultly/difficulty/difficulter)', ans:'difficult', opts:['difficult','difficultly','difficulty','difficulter'], t:5 },
+  { q:"They ___ find any food. The sea was empty. (couldn't/wouldn't/didn't/don't)", ans:"couldn't", opts:["couldn't",'wouldn't','didn\'t','don\'t'], t:4 },
+  { q:'Watching TV is more exciting ___ doing homework! (than/then/that/as)', ans:'than', opts:['than','then','that','as'], t:4 },
+];
+
+// G5 — STREAK: Correct or wrong? Grammar sentences
+const G5_STREAK = [
+  { rule:"Shackleton's adventures were more difficult than Cousteau's.", correct:true  },
+  { rule:"Cousteau is more famouser than Columbus.",                     correct:false }, // double comparative
+  { rule:"Simon writes more carefully than Suzy.",                       correct:true  },
+  { rule:"He lost his map so he couldn't find the museum.",              correct:true  },
+  { rule:"Crossing Antarctica is more difficult than climbing trees.",   correct:true  },
+  { rule:"The monkey is more happy than the panda.",                     correct:false }, // happy → happier
+  { rule:"They couldn't move the ship — the ice was too thick.",         correct:true  },
+  { rule:"My book on explorers is interestinger than yours.",            correct:false }, // interestinger → more interesting
+  { rule:"She could swim when she was three years old.",                 correct:true  },
+  { rule:"He finded the map under the ice.",                             correct:false }, // finded → found
+  { rule:"The expedition was so long that they ran out of food.",        correct:true  },
+  { rule:"The elephant is more stronger than the dog.",                  correct:false }, // double comparative
+  { rule:"They went on a school trip to the museum yesterday.",          correct:true  },
+  { rule:"Cousteau maked 120 TV programmes about the sea.",              correct:false }, // maked → made
+  { rule:"Jacques Cousteau is more famous than Jacques Cousteau.",       correct:false }, // silly/wrong logic trap
+  { rule:"Sailing is more exciting than walking.",                       correct:true  },
+];
+
+// G6 — WORD ORDER: sentences from p.49 word-order activity + dialogue
+const G6 = [
+  { words:["My","book","on","explorers","is","more","interesting","than","yours","."],
+    ans:"My book on explorers is more interesting than yours ." },
+  { words:["Shackleton's","adventures","were","more","difficult","than","Cousteau's","."],
+    ans:"Shackleton's adventures were more difficult than Cousteau's ." },
+  { words:["Simon","writes","more","carefully","than","Suzy","."],
+    ans:"Simon writes more carefully than Suzy ." },
+  { words:["Christopher","Columbus","is","more","famous","than","Jacques","Cousteau","."],
+    ans:"Christopher Columbus is more famous than Jacques Cousteau ." },
+  { words:["The","exhibition","was","really","good","so","they","had","a","great","time","."],
+    ans:"The exhibition was really good so they had a great time ." },
+  { words:["They","lost","their","map","so","they","couldn't","find","the","museum","."],
+    ans:"They lost their map so they couldn't find the museum ." },
+  { words:["Sailing","is","more","exciting","than","walking","."],
+    ans:"Sailing is more exciting than walking ." },
+  { words:["He","couldn't","cross","Antarctica","so","he","made","camp","on","the","ice","."],
+    ans:"He couldn't cross Antarctica so he made camp on the ice ." },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let totalScore=0, totalCorrect=0, totalQs=0, bestStreak=0;
+let gameScores=[0,0,0,0,0,0], gameDone=[false,false,false,false,false,false];
+let currentGame=-1, gameScore=0, gameCorrect=0;
+let bombTimer=null, g5streak=0, g5best=0, g4streak=0, g4bombScore=0;
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+const rnd=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;};
+const $=id=>document.getElementById(id);
+const show=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.add('visible'):el.style.display='block'; };
+const hide=el=>{ if(typeof el==='string')el=$(el); if(!el)return; el.classList.contains('next-btn')?el.classList.remove('visible'):el.style.display='none'; };
+function addScore(n){ gameScore+=n; gameCorrect++; $('shellScore').textContent=gameScore; }
+function showFb(id,type,msg){ const e=$(id); e.className='fb '+type; e.textContent=msg; e.style.display='block'; }
+function hideFb(id){ const e=$(id); e.className='fb'; e.style.display='none'; }
+function setProgress(cur,tot){ $('shellProg').style.width=(tot>0?Math.round(cur/tot*100):0)+'%'; }
+function mkDots(q,i){ return q.map((_,k)=>`<div class="dot ${k<i?'done':k===i?'current':''}"></div>`).join(''); }
+
+function confetti(){
+  const cols=['#00c9a7','#ffcf5c','#a8f0ff','#7c6fe0','#00e5c0'];
+  const box=$('cfx');
+  for(let i=0;i<75;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${sz}px;height:${sz}px;`+
+      `background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};`+
+      `animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),3500);
+  }
+}
+function miniConfetti(el){
+  if(!el)return; const r=el.getBoundingClientRect(); const box=$('cfx');
+  const cols=['#00c9a7','#ffcf5c','#a8f0ff','#7c6fe0'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const sz=4+Math.random()*6;
+    p.style.cssText=`left:${r.left+r.width/2+(Math.random()-.5)*60}px;top:${r.top}px;`+
+      `width:${sz}px;height:${sz}px;background:${cols[0|Math.random()*cols.length]};border-radius:50%;`+
+      `animation-delay:0s;animation-duration:${.8+Math.random()*.5}s;`;
+    box.appendChild(p); setTimeout(()=>p.remove(),1500);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showHome(){
+  hide('shell'); hide('win'); $('home').style.display='flex';
+  gameScores.forEach((s,i)=>{ $('best'+i).textContent=gameDone[i]?`Best: ${s} ⭐`:''; });
+  $('totalStars').textContent=totalScore;
+}
+function launch(n){
+  currentGame=n; gameScore=0; gameCorrect=0;
+  $('home').style.display='none'; hide('win'); $('shell').style.display='flex';
+  const titles=['Explorer Quiz','Past Blast!','Compare It!','Bomb Defuse!','Streak!','Sentence Rescue'];
+  const cols=['var(--teal)','var(--gold)','var(--ice)','var(--red)','var(--purple)','var(--teal)'];
+  $('shellTitle').textContent=titles[n]; $('shellTitle').style.color=cols[n];
+  $('shellScore').textContent='0'; $('shellProg').style.width='0%'; $('shellProg').style.background=cols[n];
+  [g1Init,g2Init,g3Init,g4Init,g5Init,g6Init][n]();
+}
+function finishGame(){
+  totalScore+=gameScore; totalCorrect+=gameCorrect;
+  if(gameDone[currentGame]) gameScores[currentGame]=Math.max(gameScores[currentGame],gameScore);
+  else { gameScores[currentGame]=gameScore; gameDone[currentGame]=true; }
+  $(`gc${currentGame}`).classList.add('done');
+  if(gameDone.every(Boolean)) showWin(); else showHome();
+}
+function showWin(){
+  hide('shell'); $('home').style.display='none'; $('win').style.display='flex';
+  $('winScore').textContent=totalScore;
+  const pct=totalQs>0?Math.round(totalCorrect/totalQs*100):100;
+  $('wAcc').textContent=pct+'%'; $('wCor').textContent=`${totalCorrect}/${totalQs}`; $('wStreak').textContent=bestStreak;
+  const prompts=[
+    '"Shackleton\'s adventures were more difficult than Cousteau\'s." — agree or disagree?',
+    '"Which is more exciting — sailing or climbing?" Tell your partner!',
+    '"I couldn\'t ___ when I was two." Ask 3 classmates!',
+    'Find → found, catch → caught, take → ___? Test your partner!',
+    '"The museum trip was great so we ___." Complete the sentence!',
+    '"Crossing Antarctica is more difficult than ___." You choose!',
+  ];
+  $('speakList').innerHTML=rnd(prompts).slice(0,3).map(p=>`<li>${p}</li>`).join('');
+  confetti();
+  window.parent.postMessage({ type: 'UNIT_COMPLETE', unit: 5, book: 'kidsboxng4' }, '*');
+}
+$('backBtn').addEventListener('click',()=>{ if(bombTimer){clearTimeout(bombTimer);bombTimer=null;} showHome(); });
+$('replayBtn').addEventListener('click',()=>{
+  totalScore=0; totalCorrect=0; totalQs=0; bestStreak=0;
+  gameScores=[0,0,0,0,0,0]; gameDone=[false,false,false,false,false,false];
+  document.querySelectorAll('.gc').forEach(c=>c.classList.remove('done'));
+  $('win').style.display='none'; showHome();
+});
+
+/* ═══════════════════════════════════════════
+   G1 — EXPLORER QUIZ (Vocab comprehension p.46-47)
+═══════════════════════════════════════════ */
+let g1q=[], g1i=0;
+function g1Init(){ g1q=rnd(G1); g1i=0; g1Render(); }
+function g1Render(){
+  if(g1i>=g1q.length){ finishGame(); return; }
+  const q=g1q[g1i]; totalQs++; setProgress(g1i,g1q.length);
+  const opts=rnd(q.opts);
+  const avClass = q.av==='s' ? 'dc-av-s' : 'dc-av-a';
+  const avEmoji = q.av==='s' ? '🧒' : '👧';
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 1 · Vocabulary · Explorers & Antarctica</div>
+      <div class="gh-name" style="color:var(--teal)">Explorer Quiz</div>
+      <div class="gh-instr">Read the speech bubble — answer the question!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g1q,g1i)}</div>
+    <div class="dial-card">
+      <div class="dc-row">
+        <div class="dc-av ${avClass}">${avEmoji}</div>
+        <div class="dc-name">${q.speaker}</div>
+      </div>
+      <div class="dc-text">${q.text}</div>
+    </div>
+    <div class="qcard">
+      <div class="qcard-label">Question</div>
+      <div class="qcard-text">${q.q}</div>
+    </div>
+    <div class="opts2" id="g1opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--teal)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="fb" id="g1fb"></div>
+    <button class="next-btn" id="g1next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g1opts .opt').forEach(el=>el.addEventListener('click',()=>g1Ans(el,el.dataset.a,q.ans)));
+  $('g1next').addEventListener('click',()=>{ g1i++; g1Render(); });
+}
+function g1Ans(el,chosen,ans){
+  document.querySelectorAll('#g1opts .opt').forEach(o=>o.classList.add('locked'));
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g1fb','ok','Correct! +2 ⭐'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g1opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g1fb','bad','Answer: '+ans); }
+  show('g1next');
+}
+
+/* ═══════════════════════════════════════════
+   G2 — PAST BLAST! (Irregular past verbs — snap-style)
+═══════════════════════════════════════════ */
+let g2q=[], g2i=0;
+function g2Init(){ g2q=rnd(G2_VERBS); g2i=0; g2Render(); }
+function g2Render(){
+  if(g2i>=g2q.length){ finishGame(); return; }
+  const q=g2q[g2i]; totalQs++; setProgress(g2i,g2q.length);
+  const extra = q.base+'ed';
+  const allOpts=rnd([q.past, q.wrong1, q.wrong2, extra].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4));
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 2 · Past Simple · Irregular Verbs</div>
+      <div class="gh-name" style="color:var(--gold)">Past Blast!</div>
+      <div class="gh-instr">What is the PAST SIMPLE of this verb? Tap fast!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g2q,g2i)}</div>
+    <div class="verb-display">
+      <div class="verb-base">${q.base}</div>
+      <div class="verb-hint">→ past simple = ???</div>
+    </div>
+    <div class="opts2" id="g2opts">
+      ${allOpts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-tip" id="g2tip"></div>
+    <div class="fb" id="g2fb"></div>
+    <button class="next-btn" id="g2next" style="background:var(--gold);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g2opts .opt').forEach(el=>el.addEventListener('click',()=>g2Ans(el,el.dataset.a,q.past,q.tip)));
+  $('g2next').addEventListener('click',()=>{ g2i++; g2Render(); });
+}
+function g2Ans(el,chosen,ans,tip){
+  document.querySelectorAll('#g2opts .opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g2tip'); tipEl.style.display='block'; tipEl.textContent='// '+tip;
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g2fb','ok','Correct past form! +2 ⭐'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g2opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g2fb','bad','It\'s: '+ans); }
+  show('g2next');
+}
+
+/* ═══════════════════════════════════════════
+   G3 — COMPARE IT! (Comparative adjectives & adverbs p.48-49)
+═══════════════════════════════════════════ */
+let g3q=[], g3i=0;
+function g3Init(){ g3q=rnd(G3_COMPARE); g3i=0; g3Render(); }
+function g3Render(){
+  if(g3i>=g3q.length){ finishGame(); return; }
+  const q=g3q[g3i]; totalQs++; setProgress(g3i,g3q.length);
+  const opts=rnd(q.opts);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 3 · Grammar · Comparative Adjectives & Adverbs</div>
+      <div class="gh-name" style="color:var(--ice)">Compare It!</div>
+      <div class="gh-instr">Choose the correct comparative form to complete the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g3q,g3i)}</div>
+    <div class="compare-box">
+      <div class="compare-items">
+        <div class="compare-item">
+          <span class="ci-emoji">${q.emoji1}</span>
+          <div class="ci-label">${q.label1}</div>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-item">
+          <span class="ci-emoji">${q.emoji2}</span>
+          <div class="ci-label">${q.label2}</div>
+        </div>
+      </div>
+      <div class="compare-prompt">${q.prompt.replace('___', `<span class="adj">___</span>`)}</div>
+    </div>
+    <div class="opts2" id="g3opts">
+      ${opts.map(o=>`<div class="opt" style="--opt-col:var(--ice)" data-a="${o}">${o}</div>`).join('')}
+    </div>
+    <div class="grammar-tip" id="g3tip"></div>
+    <div class="fb" id="g3fb"></div>
+    <button class="next-btn" id="g3next" style="background:var(--ice);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g3opts .opt').forEach(el=>el.addEventListener('click',()=>g3Ans(el,el.dataset.a,q.ans,q.tip)));
+  $('g3next').addEventListener('click',()=>{ g3i++; g3Render(); });
+}
+function g3Ans(el,chosen,ans,tip){
+  document.querySelectorAll('#g3opts .opt').forEach(o=>o.classList.add('locked'));
+  const tipEl=$('g3tip'); tipEl.style.display='block'; tipEl.textContent='// '+tip;
+  if(chosen===ans){ el.classList.add('opt-ok'); addScore(2); showFb('g3fb','ok','Perfect comparison! +2 ⭐'); miniConfetti(el); }
+  else { el.classList.add('opt-bad'); document.querySelectorAll('#g3opts .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); }); showFb('g3fb','bad','Correct: '+ans); }
+  show('g3next');
+}
+
+/* ═══════════════════════════════════════════
+   G4 — BOMB DEFUSE (Comparative + so + could/couldn't)
+═══════════════════════════════════════════ */
+let g4q=[], g4i=0;
+function g4Init(){ g4q=rnd(G4_BOMB); g4i=0; g4streak=0; g4bombScore=0; g4Shell(); }
+function g4Shell(){
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 4 · Grammar · Timed Challenge</div>
+      <div class="gh-name" style="color:var(--red)">Bomb Defuse!</div>
+      <div class="gh-instr">Pick the right word before the bomb goes off!</div>
+    </div>
+    <div class="bomb-hud">
+      <div class="hud-block"><div class="hud-label">Score</div><div class="hud-val" style="color:var(--gold)" id="bScore">0</div></div>
+      <div class="streak-pill"><span class="streak-fire">🔥</span><span class="streak-num" id="bStreak">0</span></div>
+      <div class="hud-block"><div class="hud-label">Q</div><div class="hud-val" style="color:var(--gold)" id="bQ">1/${g4q.length}</div></div>
+    </div>
+    <div class="bomb-visual">
+      <div class="bomb-emoji" id="bombEmoji">💣</div>
+      <div class="timer-track"><div class="timer-fill" id="timerFill" style="background:var(--red);width:100%"></div></div>
+    </div>
+    <div class="bomb-q" id="bombQ4"></div>
+    <div class="opts2" id="bombOpts4"></div>
+    <div class="fb" id="g4fb"></div>
+    <button class="next-btn" id="g4next" style="background:var(--red);color:#fff">Next ›</button>`;
+  $('g4next').addEventListener('click',()=>{ g4i++; g4BombRender(); });
+  g4BombRender();
+}
+function g4BombRender(){
+  if(g4i>=g4q.length){ finishGame(); return; }
+  const q=g4q[g4i]; totalQs++;
+  $('bQ').textContent=`${g4i+1}/${g4q.length}`;
+  hideFb('g4fb'); hide('g4next');
+  $('bombEmoji').className='bomb-emoji ticking';
+  $('bombQ4').innerHTML=q.q.replace('___','<span class="hl">___</span>');
+  const opts=rnd(q.opts);
+  $('bombOpts4').innerHTML=opts.map(o=>`<div class="opt" style="--opt-col:var(--gold)" data-a="${o}">${o}</div>`).join('');
+  document.querySelectorAll('#bombOpts4 .opt').forEach(el=>el.addEventListener('click',()=>g4BombAns(el,el.dataset.a,q.ans)));
+  const tf=$('timerFill');
+  tf.style.transition='none'; tf.style.width='100%';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ tf.style.transition=`width ${q.t}s linear`; tf.style.width='0%'; }));
+  if(bombTimer)clearTimeout(bombTimer);
+  bombTimer=setTimeout(()=>g4TimeUp(q.ans),q.t*1000);
+}
+function g4BombAns(el,chosen,ans){
+  if(bombTimer){clearTimeout(bombTimer);bombTimer=null;}
+  $('timerFill').style.transition='none'; $('timerFill').style.width='0%';
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji safe';
+  if(chosen===ans){
+    el.classList.add('opt-ok'); g4streak++;
+    if(g4streak>bestStreak)bestStreak=g4streak;
+    g4bombScore+=3; $('bStreak').textContent=g4streak; $('bScore').textContent=g4bombScore;
+    addScore(3); showFb('g4fb','ok','Defused! +3 ⭐ 💥'); miniConfetti(el);
+  } else {
+    el.classList.add('opt-bad'); g4streak=0; $('bStreak').textContent=0;
+    document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+    showFb('g4fb','bad','BOOM! It\'s: '+ans);
+  }
+  show('g4next');
+}
+function g4TimeUp(ans){
+  bombTimer=null;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>o.classList.add('locked'));
+  $('bombEmoji').className='bomb-emoji';
+  g4streak=0; $('bStreak').textContent=0;
+  document.querySelectorAll('#bombOpts4 .opt').forEach(o=>{ if(o.dataset.a===ans)o.classList.add('opt-ok'); });
+  showFb('g4fb','bad','Time\'s up! It was: '+ans);
+  show('g4next');
+}
+
+/* ═══════════════════════════════════════════
+   G5 — STREAK CHALLENGE (correct/wrong)
+═══════════════════════════════════════════ */
+let g5q=[], g5i=0;
+function g5Init(){ g5q=rnd(G5_STREAK); g5i=0; g5streak=0; g5best=0; g5Render(); }
+function g5Render(){
+  if(g5i>=g5q.length){ finishGame(); return; }
+  const q=g5q[g5i]; totalQs++; setProgress(g5i,g5q.length);
+  const ruleHtml=q.rule
+    .replace(/\bmore\s+\w+\s+than\b/g,'<span class="hl">$&</span>')
+    .replace(/\bcould(n't)?\b/g,'<span class="hl">$&</span>')
+    .replace(/\bso\b/g,'<span class="hl">$&</span>');
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 5 · Grammar · Correct or Wrong?</div>
+      <div class="gh-name" style="color:var(--purple)">Streak!</div>
+      <div class="gh-instr">Is this sentence correct English? Build your streak!</div>
+    </div>
+    <div class="streak-header">
+      <div class="streak-display">
+        <div class="streak-flames" id="s5flames">🔥</div>
+        <div><div class="streak-big" id="s5num">${g5streak}</div><div class="streak-lbl">streak</div></div>
+      </div>
+      <div class="best-tag">// best: ${g5best}</div>
+    </div>
+    <div class="rule-card"><div class="rule-text">${ruleHtml}</div></div>
+    <div class="tf-row">
+      <button class="tf-btn tf-yes" id="tf-yes">✓ Correct</button>
+      <button class="tf-btn tf-no"  id="tf-no">✗ Wrong</button>
+    </div>
+    <div class="streak-tally">// ${g5i+1} of ${g5q.length}</div>
+    <div class="fb" id="g5fb"></div>
+    <button class="next-btn" id="g5next" style="background:var(--purple);color:#fff">Next ›</button>`;
+  $('tf-yes').addEventListener('click',()=>g5Ans(true,q.correct));
+  $('tf-no').addEventListener('click', ()=>g5Ans(false,q.correct));
+  $('g5next').addEventListener('click',()=>{ g5i++; g5Render(); });
+}
+function g5Ans(chosen,correct){
+  $('tf-yes').classList.add('locked'); $('tf-no').classList.add('locked');
+  const yBtn=$('tf-yes'), nBtn=$('tf-no');
+  if(chosen===correct){
+    (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak++; if(g5streak>g5best)g5best=g5streak;
+    if(g5streak>bestStreak)bestStreak=g5streak;
+    $('s5num').textContent=g5streak; $('s5flames').textContent='🔥'.repeat(Math.min(g5streak,5));
+    addScore(2); showFb('g5fb','ok','Correct! +2 ⭐'); miniConfetti(correct?yBtn:nBtn);
+  } else {
+    (chosen?yBtn:nBtn).classList.add('tf-wrong'); (correct?yBtn:nBtn).classList.add('tf-ok');
+    g5streak=0; $('s5num').textContent=0; $('s5flames').textContent='🔥';
+    showFb('g5fb','bad','Not quite!');
+  }
+  show('g5next');
+}
+
+/* ═══════════════════════════════════════════
+   G6 — SENTENCE RESCUE (Word Order p.49)
+═══════════════════════════════════════════ */
+let g6q=[], g6i=0, g6built=[], g6locked=false;
+function g6Init(){ g6q=rnd(G6); g6i=0; g6Render(); }
+function g6Render(){
+  if(g6i>=g6q.length){ finishGame(); return; }
+  g6built=[]; g6locked=false;
+  const q=g6q[g6i]; totalQs++; setProgress(g6i,g6q.length);
+  const pool=rnd([...q.words]);
+  $('gameBody').innerHTML=`
+    <div class="game-header">
+      <div class="gh-eyebrow">Game 6 · Word Order · Build the Explorer's Sentence</div>
+      <div class="gh-name" style="color:var(--teal)">Sentence Rescue</div>
+      <div class="gh-instr">Tap words in the correct order to rescue the sentence!</div>
+    </div>
+    <div class="prog-dots">${mkDots(g6q,g6i)}</div>
+    <div class="wo-display empty" id="g6disp">// tap words below to start...</div>
+    <div class="word-pool" id="g6pool">
+      ${pool.map(w=>`<div class="wtile" data-w="${w}">${w}</div>`).join('')}
+    </div>
+    <div class="btn-row">
+      <button class="btn-clear" id="g6clr">Clear</button>
+      <button class="btn-check" id="g6chk" style="background:var(--teal);color:var(--bg)">Check</button>
+    </div>
+    <div class="fb" id="g6fb"></div>
+    <button class="next-btn" id="g6next" style="background:var(--teal);color:var(--bg)">Next ›</button>`;
+  document.querySelectorAll('#g6pool .wtile').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(g6locked||el.classList.contains('used'))return;
+      el.classList.add('used'); g6built.push({w:el.dataset.w,el});
+      const d=$('g6disp'); d.classList.remove('empty'); d.textContent=g6built.map(x=>x.w).join(' '); d.classList.add('has-words');
+    });
+  });
+  $('g6clr').addEventListener('click',()=>{
+    g6built.forEach(x=>x.el.classList.remove('used')); g6built=[];
+    const d=$('g6disp'); d.className='wo-display empty'; d.textContent='// tap words below to start...';
+    hideFb('g6fb');
+  });
+  $('g6chk').addEventListener('click',()=>{
+    if(g6locked||g6built.length===0)return; g6locked=true;
+    const built=g6built.map(x=>x.w).join(' ');
+    if(built===g6q[g6i].ans){ addScore(3); showFb('g6fb','ok','Rescued! +3 ⭐ 🌍'); miniConfetti($('g6chk')); }
+    else showFb('g6fb','bad','Correct: '+g6q[g6i].ans);
+    show('g6next');
+  });
+  $('g6next').addEventListener('click',()=>{ g6i++; g6Render(); });
+}
+</script>
+</body>
+</html>
