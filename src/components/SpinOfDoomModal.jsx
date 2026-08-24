@@ -152,72 +152,91 @@ function ConfettiBurst() {
   )
 }
 
+const MEDAL_STYLE = {
+  gold:   { border: 'var(--gold)',  chip: 'var(--gold)',  text: 'var(--gold)',  bg: 'linear-gradient(135deg, rgba(212,144,10,0.20), rgba(232,93,38,0.10))',  icon: '🥇' },
+  silver: { border: '#9ca3af',      chip: '#9ca3af',      text: '#9ca3af',      bg: 'linear-gradient(135deg, rgba(148,163,184,0.22), rgba(100,116,139,0.10))', icon: '🥈' },
+  bronze: { border: '#cd7f32',      chip: '#cd7f32',      text: '#cd7f32',      bg: 'linear-gradient(135deg, rgba(205,127,50,0.22), rgba(146,89,34,0.10))',  icon: '🥉' },
+}
+
 function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
   const sorted = [...students]
     .filter(s => s.nameEn)
     .sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0))
 
+  // Rank by distinct point totals (ties share a rank) so medals only appear
+  // once ranks are actually clear — and the crown only goes to a sole #1.
+  const withPoints = sorted.filter(s => (scores[s.id] || 0) > 0)
+  const uniqueScoresDesc = [...new Set(withPoints.map(s => scores[s.id]))].sort((a, b) => b - a)
+  function tierOf(s) {
+    const pts = scores[s.id] || 0
+    if (pts <= 0) return null
+    return uniqueScoresDesc.indexOf(pts) + 1
+  }
+  const tier1Count = withPoints.filter(s => tierOf(s) === 1).length
+
   return (
-    <div style={{ width: 168, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>
+    <div style={{ width: 230, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 10 }}>
         🏆 Live Leaderboard
       </div>
 
-      <div style={{ minHeight: 26, marginBottom: leaderBanner ? 8 : 0 }}>
+      <div style={{ minHeight: 30, marginBottom: leaderBanner ? 10 : 0 }}>
         {leaderBanner && (
           <div className="spin-pop" style={{
-            fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
+            fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
             textAlign: 'center', color: '#fff',
             background: 'linear-gradient(135deg,#d4900a,#e85d26)',
-            padding: '6px 6px', borderRadius: 8, lineHeight: 1.3,
+            padding: '8px 8px', borderRadius: 9, lineHeight: 1.3,
           }}>
             👑 {leaderBanner} TAKES THE LEAD!
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 420, overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 'calc(90vh - 260px)', overflowY: 'auto' }}>
         {sorted.map((s, i) => {
           const pts = scores[s.id] || 0
-          const isTop = i === 0 && pts > 0
+          const tier = tierOf(s)
+          const medal = tier === 1 ? MEDAL_STYLE.gold : tier === 2 ? MEDAL_STYLE.silver : tier === 3 ? MEDAL_STYLE.bronze : null
+          const isSoleLeader = tier === 1 && tier1Count === 1
           const isCelebrating = celebrateId === s.id
           const isAbsent = s.__absentToday
 
           return (
             <div key={s.id} style={{
               position: 'relative',
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '6px 9px', borderRadius: 9,
-              background: isTop ? 'linear-gradient(135deg, rgba(212,144,10,0.18), rgba(232,93,38,0.10))' : 'var(--surface2)',
-              border: `1.5px solid ${isTop ? 'var(--gold)' : 'var(--border)'}`,
+              display: 'flex', alignItems: 'center', gap: 9,
+              padding: '9px 12px', borderRadius: 10,
+              background: medal ? medal.bg : 'var(--surface2)',
+              border: `1.5px solid ${medal ? medal.border : 'var(--border)'}`,
               opacity: isAbsent ? 0.4 : 1,
               transform: isCelebrating ? 'scale(1.06)' : 'scale(1)',
-              boxShadow: isCelebrating ? '0 0 14px rgba(212,144,10,0.55)' : 'none',
+              boxShadow: isCelebrating ? '0 0 16px rgba(212,144,10,0.55)' : 'none',
               transition: 'transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease, background 0.3s ease, border-color 0.3s ease',
             }}>
-              {isTop && (
-                <div style={{ position: 'absolute', top: -9, left: 24, fontSize: 13 }}>👑</div>
+              {isSoleLeader && (
+                <div style={{ position: 'absolute', top: -11, left: 28, fontSize: 15 }}>👑</div>
               )}
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: isTop ? 'var(--gold)' : 'var(--muted)', width: 12, flexShrink: 0 }}>
-                {i + 1}
+              <div style={{ fontFamily: 'var(--mono)', fontSize: medal ? 15 : 11, fontWeight: 700, color: medal ? medal.text : 'var(--muted)', width: 18, flexShrink: 0, textAlign: 'center' }}>
+                {medal ? medal.icon : i + 1}
               </div>
               <div style={{
-                width: 24, height: 24, borderRadius: 7, flexShrink: 0,
-                background: isTop ? 'var(--gold)' : 'var(--border)',
+                width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                background: medal ? medal.chip : 'var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 9, fontWeight: 800, color: isTop ? '#fff' : 'var(--muted)',
+                fontSize: 11, fontWeight: 800, color: medal ? '#fff' : 'var(--muted)',
               }}>
                 {initials(s.nameEn)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {s.nameEn.split(' ')[0]}
                 </div>
                 {isAbsent && (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'var(--red)', letterSpacing: 0.5 }}>ABSENT</div>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 0.5 }}>ABSENT</div>
                 )}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 800, color: isTop ? 'var(--gold)' : 'var(--text)', flexShrink: 0 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800, color: medal ? medal.text : 'var(--text)', flexShrink: 0 }}>
                 {pts}
               </div>
               {isCelebrating && <ConfettiBurst />}
@@ -290,12 +309,21 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     .filter(s => s.nameEn)
     .map(s => ({ ...s, __absentToday: absentToday.some(a => a.id === s.id) }))
 
-  // Detect when a new student takes the #1 spot on the session leaderboard
+  // Detect when a new student takes the #1 spot on the session leaderboard —
+  // only celebrate a *sole* leader (strictly ahead of everyone else), matching
+  // the leaderboard's crown rule.
   useEffect(() => {
     const withPoints = students.filter(s => (sessionScores[s.id] || 0) > 0)
-    if (withPoints.length === 0) return
-    const topSorted = [...withPoints].sort((a, b) => (sessionScores[b.id] || 0) - (sessionScores[a.id] || 0))
-    const top = topSorted[0]
+    if (withPoints.length === 0) { prevLeaderRef.current = null; return }
+    const maxScore = Math.max(...withPoints.map(s => sessionScores[s.id] || 0))
+    const leaders  = withPoints.filter(s => (sessionScores[s.id] || 0) === maxScore)
+    if (leaders.length !== 1) {
+      // Tied for the lead — no sole leader right now. Reset so the next
+      // student to break away triggers a fresh celebration.
+      prevLeaderRef.current = null
+      return
+    }
+    const top = leaders[0]
     if (top.id !== prevLeaderRef.current) {
       prevLeaderRef.current = top.id
       setCelebrateId(top.id)
@@ -335,6 +363,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     const slice = (2 * Math.PI) / eligible.length
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const labelFont = Math.max(9, Math.round(r * (eligible.length > 12 ? 0.075 : 0.095)))
 
     eligible.forEach((s, i) => {
       const start = rot + i * slice
@@ -355,7 +384,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
       ctx.rotate(start + slice / 2)
       ctx.textAlign = 'right'
       ctx.fillStyle = '#fff'
-      ctx.font = `bold ${eligible.length > 12 ? 10 : 13}px Sora, sans-serif`
+      ctx.font = `bold ${labelFont}px Sora, sans-serif`
       ctx.shadowColor = 'rgba(0,0,0,0.4)'
       ctx.shadowBlur = 3
       ctx.fillText(s.nameEn.split(' ')[0], r - 10, 5)
@@ -363,8 +392,9 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     })
 
     // Center circle
+    const centerR = Math.max(22, r * 0.2)
     ctx.beginPath()
-    ctx.arc(cx, cy, 28, 0, 2 * Math.PI)
+    ctx.arc(cx, cy, centerR, 0, 2 * Math.PI)
     ctx.fillStyle = '#1a1814'
     ctx.fill()
     ctx.strokeStyle = '#fff'
@@ -372,7 +402,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     ctx.stroke()
 
     ctx.fillStyle = '#fff'
-    ctx.font = 'bold 11px JetBrains Mono, monospace'
+    ctx.font = `bold ${Math.max(9, Math.round(centerR * 0.39))}px JetBrains Mono, monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('SPIN', cx, cy)
@@ -482,7 +512,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     }
   }, [])
 
-  const size = Math.max(180, Math.min(300, window.innerWidth - 300))
+  const size = Math.max(260, Math.min(560, window.innerWidth - 420, window.innerHeight - 320))
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -498,10 +528,10 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
         .confetti-particle { animation: confettiBurst 0.9s ease-out forwards; }
       `}</style>
 
-      <div className="modal" style={{ maxWidth: 740, padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ width: '96vw', maxWidth: 1400, height: '90vh', padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
-        <div style={{ background: '#1a1814', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ background: '#1a1814', padding: '18px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>
               🎰 Spin of Doom — <span style={{ color: 'var(--accent)' }}>{cls?.name}</span>
@@ -532,7 +562,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           </div>
         </div>
 
-        <div style={{ padding: 24, display: 'flex', gap: 20, flexWrap: 'wrap', maxHeight: '78vh', overflowY: 'auto' }}>
+        <div style={{ padding: 32, display: 'flex', gap: 32, flexWrap: 'wrap', flex: 1, minHeight: 0, overflowY: 'auto' }}>
 
           <Leaderboard
             students={leaderboardStudents}
@@ -541,7 +571,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
             leaderBanner={leaderBanner}
           />
 
-          <div style={{ flex: 1, minWidth: 240 }}>
+          <div style={{ flex: 1, minWidth: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
           {/* ── ABSENT TODAY BANNER ── */}
           {absentToday.length > 0 && (phase === 'ready' || phase === 'spinning') && (
@@ -581,7 +611,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
 
               {/* Pointer */}
               <div style={{ position: 'relative', width: size, height: size }}>
-                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', fontSize: 24, zIndex: 10, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>▼</div>
+                <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', fontSize: Math.round(size * 0.08), zIndex: 10, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>▼</div>
                 <canvas
                   ref={canvasRef}
                   width={size}
@@ -598,17 +628,17 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
                       👁 View only — only the teacher can spin
                     </div>
                   )}
-                  <button onClick={spin} className="btn btn-accent" disabled={readOnly} style={{ fontSize: 14, padding: '12px 32px', borderRadius: 12 }}>
+                  <button onClick={spin} className="btn btn-accent" disabled={readOnly} style={{ fontSize: 16, padding: '14px 40px', borderRadius: 12 }}>
                     🎰 SPIN!
                   </button>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', marginTop: 10 }}>
                     {readOnly ? '' : 'or tap the wheel'}
                   </div>
                 </div>
               )}
 
               {phase === 'spinning' && (
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--muted)', letterSpacing: 2 }}>SPINNING...</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--muted)', letterSpacing: 2 }}>SPINNING...</div>
               )}
             </div>
           )}
@@ -616,14 +646,14 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           {/* ── PICKED ── */}
           {phase === 'picked' && pickedStudent && (
             <div className="spin-pop" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 8 }}>🎯</div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: 3, marginBottom: 8 }}>SELECTED</div>
-              <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>{pickedStudent.nameEn}</div>
-              {pickedStudent.nameVn && <div style={{ fontSize: 13, color: 'var(--muted)', fontStyle: 'italic', marginBottom: 16 }}>{pickedStudent.nameVn}</div>}
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 24 }}>
+              <div style={{ fontSize: 52, marginBottom: 10 }}>🎯</div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)', letterSpacing: 3, marginBottom: 10 }}>SELECTED</div>
+              <div style={{ fontSize: 38, fontWeight: 800, marginBottom: 4 }}>{pickedStudent.nameEn}</div>
+              {pickedStudent.nameVn && <div style={{ fontSize: 15, color: 'var(--muted)', fontStyle: 'italic', marginBottom: 18 }}>{pickedStudent.nameVn}</div>}
+              <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 26 }}>
                 Category: <strong style={{ color: 'var(--text)' }}>{currentQuestion?.category}</strong>
               </div>
-              <button className="btn btn-accent" style={{ padding: '12px 28px', fontSize: 13 }} onClick={showQuestion}>
+              <button className="btn btn-accent" style={{ padding: '13px 30px', fontSize: 14 }} onClick={showQuestion}>
                 Show Question ➜
               </button>
             </div>
@@ -643,8 +673,8 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
               </div>
 
               {/* Question box */}
-              <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '20px 20px', marginBottom: 16, border: '2px solid var(--border)', textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.4, marginBottom: 12 }}>
+              <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '26px 24px', marginBottom: 18, border: '2px solid var(--border)', textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.4, marginBottom: 14 }}>
                   {currentQuestion.q}
                 </div>
                 <details style={{ cursor: 'pointer' }}>
