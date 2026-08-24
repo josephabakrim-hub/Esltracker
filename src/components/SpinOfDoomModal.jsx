@@ -193,7 +193,7 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 'calc(90vh - 260px)', overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto' }}>
         {sorted.map((s, i) => {
           const pts = scores[s.id] || 0
           const tier = tierOf(s)
@@ -272,6 +272,8 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   const [saving, setSaving]                    = useState(false)
   const [lastResult, setLastResult]            = useState(null)
   const [soundOn, setSoundOn]                  = useState(true)
+  const [showAnswer, setShowAnswer]             = useState(false)
+  const [showFriendAnswer, setShowFriendAnswer] = useState(false)
 
   // ── Live leaderboard (this session only — resets each time the game opens) ──
   const [sessionScores, setSessionScores] = useState({})
@@ -284,6 +286,9 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   function addSessionPoints(studentId, pts) {
     setSessionScores(prev => ({ ...prev, [studentId]: (prev[studentId] || 0) + pts }))
   }
+
+  useEffect(() => { setShowAnswer(false) }, [currentQuestion])
+  useEffect(() => { setShowFriendAnswer(false) }, [friendStudent])
 
   const level   = cls?.level || 'pro'
   const todayKey = getTodayKey()
@@ -512,7 +517,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     }
   }, [])
 
-  const size = Math.max(260, Math.min(560, window.innerWidth - 420, window.innerHeight - 320))
+  const size = Math.max(320, Math.min(660, window.innerWidth - 560, window.innerHeight - 280))
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -562,7 +567,8 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           </div>
         </div>
 
-        <div style={{ padding: 32, display: 'flex', gap: 32, flexWrap: 'wrap', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <div style={{ padding: '28px 32px', display: 'flex', justifyContent: 'center', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        <div style={{ display: 'flex', gap: 44, alignItems: 'center', width: '100%', maxWidth: 1180 }}>
 
           <Leaderboard
             students={leaderboardStudents}
@@ -571,7 +577,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
             leaderBanner={leaderBanner}
           />
 
-          <div style={{ flex: 1, minWidth: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
           {/* ── ABSENT TODAY BANNER ── */}
           {absentToday.length > 0 && (phase === 'ready' || phase === 'spinning') && (
@@ -674,15 +680,23 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
 
               {/* Question box */}
               <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '26px 24px', marginBottom: 18, border: '2px solid var(--border)', textAlign: 'center' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.4, marginBottom: 14 }}>
+                <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.4, marginBottom: showAnswer ? 18 : 6 }}>
                   {currentQuestion.q}
                 </div>
-                <details style={{ cursor: 'pointer' }}>
-                  <summary style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: 1, outline: 'none' }}>SHOW ANSWER</summary>
-                  <div style={{ marginTop: 10, fontSize: 14, fontWeight: 700, color: 'var(--green)', padding: '8px 14px', background: 'rgba(26,158,92,0.08)', borderRadius: 8 }}>
+                {!showAnswer ? (
+                  <button className="btn btn-outline" style={{ fontSize: 12, padding: '11px 22px' }} onClick={() => setShowAnswer(true)}>
+                    👁️ Reveal Answer
+                  </button>
+                ) : (
+                  <div className="spin-pop" style={{
+                    fontSize: 34, fontWeight: 900, lineHeight: 1.3, color: '#fff',
+                    background: 'linear-gradient(135deg,#1a9e5c,#22c55e)',
+                    padding: '20px 22px', borderRadius: 14,
+                    boxShadow: '0 10px 30px rgba(26,158,92,0.4)',
+                  }}>
                     ✅ {currentQuestion.a}
                   </div>
-                </details>
+                )}
               </div>
 
               {/* Result buttons — hidden in read-only mode */}
@@ -745,9 +759,22 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
               </div>
 
               {friendStudent && (
-                <div style={{ background: 'var(--surface2)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, border: '1px solid var(--border)', textAlign: 'center', fontSize: 13 }}>
-                  <strong>{currentQuestion?.q}</strong>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6, fontFamily: 'var(--mono)' }}>Answer: {currentQuestion?.a}</div>
+                <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '20px 22px', marginBottom: 18, border: '2px solid var(--border)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.4, marginBottom: showFriendAnswer ? 16 : 4 }}>{currentQuestion?.q}</div>
+                  {!showFriendAnswer ? (
+                    <button className="btn btn-outline" style={{ fontSize: 12, padding: '10px 20px' }} onClick={() => setShowFriendAnswer(true)}>
+                      👁️ Reveal Answer
+                    </button>
+                  ) : (
+                    <div className="spin-pop" style={{
+                      fontSize: 30, fontWeight: 900, lineHeight: 1.3, color: '#fff',
+                      background: 'linear-gradient(135deg,#1a9e5c,#22c55e)',
+                      padding: '18px 20px', borderRadius: 12,
+                      boxShadow: '0 10px 28px rgba(26,158,92,0.4)',
+                    }}>
+                      ✅ {currentQuestion?.a}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -811,6 +838,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           )}
 
           </div>
+        </div>
         </div>
       </div>
     </div>
