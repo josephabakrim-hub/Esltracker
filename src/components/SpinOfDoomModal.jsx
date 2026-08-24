@@ -109,6 +109,125 @@ function playTeamwork(ctx) {
     o.start(t); o.stop(t + 0.35)
   })
 }
+
+function playLeaderChime(ctx) {
+  if (!ctx) return
+  // Triumphant little fanfare for a new #1 on the leaderboard
+  const notes = [784, 988, 1175, 1568]
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.type = 'triangle'
+    o.frequency.value = freq
+    const t = ctx.currentTime + i * 0.09
+    g.gain.setValueAtTime(0, t)
+    g.gain.linearRampToValueAtTime(0.28, t + 0.03)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+    o.start(t); o.stop(t + 0.4)
+  })
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Live Leaderboard ──────────────────────────────────────────────────────────
+function ConfettiBurst() {
+  const particles = Array.from({ length: 10 })
+  const emojis = ['✨', '⭐', '🎉', '💥']
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}>
+      {particles.map((_, i) => (
+        <span
+          key={i}
+          className="confetti-particle"
+          style={{
+            position: 'absolute', left: '50%', top: '50%', fontSize: 12,
+            '--angle': `${(i / particles.length) * 360}deg`,
+            animationDelay: `${(i % 4) * 0.03}s`,
+          }}
+        >
+          {emojis[i % emojis.length]}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
+  const sorted = [...students]
+    .filter(s => s.nameEn)
+    .sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0))
+
+  return (
+    <div style={{ width: 168, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>
+        🏆 Live Leaderboard
+      </div>
+
+      <div style={{ minHeight: 26, marginBottom: leaderBanner ? 8 : 0 }}>
+        {leaderBanner && (
+          <div className="spin-pop" style={{
+            fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 800, letterSpacing: 0.5,
+            textAlign: 'center', color: '#fff',
+            background: 'linear-gradient(135deg,#d4900a,#e85d26)',
+            padding: '6px 6px', borderRadius: 8, lineHeight: 1.3,
+          }}>
+            👑 {leaderBanner} TAKES THE LEAD!
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 420, overflowY: 'auto' }}>
+        {sorted.map((s, i) => {
+          const pts = scores[s.id] || 0
+          const isTop = i === 0 && pts > 0
+          const isCelebrating = celebrateId === s.id
+          const isAbsent = s.__absentToday
+
+          return (
+            <div key={s.id} style={{
+              position: 'relative',
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '6px 9px', borderRadius: 9,
+              background: isTop ? 'linear-gradient(135deg, rgba(212,144,10,0.18), rgba(232,93,38,0.10))' : 'var(--surface2)',
+              border: `1.5px solid ${isTop ? 'var(--gold)' : 'var(--border)'}`,
+              opacity: isAbsent ? 0.4 : 1,
+              transform: isCelebrating ? 'scale(1.06)' : 'scale(1)',
+              boxShadow: isCelebrating ? '0 0 14px rgba(212,144,10,0.55)' : 'none',
+              transition: 'transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease, background 0.3s ease, border-color 0.3s ease',
+            }}>
+              {isTop && (
+                <div style={{ position: 'absolute', top: -9, left: 24, fontSize: 13 }}>👑</div>
+              )}
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, color: isTop ? 'var(--gold)' : 'var(--muted)', width: 12, flexShrink: 0 }}>
+                {i + 1}
+              </div>
+              <div style={{
+                width: 24, height: 24, borderRadius: 7, flexShrink: 0,
+                background: isTop ? 'var(--gold)' : 'var(--border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 9, fontWeight: 800, color: isTop ? '#fff' : 'var(--muted)',
+              }}>
+                {initials(s.nameEn)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {s.nameEn.split(' ')[0]}
+                </div>
+                {isAbsent && (
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 8, color: 'var(--red)', letterSpacing: 0.5 }}>ABSENT</div>
+                )}
+              </div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 800, color: isTop ? 'var(--gold)' : 'var(--text)', flexShrink: 0 }}>
+                {pts}
+              </div>
+              {isCelebrating && <ConfettiBurst />}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Get today's date key matching the attendanceLog format: 'YYYY-MM-DD'
@@ -135,6 +254,18 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   const [lastResult, setLastResult]            = useState(null)
   const [soundOn, setSoundOn]                  = useState(true)
 
+  // ── Live leaderboard (this session only — resets each time the game opens) ──
+  const [sessionScores, setSessionScores] = useState({})
+  const [celebrateId, setCelebrateId]     = useState(null)
+  const [leaderBanner, setLeaderBanner]   = useState(null)
+  const prevLeaderRef      = useRef(null)
+  const celebrateTimerRef  = useRef(null)
+  const bannerTimerRef     = useRef(null)
+
+  function addSessionPoints(studentId, pts) {
+    setSessionScores(prev => ({ ...prev, [studentId]: (prev[studentId] || 0) + pts }))
+  }
+
   const level   = cls?.level || 'pro'
   const todayKey = getTodayKey()
 
@@ -153,6 +284,29 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     const log = s.attendanceLog || {}
     return log[todayKey] === 'absent'
   })
+
+  // Full roster for the leaderboard, tagged with today's absence status
+  const leaderboardStudents = students
+    .filter(s => s.nameEn)
+    .map(s => ({ ...s, __absentToday: absentToday.some(a => a.id === s.id) }))
+
+  // Detect when a new student takes the #1 spot on the session leaderboard
+  useEffect(() => {
+    const withPoints = students.filter(s => (sessionScores[s.id] || 0) > 0)
+    if (withPoints.length === 0) return
+    const topSorted = [...withPoints].sort((a, b) => (sessionScores[b.id] || 0) - (sessionScores[a.id] || 0))
+    const top = topSorted[0]
+    if (top.id !== prevLeaderRef.current) {
+      prevLeaderRef.current = top.id
+      setCelebrateId(top.id)
+      setLeaderBanner(top.nameEn.split(' ')[0])
+      playLeaderChime(getAudioCtx())
+      if (celebrateTimerRef.current) clearTimeout(celebrateTimerRef.current)
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current)
+      celebrateTimerRef.current = setTimeout(() => setCelebrateId(null), 1600)
+      bannerTimerRef.current = setTimeout(() => setLeaderBanner(null), 2400)
+    }
+  }, [sessionScores])
 
   // Lazy-init AudioContext on first interaction
   function getAudioCtx() {
@@ -278,6 +432,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   async function handleCorrect() {
     setSaving(true)
     await onAwardStars(pickedStudent.id, 4, '🎯 Spin of Doom — correct answer!')
+    addSessionPoints(pickedStudent.id, 4)
     setSaving(false)
     setLastResult('correct')
     setPhase('result')
@@ -295,6 +450,8 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     setSaving(true)
     await onAwardStars(pickedStudent.id, 2, '📞 Phone a Friend — helped friend!')
     await onAwardStars(friendStudent.id, 2, '📞 Phone a Friend — answered correctly!')
+    addSessionPoints(pickedStudent.id, 2)
+    addSessionPoints(friendStudent.id, 2)
     setSaving(false)
     setLastResult('friend')
     setPhase('result')
@@ -320,21 +477,28 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     return () => {
       if (spinRef.current) cancelAnimationFrame(spinRef.current)
       if (tickIntervalRef.current) clearInterval(tickIntervalRef.current)
+      if (celebrateTimerRef.current) clearTimeout(celebrateTimerRef.current)
+      if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current)
     }
   }, [])
 
-  const size = Math.min(320, window.innerWidth - 80)
+  const size = Math.max(180, Math.min(300, window.innerWidth - 300))
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <style>{`
         @keyframes popIn { from { transform: scale(0.5); opacity: 0 } to { transform: scale(1); opacity: 1 } }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+        @keyframes confettiBurst {
+          0%   { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(0) scale(0.6); opacity: 1; }
+          100% { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(-34px) scale(1.1); opacity: 0; }
+        }
         .spin-pop   { animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) }
         .spin-shake { animation: shake 0.5s ease }
+        .confetti-particle { animation: confettiBurst 0.9s ease-out forwards; }
       `}</style>
 
-      <div className="modal" style={{ maxWidth: 520, padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 740, padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div style={{ background: '#1a1814', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -368,7 +532,16 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           </div>
         </div>
 
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 24, display: 'flex', gap: 20, flexWrap: 'wrap', maxHeight: '78vh', overflowY: 'auto' }}>
+
+          <Leaderboard
+            students={leaderboardStudents}
+            scores={sessionScores}
+            celebrateId={celebrateId}
+            leaderBanner={leaderBanner}
+          />
+
+          <div style={{ flex: 1, minWidth: 240 }}>
 
           {/* ── ABSENT TODAY BANNER ── */}
           {absentToday.length > 0 && (phase === 'ready' || phase === 'spinning') && (
@@ -607,6 +780,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
             </div>
           )}
 
+          </div>
         </div>
       </div>
     </div>
