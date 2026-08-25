@@ -153,12 +153,16 @@ function ConfettiBurst() {
 }
 
 const MEDAL_STYLE = {
-  gold:   { border: 'var(--gold)',  chip: 'var(--gold)',  text: 'var(--gold)',  bg: 'linear-gradient(135deg, rgba(212,144,10,0.20), rgba(232,93,38,0.10))',  icon: '🥇' },
-  silver: { border: '#9ca3af',      chip: '#9ca3af',      text: '#9ca3af',      bg: 'linear-gradient(135deg, rgba(148,163,184,0.22), rgba(100,116,139,0.10))', icon: '🥈' },
-  bronze: { border: '#cd7f32',      chip: '#cd7f32',      text: '#cd7f32',      bg: 'linear-gradient(135deg, rgba(205,127,50,0.22), rgba(146,89,34,0.10))',  icon: '🥉' },
+  gold:   { border: 'var(--gold)', chip: 'var(--gold)', text: 'var(--gold)',
+            bg: 'linear-gradient(135deg, rgba(212,144,10,0.22), rgba(232,93,38,0.12))', icon: '🥇' },
+  silver: { border: '#9ca3af', chip: '#9ca3af', text: '#9ca3af',
+            bg: 'linear-gradient(135deg, rgba(148,163,184,0.22), rgba(100,116,139,0.10))', icon: '🥈' },
+  // Deliberately pushed toward copper/brown so it can't be mistaken for gold
+  bronze: { border: '#a05a2c', chip: '#a05a2c', text: '#a05a2c',
+            bg: 'linear-gradient(135deg, rgba(160,90,44,0.20), rgba(120,66,32,0.10))', icon: '🥉' },
 }
 
-function Leaderboard({ students, scores, celebrateId, leaderBanner, pickCounts = {} }) {
+function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
   const sorted = [...students]
     .filter(s => s.nameEn)
     .sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0))
@@ -174,9 +178,19 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner, pickCounts =
   }
   const tier1Count = withPoints.filter(s => tierOf(s) === 1).length
 
+  // Track rank movement between renders so we can show ▲/▼ momentum arrows
+  const prevRanksRef = useRef({})
+  const currentRanks = {}
+  sorted.forEach((s, i) => { currentRanks[s.id] = i + 1 })
+  const rankSignature = sorted.map(s => `${s.id}:${scores[s.id] || 0}`).join('|')
+  useEffect(() => {
+    prevRanksRef.current = currentRanks
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rankSignature])
+
   return (
-    <div style={{ width: 230, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 10 }}>
+    <div style={{ width: 250, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
         🏆 Live Leaderboard
       </div>
 
@@ -202,45 +216,75 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner, pickCounts =
           const isCelebrating = celebrateId === s.id
           const isAbsent = s.__absentToday
 
+          // Momentum arrow vs. last spin
+          const prevRank = prevRanksRef.current[s.id]
+          let arrow = null
+          if (prevRank !== undefined) {
+            if (currentRanks[s.id] < prevRank) arrow = { symbol: '▲', color: 'var(--green)' }
+            else if (currentRanks[s.id] > prevRank) arrow = { symbol: '▼', color: 'var(--red)' }
+          }
+
+          // Competitive hint line — how close they are to the person right above them
+          let hint = null
+          if (isAbsent) {
+            hint = { text: 'ABSENT', color: 'var(--red)' }
+          } else if (i === 0 && pts > 0 && sorted[1]) {
+            const margin = pts - (scores[sorted[1].id] || 0)
+            if (margin > 0) hint = { text: `🔥 Leading by ${margin}`, color: 'var(--gold)' }
+          } else if (i > 0) {
+            const above = sorted[i - 1]
+            const abovePts = scores[above.id] || 0
+            if (pts > 0 || abovePts > 0) {
+              const gap = abovePts - pts
+              if (gap === 0) hint = { text: `🤝 Tied with ${above.nameEn.split(' ')[0]}`, color: 'var(--accent2)' }
+              else if (gap > 0) hint = { text: `+${gap} to pass ${above.nameEn.split(' ')[0]}`, color: 'var(--muted)' }
+            }
+          }
+
           return (
             <div key={s.id} style={{
-              position: 'relative',
+              position: 'relative', overflow: 'hidden',
               display: 'flex', alignItems: 'center', gap: 9,
-              padding: '9px 12px', borderRadius: 10,
+              padding: '10px 12px', borderRadius: 10,
               background: medal ? medal.bg : 'var(--surface2)',
               border: `1.5px solid ${medal ? medal.border : 'var(--border)'}`,
               opacity: isAbsent ? 0.4 : 1,
               transform: isCelebrating ? 'scale(1.06)' : 'scale(1)',
-              boxShadow: isCelebrating ? '0 0 16px rgba(212,144,10,0.55)' : 'none',
+              boxShadow: isSoleLeader ? '0 0 14px rgba(212,144,10,0.35)' : isCelebrating ? '0 0 16px rgba(212,144,10,0.55)' : 'none',
               transition: 'transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease, background 0.3s ease, border-color 0.3s ease',
             }}>
+              {isSoleLeader && <div className="gold-shine" />}
+
               {isSoleLeader && (
-                <div style={{ position: 'absolute', top: -11, left: 28, fontSize: 15 }}>👑</div>
+                <div style={{ position: 'absolute', top: -11, left: 28, fontSize: 15, zIndex: 2 }}>👑</div>
               )}
-              <div style={{ fontFamily: 'var(--mono)', fontSize: medal ? 15 : 11, fontWeight: 700, color: medal ? medal.text : 'var(--muted)', width: 18, flexShrink: 0, textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: medal ? 16 : 11, fontWeight: 700, color: medal ? medal.text : 'var(--muted)', width: 20, flexShrink: 0, textAlign: 'center', zIndex: 1 }}>
                 {medal ? medal.icon : i + 1}
               </div>
               <div style={{
-                width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+                width: 30, height: 30, borderRadius: 8, flexShrink: 0, zIndex: 1,
                 background: medal ? medal.chip : 'var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 800, color: medal ? '#fff' : 'var(--muted)',
               }}>
                 {initials(s.nameEn)}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {s.nameEn.split(' ')[0]}
+              <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {s.nameEn.split(' ')[0]}
+                  </div>
+                  {arrow && !isAbsent && (
+                    <span style={{ fontSize: 9, color: arrow.color, fontWeight: 800 }}>{arrow.symbol}</span>
+                  )}
                 </div>
-                {isAbsent ? (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 0.5 }}>ABSENT</div>
-                ) : (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 0.5 }}>
-                    🎲 {pickCounts[s.id] || 0} {pickCounts[s.id] === 1 ? 'turn' : 'turns'}
+                {hint && (
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: hint.color, letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {hint.text}
                   </div>
                 )}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800, color: medal ? medal.text : 'var(--text)', flexShrink: 0 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 800, color: medal ? medal.text : 'var(--text)', flexShrink: 0, zIndex: 1 }}>
                 {pts}
               </div>
               {isCelebrating && <ConfettiBurst />}
@@ -556,9 +600,19 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           0%   { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(0) scale(0.6); opacity: 1; }
           100% { transform: translate(-50%,-50%) rotate(var(--angle)) translateY(-34px) scale(1.1); opacity: 0; }
         }
+        @keyframes goldShineSweep {
+          0%   { transform: translateX(-120%) skewX(-20deg); }
+          100% { transform: translateX(220%) skewX(-20deg); }
+        }
         .spin-pop   { animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) }
         .spin-shake { animation: shake 0.5s ease }
         .confetti-particle { animation: confettiBurst 0.9s ease-out forwards; }
+        .gold-shine {
+          position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+          animation: goldShineSweep 2.6s ease-in-out infinite;
+          pointer-events: none; z-index: 0;
+        }
       `}</style>
 
       <div className="modal" style={{ width: '96vw', maxWidth: 1400, height: '90vh', padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
@@ -603,7 +657,6 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
             scores={sessionScores}
             celebrateId={celebrateId}
             leaderBanner={leaderBanner}
-            pickCounts={pickCounts}
           />
 
           <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
