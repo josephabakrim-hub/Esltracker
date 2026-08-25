@@ -24,7 +24,28 @@ export default function App() {
   const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
   const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
 
-  const [access, setAccess] = useState(null)
+  const [access, setAccess] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tj_access')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
+
+  // Keep login/role persisted across refreshes and browser back/forward
+  useEffect(() => {
+    try {
+      if (access) {
+        const toSave = access.student
+          ? { ...access, student: { ...access.student, pin: undefined } }
+          : access
+        localStorage.setItem('tj_access', JSON.stringify(toSave))
+      } else {
+        localStorage.removeItem('tj_access')
+      }
+    } catch {}
+  }, [access])
 
   // Only teacher has write access — everyone else including students is read-only
   const isTeacher = access?.role === 'teacher'
