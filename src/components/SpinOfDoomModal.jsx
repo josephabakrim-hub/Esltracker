@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { initials } from '../lib/utils'
-import { getRandomQuestion } from '../lib/questions'
+import { getSpinQuestion } from '../lib/books'
 
 const WHEEL_COLORS = [
   '#e85d26','#2d6be4','#1a9e5c','#7c3aed',
@@ -524,7 +524,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
         spinRef.current = requestAnimationFrame(animate)
       } else {
         setPickCounts(prev => ({ ...prev, [picked.id]: (prev[picked.id] || 0) + 1 }))
-        const question = getRandomQuestion(level)
+        const question = getSpinQuestion(cls, level)
         setPickedStudent(picked)
         setCurrentQuestion(question)
         setPhase('picked')

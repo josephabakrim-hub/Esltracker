@@ -1,28 +1,7 @@
 import { useState } from 'react'
 import { scoreColor, initials, avgSkills } from '../lib/utils'
+import { getBookSlug, getBookUnitCount } from '../lib/books'
 import LessonsHub from './LessonsHub'
-
-// Map class name → book slug (mirrors LessonsHub)
-const CLASS_BOOK = {
-  'Elite2_2':  'thinkl2',    'Elite3_S':  'thinkstarter', 'Elite1_3':  'thinkl3',
-  'ATB_Elite3_S': 'thinkstarter', 'ATB_Elite1_3': 'thinkl3',
-  'Pro1_3':    'kidsboxng3', 'Pro5_4':    'kidsboxng4',   'Pro1_2':    'kidsboxng2',
-  'Pro3_S':    'kidsboxng1', 'Pro2_2':    'kidsboxng2',   'Pro3_1':    'kidsboxng1',
-  'Pro6_2':    'kidsboxng3',
-  'ATB_Pro1_3': 'kidsboxng3', 'ATB_Pro5_4': 'kidsboxng4',
-  'HTB_Pro1-2': 'kidsboxng2', 'HTB_Pro2_2': 'kidsboxng2',
-  'HTB_Pro4-3': 'kidsboxng4', 'HTB_Pro3_1': 'kidsboxng1', 'HTB_Pro1_2': 'kidsboxng2',
-}
-const BOOK_UNIT_COUNTS = {
-  kidsboxng1: 13, kidsboxng2: 12, kidsboxng3: 9, kidsboxng4: 9,
-  thinkstarter: 13, thinkl2: 13, thinkl3: 13,
-}
-function getBookSlug(cls) {
-  if (cls?.bookSlug) return cls.bookSlug
-  const className = typeof cls === 'string' ? cls : cls?.name
-  if (CLASS_BOOK[className]) return CLASS_BOOK[className]
-  return CLASS_BOOK[className?.replace(/^(ATB_|HTB_)/, '')] || null
-}
 
 export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
@@ -38,7 +17,7 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
   ]
 
   const bookSlug   = getBookSlug(cls)
-  const totalUnits = bookSlug ? (BOOK_UNIT_COUNTS[bookSlug] || 0) : 0
+  const totalUnits = bookSlug ? getBookUnitCount(bookSlug) : 0
 
   const [vnVisible, setVnVisible] = useState({})
   function toggleVn(id, e) { e.stopPropagation(); setVnVisible(v => ({ ...v, [id]: !v[id] })) }

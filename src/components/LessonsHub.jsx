@@ -8,146 +8,9 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { initials, avgSkills } from '../lib/utils'
+import { BOOKS, getBookSlug } from '../lib/books'
 
 const BASE = 'https://teacherjoseph.vercel.app/games'
-
-const BOOKS = {
-  kidsboxng1: {
-    label: 'Kids Box NG — Level 1', color: '#f59e0b',
-    units: [
-      { num: 0,  title: 'Hello!',         emoji: '👋' },
-      { num: 1,  title: 'Hello!',         emoji: '🌍' },
-      { num: 2,  title: 'My School',      emoji: '🏫' },
-      { num: 3,  title: 'Favourite Toys', emoji: '🧸' },
-      { num: 4,  title: 'My Family',      emoji: '👨‍👩‍👧' },
-      { num: 5,  title: 'Our Pets',       emoji: '🐾' },
-      { num: 6,  title: 'My Face',        emoji: '😊' },
-      { num: 7,  title: 'Wild Animals',   emoji: '🦁' },
-      { num: 8,  title: 'My Clothes',     emoji: '👕' },
-      { num: 9,  title: 'Fun Time!',      emoji: '🎉' },
-      { num: 10, title: 'At the Funfair', emoji: '🎡' },
-      { num: 11, title: 'Our House',      emoji: '🏠' },
-      { num: 12, title: 'Party Time!',    emoji: '🎂' },
-    ],
-  },
-  kidsboxng2: {
-    label: 'Kids Box NG — Level 2', color: '#3b82f6',
-    units: [
-      { num: 1,  title: 'Hello Again!',   emoji: '👋' },
-      { num: 2,  title: 'Back to School', emoji: '🎒' },
-      { num: 3,  title: 'Play Time!',     emoji: '⚽' },
-      { num: 4,  title: 'At Home',        emoji: '🏠' },
-      { num: 5,  title: 'Meet My Family', emoji: '👨‍👩‍👧' },
-      { num: 6,  title: 'Dinner Time',    emoji: '🍽️' },
-      { num: 7,  title: 'At the Farm',    emoji: '🌾' },
-      { num: 8,  title: 'My Town',        emoji: '🏙️' },
-      { num: 9,  title: 'Our Clothes',    emoji: '👗' },
-      { num: 10, title: 'Our Hobbies',    emoji: '🎨' },
-      { num: 11, title: 'My Birthday',    emoji: '🎁' },
-      { num: 12, title: 'On Holiday!',    emoji: '✈️' },
-    ],
-  },
-  kidsboxng3: {
-    label: 'Kids Box NG — Level 3', color: '#22c55e',
-    units: [
-      { num: 0, title: 'Hello!',             emoji: '👋' },
-      { num: 1, title: 'Family Matters',     emoji: '👨‍👩‍👧' },
-      { num: 2, title: 'Home Sweet Home',    emoji: '🏠' },
-      { num: 3, title: 'A Day in the Life',  emoji: '⏰' },
-      { num: 4, title: 'In the City',        emoji: '🏙️' },
-      { num: 5, title: 'Fit and Well',       emoji: '💪' },
-      { num: 6, title: 'In the Countryside', emoji: '🌳' },
-      { num: 7, title: 'World of Animals',   emoji: '🦁' },
-      { num: 8, title: 'Weather Report',     emoji: '⛅' },
-    ],
-  },
-  kidsboxng4: {
-    label: 'Kids Box NG — Level 4', color: '#8b5cf6',
-    units: [
-      { num: 0, title: 'Hello There!',        emoji: '👋' },
-      { num: 1, title: 'Back to School',      emoji: '🎒' },
-      { num: 2, title: 'Good Sports',         emoji: '🏅' },
-      { num: 3, title: 'Health Matters',      emoji: '🏥' },
-      { num: 4, title: 'After School Club',   emoji: '🎭' },
-      { num: 5, title: 'Exploring Our World', emoji: '🌍' },
-      { num: 6, title: 'Technology',          emoji: '💻' },
-      { num: 7, title: 'At the Zoo',          emoji: '🦒' },
-      { num: 8, title: "Let's Party!",        emoji: '🎉' },
-    ],
-  },
-  thinkstarter: {
-    label: 'Think — Starter', color: '#ec4899',
-    units: [
-      { num: 0,  title: 'Welcome',                 emoji: '👋' },
-      { num: 1,  title: 'One World',               emoji: '🌍' },
-      { num: 2,  title: 'I Feel Happy',            emoji: '😊' },
-      { num: 3,  title: 'Me and My Family',        emoji: '👨‍👩‍👧' },
-      { num: 4,  title: 'In the City',             emoji: '🏙️' },
-      { num: 5,  title: 'In My Free Time',         emoji: '🎮' },
-      { num: 6,  title: 'Friends',                 emoji: '🤝' },
-      { num: 7,  title: 'Sporting Life',           emoji: '⚽' },
-      { num: 8,  title: 'Dance to the Music',      emoji: '🎵' },
-      { num: 9,  title: 'Would You Like Dessert?', emoji: '🍰' },
-      { num: 10, title: 'High Flyers',             emoji: '✈️' },
-      { num: 11, title: 'A World of Animals',      emoji: '🦁' },
-      { num: 12, title: 'Getting About',           emoji: '🚌' },
-    ],
-  },
-  thinkl2: {
-    label: 'Think — Level 2', color: '#e85d26',
-    units: [
-      { num: 0,  title: 'Welcome',              emoji: '👋' },
-      { num: 1,  title: 'Amazing People',       emoji: '🌟' },
-      { num: 2,  title: 'The Ways We Learn',    emoji: '📚' },
-      { num: 3,  title: "That's Entertainment", emoji: '🎬' },
-      { num: 4,  title: 'Social Networking',    emoji: '📱' },
-      { num: 5,  title: 'My Life in Music',     emoji: '🎵' },
-      { num: 6,  title: 'Making a Difference',  emoji: '💚' },
-      { num: 7,  title: 'Future Fun',           emoji: '🚀' },
-      { num: 8,  title: 'Science Counts',       emoji: '🔬' },
-      { num: 9,  title: "What a Job!",          emoji: '💼' },
-      { num: 10, title: 'Keep Healthy',         emoji: '💪' },
-      { num: 11, title: 'Making the News',      emoji: '📰' },
-      { num: 12, title: 'Playing by the Rules', emoji: '📋' },
-    ],
-  },
-  thinkl3: {
-    label: 'Think — Level 3', color: '#06b6d4',
-    units: [
-      { num: 0,  title: 'Welcome',                     emoji: '👋' },
-      { num: 1,  title: 'Life Plans',                  emoji: '🗺️' },
-      { num: 2,  title: 'Hard Times',                  emoji: '💪' },
-      { num: 3,  title: "What's in a Name?",           emoji: '🏷️' },
-      { num: 4,  title: 'Dilemmas',                    emoji: '🤔' },
-      { num: 5,  title: 'What a Story!',               emoji: '📖' },
-      { num: 6,  title: 'How Do They Do It?',          emoji: '🔧' },
-      { num: 7,  title: 'All the Same?',               emoji: '🌐' },
-      { num: 8,  title: "It's a Crime",                emoji: '🔍' },
-      { num: 9,  title: 'What Happened?',              emoji: '❓' },
-      { num: 10, title: 'Money',                       emoji: '💰' },
-      { num: 11, title: 'Help!',                       emoji: '🆘' },
-      { num: 12, title: 'A First Time for Everything', emoji: '🌟' },
-    ],
-  },
-}
-
-const CLASS_BOOK = {
-  'Elite2_2': 'thinkl2',      'Elite3_S': 'thinkstarter',  'Elite1_3': 'thinkl3',
-  'ATB_Elite3_S': 'thinkstarter', 'ATB_Elite1_3': 'thinkl3',
-  'Pro1_3': 'kidsboxng3',     'Pro5_4': 'kidsboxng4',      'Pro1_2': 'kidsboxng2',
-  'Pro3_S': 'kidsboxng1',     'Pro2_2': 'kidsboxng2',      'Pro3_1': 'kidsboxng1',
-  'Pro6_2': 'kidsboxng3',
-  'ATB_Pro1_3': 'kidsboxng3', 'ATB_Pro5_4': 'kidsboxng4',
-  'HTB_Pro1-2': 'kidsboxng2', 'HTB_Pro2_2': 'kidsboxng2',
-  'HTB_Pro4-3': 'kidsboxng4', 'HTB_Pro3_1': 'kidsboxng1',  'HTB_Pro1_2': 'kidsboxng2',
-}
-
-function getBookSlug(cls) {
-  if (cls?.bookSlug) return cls.bookSlug
-  const className = typeof cls === 'string' ? cls : cls?.name
-  if (CLASS_BOOK[className]) return CLASS_BOOK[className]
-  return CLASS_BOOK[className?.replace(/^(ATB_|HTB_)/, '')] || null
-}
 
 async function markUnitComplete(studentId, bookSlug, unitNum) {
   if (!studentId) return
@@ -284,7 +147,7 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
           </div>
           {/* Tabs */}
           <div style={{ display: 'flex' }}>
-            {[['map','🗺️ Road Map'], ['race','🏁 Race Track']].map(([id, label]) => (
+            {[['map','🗺️ Road Map'], ['race','🏁 Race Track'], ...(book.homework?.length > 0 ? [['homework','📝 Homework']] : [])].map(([id, label]) => (
               <div key={id} onClick={() => setActiveTab(id)} style={{ flex: 1, textAlign: 'center', padding: '9px 0', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 1.5, fontWeight: activeTab === id ? 700 : 400, color: activeTab === id ? '#fff' : 'rgba(255,255,255,0.3)', borderBottom: `3px solid ${activeTab === id ? bookColor : 'transparent'}`, transition: 'all 0.15s', textTransform: 'uppercase' }}>
                 {label}
               </div>
@@ -447,6 +310,57 @@ export default function LessonsHub({ cls, studentId, completedUnits = {}, studen
 
               <div style={{ marginTop: 20, padding: '10px 14px', borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.6 }}>
                 Ranked by units completed in this book. Complete more units on the Road Map to move up! 🚀
+              </div>
+            </div>
+          )}
+
+          {/* ═══ HOMEWORK ═══ */}
+          {activeTab === 'homework' && (
+            <div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 3, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 20 }}>
+                📝 Homework — {book.label}
+              </div>
+
+              {(!book.homework || book.homework.length === 0) && (
+                <div style={{ textAlign: 'center', padding: 40, color: 'var(--muted)', fontSize: 13 }}>
+                  No homework assignments added for this book yet.
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {(book.homework || []).map(hw => {
+                  const unit = units.find(u => u.num === hw.unit)
+                  return (
+                    <div key={hw.unit} style={{
+                      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
+                      padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start',
+                    }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+                        background: `${bookColor}22`, border: `1.5px solid ${bookColor}55`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+                      }}>
+                        {unit?.emoji || '📝'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+                          <div style={{ fontSize: 13, fontWeight: 700 }}>{hw.title}</div>
+                          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: bookColor, letterSpacing: 0.5 }}>
+                            UNIT {hw.unit}{unit ? ` · ${unit.title}` : ''}
+                          </div>
+                          {hw.estMinutes && (
+                            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>⏱ ~{hw.estMinutes} min</div>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>{hw.instructions}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div style={{ marginTop: 20, padding: '10px 14px', borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.6 }}>
+                These are reference assignments to set as homework each unit. Online auto-graded homework is planned for a future update.
               </div>
             </div>
           )}

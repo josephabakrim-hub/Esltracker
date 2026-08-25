@@ -3,22 +3,12 @@ import { useState } from 'react'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { initials } from '../lib/utils'
+import { BOOKS } from '../lib/books'
 import { useAccessControl } from '../hooks/useAccessControl'
 import {
   CONTROLLABLE_ROLES, ROLE_LABELS, TABS as ACCESS_TABS, FEATURES as ACCESS_FEATURES, ACTIONS as ACCESS_ACTIONS,
   TAB_MODES, FEATURE_MODES, ACTION_MODES,
 } from '../lib/accessControl'
-
-// ── Book assignments ────────────────────────────────────────────────────────
-const BOOKS = {
-  kidsboxng1: 'Kids Box NG — Level 1',
-  kidsboxng2: 'Kids Box NG — Level 2',
-  kidsboxng3: 'Kids Box NG — Level 3',
-  kidsboxng4: 'Kids Box NG — Level 4',
-  thinkstarter: 'Think — Starter',
-  thinkl2:      'Think — Level 2',
-  thinkl3:      'Think — Level 3',
-}
 
 // ── Pre-written ESL notes ────────────────────────────────────────────────────
 const NOTE_TEMPLATES = {
@@ -370,27 +360,41 @@ export default function AdminPanel({ classes, students, updateClass, updateStude
         <div style={card}>
           <div style={sectionTitle}>📚 Assign Books to Classes</div>
           <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 20, lineHeight: 1.6 }}>
-            Each class uses one textbook. Assigning a book here determines which unit games and lessons appear in the Lessons Hub for that class.
+            Each class uses one textbook. Assigning a book here determines which units, Spin of Doom questions, and homework appear for that class — everywhere in the app, instantly.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {classes.map(c => (
-              <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>{c.name}</div>
-                  <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>{c.day} · {c.time}</div>
+            {classes.map(c => {
+              const selectedSlug = bookAssignments[c.id] || ''
+              const selectedBook = BOOKS[selectedSlug]
+              const hasContent   = selectedBook && selectedBook.spinQuestions?.length > 0
+              return (
+                <div key={c.id} style={{ padding: '12px 16px', borderRadius: 12, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700 }}>{c.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>{c.day} · {c.time}</div>
+                    </div>
+                    <select
+                      value={selectedSlug}
+                      onChange={e => setBookAssignments(prev => ({ ...prev, [c.id]: e.target.value }))}
+                      style={{ ...inputStyle, width: 240, fontSize: 12 }}
+                    >
+                      <option value="">— No book assigned —</option>
+                      {Object.values(BOOKS).map(book => (
+                        <option key={book.slug} value={book.slug}>{book.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedBook && (
+                    <div style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: 0.5, color: hasContent ? 'var(--green)' : 'var(--gold)' }}>
+                      {hasContent
+                        ? `✓ ${selectedBook.units.length} units · Spin of Doom & homework ready`
+                        : `⚠ ${selectedBook.units.length} units set up · Spin of Doom & homework not built yet`}
+                    </div>
+                  )}
                 </div>
-                <select
-                  value={bookAssignments[c.id] || ''}
-                  onChange={e => setBookAssignments(prev => ({ ...prev, [c.id]: e.target.value }))}
-                  style={{ ...inputStyle, width: 240, fontSize: 12 }}
-                >
-                  <option value="">— No book assigned —</option>
-                  {Object.entries(BOOKS).map(([slug, name]) => (
-                    <option key={slug} value={slug}>{name}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
+              )
+            })}
           </div>
           <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
             <button className="btn btn-accent" onClick={handleSaveBooks} disabled={busy}>

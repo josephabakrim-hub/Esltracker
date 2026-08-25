@@ -1,21 +1,6 @@
 import { useState } from 'react'
 import { SKILLS, SKILL_ICONS, scoreColor, initials, avgSkills } from '../lib/utils'
-
-// Book slug → label (mirrors LessonsHub)
-const BOOK_LABELS = {
-  kidsboxng1: 'Kids Box NG 1',
-  kidsboxng2: 'Kids Box NG 2',
-  kidsboxng3: 'Kids Box NG 3',
-  kidsboxng4: 'Kids Box NG 4',
-  thinkstarter: 'Think Starter',
-  thinkl2: 'Think Level 2',
-  thinkl3: 'Think Level 3',
-}
-
-const BOOK_UNIT_COUNTS = {
-  kidsboxng1: 13, kidsboxng2: 12, kidsboxng3: 9, kidsboxng4: 9,
-  thinkstarter: 13, thinkl2: 13, thinkl3: 13,
-}
+import { getBookLabel, getBookUnitCount } from '../lib/books'
 
 const PRESET_REASONS = [
   { label: '🙋 Participation',     value: 'Great participation' },
@@ -164,12 +149,12 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {bookSlugs.map(slug => {
               const done = unitsCompleted[slug] || []
-              const total = BOOK_UNIT_COUNTS[slug] || done.length
+              const total = getBookUnitCount(slug) || done.length
               const pct = Math.round((done.length / total) * 100)
               return (
                 <div key={slug}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{BOOK_LABELS[slug] || slug}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{getBookLabel(slug)}</div>
                     <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)' }}>
                       {done.length}/{total} units
                     </div>
