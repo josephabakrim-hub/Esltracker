@@ -5,8 +5,8 @@ import { db } from '../lib/firebase'
 import { initials } from '../lib/utils'
 import { useAccessControl } from '../hooks/useAccessControl'
 import {
-  CONTROLLABLE_ROLES, ROLE_LABELS, TABS as ACCESS_TABS, FEATURES as ACCESS_FEATURES,
-  TAB_MODES, FEATURE_MODES,
+  CONTROLLABLE_ROLES, ROLE_LABELS, TABS as ACCESS_TABS, FEATURES as ACCESS_FEATURES, ACTIONS as ACCESS_ACTIONS,
+  TAB_MODES, FEATURE_MODES, ACTION_MODES,
 } from '../lib/accessControl'
 
 // ── Book assignments ────────────────────────────────────────────────────────
@@ -816,6 +816,25 @@ export default function AdminPanel({ classes, students, updateClass, updateStude
                       <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
                         <span style={{ fontSize: 13, fontWeight: 600 }}>{f.label}</span>
                         <ModeToggle options={FEATURE_MODES} value={mode} onChange={m => setFeatureMode(accessRole, f.id, m)} />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Structural actions */}
+              <div style={{ marginBottom: 26 }}>
+                <div style={{ ...label, marginBottom: 12, fontSize: 10 }}>Header Actions</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.5 }}>
+                  The <strong>+ Add Class</strong> / <strong>+ Add Student</strong> buttons in the header and on the Classes/Students pages. These create real records, so they only ever run in Demo mode for non-teacher roles — the form opens and "Save" appears to work, but nothing is actually created.
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {ACCESS_ACTIONS.map(a => {
+                    const mode = roleCfg.features?.[a.id] || 'hidden'
+                    return (
+                      <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{a.label}</span>
+                        <ModeToggle options={ACTION_MODES} value={mode} onChange={m => setFeatureMode(accessRole, a.id, m)} />
                       </div>
                     )
                   })}

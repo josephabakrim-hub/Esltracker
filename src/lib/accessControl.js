@@ -27,6 +27,13 @@ export const FEATURES = [
   { id: 'notes',       label: '📝 Add Notes' },
 ]
 
+// Structural "create" actions — there's no real data to view, so these only
+// ever get Hidden or Demo, never "View only".
+export const ACTIONS = [
+  { id: 'addClass',   label: '🏫 Add Class' },
+  { id: 'addStudent', label: '👤 Add Student' },
+]
+
 // Modes ───────────────────────────────────────────────────────────────────
 // Tabs:     hidden | blurred | visible
 // Features: hidden | demo | live-view
@@ -40,13 +47,17 @@ export const FEATURE_MODES = [
   { id: 'demo',       label: 'Demo (try it)', desc: 'Fully interactive, but nothing is saved to your real data' },
   { id: 'live-view',  label: 'View only',     desc: 'Can see the real data, but cannot interact or change anything' },
 ]
+export const ACTION_MODES = [
+  { id: 'hidden', label: 'Hidden',        desc: 'Button does not appear' },
+  { id: 'demo',   label: 'Demo (try it)', desc: 'They can open the form and click Save, but nothing is created' },
+]
 
 export const DEFAULT_LOCK_MESSAGE = 'This is for Teacher Joseph only.'
 
 function defaultRoleConfig() {
   return {
     tabs: { classes: 'visible', students: 'visible', analytics: 'visible', academy: 'hidden' },
-    features: { attendance: 'hidden', starSession: 'hidden', spinOfDoom: 'hidden', starSlots: 'hidden', notes: 'hidden' },
+    features: { attendance: 'hidden', starSession: 'hidden', spinOfDoom: 'hidden', starSlots: 'hidden', notes: 'hidden', addClass: 'hidden', addStudent: 'hidden' },
     lockMessages: {},   // { [tabId or featureId]: customMessage }
     classFilter: [],    // empty = can see all classes; else restrict to these classIds
     demoBanner: true,   // show a "demo, not saved" indicator inside demo features

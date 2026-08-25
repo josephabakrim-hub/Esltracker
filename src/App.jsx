@@ -109,13 +109,16 @@ export default function App() {
 
   // ── Teacher-only write handlers — all guarded ────────────────────────────
   async function handleSaveClass(data) {
-    if (!isTeacher) return
-    if (classModal && classModal.id) {
-      await updateClass(classModal.id, data)
-      if (selectedClass?.id === classModal.id) setSelectedClass(prev => ({ ...prev, ...data }))
-    } else {
-      await addClass(data)
+    if (isTeacher) {
+      if (classModal && classModal.id) {
+        await updateClass(classModal.id, data)
+        if (selectedClass?.id === classModal.id) setSelectedClass(prev => ({ ...prev, ...data }))
+      } else {
+        await addClass(data)
+      }
     }
+    // Non-teacher roles only ever reach here in Demo mode — the modal still
+    // closes as if it saved, but nothing above actually touched Firestore.
     setClassModal(null)
   }
 
@@ -126,11 +129,12 @@ export default function App() {
   }
 
   async function handleSaveStudent(data) {
-    if (!isTeacher) return
-    if (studentModal && studentModal.id) {
-      await updateStudent(studentModal.id, data)
-    } else {
-      await addStudent(data)
+    if (isTeacher) {
+      if (studentModal && studentModal.id) {
+        await updateStudent(studentModal.id, data)
+      } else {
+        await addStudent(data)
+      }
     }
     setStudentModal(null)
   }
@@ -323,8 +327,8 @@ export default function App() {
   return (
     <div>
       <Header
-        onAddClass={isTeacher ? () => setClassModal('add') : null}
-        onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+        onAddClass={canOpenFeature('addClass') ? () => setClassModal('add') : null}
+        onAddStudent={canOpenFeature('addStudent') ? () => setStudentModal('add') : null}
         isDark={isDark}
         onToggleTheme={() => setIsDark(d => !d)}
         readOnly={!isTeacher}
@@ -360,7 +364,7 @@ export default function App() {
             ) : (
               <><StatsBar students={students} classes={classes} />
               <ClassesView classes={classes} students={students} onSelectClass={openClass}
-                onAddClass={isTeacher ? () => setClassModal('add') : null}
+                onAddClass={canOpenFeature('addClass') ? () => setClassModal('add') : null}
                 onEditClass={isTeacher ? c => setClassModal(c) : null}
                 onDeleteClass={isTeacher ? handleDeleteClass : null}
                 readOnly={!isTeacher}
@@ -372,7 +376,7 @@ export default function App() {
             <ClassDetail cls={liveClass} students={students.filter(s => s.classId === liveClass.id)}
               onBack={() => { setSelectedClass(null); setTab('classes') }}
               onSelectStudent={openStudentFromClass}
-              onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+              onAddStudent={canOpenFeature('addStudent') ? () => setStudentModal('add') : null}
               onEditClass={isTeacher ? c => setClassModal(c) : null}
               onOpenAttendance={canOpenFeature('attendance') ? () => setAttendanceModal(liveClass.id) : null}
               onOpenStarSession={canOpenFeature('starSession') ? () => setStarSessionModal(liveClass.id) : null}
@@ -393,7 +397,7 @@ export default function App() {
             ) : (
               <><StatsBar students={students} classes={classes} />
               <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
-                onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+                onAddStudent={canOpenFeature('addStudent') ? () => setStudentModal('add') : null}
                 onEditStudent={isTeacher ? s => setStudentModal(s) : null}
                 readOnly={!isTeacher}
               /></>
@@ -445,9 +449,9 @@ export default function App() {
         </>}
       </div>
 
-      {/* Structural edits (renaming/creating classes & students) stay teacher-only, always */}
-      {isTeacher && classModal       && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
-      {isTeacher && studentModal     && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
+      {/* Add Class / Add Student create real records — only ever Hidden or Demo for non-teachers */}
+      {canOpenFeature('addClass')   && classModal   && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
+      {canOpenFeature('addStudent') && studentModal && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
 
       {/* These four can be opened by other roles too, if Access Control grants Demo or View-only access.
           featureReadOnly() decides interactivity; the write handlers themselves already no-op for
@@ -464,7 +468,9 @@ export default function App() {
         (isFeatureDemo('starSession') && starSessionModal) ||
         (isFeatureDemo('spinOfDoom') && spinModal) ||
         (isFeatureDemo('starSlots') && starSlotsModal) ||
-        (isFeatureDemo('notes') && noteModal)
+        (isFeatureDemo('notes') && noteModal) ||
+        (isFeatureDemo('addClass') && classModal) ||
+        (isFeatureDemo('addStudent') && studentModal)
       ) && (
         <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 300 }}>
           <DemoBadge />
