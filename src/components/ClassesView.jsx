@@ -44,13 +44,14 @@ export default function ClassesView({ classes, students, onSelectClass, onAddCla
               boxShadow: 'var(--shadow)', cursor: 'pointer',
               transition: 'all 0.2s', position: 'relative', overflow: 'hidden',
             }}
+              onClick={() => onSelectClass(c)}
               onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.1)' }}
               onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow)' }}
             >
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: LEVEL_ACCENT[c.level] || 'var(--pro)' }} />
 
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, marginTop: 6 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, cursor: 'pointer' }} onClick={() => onSelectClass(c)}>{c.name}</div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{c.name}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 9, fontWeight: 700, letterSpacing: 2, padding: '4px 10px', borderRadius: 20, textTransform: 'uppercase', ...BADGE_STYLE[c.level] }}>{c.level}</span>
                   {!readOnly && (
@@ -62,14 +63,13 @@ export default function ClassesView({ classes, students, onSelectClass, onAddCla
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--muted)', marginBottom: 14, fontFamily: 'var(--mono)' }}
-                onClick={() => onSelectClass(c)}>
+              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--muted)', marginBottom: 14, fontFamily: 'var(--mono)' }}>
                 <span>👥 {classStudents.length} students</span>
                 {c.day && <span>📅 {c.day}</span>}
                 {c.time && <span>🕐 {c.time}</span>}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }} onClick={() => onSelectClass(c)}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {skillAverages.map(({ sk, avg }) => (
                   <div key={sk} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ fontSize: 10, color: 'var(--muted)', width: 80, flexShrink: 0, fontFamily: 'var(--mono)' }}>{sk}</div>
