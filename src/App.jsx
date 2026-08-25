@@ -199,32 +199,81 @@ export default function App() {
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
-  // ── Keep the browser Back/Forward button inside the app ──────────────────
-  const navRef = useRef()
-  navRef.current = { tab, classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal }
+  // ── Browser Back/Forward navigation ───────────────────────────────────────
+  // Every screen you visit (a tab, a class, a student profile) becomes a real
+  // history entry, so Back retraces exactly what you looked at, in order —
+  // just like a normal website. Modals are never part of history — Back
+  // simply closes them first, without changing the screen underneath.
+  //
+  // The one entry that existed *before* the app ever touched history is
+  // marked as the "floor". If Back ever lands there, we immediately push
+  // forward again, so the browser Back button can never actually leave the app.
+  const modalsRef = useRef({})
+  modalsRef.current = { classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal }
 
+  const initializedRef  = useRef(false)  // true once the floor + home entries are set up
+  const skipNextPushRef = useRef(false)  // true right after we replay a popped entry, so the
+                                          // location-tracking effect below doesn't re-push it
+
+  function closeAllModals() {
+    setClassModal(null); setStudentModal(null); setNoteModal(null)
+    setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null)
+  }
+
+  function applyLocation(loc) {
+    skipNextPushRef.current = true
+    setSelectedClass(loc.classId ? { id: loc.classId } : null)
+    setSelectedStudent(loc.studentId ? { id: loc.studentId } : null)
+    setStudentOrigin(loc.studentOrigin || null)
+    setTab(loc.tab)
+  }
+
+  // One-time setup: mark the floor, then push the home screen on top of it.
   useEffect(() => {
-    window.history.pushState({ tjGuard: true }, '')
+    window.history.replaceState({ tjFloor: true }, '')
+    window.history.pushState({ tjApp: true, tab: 'classes', classId: null, studentId: null, studentOrigin: null }, '')
+    initializedRef.current = true
 
-    function handlePopState() {
-      // Re-arm immediately so the next Back press is caught too
-      window.history.pushState({ tjGuard: true }, '')
+    function handlePopState(e) {
+      const state = e.state
 
-      const n = navRef.current
-      if (n.classModal || n.studentModal || n.noteModal || n.attendanceModal || n.starSessionModal || n.spinModal || n.starSlotsModal) {
-        setClassModal(null); setStudentModal(null); setNoteModal(null)
-        setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null)
+      // Hit the floor (or a foreign/unrecognised entry) — refuse to exit.
+      if (!state || state.tjFloor) {
+        window.history.pushState({ tjApp: true, tab: 'classes', classId: null, studentId: null, studentOrigin: null }, '')
+        closeAllModals()
+        applyLocation({ tab: 'classes', classId: null, studentId: null, studentOrigin: null })
         return
       }
-      if (n.tab === 'studentProfile') { handleBackFromStudent(); return }
-      if (n.tab === 'classDetail')    { setSelectedClass(null); setTab('classes'); return }
-      if (n.tab !== 'classes')        { handleTabChange('classes'); return }
-      // already at the top-level Classes tab with nothing open — nothing further to unwind
+
+      // A modal is open — the first Back press just closes it and re-arms
+      // this same entry, so the screen underneath doesn't change yet.
+      const m = modalsRef.current
+      if (m.classModal || m.studentModal || m.noteModal || m.attendanceModal || m.starSessionModal || m.spinModal || m.starSlotsModal) {
+        window.history.pushState(state, '')
+        closeAllModals()
+        return
+      }
+
+      // Otherwise, replay whichever screen we've landed back on.
+      applyLocation(state)
     }
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
+
+  // Whenever the visible screen actually changes, record it as a new entry.
+  useEffect(() => {
+    if (!initializedRef.current) return
+    if (skipNextPushRef.current) { skipNextPushRef.current = false; return }
+
+    const loc = { tab, classId: selectedClass?.id || null, studentId: selectedStudent?.id || null, studentOrigin }
+    const current = window.history.state
+    const unchanged = current && current.tjApp &&
+      current.tab === loc.tab && current.classId === loc.classId &&
+      current.studentId === loc.studentId && current.studentOrigin === loc.studentOrigin
+    if (!unchanged) window.history.pushState({ tjApp: true, ...loc }, '')
+  }, [tab, selectedClass?.id, selectedStudent?.id, studentOrigin])
 
   // ── Gate ─────────────────────────────────────────────────────────────────
   if (!access) return <AccessGate onAccess={setAccess} />
