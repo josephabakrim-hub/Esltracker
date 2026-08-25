@@ -158,7 +158,7 @@ const MEDAL_STYLE = {
   bronze: { border: '#cd7f32',      chip: '#cd7f32',      text: '#cd7f32',      bg: 'linear-gradient(135deg, rgba(205,127,50,0.22), rgba(146,89,34,0.10))',  icon: '🥉' },
 }
 
-function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
+function Leaderboard({ students, scores, celebrateId, leaderBanner, pickCounts = {} }) {
   const sorted = [...students]
     .filter(s => s.nameEn)
     .sort((a, b) => (scores[b.id] || 0) - (scores[a.id] || 0))
@@ -232,8 +232,12 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
                 <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {s.nameEn.split(' ')[0]}
                 </div>
-                {isAbsent && (
+                {isAbsent ? (
                   <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 0.5 }}>ABSENT</div>
+                ) : (
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 0.5 }}>
+                    🎲 {pickCounts[s.id] || 0} {pickCounts[s.id] === 1 ? 'turn' : 'turns'}
+                  </div>
                 )}
               </div>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800, color: medal ? medal.text : 'var(--text)', flexShrink: 0 }}>
@@ -274,6 +278,10 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   const [soundOn, setSoundOn]                  = useState(true)
   const [showAnswer, setShowAnswer]             = useState(false)
   const [showFriendAnswer, setShowFriendAnswer] = useState(false)
+
+  // How many times each student has actually landed as the pick this session.
+  // Used to quietly weight future spins toward students who've had fewer turns.
+  const [pickCounts, setPickCounts] = useState({})
 
   // ── Live leaderboard (this session only — resets each time the game opens) ──
   const [sessionScores, setSessionScores] = useState({})
@@ -418,17 +426,41 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
     setPhase('spinning')
 
     const ctx = getAudioCtx()
+    const slice = (2 * Math.PI) / eligible.length
 
-    const totalSpins = 6 + Math.random() * 4
-    const extraAngle = Math.random() * 2 * Math.PI
-    const targetRot  = rotation + totalSpins * 2 * Math.PI + extraAngle
+    // ── Fair-but-random pick ──────────────────────────────────────────────
+    // Students with fewer turns this session get a bigger slice of the odds
+    // (never zero, so it's never predictable) — everyone still sees the same
+    // dramatic multi-spin, it's just not left to pure chance which segment wins.
+    const counts     = eligible.map(s => pickCounts[s.id] || 0)
+    const maxCount   = Math.max(0, ...counts)
+    const weights    = counts.map(c => (maxCount - c) + 1)
+    const totalWeight = weights.reduce((a, b) => a + b, 0)
+    let r = Math.random() * totalWeight
+    let targetIndex = eligible.length - 1
+    for (let i = 0; i < eligible.length; i++) {
+      r -= weights[i]
+      if (r <= 0) { targetIndex = i; break }
+    }
+    const picked = eligible[targetIndex]
+
+    // Land solidly inside that student's wedge (not right on the seam) so it
+    // still feels like a natural, unpredictable landing spot.
+    const wedgeOffset      = slice * (0.18 + Math.random() * 0.64)
+    const pointerAngle     = targetIndex * slice + wedgeOffset
+    const targetNormalized = (((2 * Math.PI - pointerAngle) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const currentNormalized = ((rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    const deltaToTarget      = (((targetNormalized - currentNormalized) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+
+    const totalSpins = 6 + Math.floor(Math.random() * 4)
+    const targetRot  = rotation + totalSpins * 2 * Math.PI + deltaToTarget
     const duration   = 3500
     const startTime  = performance.now()
     const startRot   = rotation
 
     // Ticking sound — fast at start, slows down
     let lastTickAngle = rotation
-    const TICK_THRESHOLD = (2 * Math.PI) / eligible.length
+    const TICK_THRESHOLD = slice
 
     function animate(now) {
       const elapsed  = now - startTime
@@ -447,12 +479,8 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
       if (progress < 1) {
         spinRef.current = requestAnimationFrame(animate)
       } else {
-        const normalized   = ((current % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
-        const slice        = (2 * Math.PI) / eligible.length
-        const pointerAngle = ((2 * Math.PI - normalized) % (2 * Math.PI))
-        const index        = Math.floor(pointerAngle / slice) % eligible.length
-        const picked       = eligible[index]
-        const question     = getRandomQuestion(level)
+        setPickCounts(prev => ({ ...prev, [picked.id]: (prev[picked.id] || 0) + 1 }))
+        const question = getRandomQuestion(level)
         setPickedStudent(picked)
         setCurrentQuestion(question)
         setPhase('picked')
@@ -575,6 +603,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
             scores={sessionScores}
             celebrateId={celebrateId}
             leaderBanner={leaderBanner}
+            pickCounts={pickCounts}
           />
 
           <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
