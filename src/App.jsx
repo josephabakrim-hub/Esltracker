@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import AccessGate from './components/AccessGate'
 import Header from './components/Header'
 import Tabs from './components/Tabs'
@@ -198,6 +198,33 @@ export default function App() {
                   : tab
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
+
+  // ── Keep the browser Back/Forward button inside the app ──────────────────
+  const navRef = useRef()
+  navRef.current = { tab, classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal }
+
+  useEffect(() => {
+    window.history.pushState({ tjGuard: true }, '')
+
+    function handlePopState() {
+      // Re-arm immediately so the next Back press is caught too
+      window.history.pushState({ tjGuard: true }, '')
+
+      const n = navRef.current
+      if (n.classModal || n.studentModal || n.noteModal || n.attendanceModal || n.starSessionModal || n.spinModal || n.starSlotsModal) {
+        setClassModal(null); setStudentModal(null); setNoteModal(null)
+        setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null)
+        return
+      }
+      if (n.tab === 'studentProfile') { handleBackFromStudent(); return }
+      if (n.tab === 'classDetail')    { setSelectedClass(null); setTab('classes'); return }
+      if (n.tab !== 'classes')        { handleTabChange('classes'); return }
+      // already at the top-level Classes tab with nothing open — nothing further to unwind
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   // ── Gate ─────────────────────────────────────────────────────────────────
   if (!access) return <AccessGate onAccess={setAccess} />
