@@ -17,12 +17,16 @@ import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
 import TeacherAcademy from './components/TeacherAcademy'
 import AdminPanel from './components/AdminPanel'
+import LockedOverlay, { DemoBadge } from './components/LockedOverlay'
 import { useClasses } from './hooks/useClasses'
 import { useStudents } from './hooks/useStudents'
+import { useAccessControl } from './hooks/useAccessControl'
+import { TABS as ACCESS_TAB_DEFS, getTabMode, getFeatureMode, getLockMessage, getClassFilter, showsDemoBanner } from './lib/accessControl'
 
 export default function App() {
-  const { classes, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
-  const { students, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
+  const { classes: allClasses, loading: loadingClasses, addClass, updateClass, deleteClass } = useClasses()
+  const { students: allStudents, loading: loadingStudents, addStudent, updateStudent, deleteStudent } = useStudents()
+  const { config: accessConfig } = useAccessControl()
 
   const [access, setAccess] = useState(() => {
     try {
@@ -52,6 +56,11 @@ export default function App() {
   const isStudent = access?.role === 'student'
   const studentName = isStudent ? access?.student?.nameEn : null
 
+  // ── Access control: restrict which classes/students a non-teacher role sees ──
+  const roleClassFilter = access && !isTeacher ? getClassFilter(accessConfig, access.role) : []
+  const classes  = (isTeacher || roleClassFilter.length === 0) ? allClasses : allClasses.filter(c => roleClassFilter.includes(c.id))
+  const students = (isTeacher || roleClassFilter.length === 0) ? allStudents : allStudents.filter(s => classes.some(c => c.id === s.classId))
+
   // Theme
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('tj_theme')
@@ -77,10 +86,10 @@ export default function App() {
     { name: 'HTB_Pro1_2',   level: 'pro',   day: 'SUN',       time: '09:30-11:00' },
   ]
   useEffect(() => {
-    if (!loadingClasses && classes.length === 0) {
+    if (isTeacher && !loadingClasses && allClasses.length === 0) {
       DEFAULT_CLASSES.forEach(c => addClass({ ...c, students: 0 }))
     }
-  }, [loadingClasses])
+  }, [loadingClasses, isTeacher])
 
   const [tab, setTab]                         = useState('classes')
   const [selectedClass, setSelectedClass]     = useState(null)
@@ -187,6 +196,11 @@ export default function App() {
     await updateStudent(studentId, { starsLog, totalStars })
   }
 
+  // ── Access control helpers used throughout the render below ──────────────
+  function canOpenFeature(id) { return isTeacher || featureMode(id) !== 'hidden' }
+  function featureReadOnly(id) { return isTeacher ? false : featureMode(id) === 'live-view' }
+  function isFeatureDemo(id) { return !isTeacher && featureMode(id) === 'demo' }
+
   function openClass(cls) { setSelectedClass(cls); setTab('classDetail') }
   function openStudentFromClass(s) { setSelectedStudent(s); setStudentOrigin('class'); setTab('studentProfile') }
   function openStudentFromList(s) { setSelectedStudent(s); setStudentOrigin('students'); setTab('studentProfile') }
@@ -196,6 +210,33 @@ export default function App() {
   const activeTab = tab === 'classDetail' ? 'classes'
                   : tab === 'studentProfile' ? (studentOrigin === 'class' ? 'classes' : 'students')
                   : tab
+
+  // ── Access control: tab visibility for the current non-teacher role ──────
+  const roleId = access?.role
+  function tabMode(tabId) {
+    if (isTeacher) return 'visible'
+    return getTabMode(accessConfig, roleId, tabId)
+  }
+  function featureMode(featureId) {
+    if (isTeacher) return 'live'
+    return getFeatureMode(accessConfig, roleId, featureId)
+  }
+  const visibleTabDefs = !isTeacher
+    ? ACCESS_TAB_DEFS.filter(t => tabMode(t.id) !== 'hidden')
+        .map(t => ({ ...t, label: tabMode(t.id) === 'blurred' ? `🔒 ${t.label}` : t.label }))
+    : undefined // teacher gets the default 5-tab set defined inline below
+
+  // If an admin revokes access to the tab someone is currently on, bounce them
+  // to the first tab still available to their role rather than showing nothing.
+  useEffect(() => {
+    if (isTeacher || !access) return
+    if (tab === 'classDetail' || tab === 'studentProfile') return
+    if (tabMode(tab) === 'hidden') {
+      const fallback = ACCESS_TAB_DEFS.find(t => tabMode(t.id) !== 'hidden')
+      setTab(fallback ? fallback.id : 'classes')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessConfig, access, tab])
 
   function handleTabChange(t) { setSelectedClass(null); setSelectedStudent(null); setStudentOrigin(null); setTab(t) }
 
@@ -302,7 +343,7 @@ export default function App() {
             { id: 'analytics', label: '📊 Analytics' },
             { id: 'academy',   label: '🎓 Academy'   },
             { id: 'admin',     label: '🔐 Admin'     },
-          ] : undefined}
+          ] : visibleTabDefs}
         />
 
         {isLoading && (
@@ -311,13 +352,20 @@ export default function App() {
 
         {!isLoading && <>
           {tab === 'classes' && (
-            <><StatsBar students={students} classes={classes} />
-            <ClassesView classes={classes} students={students} onSelectClass={openClass}
-              onAddClass={isTeacher ? () => setClassModal('add') : null}
-              onEditClass={isTeacher ? c => setClassModal(c) : null}
-              onDeleteClass={isTeacher ? handleDeleteClass : null}
-              readOnly={!isTeacher}
-            /></>
+            tabMode('classes') === 'blurred' ? (
+              <LockedOverlay message={getLockMessage(accessConfig, roleId, 'classes')}>
+                <StatsBar students={students} classes={classes} />
+                <ClassesView classes={classes} students={students} onSelectClass={() => {}} readOnly />
+              </LockedOverlay>
+            ) : (
+              <><StatsBar students={students} classes={classes} />
+              <ClassesView classes={classes} students={students} onSelectClass={openClass}
+                onAddClass={isTeacher ? () => setClassModal('add') : null}
+                onEditClass={isTeacher ? c => setClassModal(c) : null}
+                onDeleteClass={isTeacher ? handleDeleteClass : null}
+                readOnly={!isTeacher}
+              /></>
+            )
           )}
 
           {tab === 'classDetail' && liveClass && (
@@ -326,10 +374,10 @@ export default function App() {
               onSelectStudent={openStudentFromClass}
               onAddStudent={isTeacher ? () => setStudentModal('add') : null}
               onEditClass={isTeacher ? c => setClassModal(c) : null}
-              onOpenAttendance={isTeacher ? () => setAttendanceModal(liveClass.id) : null}
-              onOpenStarSession={isTeacher ? () => setStarSessionModal(liveClass.id) : null}
-              onOpenSpinOfDoom={isTeacher ? () => setSpinModal(liveClass.id) : null}
-              onOpenStarSlots={isTeacher ? () => setStarSlotsModal(liveClass.id) : null}
+              onOpenAttendance={canOpenFeature('attendance') ? () => setAttendanceModal(liveClass.id) : null}
+              onOpenStarSession={canOpenFeature('starSession') ? () => setStarSessionModal(liveClass.id) : null}
+              onOpenSpinOfDoom={canOpenFeature('spinOfDoom') ? () => setSpinModal(liveClass.id) : null}
+              onOpenStarSlots={canOpenFeature('starSlots') ? () => setStarSlotsModal(liveClass.id) : null}
               studentId={isStudent ? access?.student?.id : null}
               completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
               readOnly={!isTeacher}
@@ -337,19 +385,26 @@ export default function App() {
           )}
 
           {tab === 'students' && (
-            <><StatsBar students={students} classes={classes} />
-            <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
-              onAddStudent={isTeacher ? () => setStudentModal('add') : null}
-              onEditStudent={isTeacher ? s => setStudentModal(s) : null}
-              readOnly={!isTeacher}
-            /></>
+            tabMode('students') === 'blurred' ? (
+              <LockedOverlay message={getLockMessage(accessConfig, roleId, 'students')}>
+                <StatsBar students={students} classes={classes} />
+                <StudentsView students={students} classes={classes} onSelectStudent={() => {}} readOnly />
+              </LockedOverlay>
+            ) : (
+              <><StatsBar students={students} classes={classes} />
+              <StudentsView students={students} classes={classes} onSelectStudent={openStudentFromList}
+                onAddStudent={isTeacher ? () => setStudentModal('add') : null}
+                onEditStudent={isTeacher ? s => setStudentModal(s) : null}
+                readOnly={!isTeacher}
+              /></>
+            )
           )}
 
           {tab === 'studentProfile' && liveStudent && (
             <StudentProfile student={liveStudent} classes={classes}
               onBack={handleBackFromStudent}
               onEdit={isTeacher ? () => setStudentModal(liveStudent) : null}
-              onAddNote={isTeacher ? () => setNoteModal(liveStudent.id) : null}
+              onAddNote={canOpenFeature('notes') ? () => setNoteModal(liveStudent.id) : null}
               onDelete={isTeacher ? handleDeleteStudent : null}
               onAddStars={isTeacher ? handleAwardStars : null}
               onDeleteStar={isTeacher ? handleDeleteStar : null}
@@ -358,12 +413,25 @@ export default function App() {
           )}
 
           {tab === 'analytics' && (
-            <><StatsBar students={students} classes={classes} />
-            <AnalyticsView students={students} classes={classes} /></>
+            tabMode('analytics') === 'blurred' ? (
+              <LockedOverlay message={getLockMessage(accessConfig, roleId, 'analytics')}>
+                <StatsBar students={students} classes={classes} />
+                <AnalyticsView students={students} classes={classes} />
+              </LockedOverlay>
+            ) : (
+              <><StatsBar students={students} classes={classes} />
+              <AnalyticsView students={students} classes={classes} /></>
+            )
           )}
 
-          {tab === 'academy' && isTeacher && (
-            <TeacherAcademy />
+          {tab === 'academy' && (isTeacher || tabMode('academy') !== 'hidden') && (
+            tabMode('academy') === 'blurred' ? (
+              <LockedOverlay message={getLockMessage(accessConfig, roleId, 'academy')}>
+                <TeacherAcademy />
+              </LockedOverlay>
+            ) : (
+              <TeacherAcademy />
+            )
           )}
 
           {tab === 'admin' && isTeacher && (
@@ -377,14 +445,31 @@ export default function App() {
         </>}
       </div>
 
-      {/* Modals — teacher only, hard-gated */}
+      {/* Structural edits (renaming/creating classes & students) stay teacher-only, always */}
       {isTeacher && classModal       && <ClassModal cls={classModal === 'add' ? null : classModal} onSave={handleSaveClass} onClose={() => setClassModal(null)} />}
       {isTeacher && studentModal     && <StudentModal student={studentModal === 'add' ? null : studentModal} classes={classes} onSave={handleSaveStudent} onClose={() => setStudentModal(null)} />}
-      {isTeacher && noteModal        && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
-      {isTeacher && attendanceModal  && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={false} />}
-      {isTeacher && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={false} />}
-      {isTeacher && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={false} />}
-      {isTeacher && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={false} />}
+
+      {/* These four can be opened by other roles too, if Access Control grants Demo or View-only access.
+          featureReadOnly() decides interactivity; the write handlers themselves already no-op for
+          anyone but the teacher, so a "Demo" role can click around freely and nothing is ever saved. */}
+      {canOpenFeature('notes')       && noteModal        && <NoteModal studentName={students.find(s => s.id === noteModal)?.nameEn || ''} onSave={handleAddNote} onClose={() => setNoteModal(null)} />}
+      {canOpenFeature('attendance')  && attendanceModal  && <AttendanceModal cls={classes.find(c => c.id === attendanceModal)} students={students.filter(s => s.classId === attendanceModal)} onSave={handleSaveAttendance} onClose={() => setAttendanceModal(null)} readOnly={featureReadOnly('attendance')} />}
+      {canOpenFeature('starSession') && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={featureReadOnly('starSession')} />}
+      {canOpenFeature('spinOfDoom')  && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onClose={() => setSpinModal(null)} readOnly={featureReadOnly('spinOfDoom')} />}
+      {canOpenFeature('starSlots')   && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={featureReadOnly('starSlots')} />}
+
+      {/* Floating "demo, not saved" badge — shown whenever a non-teacher has a demo feature open */}
+      {!isTeacher && showsDemoBanner(accessConfig, roleId) && (
+        (isFeatureDemo('attendance') && attendanceModal) ||
+        (isFeatureDemo('starSession') && starSessionModal) ||
+        (isFeatureDemo('spinOfDoom') && spinModal) ||
+        (isFeatureDemo('starSlots') && starSlotsModal) ||
+        (isFeatureDemo('notes') && noteModal)
+      ) && (
+        <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 300 }}>
+          <DemoBadge />
+        </div>
+      )}
     </div>
   )
 }

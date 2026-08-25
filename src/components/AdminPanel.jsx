@@ -3,6 +3,11 @@ import { useState } from 'react'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { initials } from '../lib/utils'
+import { useAccessControl } from '../hooks/useAccessControl'
+import {
+  CONTROLLABLE_ROLES, ROLE_LABELS, TABS as ACCESS_TABS, FEATURES as ACCESS_FEATURES,
+  TAB_MODES, FEATURE_MODES,
+} from '../lib/accessControl'
 
 // ── Book assignments ────────────────────────────────────────────────────────
 const BOOKS = {
@@ -109,6 +114,38 @@ function Tag({ active, onClick, children, color }) {
       color: active ? '#fff' : 'var(--muted)',
       border: `1.5px solid ${active ? (color || 'var(--accent)') : 'var(--border)'}`,
     }}>{children}</div>
+  )
+}
+
+function ModeToggle({ options, value, onChange }) {
+  return (
+    <div style={{ display: 'flex', gap: 4 }}>
+      {options.map(o => (
+        <div key={o.id} title={o.desc} onClick={() => onChange(o.id)}
+          style={{
+            padding: '5px 10px', borderRadius: 8, cursor: 'pointer',
+            fontFamily: 'var(--mono)', fontSize: 9, fontWeight: value === o.id ? 700 : 400,
+            letterSpacing: 0.5, transition: 'all 0.15s', whiteSpace: 'nowrap',
+            background: value === o.id ? 'var(--text)' : 'var(--bg)',
+            color: value === o.id ? '#fff' : 'var(--muted)',
+            border: `1.5px solid ${value === o.id ? 'var(--text)' : 'var(--border)'}`,
+          }}>{o.label}</div>
+      ))}
+    </div>
+  )
+}
+
+function LockMessageInput({ initialValue, onCommit, placeholder }) {
+  const [val, setVal] = useState(initialValue || '')
+  return (
+    <input
+      className="form-input"
+      style={{ fontSize: 11, padding: '6px 10px', marginTop: 6 }}
+      placeholder={placeholder}
+      value={val}
+      onChange={e => setVal(e.target.value)}
+      onBlur={() => onCommit(val)}
+    />
   )
 }
 
@@ -278,6 +315,28 @@ export default function AdminPanel({ classes, students, updateClass, updateStude
     showToast(`+${boostAmount}% ${boostSkill} applied to ${target.length} students!`)
   }
 
+  // ── 7. Access Control (Student / Parent / Colleague permissions) ───────────
+  const { config: accessConfig, updateRoleConfig } = useAccessControl()
+  const [accessRole, setAccessRole] = useState('student')
+
+  function setTabMode(role, tabId, mode) {
+    updateRoleConfig(role, { tabs: { [tabId]: mode } })
+  }
+  function setFeatureMode(role, featureId, mode) {
+    updateRoleConfig(role, { features: { [featureId]: mode } })
+  }
+  function setLockMsg(role, id, msg) {
+    updateRoleConfig(role, { lockMessages: { [id]: msg } })
+  }
+  function toggleClassFilter(role, classId) {
+    const current = accessConfig[role]?.classFilter || []
+    const next = current.includes(classId) ? current.filter(x => x !== classId) : [...current, classId]
+    updateRoleConfig(role, { classFilter: next })
+  }
+  function toggleDemoBanner(role) {
+    updateRoleConfig(role, { demoBanner: !(accessConfig[role]?.demoBanner !== false) })
+  }
+
   // ── Nav sections ─────────────────────────────────────────────────────────
   const SECTIONS = [
     { id: 'books',      label: '📚 Book Assignment' },
@@ -286,6 +345,7 @@ export default function AdminPanel({ classes, students, updateClass, updateStude
     { id: 'goals',      label: '🎯 Bulk Goals' },
     { id: 'skills',     label: '📈 Skill Boost' },
     { id: 'attendance', label: '🔄 Reset Attendance' },
+    { id: 'access',     label: '🔐 Access Control' },
   ]
 
   return (
@@ -695,6 +755,115 @@ export default function AdminPanel({ classes, students, updateClass, updateStude
           )}
         </div>
       )}
+
+      {/* ══ 7. ACCESS CONTROL ═══════════════════════════════════════════════ */}
+      {activeSection === 'access' && (() => {
+        const roleCfg = accessConfig[accessRole] || {}
+        return (
+          <div>
+            <div style={card}>
+              <div style={sectionTitle}>🔐 Access Control</div>
+              <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 18, lineHeight: 1.6 }}>
+                Control exactly what Students, Parents, and Colleagues can see and do when they log in.
+                Nothing here affects you — Teacher Joseph always has full access. Anything set to <strong>Demo</strong> lets
+                that role click around and try it out, but the input is never saved to your real students or classes.
+              </p>
+
+              {/* Role picker */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>
+                {CONTROLLABLE_ROLES.map(r => (
+                  <Tag key={r} active={accessRole === r} onClick={() => setAccessRole(r)} color="var(--accent2)">
+                    {ROLE_LABELS[r]}
+                  </Tag>
+                ))}
+              </div>
+
+              {/* Tabs */}
+              <div style={{ marginBottom: 26 }}>
+                <div style={{ ...label, marginBottom: 12, fontSize: 10 }}>Tab Access</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {ACCESS_TABS.map(t => {
+                    const mode = roleCfg.tabs?.[t.id] || 'hidden'
+                    return (
+                      <div key={t.id} style={{ padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 13, fontWeight: 600 }}>{t.label}</span>
+                          <ModeToggle options={TAB_MODES} value={mode} onChange={m => setTabMode(accessRole, t.id, m)} />
+                        </div>
+                        {mode === 'blurred' && (
+                          <LockMessageInput
+                            initialValue={roleCfg.lockMessages?.[t.id] || ''}
+                            placeholder='Custom lock message (default: "This is for Teacher Joseph only.")'
+                            onCommit={v => setLockMsg(accessRole, t.id, v)}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Features */}
+              <div style={{ marginBottom: 26 }}>
+                <div style={{ ...label, marginBottom: 12, fontSize: 10 }}>In-Class Feature Access</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.5 }}>
+                  These appear inside a class's detail page. <strong>Demo</strong> = fully clickable but not saved. <strong>View only</strong> = they can see the real data (e.g. today's attendance) but can't change anything.
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {ACCESS_FEATURES.map(f => {
+                    const mode = roleCfg.features?.[f.id] || 'hidden'
+                    return (
+                      <div key={f.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{f.label}</span>
+                        <ModeToggle options={FEATURE_MODES} value={mode} onChange={m => setFeatureMode(accessRole, f.id, m)} />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Demo banner toggle */}
+              <div style={{ marginBottom: 26 }}>
+                <div onClick={() => toggleDemoBanner(accessRole)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 10, cursor: 'pointer',
+                    background: roleCfg.demoBanner !== false ? 'rgba(124,58,237,0.06)' : 'var(--surface2)',
+                    border: `1.5px solid ${roleCfg.demoBanner !== false ? 'rgba(124,58,237,0.3)' : 'var(--border)'}` }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${roleCfg.demoBanner !== false ? 'var(--elite)' : 'var(--border)'}`, background: roleCfg.demoBanner !== false ? 'var(--elite)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {roleCfg.demoBanner !== false && <span style={{ color: '#fff', fontSize: 12, fontWeight: 800 }}>✓</span>}
+                  </div>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    Show a "🧪 Demo — not saved" badge on demo features, so it's always clear to them
+                  </span>
+                </div>
+              </div>
+
+              {/* Class visibility filter */}
+              <div>
+                <div style={{ ...label, marginBottom: 8, fontSize: 10 }}>Visible Classes</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.5 }}>
+                  Leave all unchecked to allow every class. Check specific classes to restrict this role to only those.
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {classes.map(c => {
+                    const checked = (roleCfg.classFilter || []).includes(c.id)
+                    return (
+                      <Tag key={c.id} active={checked} onClick={() => toggleClassFilter(accessRole, c.id)} color="var(--accent2)">
+                        {checked ? '✓ ' : ''}{c.name}
+                      </Tag>
+                    )
+                  })}
+                  {classes.length === 0 && <span style={{ fontSize: 11, color: 'var(--muted)' }}>No classes yet.</span>}
+                </div>
+                {(roleCfg.classFilter || []).length > 0 && (
+                  <div style={{ marginTop: 10, fontSize: 11, color: 'var(--accent2)' }}>
+                    {ROLE_LABELS[accessRole]} will only see {roleCfg.classFilter.length} of {classes.length} classes.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

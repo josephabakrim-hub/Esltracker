@@ -74,18 +74,18 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          {!readOnly && <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>}
-          {!readOnly && (
+          {onOpenAttendance && <button className="btn btn-outline" onClick={onOpenAttendance}>📅 Attendance</button>}
+          {onOpenStarSession && (
             <button className="btn btn-outline"
               style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)' }}
               onClick={onOpenStarSession}>⭐ Star Session</button>
           )}
-          {!readOnly && (
+          {onOpenSpinOfDoom && (
             <button className="btn btn-outline"
               style={{ background: 'rgba(214,59,59,0.08)', borderColor: 'rgba(214,59,59,0.25)', color: 'var(--red)', fontWeight: 700 }}
               onClick={onOpenSpinOfDoom}>🎰 Spin of Doom</button>
           )}
-          {!readOnly && (
+          {onOpenStarSlots && (
             <button className="btn btn-outline"
               style={{ background: 'rgba(212,144,10,0.08)', borderColor: 'rgba(212,144,10,0.3)', color: 'var(--gold)', fontWeight: 700 }}
               onClick={onOpenStarSlots}>🃏 Star Slots</button>

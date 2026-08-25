@@ -324,7 +324,7 @@ export default function StudentProfile({ student, classes, onBack, onEdit, onAdd
       <div style={card}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={sectionTitle}>📝 Teacher Notes</div>
-          {!readOnly && <button className="btn btn-dark" onClick={onAddNote}>+ Add Note</button>}
+          {onAddNote && <button className="btn btn-dark" onClick={onAddNote}>+ Add Note</button>}
         </div>
         {notes.length === 0 && (
           <div style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: 12 }}>No notes yet.</div>
