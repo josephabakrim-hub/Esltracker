@@ -177,6 +177,7 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
     return uniqueScoresDesc.indexOf(pts) + 1
   }
   const tier1Count = withPoints.filter(s => tierOf(s) === 1).length
+  const maxPts = uniqueScoresDesc[0] || 0
 
   // Track rank movement between renders so we can show ▲/▼ momentum arrows
   const prevRanksRef = useRef({})
@@ -189,7 +190,7 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
   }, [rankSignature])
 
   return (
-    <div style={{ width: 250, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: 260, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: 2, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
         🏆 Live Leaderboard
       </div>
@@ -207,7 +208,7 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 480, overflowY: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 480, overflowY: 'auto' }}>
         {sorted.map((s, i) => {
           const pts = scores[s.id] || 0
           const tier = tierOf(s)
@@ -215,6 +216,7 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
           const isSoleLeader = tier === 1 && tier1Count === 1
           const isCelebrating = celebrateId === s.id
           const isAbsent = s.__absentToday
+          const barPct = maxPts > 0 ? Math.max(pts > 0 ? 6 : 0, Math.round((pts / maxPts) * 100)) : 0
 
           // Momentum arrow vs. last spin
           const prevRank = prevRanksRef.current[s.id]
@@ -241,11 +243,13 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
             }
           }
 
+          const barColor = medal ? medal.text : 'var(--accent2)'
+
           return (
             <div key={s.id} style={{
               position: 'relative', overflow: 'hidden',
-              display: 'flex', alignItems: 'center', gap: 9,
-              padding: '10px 12px', borderRadius: 10,
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '9px 12px', borderRadius: 12,
               background: medal ? medal.bg : 'var(--surface2)',
               border: `1.5px solid ${medal ? medal.border : 'var(--border)'}`,
               opacity: isAbsent ? 0.4 : 1,
@@ -256,21 +260,23 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
               {isSoleLeader && <div className="gold-shine" />}
 
               {isSoleLeader && (
-                <div style={{ position: 'absolute', top: -11, left: 28, fontSize: 15, zIndex: 2 }}>👑</div>
+                <div style={{ position: 'absolute', top: -11, left: 22, fontSize: 15, zIndex: 2 }}>👑</div>
               )}
-              <div style={{ fontFamily: 'var(--mono)', fontSize: medal ? 16 : 11, fontWeight: 700, color: medal ? medal.text : 'var(--muted)', width: 20, flexShrink: 0, textAlign: 'center', zIndex: 1 }}>
+
+              {/* Rank badge — circular, gradient for medals */}
+              <div style={{
+                width: 26, height: 26, borderRadius: '50%', flexShrink: 0, zIndex: 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: medal ? `linear-gradient(135deg, ${medal.chip}, ${medal.chip}99)` : 'var(--border)',
+                boxShadow: medal ? `0 2px 8px ${medal.chip}55` : 'none',
+                fontFamily: 'var(--mono)', fontSize: medal ? 13 : 11, fontWeight: 800,
+                color: medal ? '#fff' : 'var(--muted)',
+              }}>
                 {medal ? medal.icon : i + 1}
               </div>
-              <div style={{
-                width: 30, height: 30, borderRadius: 8, flexShrink: 0, zIndex: 1,
-                background: medal ? medal.chip : 'var(--border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 800, color: medal ? '#fff' : 'var(--muted)',
-              }}>
-                {initials(s.nameEn)}
-              </div>
+
               <div style={{ flex: 1, minWidth: 0, zIndex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {s.nameEn.split(' ')[0]}
                   </div>
@@ -278,13 +284,28 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
                     <span style={{ fontSize: 9, color: arrow.color, fontWeight: 800 }}>{arrow.symbol}</span>
                   )}
                 </div>
+
+                {/* Mini progress bar — this student's points relative to the session leader */}
+                <div style={{ height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${barPct}%`, height: '100%', borderRadius: 2,
+                    background: isAbsent ? 'var(--muted)' : barColor,
+                    transition: 'width 0.5s cubic-bezier(.34,1.56,.64,1)',
+                  }} />
+                </div>
+
                 {hint && (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: hint.color, letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: hint.color, letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 3 }}>
                     {hint.text}
                   </div>
                 )}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 800, color: medal ? medal.text : 'var(--text)', flexShrink: 0, zIndex: 1 }}>
+
+              <div style={{
+                fontFamily: 'var(--mono)', fontSize: 15, fontWeight: 800,
+                color: medal ? medal.text : 'var(--text)', flexShrink: 0, zIndex: 1,
+                minWidth: 30, textAlign: 'right',
+              }}>
                 {pts}
               </div>
               {isCelebrating && <ConfettiBurst />}
