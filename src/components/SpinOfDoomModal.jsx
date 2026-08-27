@@ -348,6 +348,11 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateC
   // Used to quietly weight future spins toward students who've had fewer turns.
   const [pickCounts, setPickCounts] = useState({})
 
+  // Counts every question asked this session (not tied to a specific
+  // student) so we can guarantee a fun/general question every 3rd spin —
+  // students are never more than 2 spins away from variety.
+  const spinIndexRef = useRef(0)
+
   // ── Live leaderboard (this session only — resets each time the game opens) ──
   const [sessionScores, setSessionScores] = useState({})
   const [celebrateId, setCelebrateId]     = useState(null)
@@ -545,7 +550,9 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateC
         spinRef.current = requestAnimationFrame(animate)
       } else {
         setPickCounts(prev => ({ ...prev, [picked.id]: (prev[picked.id] || 0) + 1 }))
-        const question = getSpinQuestion(cls, level, coveredUnits)
+        const forceGeneral = spinIndexRef.current % 3 === 2
+        spinIndexRef.current += 1
+        const question = getSpinQuestion(cls, level, coveredUnits, forceGeneral)
         setPickedStudent(picked)
         setCurrentQuestion(question)
         setPhase('picked')

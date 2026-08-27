@@ -493,16 +493,21 @@ const BOOK_QUESTION_RATIO = 0.6
  * The rest mix in the general fun/practical bank (family, clothes, school,
  * science, general knowledge, etc.) from lib/questions.js for variety.
  *
+ * `forceGeneral` guarantees a general question regardless of the random
+ * mix — the caller uses this every 3rd spin so students are never more
+ * than 2 spins away from a fun/stimulating question, even on a small or
+ * heavily book-weighted session.
+ *
  * Falls back fully to the general bank when there's no book, no book
  * questions yet, or no units have been marked covered.
  */
-export function getSpinQuestion(cls, level, coveredUnits = []) {
+export function getSpinQuestion(cls, level, coveredUnits = [], forceGeneral = false) {
   const book = getBook(cls)
   const bookPool = (book && book.spinQuestions && coveredUnits.length > 0)
     ? book.spinQuestions.filter(q => coveredUnits.includes(q.unit))
     : []
 
-  if (bookPool.length === 0) return getGeneralQuestion(level)
+  if (forceGeneral || bookPool.length === 0) return getGeneralQuestion(level)
 
   if (Math.random() < BOOK_QUESTION_RATIO) {
     return bookPool[Math.floor(Math.random() * bookPool.length)]
