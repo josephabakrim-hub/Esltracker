@@ -137,6 +137,28 @@ export const BOOKS = {
   // whenever it's time for that book.
   // ═══════════════════════════════════════════════════════════════════════
 
+  kidsboxngstarter: {
+    slug: 'kidsboxngstarter',
+    label: 'Kids Box NG — Starter',
+    series: 'Kids Box New Generation',
+    track: 'starter',
+    cefr: 'Pre-A1 (pre-reading)',
+    color: '#facc15',
+    units: [
+      { num: 1, title: 'Hello!',      emoji: '👋' },
+      { num: 2, title: 'My Class',    emoji: '🏫' },
+      { num: 3, title: 'My Colours',  emoji: '🎨' },
+      { num: 4, title: 'My Toys',     emoji: '🧸' },
+      { num: 5, title: 'My House',    emoji: '🏠' },
+      { num: 6, title: 'My Body',     emoji: '🙌' },
+      { num: 7, title: 'My Animals',  emoji: '🐾' },
+      { num: 8, title: 'My Food',     emoji: '🍎' },
+    ],
+    spinQuestions: [],
+    homework: [],
+    materials: [],
+  },
+
   kidsboxng1: {
     slug: 'kidsboxng1',
     label: 'Kids Box NG — Level 1',
@@ -358,6 +380,33 @@ export const BOOKS = {
       { num: 10, title: 'Money',                       emoji: '💰' },
       { num: 11, title: 'Help!',                       emoji: '🆘' },
       { num: 12, title: 'A First Time for Everything', emoji: '🌟' },
+    ],
+    spinQuestions: [],
+    homework: [],
+    materials: [],
+  },
+
+  thinkl4: {
+    slug: 'thinkl4',
+    label: 'Think — Level 4',
+    series: 'Cambridge Think',
+    track: 'elite',
+    cefr: 'B2',
+    color: '#dc2626',
+    units: [
+      { num: 0,  title: 'Welcome',                        emoji: '👋' },
+      { num: 1,  title: 'Survival',                       emoji: '🏕️' },
+      { num: 2,  title: 'Going Places',                    emoji: '✈️' },
+      { num: 3,  title: 'The Next Generation',             emoji: '👶' },
+      { num: 4,  title: 'Thinking Outside the Box',        emoji: '📦' },
+      { num: 5,  title: 'Screen Time',                     emoji: '📱' },
+      { num: 6,  title: 'Bringing People Together',        emoji: '🤝' },
+      { num: 7,  title: 'Always Look on the Bright Side',  emoji: '☀️' },
+      { num: 8,  title: 'Making Lists',                    emoji: '📋' },
+      { num: 9,  title: 'Be Your Own Life Coach',          emoji: '🎯' },
+      { num: 10, title: 'Spreading the News',              emoji: '📰' },
+      { num: 11, title: 'Space and Beyond',                emoji: '🚀' },
+      { num: 12, title: 'More to Explore',                 emoji: '🔭' },
     ],
     spinQuestions: [],
     homework: [],
