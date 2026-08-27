@@ -51,6 +51,10 @@ export const BOOKS = {
       { unit: 0, category: '👋 Unit 0: Hello!', q: "Name one toy that starts with the letter K.", a: "Kite" },
       { unit: 0, category: '👋 Unit 0: Hello!', q: "If a cat is 'under the table', where is it?", a: "Below/underneath the table" },
       { unit: 0, category: '👋 Unit 0: Hello!', q: "Ask a friend 'What's your name?' — how would they answer if their name is Suzy?", a: "My name's Suzy." },
+      { unit: 0, category: '👋 Unit 0: Hello!', q: "True or false: a monster is a toy.", a: "False — it's a scary creature, not a toy." },
+      { unit: 0, category: '👋 Unit 0: Hello!', q: "Fill the blank: 'A bike has two ___.' (wheels)", a: "Wheels" },
+      { unit: 0, category: '👋 Unit 0: Hello!', q: "Which one is NOT a toy: doll, train, basement?", a: "Basement" },
+      { unit: 0, category: '👋 Unit 0: Hello!', q: "Spell the word for a toy you fly in the wind.", a: "K-I-T-E — Kite" },
 
       // Unit 1 — Family Matters
       { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "What do you call your mother's sister?", a: "Aunt" },
@@ -58,6 +62,9 @@ export const BOOKS = {
       { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "What do you call your son's daughter?", a: "Granddaughter" },
       { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "What do we call hair that isn't straight, but grows in curls?", a: "Curly hair" },
       { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "Say a sentence using 's to show something belongs to Tom.", a: "e.g. That's Tom's bike." },
+      { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "Fill the blank: 'My father's brother is my ___.' (uncle)", a: "Uncle" },
+      { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "True or false: your grandparents are your mother and father.", a: "False — grandparents are your parents' parents." },
+      { unit: 1, category: '👨‍👩‍👧 Unit 1: Family Matters', q: "Which family word means a male child: son or daughter?", a: "Son" },
 
       // Unit 2 — Home Sweet Home
       { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "What do you call the floor of a house that is under the ground?", a: "Basement" },
@@ -65,6 +72,9 @@ export const BOOKS = {
       { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "What do we call the outdoor space attached to a flat, often with a nice view?", a: "Balcony" },
       { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "Is London a city, a town, or a village?", a: "A city" },
       { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "What is 30 + 40 in English?", a: "Seventy" },
+      { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "Fill the blank: 'You use the ___ to walk up to the next floor.' (stairs)", a: "Stairs" },
+      { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "What's the opposite of 'downstairs'?", a: "Upstairs" },
+      { unit: 2, category: '🏠 Unit 2: Home Sweet Home', q: "Which is below ground: a balcony or a basement?", a: "A basement" },
 
       // Unit 3 — A Day in the Life
       { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "Which comes first in the morning: waking up or getting up?", a: "Waking up" },
@@ -72,6 +82,8 @@ export const BOOKS = {
       { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "If you do something every single day, do you say 'always', 'sometimes', or 'never'?", a: "Always" },
       { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "What phrase means getting on the bus to travel somewhere?", a: "Catch the bus" },
       { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "What do you do in the shower every morning?", a: "Wash / have a shower" },
+      { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "Fill the blank: 'I ___ wake up at 7.' (always/sometimes/never — pick one and say a true sentence)", a: "Any of: always / sometimes / never" },
+      { unit: 3, category: '⏰ Unit 3: A Day in the Life', q: "True or false: 'sometimes' means every single day.", a: "False — 'always' means every day." },
 
       // Unit 4 — In the City
       { unit: 4, category: '🏙️ Unit 4: In the City', q: "Where do you go to watch a film?", a: "Cinema" },
@@ -79,6 +91,8 @@ export const BOOKS = {
       { unit: 4, category: '🏙️ Unit 4: In the City', q: "Where do you go to borrow books?", a: "Library" },
       { unit: 4, category: '🏙️ Unit 4: In the City', q: "Where do you go to do the weekly food shopping?", a: "Supermarket" },
       { unit: 4, category: '🏙️ Unit 4: In the City', q: "Where in the city can you swim indoors?", a: "Swimming pool" },
+      { unit: 4, category: '🏙️ Unit 4: In the City', q: "Fill the blank: 'I go to the ___ to buy food.' (supermarket)", a: "Supermarket" },
+      { unit: 4, category: '🏙️ Unit 4: In the City', q: "Which place is for reading, not swimming: library or swimming pool?", a: "Library" },
 
       // Unit 5 — Fit and Well
       { unit: 5, category: '💪 Unit 5: Fit and Well', q: "If your tooth hurts, what's the matter with you?", a: "I've got a toothache." },
@@ -86,6 +100,8 @@ export const BOOKS = {
       { unit: 5, category: '💪 Unit 5: Fit and Well', q: "Which of these means jumping on one foot: hop, climb, or swim?", a: "Hop" },
       { unit: 5, category: '💪 Unit 5: Fit and Well', q: "How do you say you have a fever in English?", a: "I've got a temperature." },
       { unit: 5, category: '💪 Unit 5: Fit and Well', q: "Name three things your body can do: climb, dance, hop, jump, run, skip, or swim.", a: "Any three, e.g. run, jump, swim" },
+      { unit: 5, category: '💪 Unit 5: Fit and Well', q: "Fill the blank: 'I've got a ___.' — say this if your head hurts.", a: "Headache" },
+      { unit: 5, category: '💪 Unit 5: Fit and Well', q: "Which word means to move your body to music: dance, climb, or swim?", a: "Dance" },
 
       // Unit 6 — In the Countryside
       { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "Where would you find lots of trees close together?", a: "Forest" },
@@ -93,6 +109,8 @@ export const BOOKS = {
       { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "What natural feature is water falling from a high place called?", a: "Waterfall" },
       { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "What's the opposite of 'strong'?", a: "Weak" },
       { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "What do you call a meal you eat outdoors, often sitting on the grass?", a: "A picnic" },
+      { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "Fill the blank: 'We had a ___ by the ___.' — a meal outdoors, near water.", a: "e.g. picnic by the river/lake" },
+      { unit: 6, category: '🌳 Unit 6: In the Countryside', q: "True or false: a forest has lots of trees.", a: "True" },
 
       // Unit 7 — World of Animals
       { unit: 7, category: '🦁 Unit 7: World of Animals', q: "What animal carries its baby in a pouch?", a: "Kangaroo" },
@@ -100,6 +118,8 @@ export const BOOKS = {
       { unit: 7, category: '🦁 Unit 7: World of Animals', q: "What black-and-white animal loves eating bamboo?", a: "Panda" },
       { unit: 7, category: '🦁 Unit 7: World of Animals', q: "What bird can learn to copy human speech?", a: "Parrot" },
       { unit: 7, category: '🦁 Unit 7: World of Animals', q: "Say a comparative sentence: which is bigger, a shark or a dolphin?", a: "A shark is bigger than a dolphin." },
+      { unit: 7, category: '🦁 Unit 7: World of Animals', q: "Which animal is black and white: a panda or a parrot?", a: "A panda" },
+      { unit: 7, category: '🦁 Unit 7: World of Animals', q: "Fill the blank: 'A whale is ___ than a dolphin.' (bigger)", a: "Bigger" },
 
       // Unit 8 — Weather Report
       { unit: 8, category: '⛅ Unit 8: Weather Report', q: "What do you wear on your hands when it's cold?", a: "Gloves" },
@@ -107,6 +127,8 @@ export const BOOKS = {
       { unit: 8, category: '⛅ Unit 8: Weather Report', q: "What do you wear when you go swimming?", a: "Swim shorts" },
       { unit: 8, category: '⛅ Unit 8: Weather Report', q: "Finish the sentence: 'Yesterday, the weather ___ sunny.'", a: "was" },
       { unit: 8, category: '⛅ Unit 8: Weather Report', q: "What do you wear on your head to keep warm in windy weather?", a: "A hat" },
+      { unit: 8, category: '⛅ Unit 8: Weather Report', q: "Which is for cold weather: gloves or swim shorts?", a: "Gloves" },
+      { unit: 8, category: '⛅ Unit 8: Weather Report', q: "True or false: you can see a rainbow when it's raining and sunny at the same time.", a: "True" },
     ],
 
     // Homework — one short assignment per unit, reinforcing that unit's
@@ -456,17 +478,34 @@ export function getBookUnitCount(slug) {
   return BOOKS[slug]?.units?.length || 0
 }
 
+// Portion of spins that pull from the book's own question bank (scoped to
+// covered units) vs. the general fun/practical bank. Tune here if the mix
+// ever needs to change.
+const BOOK_QUESTION_RATIO = 0.6
+
 /**
- * Pick a Spin of Doom question for a class. Uses the class's assigned book's
- * own question bank when it has one; otherwise falls back to the general
- * level-wide bank in lib/questions.js so Spin of Doom keeps working for any
- * class/book that doesn't have book-specific questions built yet.
+ * Pick a Spin of Doom question for a class.
+ *
+ * If the assigned book has its own question bank AND some units have been
+ * marked "covered" (via coveredUnits, e.g. cls.unitsCovered), most spins
+ * (~60%) pull from that book bank — scoped to ONLY the units marked covered,
+ * so students are never asked about vocabulary they haven't studied yet.
+ * The rest mix in the general fun/practical bank (family, clothes, school,
+ * science, general knowledge, etc.) from lib/questions.js for variety.
+ *
+ * Falls back fully to the general bank when there's no book, no book
+ * questions yet, or no units have been marked covered.
  */
-export function getSpinQuestion(cls, level) {
+export function getSpinQuestion(cls, level, coveredUnits = []) {
   const book = getBook(cls)
-  if (book && book.spinQuestions && book.spinQuestions.length > 0) {
-    const pool = book.spinQuestions
-    return pool[Math.floor(Math.random() * pool.length)]
+  const bookPool = (book && book.spinQuestions && coveredUnits.length > 0)
+    ? book.spinQuestions.filter(q => coveredUnits.includes(q.unit))
+    : []
+
+  if (bookPool.length === 0) return getGeneralQuestion(level)
+
+  if (Math.random() < BOOK_QUESTION_RATIO) {
+    return bookPool[Math.floor(Math.random() * bookPool.length)]
   }
   return getGeneralQuestion(level)
 }

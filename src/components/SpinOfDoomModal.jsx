@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { initials } from '../lib/utils'
-import { getSpinQuestion } from '../lib/books'
+import { getSpinQuestion, getBook } from '../lib/books'
 
 const WHEEL_COLORS = [
   '#e85d26','#2d6be4','#1a9e5c','#7c3aed',
@@ -306,13 +306,21 @@ function getTodayKey() {
   return `${y}-${m}-${d}`
 }
 
-export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, readOnly }) {
+export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateClass, onClose, readOnly }) {
   const canvasRef  = useRef(null)
   const spinRef    = useRef(null)
   const audioCtxRef = useRef(null)
   const tickIntervalRef = useRef(null)
 
-  const [phase, setPhase]                       = useState('ready')
+  const book = getBook(cls)
+
+  // Units marked "covered so far" for this class — saved on the class doc
+  // (cls.unitsCovered) so it's remembered next time Spin of Doom opens.
+  // Only the teacher (not readOnly) sees the check screen to edit this.
+  const [coveredUnits, setCoveredUnits] = useState(cls?.unitsCovered || [])
+  const [savingUnits, setSavingUnits]   = useState(false)
+
+  const [phase, setPhase] = useState(() => (book && !readOnly ? 'unitCheck' : 'ready'))
   const [pickedStudent, setPickedStudent]       = useState(null)
   const [friendStudent, setFriendStudent]       = useState(null)
   const [currentQuestion, setCurrentQuestion]  = useState(null)
@@ -322,6 +330,19 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
   const [soundOn, setSoundOn]                  = useState(true)
   const [showAnswer, setShowAnswer]             = useState(false)
   const [showFriendAnswer, setShowFriendAnswer] = useState(false)
+
+  function toggleUnit(num) {
+    setCoveredUnits(prev => prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num])
+  }
+
+  async function confirmUnitsAndProceed() {
+    setSavingUnits(true)
+    if (onUpdateClass && cls?.id) {
+      await onUpdateClass(cls.id, { unitsCovered: coveredUnits })
+    }
+    setSavingUnits(false)
+    setPhase('ready')
+  }
 
   // How many times each student has actually landed as the pick this session.
   // Used to quietly weight future spins toward students who've had fewer turns.
@@ -524,7 +545,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
         spinRef.current = requestAnimationFrame(animate)
       } else {
         setPickCounts(prev => ({ ...prev, [picked.id]: (prev[picked.id] || 0) + 1 }))
-        const question = getSpinQuestion(cls, level)
+        const question = getSpinQuestion(cls, level, coveredUnits)
         setPickedStudent(picked)
         setCurrentQuestion(question)
         setPhase('picked')
@@ -649,6 +670,59 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           </div>
         </div>
 
+        {/* ── UNIT CHECK — mark units covered so far before spinning ── */}
+        {phase === 'unitCheck' && book && (
+          <div style={{ padding: '28px 32px', flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 560 }}>
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>📖</div>
+                <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>Which units have you covered so far?</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
+                  Tick the units of <strong>{book.label}</strong> taught so far. Questions will only be pulled from these — untick nothing you don't need to, this is remembered for next time.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+                {book.units.map(u => {
+                  const checked = coveredUnits.includes(u.num)
+                  return (
+                    <div key={u.num}
+                      onClick={() => toggleUnit(u.num)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                        background: checked ? 'rgba(26,158,92,0.08)' : 'var(--surface2)',
+                        border: `1.5px solid ${checked ? 'rgba(26,158,92,0.3)' : 'var(--border)'}`,
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <div style={{
+                        width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                        background: checked ? 'var(--green)' : 'var(--surface)',
+                        border: `1.5px solid ${checked ? 'var(--green)' : 'var(--border)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#fff', fontSize: 13, fontWeight: 800,
+                      }}>
+                        {checked ? '✓' : ''}
+                      </div>
+                      <div style={{ fontSize: 18 }}>{u.emoji}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>Unit {u.num} — {u.title}</div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                <button className="btn btn-accent" onClick={confirmUnitsAndProceed} disabled={savingUnits}>
+                  {savingUnits ? 'Saving...' : '🎰 Continue to Spin'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {phase !== 'unitCheck' && (
         <div style={{ padding: '28px 32px', display: 'flex', justifyContent: 'center', flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <div style={{ display: 'flex', gap: 44, alignItems: 'center', width: '100%', maxWidth: 1180 }}>
 
@@ -922,6 +996,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onClose, 
           </div>
         </div>
         </div>
+        )}
       </div>
     </div>
   )
