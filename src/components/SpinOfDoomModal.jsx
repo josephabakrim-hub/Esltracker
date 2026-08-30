@@ -215,7 +215,6 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
           const medal = tier === 1 ? MEDAL_STYLE.gold : tier === 2 ? MEDAL_STYLE.silver : tier === 3 ? MEDAL_STYLE.bronze : null
           const isSoleLeader = tier === 1 && tier1Count === 1
           const isCelebrating = celebrateId === s.id
-          const isAbsent = s.__absentToday
           const barPct = maxPts > 0 ? Math.max(pts > 0 ? 6 : 0, Math.round((pts / maxPts) * 100)) : 0
 
           // Momentum arrow vs. last spin
@@ -226,21 +225,16 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
             else if (currentRanks[s.id] > prevRank) arrow = { symbol: '▼', color: 'var(--red)' }
           }
 
-          // Competitive hint line — how close they are to the person right above them
+          // Competitive hint — emoji only, no text: 🔥 for the sole leader,
+          // 🤝 when tied with the row above.
           let hint = null
-          if (isAbsent) {
-            hint = { text: 'ABSENT', color: 'var(--red)' }
-          } else if (i === 0 && pts > 0 && sorted[1]) {
+          if (i === 0 && pts > 0 && sorted[1]) {
             const margin = pts - (scores[sorted[1].id] || 0)
-            if (margin > 0) hint = { text: `🔥 Leading by ${margin}`, color: 'var(--gold)' }
+            if (margin > 0) hint = { emoji: '🔥', color: 'var(--gold)' }
           } else if (i > 0) {
             const above = sorted[i - 1]
             const abovePts = scores[above.id] || 0
-            if (pts > 0 || abovePts > 0) {
-              const gap = abovePts - pts
-              if (gap === 0) hint = { text: `🤝 Tied with ${above.nameEn.split(' ')[0]}`, color: 'var(--accent2)' }
-              else if (gap > 0) hint = { text: `+${gap} to pass ${above.nameEn.split(' ')[0]}`, color: 'var(--muted)' }
-            }
+            if (pts > 0 && pts === abovePts) hint = { emoji: '🤝', color: 'var(--accent2)' }
           }
 
           const barColor = medal ? medal.text : 'var(--accent2)'
@@ -252,7 +246,6 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
               padding: '9px 12px', borderRadius: 12,
               background: medal ? medal.bg : 'var(--surface2)',
               border: `1.5px solid ${medal ? medal.border : 'var(--border)'}`,
-              opacity: isAbsent ? 0.4 : 1,
               transform: isCelebrating ? 'scale(1.06)' : 'scale(1)',
               boxShadow: isSoleLeader ? '0 0 14px rgba(212,144,10,0.35)' : isCelebrating ? '0 0 16px rgba(212,144,10,0.55)' : 'none',
               transition: 'transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s ease, background 0.3s ease, border-color 0.3s ease',
@@ -280,8 +273,11 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
                   <div style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {s.nameEn.split(' ')[0]}
                   </div>
-                  {arrow && !isAbsent && (
+                  {arrow && (
                     <span style={{ fontSize: 9, color: arrow.color, fontWeight: 800 }}>{arrow.symbol}</span>
+                  )}
+                  {hint && (
+                    <span style={{ fontSize: 11 }}>{hint.emoji}</span>
                   )}
                 </div>
 
@@ -289,16 +285,10 @@ function Leaderboard({ students, scores, celebrateId, leaderBanner }) {
                 <div style={{ height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{
                     width: `${barPct}%`, height: '100%', borderRadius: 2,
-                    background: isAbsent ? 'var(--muted)' : barColor,
+                    background: barColor,
                     transition: 'width 0.5s cubic-bezier(.34,1.56,.64,1)',
                   }} />
                 </div>
-
-                {hint && (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: hint.color, letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 3 }}>
-                    {hint.text}
-                  </div>
-                )}
               </div>
 
               <div style={{
@@ -408,10 +398,9 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateC
     return log[todayKey] === 'absent'
   })
 
-  // Full roster for the leaderboard, tagged with today's absence status
-  const leaderboardStudents = students
-    .filter(s => s.nameEn)
-    .map(s => ({ ...s, __absentToday: absentToday.some(a => a.id === s.id) }))
+  // Full roster for the leaderboard — absent students are fully excluded,
+  // not just dimmed, per the teacher's preference.
+  const leaderboardStudents = eligible
 
   // Detect when a new student takes the #1 spot on the session leaderboard —
   // only celebrate a *sole* leader (strictly ahead of everyone else), matching
@@ -763,25 +752,6 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateC
 
           <div style={{ flex: 1, minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-          {/* ── ABSENT TODAY BANNER ── */}
-          {absentToday.length > 0 && (phase === 'ready' || phase === 'spinning') && (
-            <div style={{
-              marginBottom: 16, padding: '10px 14px', borderRadius: 10,
-              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
-              display: 'flex', alignItems: 'flex-start', gap: 10,
-            }}>
-              <span style={{ fontSize: 16, flexShrink: 0 }}>🚫</span>
-              <div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: '#ef4444', letterSpacing: 2, marginBottom: 4 }}>
-                  EXCLUDED TODAY (ABSENT)
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--muted)' }}>
-                  {absentToday.map(s => s.nameEn).join(', ')}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* ── NO STUDENTS WARNING ── */}
           {eligible.length === 0 && (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--muted)' }}>
@@ -922,7 +892,7 @@ export default function SpinOfDoomModal({ cls, students, onAwardStars, onUpdateC
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16, maxHeight: 220, overflowY: 'auto' }}>
-                {students.filter(s => s.id !== pickedStudent?.id).map(s => (
+                {eligible.filter(s => s.id !== pickedStudent?.id).map(s => (
                   <div key={s.id}
                     onClick={() => !readOnly && setFriendStudent(s)}
                     style={{
