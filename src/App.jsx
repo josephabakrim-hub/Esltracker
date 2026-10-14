@@ -15,6 +15,7 @@ import AttendanceModal from './components/AttendanceModal'
 import StarSessionModal from './components/StarSessionModal'
 import SpinOfDoomModal from './components/SpinOfDoomModal'
 import StarSlotsModal from './components/StarSlotsModal'
+import BombPassModal from './components/BombPassModal'
 import TeacherAcademy from './components/TeacherAcademy'
 import AdminPanel from './components/AdminPanel'
 import LockedOverlay, { DemoBadge } from './components/LockedOverlay'
@@ -103,6 +104,7 @@ export default function App() {
   const [starSessionModal, setStarSessionModal] = useState(null)
   const [spinModal,        setSpinModal]        = useState(null)
   const [starSlotsModal,   setStarSlotsModal]   = useState(null)
+  const [bombPassModal,    setBombPassModal]    = useState(null)
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -254,7 +256,7 @@ export default function App() {
   // marked as the "floor". If Back ever lands there, we immediately push
   // forward again, so the browser Back button can never actually leave the app.
   const modalsRef = useRef({})
-  modalsRef.current = { classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal }
+  modalsRef.current = { classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal, bombPassModal }
 
   const initializedRef  = useRef(false)  // true once the floor + home entries are set up
   const skipNextPushRef = useRef(false)  // true right after we replay a popped entry, so the
@@ -262,7 +264,7 @@ export default function App() {
 
   function closeAllModals() {
     setClassModal(null); setStudentModal(null); setNoteModal(null)
-    setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null)
+    setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null); setBombPassModal(null)
   }
 
   function applyLocation(loc) {
@@ -293,7 +295,7 @@ export default function App() {
       // A modal is open — the first Back press just closes it and re-arms
       // this same entry, so the screen underneath doesn't change yet.
       const m = modalsRef.current
-      if (m.classModal || m.studentModal || m.noteModal || m.attendanceModal || m.starSessionModal || m.spinModal || m.starSlotsModal) {
+      if (m.classModal || m.studentModal || m.noteModal || m.attendanceModal || m.starSessionModal || m.spinModal || m.starSlotsModal || m.bombPassModal) {
         window.history.pushState(state, '')
         closeAllModals()
         return
@@ -382,6 +384,7 @@ export default function App() {
               onOpenStarSession={canOpenFeature('starSession') ? () => setStarSessionModal(liveClass.id) : null}
               onOpenSpinOfDoom={canOpenFeature('spinOfDoom') ? () => setSpinModal(liveClass.id) : null}
               onOpenStarSlots={canOpenFeature('starSlots') ? () => setStarSlotsModal(liveClass.id) : null}
+              onOpenBombPass={canOpenFeature('bombPass') ? () => setBombPassModal(liveClass.id) : null}
               studentId={isStudent ? access?.student?.id : null}
               completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
               readOnly={!isTeacher}
@@ -461,6 +464,7 @@ export default function App() {
       {canOpenFeature('starSession') && starSessionModal && <StarSessionModal cls={classes.find(c => c.id === starSessionModal)} students={students.filter(s => s.classId === starSessionModal)} onSave={handleSaveStarSession} onClose={() => setStarSessionModal(null)} readOnly={featureReadOnly('starSession')} />}
       {canOpenFeature('spinOfDoom')  && spinModal        && <SpinOfDoomModal cls={classes.find(c => c.id === spinModal)} students={students.filter(s => s.classId === spinModal)} onAwardStars={handleAwardStars} onUpdateClass={updateClass} onClose={() => setSpinModal(null)} readOnly={featureReadOnly('spinOfDoom')} />}
       {canOpenFeature('starSlots')   && starSlotsModal   && <StarSlotsModal cls={classes.find(c => c.id === starSlotsModal)} students={students.filter(s => s.classId === starSlotsModal)} onAwardStars={handleAwardStars} onClose={() => setStarSlotsModal(null)} readOnly={featureReadOnly('starSlots')} />}
+      {canOpenFeature('bombPass')    && bombPassModal    && <BombPassModal cls={classes.find(c => c.id === bombPassModal)} students={students.filter(s => s.classId === bombPassModal)} onAwardStars={handleAwardStars} onUpdateClass={updateClass} onClose={() => setBombPassModal(null)} readOnly={featureReadOnly('bombPass')} />}
 
       {/* Floating "demo, not saved" badge — shown whenever a non-teacher has a demo feature open */}
       {!isTeacher && showsDemoBanner(accessConfig, roleId) && (
@@ -468,6 +472,7 @@ export default function App() {
         (isFeatureDemo('starSession') && starSessionModal) ||
         (isFeatureDemo('spinOfDoom') && spinModal) ||
         (isFeatureDemo('starSlots') && starSlotsModal) ||
+        (isFeatureDemo('bombPass') && bombPassModal) ||
         (isFeatureDemo('notes') && noteModal) ||
         (isFeatureDemo('addClass') && classModal) ||
         (isFeatureDemo('addStudent') && studentModal)
