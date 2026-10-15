@@ -4,14 +4,15 @@
 //   2. import it below and add it to BOOK_BANKS.
 // Nothing else in the app needs to change.
 
+import kidsboxng3 from './kidsboxng3'
 import kidsboxng4 from './kidsboxng4'
 import { REAL_LIFE, GENERAL } from './general'
 
 const BOOK_BANKS = {
+  kidsboxng3,
   kidsboxng4,
   // kidsboxng1,
   // kidsboxng2,
-  // kidsboxng3,
   // kidsboxng5,
 }
 
@@ -32,8 +33,8 @@ export function bankUnits(slug) {
 
 function toQuestion(row, category, unit = null) {
   const [q, correct, ...rest] = row
-  const isTF = row.length === 3 && correct === 'True'
-  const tip = isTF ? '' : (rest.length > 3 ? rest[3] : '')
+  const isTF = (correct === 'True' || correct === 'False') && (rest[0] === 'True' || rest[0] === 'False')
+  const tip = (isTF ? rest[1] : rest[3]) || ''
   const options = isTF ? ['True', 'False'] : [correct, ...rest.slice(0, 3)]
   return { q, correct, options, tip, category, unit, tf: isTF }
 }
