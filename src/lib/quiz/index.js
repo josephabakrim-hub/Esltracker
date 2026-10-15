@@ -1,9 +1,10 @@
 // ── Bomb Pass question engine ────────────────────────────────────────────────
-// One bank per book slug. To add Book 1 later:
-//   1. create  src/lib/quiz/kidsboxng1.js  (same shape as kidsboxng4.js)
+// One bank per book slug. To add a new book (e.g. Level 6):
+//   1. create  src/lib/quiz/kidsboxng6.js  (same shape as kidsboxng4.js)
 //   2. import it below and add it to BOOK_BANKS.
 // Nothing else in the app needs to change.
 
+import kidsboxng1 from './kidsboxng1'
 import kidsboxng2 from './kidsboxng2'
 import kidsboxng3 from './kidsboxng3'
 import kidsboxng4 from './kidsboxng4'
@@ -11,11 +12,11 @@ import kidsboxng5 from './kidsboxng5'
 import { REAL_LIFE, GENERAL } from './general'
 
 const BOOK_BANKS = {
+  kidsboxng1,
   kidsboxng2,
   kidsboxng3,
   kidsboxng4,
   kidsboxng5,
-  // kidsboxng1,
 }
 
 export const CATEGORIES = [
