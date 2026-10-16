@@ -25,6 +25,7 @@ export const FEATURES = [
   { id: 'spinOfDoom',  label: '🎰 Spin of Doom' },
   { id: 'starSlots',   label: '🃏 Star Slots' },
   { id: 'bombPass',    label: '💣 Bomb Pass' },
+  { id: 'tugOfWar',    label: '🪢 Tug of War' },
   { id: 'notes',       label: '📝 Add Notes' },
 ]
 
@@ -58,7 +59,7 @@ export const DEFAULT_LOCK_MESSAGE = 'This is for Teacher Joseph only.'
 function defaultRoleConfig() {
   return {
     tabs: { classes: 'visible', students: 'visible', analytics: 'visible', academy: 'hidden' },
-    features: { attendance: 'hidden', starSession: 'hidden', spinOfDoom: 'hidden', starSlots: 'hidden', bombPass: 'hidden', notes: 'hidden', addClass: 'hidden', addStudent: 'hidden' },
+    features: { attendance: 'hidden', starSession: 'hidden', spinOfDoom: 'hidden', starSlots: 'hidden', bombPass: 'hidden', tugOfWar: 'hidden', notes: 'hidden', addClass: 'hidden', addStudent: 'hidden' },
     lockMessages: {},   // { [tabId or featureId]: customMessage }
     classFilter: [],    // empty = can see all classes; else restrict to these classIds
     demoBanner: true,   // show a "demo, not saved" indicator inside demo features

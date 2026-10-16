@@ -3,7 +3,7 @@ import { scoreColor, initials, avgSkills } from '../lib/utils'
 import { getBookSlug, getBookUnitCount } from '../lib/books'
 import LessonsHub from './LessonsHub'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenBombPass, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenBombPass, onOpenTugOfWar, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -73,6 +73,11 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             <button className="btn btn-outline"
               style={{ background: 'rgba(249,115,22,0.1)', borderColor: 'rgba(249,115,22,0.35)', color: '#ea580c', fontWeight: 700 }}
               onClick={onOpenBombPass}>💣 Bomb Pass</button>
+          )}
+          {onOpenTugOfWar && (
+            <button className="btn btn-outline"
+              style={{ background: 'rgba(59,130,246,0.1)', borderColor: 'rgba(59,130,246,0.35)', color: '#2563eb', fontWeight: 700 }}
+              onClick={onOpenTugOfWar}>🪢 Tug of War</button>
           )}
           {!readOnly && (
             <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
