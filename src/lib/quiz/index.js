@@ -34,22 +34,48 @@ export function bankUnits(slug) {
   return slug && BOOK_BANKS[slug] ? Object.keys(BOOK_BANKS[slug]).map(Number) : []
 }
 
-function toQuestion(row, category, unit = null) {
+function toQuestion(row, category, unit = null, bookSlug = null) {
   const [q, correct, ...rest] = row
   const isTF = (correct === 'True' || correct === 'False') && (rest[0] === 'True' || rest[0] === 'False')
   const tip = (isTF ? rest[1] : rest[3]) || ''
   const options = isTF ? ['True', 'False'] : [correct, ...rest.slice(0, 3)]
-  return { q, correct, options, tip, category, unit, tf: isTF }
+  return { q, correct, options, tip, category, unit, slug: bookSlug, tf: isTF }
 }
 
-/** Build the full question pool for the chosen book / units / categories. */
-export function buildPool({ slug, units = [], categories = [] }) {
+/**
+ * Earlier levels of the same series that have a question bank, nearest first.
+ * e.g. reviewBooks('kidsboxng3') → ['kidsboxng2', 'kidsboxng1']
+ * Used for the optional "Review earlier books" setting.
+ */
+export function reviewBooks(slug) {
+  const parse = s => /^(.*?)(\d+)$/.exec(s || '')
+  const me = parse(slug)
+  if (!me) return []
+  return Object.keys(BOOK_BANKS)
+    .map(s => ({ s, m: parse(s) }))
+    .filter(x => x.m && x.m[1] === me[1] && Number(x.m[2]) < Number(me[2]))
+    .sort((a, b) => Number(b.m[2]) - Number(a.m[2]))
+    .map(x => x.s)
+}
+
+/**
+ * Build the full question pool.
+ *   slug, units, categories → the class's own book + Real-Life / General
+ *   review                  → optional earlier books: [{ slug, units }]
+ * Review questions are tagged category 'review' so the game can mix them in
+ * at the share the teacher chose.
+ */
+export function buildPool({ slug, units = [], categories = [], review = [] }) {
   const pool = []
   if (categories.includes('book') && slug && BOOK_BANKS[slug]) {
-    units.forEach(u => (BOOK_BANKS[slug][u] || []).forEach(r => pool.push(toQuestion(r, 'book', u))))
+    units.forEach(u => (BOOK_BANKS[slug][u] || []).forEach(r => pool.push(toQuestion(r, 'book', u, slug))))
   }
   if (categories.includes('real')) REAL_LIFE.forEach(r => pool.push(toQuestion(r, 'real')))
   if (categories.includes('general')) GENERAL.forEach(r => pool.push(toQuestion(r, 'general')))
+  review.forEach(({ slug: rs, units: ru }) => {
+    if (!BOOK_BANKS[rs]) return
+    ;(ru || []).forEach(u => (BOOK_BANKS[rs][u] || []).forEach(r => pool.push(toQuestion(r, 'review', u, rs))))
+  })
   return pool
 }
 

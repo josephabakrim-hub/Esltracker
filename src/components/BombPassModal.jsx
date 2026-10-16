@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { getBook, getBookSlug } from '../lib/books'
-import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, CATEGORIES } from '../lib/quiz'
+import { getBook, getBookSlug, BOOKS } from '../lib/books'
+import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, CATEGORIES } from '../lib/quiz'
 import { sfx, setMuted, unlockAudio } from '../lib/sounds'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -17,6 +17,11 @@ const FUSES = {
   normal: { label: '🔥 Normal', min: 18, max: 40 },
   long:   { label: '🐢 Long',   min: 30, max: 55 },
 }
+const REVIEW_SHARES = [
+  { v: 0.2,  label: '🔹 A little (about 1 in 5)' },
+  { v: 0.35, label: '🔸 Some (about 1 in 3)' },
+  { v: 0.5,  label: '🔶 Half and half' },
+]
 const POINTS = { correct: 10, speed: 5, speedWithin: 5, streakStep: 2, streakCap: 8, boom: 15, assist: 5, wrongBurn: 4 }
 const MEDALS = ['🥇', '🥈', '🥉']
 const LETTERS = ['A', 'B', 'C', 'D']
@@ -81,6 +86,13 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
   const [fuseKey, setFuseKey] = useState('normal')
   const [chooseTarget, setChooseTarget] = useState(true)
   const [sound, setSound] = useState(true)
+  // Optional revision of earlier books: { [bookSlug]: [unit numbers] }
+  const reviewable = useMemo(() => reviewBooks(slug), [slug])
+  const [review, setReview] = useState({})
+  const [reviewShare, setReviewShare] = useState(0.35)
+  // Students who are present but don't want to play (tap their name to sit out)
+  const [sitOut, setSitOut] = useState([])
+  const [confirmRemove, setConfirmRemove] = useState(null)
 
   // ── game state ──
   const [players, setPlayers] = useState([])
@@ -99,8 +111,8 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
   const playersRef = useRef([]); playersRef.current = players
   const holderRef = useRef(null); holderRef.current = holder
   const lastPasserRef = useRef(null)
-  const deckRef = useRef([])
-  const poolRef = useRef([])
+  const deckRef = useRef({ main: [], review: [] })
+  const poolRef = useRef({ main: [], review: [], share: 0 })
   const elapsedRef = useRef(0)
   const totalRef = useRef(30000)
   const runningRef = useRef(false)
@@ -113,8 +125,11 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
   useEffect(() => () => { timers.current.forEach(clearTimeout); runningRef.current = false }, [])
   useEffect(() => { setMuted(!sound) }, [sound])
 
-  const pool = useMemo(() => buildPool({ slug, units, categories: cats }), [slug, units, cats])
-  const canStart = present.length >= 2 && pool.length >= 8
+  const active = present.filter(s => !sitOut.includes(s.id))
+  const reviewEntries = useMemo(() => Object.entries(review).map(([s, us]) => ({ slug: s, units: us })), [review])
+  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries }), [slug, units, cats, reviewEntries])
+  const reviewCount = pool.filter(q => q.category === 'review').length
+  const canStart = active.length >= 2 && pool.length >= 8
 
   // ── fuse loop ──
   useEffect(() => {
@@ -140,9 +155,17 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
     const others = playersRef.current.filter(p => p.id !== excludeId)
     return (shuffle(others)[0] || playersRef.current[0]).id
   }
+  // Draws the next question. Review questions (earlier books) are mixed in at
+  // the share the teacher chose; each deck is reshuffled when it runs out.
+  function drawQuestion() {
+    const pools = poolRef.current, decks = deckRef.current
+    const hasReview = pools.review.length > 0, hasMain = pools.main.length > 0
+    const key = hasReview && (!hasMain || Math.random() < pools.share) ? 'review' : 'main'
+    if (decks[key].length === 0) decks[key] = shuffle(pools[key])
+    return decks[key].pop()
+  }
   function nextQuestion() {
-    if (deckRef.current.length === 0) deckRef.current = shuffle(poolRef.current)
-    setQuestion(prepareQuestion(deckRef.current.pop()))
+    setQuestion(prepareQuestion(drawQuestion()))
     setPicked(null)
     shownAtRef.current = Date.now()
   }
@@ -165,13 +188,76 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
   // ── start / reset ──
   function startGame() {
     unlockAudio(); sfx.start()
-    poolRef.current = pool
-    deckRef.current = shuffle(pool)
-    setPlayers(present.map(s => ({ id: s.id, name: s.nameEn, pts: 0, streak: 0, shield: false, correct: 0, wrong: 0, booms: 0, assists: 0 })))
-    playersRef.current = present.map(s => ({ id: s.id, name: s.nameEn }))
+    const mainPool = pool.filter(q => q.category !== 'review')
+    const reviewPool = pool.filter(q => q.category === 'review')
+    poolRef.current = { main: mainPool, review: reviewPool, share: reviewShare }
+    deckRef.current = { main: shuffle(mainPool), review: shuffle(reviewPool) }
+    const fresh = active.map(s => ({ id: s.id, name: s.nameEn, pts: 0, streak: 0, shield: false, correct: 0, wrong: 0, booms: 0, assists: 0 }))
+    setPlayers(fresh)
+    playersRef.current = fresh
     setRoundsDone(0); setAwarded(false)
     if (!readOnly && onUpdateClass && bookReady && units.length) onUpdateClass(cls.id, { unitsCovered: units })
     startBomb(null)
+  }
+
+  // ── sitting out (for students who don't want to play) ──
+  function toggleSitOut(id) { setSitOut(list => (list.includes(id) ? list.filter(x => x !== id) : [...list, id])) }
+
+  function removePlayer(id) {
+    if (phase !== 'play' || step !== 'asking') return
+    const p = playersRef.current.find(x => x.id === id)
+    if (!p) return
+    setConfirmRemove(null)
+    const remaining = playersRef.current.filter(x => x.id !== id)
+    if (remaining.length < 2) { say('You need at least 2 players to keep playing.'); return }
+    setSitOut(list => (list.includes(id) ? list : [...list, id]))
+    playersRef.current = remaining
+    setPlayers(remaining)
+    if (lastPasserRef.current === id) lastPasserRef.current = null
+    if (holderRef.current === id) {
+      // The bomb was in their hands — pass it on with a fresh question
+      if (!paused) runningRef.current = false
+      const next = shuffle(remaining)[0]
+      holderRef.current = next.id
+      setHolder(next.id)
+      nextQuestion()
+      say(`🙈 ${p.name} sat out — the bomb goes to ${next.name}`)
+      if (!paused) later(() => { runningRef.current = true }, 700)
+    } else {
+      say(`🙈 ${p.name} is sitting out`)
+    }
+  }
+
+  function addBack(id) {
+    const st = present.find(x => x.id === id)
+    if (!st) return
+    setSitOut(list => list.filter(x => x !== id))
+    if (phase === 'play' && !playersRef.current.some(x => x.id === id)) {
+      const np = { id, name: st.nameEn, pts: 0, streak: 0, shield: false, correct: 0, wrong: 0, booms: 0, assists: 0 }
+      playersRef.current = [...playersRef.current, np]
+      setPlayers(ps => [...ps, np])
+      say(`👋 ${st.nameEn} is back in the game!`)
+    }
+  }
+  function askRemove(id) {
+    if (confirmRemove === id) { removePlayer(id); return }
+    setConfirmRemove(id)
+    later(() => setConfirmRemove(c => (c === id ? null : c)), 3000)
+  }
+
+  // ── review of earlier books ──
+  function toggleReviewBook(s) {
+    setReview(r => {
+      const n = { ...r }
+      if (n[s]) delete n[s]; else n[s] = bankUnits(s)
+      return n
+    })
+  }
+  function toggleReviewUnit(s, u) {
+    setReview(r => {
+      const cur = r[s] || []
+      return { ...r, [s]: cur.includes(u) ? cur.filter(x => x !== u) : [...cur, u] }
+    })
   }
 
   // ── answering ──
@@ -321,11 +407,21 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
           <div style={{ maxWidth: 820, margin: '0 auto' }}>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 22 }}>
               <div style={{ flex: '1 1 300px', background: '#1d1a16', border: '1px solid #2c2720', borderRadius: 14, padding: 16 }}>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: '#8a8378', letterSpacing: 2, marginBottom: 8 }}>PLAYING TODAY · {present.length}</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: '#8a8378', letterSpacing: 2, marginBottom: 8 }}>PLAYING TODAY · {active.length}{sitOut.length ? ` · ${sitOut.length} SITTING OUT` : ''}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {present.map(s => <span key={s.id} style={{ fontSize: 12, padding: '4px 10px', borderRadius: 999, background: '#2a2620' }}>{s.nameEn}</span>)}
+                  {present.map(s => {
+                    const out = sitOut.includes(s.id)
+                    return (
+                      <button key={s.id} onClick={() => toggleSitOut(s.id)} title={out ? 'Tap to let them play' : 'Tap if they don\'t want to play'}
+                        style={{ cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 12, padding: '4px 10px', borderRadius: 999, border: `1px solid ${out ? '#4a2a2a' : 'transparent'}`,
+                          background: out ? 'transparent' : '#2a2620', color: out ? '#7a6f64' : '#f5efe6', textDecoration: out ? 'line-through' : 'none' }}>
+                        {out ? '🙈 ' : ''}{s.nameEn}
+                      </button>
+                    )
+                  })}
                   {present.length === 0 && <span style={{ color: '#f87171', fontSize: 13 }}>Nobody is present today.</span>}
                 </div>
+                {present.length > 0 && <div style={{ marginTop: 8, fontSize: 11, color: '#6b645a' }}>Tap a name if they don't want to play — tap again to bring them back.</div>}
                 {absent.length > 0 && (
                   <div style={{ marginTop: 10, fontFamily: 'var(--mono)', fontSize: 10, color: '#ef4444aa' }}>
                     {absent.length} ABSENT TODAY (not in game): {absent.map(s => s.nameEn).join(', ')}
@@ -358,6 +454,37 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
               </div>
             )}
 
+            {reviewable.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 2, color: '#8a8378', textTransform: 'uppercase', marginBottom: 8 }}>🔁 Review earlier books (optional — off unless you pick one)</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {reviewable.map(rs => (
+                    <Chip key={rs} on={!!review[rs]} onClick={() => toggleReviewBook(rs)}>{BOOKS[rs]?.label || rs}</Chip>
+                  ))}
+                </div>
+                {Object.keys(review).map(rs => (
+                  <div key={rs} style={{ marginTop: 12, padding: 12, borderRadius: 12, background: '#1d1a16', border: '1px solid #2c2720' }}>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: '#fbbf24', marginBottom: 8 }}>{BOOKS[rs]?.label || rs} — units to review</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {(BOOKS[rs]?.units || []).filter(u => bankUnits(rs).includes(u.num)).map(u => (
+                        <Chip key={u.num} on={(review[rs] || []).includes(u.num)} onClick={() => toggleReviewUnit(rs, u.num)}>{u.emoji} {u.num}. {u.title}</Chip>
+                      ))}
+                      <Chip on={false} onClick={() => setReview(r => ({ ...r, [rs]: bankUnits(rs) }))}>all</Chip>
+                      <Chip on={false} onClick={() => setReview(r => ({ ...r, [rs]: [] }))}>none</Chip>
+                    </div>
+                  </div>
+                ))}
+                {Object.keys(review).length > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 2, color: '#8a8378', textTransform: 'uppercase', marginBottom: 8 }}>How many review questions?</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {REVIEW_SHARES.map(o => <Chip key={o.v} on={reviewShare === o.v} onClick={() => setReviewShare(o.v)}>{o.label}</Chip>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Section title="Question types">
               {CATEGORIES.filter(c => c.id !== 'book' || bookReady).map(c => (
                 <Chip key={c.id} title={c.desc} on={cats.includes(c.id)} onClick={() => setCats(cs => cs.includes(c.id) ? cs.filter(x => x !== c.id) : [...cs, c.id])}>{c.label}</Chip>
@@ -378,7 +505,7 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
               <button className="btn btn-accent" disabled={!canStart} onClick={startGame}
                 style={{ fontSize: 17, padding: '14px 34px', opacity: canStart ? 1 : 0.4 }}>💣 Start the game</button>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: '#8a8378' }}>
-                {pool.length} questions ready{present.length < 2 ? ' · need at least 2 players present' : ''}{pool.length < 8 ? ' · pick more units or types' : ''}
+                {pool.length - reviewCount} questions ready{reviewCount ? ` + ${reviewCount} review` : ''}{active.length < 2 ? ' · need at least 2 players' : ''}{pool.length < 8 ? ' · pick more units or types' : ''}
               </span>
             </div>
             {readOnly && <div style={{ marginTop: 14, fontSize: 12, color: '#8a8378' }}>View only — stars and units will not be saved.</div>}
@@ -485,7 +612,7 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
           {question && (
             <div style={{ opacity: paused ? 0.15 : 1, transition: 'opacity .2s' }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 2, color: '#8a8378', marginBottom: 8 }}>
-                {question.category === 'book' ? `📘 UNIT ${question.unit}` : question.category === 'real' ? '🗣️ REAL-LIFE ENGLISH' : '🌍 GENERAL KNOWLEDGE'}
+                {question.category === 'book' ? `📘 UNIT ${question.unit}` : question.category === 'review' ? `🔁 REVIEW · ${BOOKS[question.slug]?.label || ''} · UNIT ${question.unit}` : question.category === 'real' ? '🗣️ REAL-LIFE ENGLISH' : '🌍 GENERAL KNOWLEDGE'}
               </div>
               <div style={{ fontSize: 'clamp(22px, 3.4vw, 38px)', fontWeight: 800, lineHeight: 1.25, marginBottom: 18 }}>{question.q}</div>
               <div style={{ display: 'grid', gridTemplateColumns: question.options.length === 2 ? '1fr 1fr' : 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
@@ -537,12 +664,32 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
                 </div>
                 <div style={{ fontSize: 12 }}>{p.shield ? '🛡️' : ''}{p.streak >= 2 ? `🔥${p.streak}` : ''}</div>
                 <div style={{ width: 40, textAlign: 'right', fontWeight: 800, color: '#fbbf24' }}>{p.pts}</div>
+                {phase === 'play' && step === 'asking' && (
+                  <button onClick={() => askRemove(p.id)} title="Sit out — doesn't want to play"
+                    style={{ cursor: 'pointer', flexShrink: 0, border: 'none', borderRadius: 6, padding: confirmRemove === p.id ? '3px 7px' : '3px 6px', fontSize: confirmRemove === p.id ? 10 : 12, fontWeight: 700,
+                      background: confirmRemove === p.id ? '#ef4444' : 'transparent', color: confirmRemove === p.id ? '#fff' : '#6b645a' }}>
+                    {confirmRemove === p.id ? 'Sit out?' : '✕'}
+                  </button>
+                )}
                 {flash[p.id] && (
                   <div style={{ position: 'absolute', right: 56, top: -2, fontWeight: 900, fontSize: 16, color: flash[p.id].startsWith('+') ? '#4ade80' : '#f87171', animation: 'bpFloat 1.5s forwards' }}>{flash[p.id]}</div>
                 )}
               </div>
             )
           })}
+          {sitOut.length > 0 && present.some(s => sitOut.includes(s.id)) && (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 3, color: '#6b645a', marginBottom: 8 }}>SITTING OUT</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {present.filter(s => sitOut.includes(s.id)).map(s => (
+                  <button key={s.id} onClick={() => addBack(s.id)} title="Bring back into the game"
+                    style={{ cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 12, padding: '4px 10px', borderRadius: 999, border: '1px solid #3a342c', background: 'transparent', color: '#a39b8f' }}>
+                    ↩ {s.nameEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
