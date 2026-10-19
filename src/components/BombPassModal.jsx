@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { getBook, getBookSlug, BOOKS } from '../lib/books'
-import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, CATEGORIES } from '../lib/quiz'
+import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, tierForSlug, CATEGORIES, CATEGORY_LABELS, TIER_OPTIONS } from '../lib/quiz'
 import { sfx, setMuted, unlockAudio } from '../lib/sounds'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -86,6 +86,9 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
   const [fuseKey, setFuseKey] = useState('normal')
   const [chooseTarget, setChooseTarget] = useState(true)
   const [sound, setSound] = useState(true)
+  // Difficulty of the non-book questions: 0 = automatic (from the class book), or 1 / 2 / 3
+  const [tierPick, setTierPick] = useState(0)
+  const tier = tierPick || tierForSlug(slug)
   // Optional revision of earlier books: { [bookSlug]: [unit numbers] }
   const reviewable = useMemo(() => reviewBooks(slug), [slug])
   const [review, setReview] = useState({})
@@ -127,7 +130,7 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
 
   const active = present.filter(s => !sitOut.includes(s.id))
   const reviewEntries = useMemo(() => Object.entries(review).map(([s, us]) => ({ slug: s, units: us })), [review])
-  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries }), [slug, units, cats, reviewEntries])
+  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries, tier }), [slug, units, cats, reviewEntries, tier])
   const reviewCount = pool.filter(q => q.category === 'review').length
   const canStart = active.length >= 2 && pool.length >= 8
 
@@ -490,6 +493,11 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
                 <Chip key={c.id} title={c.desc} on={cats.includes(c.id)} onClick={() => setCats(cs => cs.includes(c.id) ? cs.filter(x => x !== c.id) : [...cs, c.id])}>{c.label}</Chip>
               ))}
             </Section>
+            {cats.some(c => c !== 'book') && (
+              <Section title="Difficulty of the non-book questions">
+                {TIER_OPTIONS.map(o => <Chip key={o.v} on={tierPick === o.v} onClick={() => setTierPick(o.v)}>{o.v === 0 ? `🎯 Automatic · level ${tierForSlug(slug)}` : o.label}</Chip>)}
+              </Section>
+            )}
             <Section title="Number of bombs (rounds)">
               {[3, 5, 8].map(n => <Chip key={n} on={totalRounds === n} onClick={() => setTotalRounds(n)}>💣 × {n}</Chip>)}
             </Section>
@@ -612,7 +620,7 @@ export default function BombPassModal({ cls, students, onAwardStars, onUpdateCla
           {question && (
             <div style={{ opacity: paused ? 0.15 : 1, transition: 'opacity .2s' }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: 2, color: '#8a8378', marginBottom: 8 }}>
-                {question.category === 'book' ? `📘 UNIT ${question.unit}` : question.category === 'review' ? `🔁 REVIEW · ${BOOKS[question.slug]?.label || ''} · UNIT ${question.unit}` : question.category === 'real' ? '🗣️ REAL-LIFE ENGLISH' : '🌍 GENERAL KNOWLEDGE'}
+                {question.category === 'book' ? `📘 UNIT ${question.unit}` : question.category === 'review' ? `🔁 REVIEW · ${BOOKS[question.slug]?.label || ''} · UNIT ${question.unit}` : CATEGORY_LABELS[question.category] || '🌍 GENERAL KNOWLEDGE'}
               </div>
               <div style={{ fontSize: 'clamp(22px, 3.4vw, 38px)', fontWeight: 800, lineHeight: 1.25, marginBottom: 18 }}>{question.q}</div>
               <div style={{ display: 'grid', gridTemplateColumns: question.options.length === 2 ? '1fr 1fr' : 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>

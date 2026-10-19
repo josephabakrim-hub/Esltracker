@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { getBook, getBookSlug, BOOKS } from '../lib/books'
-import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, CATEGORIES } from '../lib/quiz'
+import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, tierForSlug, CATEGORIES, CATEGORY_LABELS, TIER_OPTIONS } from '../lib/quiz'
 import { sfx, setMuted, unlockAudio } from '../lib/sounds'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -104,6 +104,9 @@ export default function BossBattleModal({ cls, students, onAwardStars, onUpdateC
   const [levelKey, setLevelKey] = useState('normal')
   const [timerSec, setTimerSec] = useState(0)
   const [sound, setSound] = useState(true)
+  // Difficulty of the non-book questions: 0 = automatic (from the class book), or 1 / 2 / 3
+  const [tierPick, setTierPick] = useState(0)
+  const tier = tierPick || tierForSlug(slug)
   const reviewable = useMemo(() => reviewBooks(slug), [slug])
   const [review, setReview] = useState({})
   const [reviewShare, setReviewShare] = useState(0.35)
@@ -137,7 +140,7 @@ export default function BossBattleModal({ cls, students, onAwardStars, onUpdateC
   const level = LEVELS[levelKey]
   const bossHp = Math.max(level.base, Math.round(active.length * level.perPlayer))
   const reviewEntries = useMemo(() => Object.entries(review).map(([s, us]) => ({ slug: s, units: us })), [review])
-  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries }), [slug, units, cats, reviewEntries])
+  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries, tier }), [slug, units, cats, reviewEntries, tier])
   const reviewCount = pool.filter(q => q.category === 'review').length
   const canStart = active.length >= 1 && pool.length >= 8
 
@@ -457,6 +460,11 @@ export default function BossBattleModal({ cls, students, onAwardStars, onUpdateC
                   onClick={() => setCats(cs => cs.includes(c.id) ? cs.filter(x => x !== c.id) : [...cs, c.id])}>{c.label}</Chip>
               ))}
             </Section>
+            {cats.some(c => c !== 'book') && (
+              <Section title="Difficulty of the non-book questions">
+                {TIER_OPTIONS.map(o => <Chip key={o.v} on={tierPick === o.v} onClick={() => setTierPick(o.v)}>{o.v === 0 ? `🎯 Automatic · level ${tierForSlug(slug)}` : o.label}</Chip>)}
+              </Section>
+            )}
             <Section title="Time to answer">
               {TIMERS.map(o => <Chip key={o.k} on={timerSec === o.k} onClick={() => setTimerSec(o.k)}>{o.label}</Chip>)}
             </Section>
@@ -532,7 +540,7 @@ export default function BossBattleModal({ cls, students, onAwardStars, onUpdateC
   const hpColor = hpPct > 66 ? '#22c55e' : hpPct > 33 ? '#f59e0b' : '#ef4444'
   const label = q.category === 'book' ? `📘 UNIT ${q.unit}`
     : q.category === 'review' ? `🔁 REVIEW · ${BOOKS[q.slug]?.label || ''} · UNIT ${q.unit}`
-    : q.category === 'real' ? '🗣️ REAL-LIFE ENGLISH' : '🌍 GENERAL KNOWLEDGE'
+    : CATEGORY_LABELS[q.category] || '🌍 GENERAL KNOWLEDGE'
 
   const bossAnim = over && g.outcome === 'win' ? 'none' : g.step === 'reveal' && g.result?.kind !== 'miss' ? 'bbHit .6s' : g.step === 'reveal' ? 'bbStrike .6s' : 'bbIdle 2.2s ease-in-out infinite'
 

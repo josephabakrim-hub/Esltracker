@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { getBook, getBookSlug, BOOKS } from '../lib/books'
-import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, CATEGORIES } from '../lib/quiz'
+import { buildPool, prepareQuestion, shuffle, hasBookBank, bankUnits, reviewBooks, tierForSlug, CATEGORIES, CATEGORY_LABELS, TIER_OPTIONS } from '../lib/quiz'
 import { sfx, setMuted, unlockAudio } from '../lib/sounds'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -113,6 +113,9 @@ export default function TugOfWarModal({ cls, students, onAwardStars, onUpdateCla
   const [turnsEach, setTurnsEach] = useState(8)
   const [timerSec, setTimerSec] = useState(0)
   const [sound, setSound] = useState(true)
+  // Difficulty of the non-book questions: 0 = automatic (from the class book), or 1 / 2 / 3
+  const [tierPick, setTierPick] = useState(0)
+  const tier = tierPick || tierForSlug(slug)
   const reviewable = useMemo(() => reviewBooks(slug), [slug])
   const [review, setReview] = useState({})
   const [reviewShare, setReviewShare] = useState(0.35)
@@ -144,7 +147,7 @@ export default function TugOfWarModal({ cls, students, onAwardStars, onUpdateCla
   const sizes = Array.from({ length: teamCount }, (_, i) => present.filter(s => teamOf(s.id) === i).length)
 
   const reviewEntries = useMemo(() => Object.entries(review).map(([s, us]) => ({ slug: s, units: us })), [review])
-  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries }), [slug, units, cats, reviewEntries])
+  const pool = useMemo(() => buildPool({ slug, units, categories: cats, review: reviewEntries, tier }), [slug, units, cats, reviewEntries, tier])
   const reviewCount = pool.filter(q => q.category === 'review').length
   const canStart = sizes.every(n => n >= 1) && pool.length >= 8
 
@@ -510,6 +513,11 @@ export default function TugOfWarModal({ cls, students, onAwardStars, onUpdateCla
                   onClick={() => setCats(cs => cs.includes(c.id) ? cs.filter(x => x !== c.id) : [...cs, c.id])}>{c.label}</Chip>
               ))}
             </Section>
+            {cats.some(c => c !== 'book') && (
+              <Section title="Difficulty of the non-book questions">
+                {TIER_OPTIONS.map(o => <Chip key={o.v} on={tierPick === o.v} onClick={() => setTierPick(o.v)}>{o.v === 0 ? `🎯 Automatic · level ${tierForSlug(slug)}` : o.label}</Chip>)}
+              </Section>
+            )}
             <Section title={teamCount === 2 ? 'Rope length (how far to pull to win)' : 'Race length (how far to pull to win)'}>
               {ROPES.map(o => <Chip key={o.k} on={ropeLen === o.k} onClick={() => setRopeLen(o.k)}>{o.label} · {targetFor(teamCount, o.k)}</Chip>)}
             </Section>
@@ -602,7 +610,7 @@ export default function TugOfWarModal({ cls, students, onAwardStars, onUpdateCla
   const heave = g.lastPull ? { key: g.lastPull.at, idx: g.lastPull.idx } : null
   const label = q.category === 'book' ? `📘 UNIT ${q.unit}`
     : q.category === 'review' ? `🔁 REVIEW · ${BOOKS[q.slug]?.label || ''} · UNIT ${q.unit}`
-    : q.category === 'real' ? '🗣️ REAL-LIFE ENGLISH' : '🌍 GENERAL KNOWLEDGE'
+    : CATEGORY_LABELS[q.category] || '🌍 GENERAL KNOWLEDGE'
 
   const pos = n === 2 ? g.teams[0].score - g.teams[1].score : 0
   const flagLeft = 50 - (Math.max(-target, Math.min(target, pos)) / target) * 44
