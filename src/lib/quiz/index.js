@@ -18,6 +18,7 @@ import spelling from './spelling'
 import world from './world'
 import knowledge from './knowledge'
 import brain from './brain'
+import showdown, { TOPICS } from './showdown'
 
 const BOOK_BANKS = {
   kidsboxng1,
@@ -134,4 +135,22 @@ export function shuffle(arr) {
 /** Produce a playable question: options shuffled (True/False kept in order). */
 export function prepareQuestion(q) {
   return { ...q, options: q.tf ? q.options : shuffle(q.options) }
+}
+
+// ── Real-Life Showdown ───────────────────────────────────────────────────────
+export { TOPICS as SHOWDOWN_TOPICS }
+
+/**
+ * Situations for the Real-Life Showdown game, for a difficulty tier
+ * (the class's tier plus the one below it), optionally limited to some topics.
+ * Each situation has four responses; the game shuffles them.
+ */
+export function buildShowdownPool({ slug, tier = 0, topics = [] }) {
+  const top = tier || tierForSlug(slug)
+  const tiers = top === 1 ? [1] : [top - 1, top]
+  const out = []
+  tiers.forEach(t => (showdown[t] || []).forEach(s => {
+    if (!topics.length || topics.includes(s.topic)) out.push(s)
+  }))
+  return out
 }
