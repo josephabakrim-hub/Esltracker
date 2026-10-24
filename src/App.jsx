@@ -19,6 +19,7 @@ import BombPassModal from './components/BombPassModal'
 import TugOfWarModal from './components/TugOfWarModal'
 import BossBattleModal from './components/BossBattleModal'
 import RealLifeShowdownModal from './components/RealLifeShowdownModal'
+import ClassSlidesModal from './components/ClassSlidesModal'
 import TeacherAcademy from './components/TeacherAcademy'
 import AdminPanel from './components/AdminPanel'
 import LockedOverlay, { DemoBadge } from './components/LockedOverlay'
@@ -111,6 +112,7 @@ export default function App() {
   const [tugModal,         setTugModal]         = useState(null)
   const [bossModal,        setBossModal]        = useState(null)
   const [showdownModal,    setShowdownModal]    = useState(null)
+  const [slidesModal,      setSlidesModal]      = useState(null)
 
   const liveClass   = selectedClass   ? classes.find(c => c.id === selectedClass.id)   || selectedClass   : null
   const liveStudent = selectedStudent ? students.find(s => s.id === selectedStudent.id) || selectedStudent : null
@@ -262,7 +264,7 @@ export default function App() {
   // marked as the "floor". If Back ever lands there, we immediately push
   // forward again, so the browser Back button can never actually leave the app.
   const modalsRef = useRef({})
-  modalsRef.current = { classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal, bombModal, tugModal, bossModal, showdownModal }
+  modalsRef.current = { classModal, studentModal, noteModal, attendanceModal, starSessionModal, spinModal, starSlotsModal, bombModal, tugModal, bossModal, showdownModal, slidesModal }
 
   const initializedRef  = useRef(false)  // true once the floor + home entries are set up
   const skipNextPushRef = useRef(false)  // true right after we replay a popped entry, so the
@@ -270,7 +272,7 @@ export default function App() {
 
   function closeAllModals() {
     setClassModal(null); setStudentModal(null); setNoteModal(null)
-    setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null); setBombModal(null); setTugModal(null); setBossModal(null); setShowdownModal(null)
+    setAttendanceModal(null); setStarSessionModal(null); setSpinModal(null); setStarSlotsModal(null); setBombModal(null); setTugModal(null); setBossModal(null); setShowdownModal(null); setSlidesModal(null)
   }
 
   function applyLocation(loc) {
@@ -301,7 +303,7 @@ export default function App() {
       // A modal is open — the first Back press just closes it and re-arms
       // this same entry, so the screen underneath doesn't change yet.
       const m = modalsRef.current
-      if (m.classModal || m.studentModal || m.noteModal || m.attendanceModal || m.starSessionModal || m.spinModal || m.starSlotsModal || m.bombModal || m.tugModal || m.bossModal || m.showdownModal) {
+      if (m.classModal || m.studentModal || m.noteModal || m.attendanceModal || m.starSessionModal || m.spinModal || m.starSlotsModal || m.bombModal || m.tugModal || m.bossModal || m.showdownModal || m.slidesModal) {
         window.history.pushState(state, '')
         closeAllModals()
         return
@@ -394,6 +396,7 @@ export default function App() {
               onOpenTugOfWar={canOpenFeature('tugOfWar') ? () => setTugModal(liveClass.id) : null}
               onOpenBossBattle={canOpenFeature('bossBattle') ? () => setBossModal(liveClass.id) : null}
               onOpenShowdown={canOpenFeature('showdown') ? () => setShowdownModal(liveClass.id) : null}
+              onOpenSlides={canOpenFeature('slides') ? () => setSlidesModal(liveClass.id) : null}
               studentId={isStudent ? access?.student?.id : null}
               completedUnits={isStudent ? (students.find(s => s.id === access?.student?.id)?.unitsCompleted || {}) : {}}
               readOnly={!isTeacher}
@@ -477,6 +480,7 @@ export default function App() {
       {canOpenFeature('tugOfWar')    && tugModal         && <TugOfWarModal cls={classes.find(c => c.id === tugModal)} students={students.filter(s => s.classId === tugModal)} onAwardStars={handleAwardStars} onUpdateClass={updateClass} onClose={() => setTugModal(null)} readOnly={featureReadOnly('tugOfWar')} />}
       {canOpenFeature('bossBattle')  && bossModal        && <BossBattleModal cls={classes.find(c => c.id === bossModal)} students={students.filter(s => s.classId === bossModal)} onAwardStars={handleAwardStars} onUpdateClass={updateClass} onClose={() => setBossModal(null)} readOnly={featureReadOnly('bossBattle')} />}
       {canOpenFeature('showdown')    && showdownModal    && <RealLifeShowdownModal cls={classes.find(c => c.id === showdownModal)} students={students.filter(s => s.classId === showdownModal)} onAwardStars={handleAwardStars} onClose={() => setShowdownModal(null)} readOnly={featureReadOnly('showdown')} />}
+      {canOpenFeature('slides')      && slidesModal      && <ClassSlidesModal cls={classes.find(c => c.id === slidesModal)} onClose={() => setSlidesModal(null)} />}
 
       {/* Floating "demo, not saved" badge — shown whenever a non-teacher has a demo feature open */}
       {!isTeacher && showsDemoBanner(accessConfig, roleId) && (

@@ -3,7 +3,7 @@ import { scoreColor, initials, avgSkills } from '../lib/utils'
 import { getBookSlug, getBookUnitCount } from '../lib/books'
 import LessonsHub from './LessonsHub'
 
-export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenBombPass, onOpenTugOfWar, onOpenBossBattle, onOpenShowdown, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
+export default function ClassDetail({ cls, students, onBack, onSelectStudent, onAddStudent, onEditClass, onOpenAttendance, onOpenStarSession, onOpenSpinOfDoom, onOpenStarSlots, onOpenBombPass, onOpenTugOfWar, onOpenBossBattle, onOpenShowdown, onOpenSlides, onOpenLessonsHub, readOnly, studentId, completedUnits }) {
   const ranked = [...students].sort((a, b) => avgSkills(b) - avgSkills(a))
   const top3 = ranked.slice(0, 3)
   const podiumOrder   = [top3[1], top3[0], top3[2]].filter(Boolean)
@@ -88,6 +88,11 @@ export default function ClassDetail({ cls, students, onBack, onSelectStudent, on
             <button className="btn btn-outline"
               style={{ background: 'rgba(236,72,153,0.1)', borderColor: 'rgba(236,72,153,0.35)', color: '#db2777', fontWeight: 700 }}
               onClick={onOpenShowdown}>🎭 Real-Life Showdown</button>
+          )}
+          {onOpenSlides && (
+            <button className="btn btn-outline"
+              style={{ background: 'rgba(14,165,233,0.1)', borderColor: 'rgba(14,165,233,0.35)', color: '#0369a1', fontWeight: 700 }}
+              onClick={onOpenSlides}>📂 Slides &amp; Files</button>
           )}
           {!readOnly && (
             <button className="btn btn-accent" onClick={onAddStudent}>+ Add Student</button>
