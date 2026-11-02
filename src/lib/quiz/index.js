@@ -29,7 +29,8 @@ const BOOK_BANKS = {
 }
 
 // Question types the teacher can switch on. Everything except 'book' and 'review'
-// lives in a file with three difficulty tiers (1 easy · 2 medium · 3 challenging).
+// lives in a file with four difficulty tiers (1 easy · 2 medium · 3 challenging · 4 expert).
+// Tier 4 keeps the language simple — the challenge is the thinking and the knowledge.
 const TIERED = { real, spelling, world, general: knowledge, brain }
 
 export const CATEGORIES = [
@@ -55,10 +56,19 @@ export const TIER_OPTIONS = [
   { v: 1, label: '🌱 Easier' },
   { v: 2, label: '🌿 Medium' },
   { v: 3, label: '🌳 Challenging' },
+  { v: 4, label: '🔥 Expert (Think 3–4)' },
 ]
 
-/** Difficulty tier that suits a class, from its book: Kids Box 1–2 → 1, 3–4 → 2, 5+ → 3. */
+// Series that don't end in a level number, or whose number doesn't match the CEFR level.
+const TIER_BY_SLUG = { thinkstarter: 3, think1: 3, thinkl2: 3, thinkl3: 4, thinkl4: 4 }
+
+/**
+ * Difficulty tier that suits a class, from its book:
+ * Kids Box 1–2 → 1 · Kids Box 3–4 → 2 · Kids Box 5+ → 3 · Think 3–4 → 4 (Think Starter–2 → 3).
+ * Unknown books → 2.
+ */
 export function tierForSlug(slug) {
+  if (slug && TIER_BY_SLUG[slug]) return TIER_BY_SLUG[slug]
   const m = /(\d+)$/.exec(slug || '')
   const n = m ? Number(m[1]) : 3
   return n <= 2 ? 1 : n <= 4 ? 2 : 3
@@ -73,12 +83,12 @@ export function bankUnits(slug) {
   return slug && BOOK_BANKS[slug] ? Object.keys(BOOK_BANKS[slug]).map(Number) : []
 }
 
-function toQuestion(row, category, unit = null, bookSlug = null) {
+function toQuestion(row, category, unit = null, bookSlug = null, tier = null) {
   const [q, correct, ...rest] = row
   const isTF = (correct === 'True' || correct === 'False') && (rest[0] === 'True' || rest[0] === 'False')
   const tip = (isTF ? rest[1] : rest[3]) || ''
   const options = isTF ? ['True', 'False'] : [correct, ...rest.slice(0, 3)]
-  return { q, correct, options, tip, category, unit, slug: bookSlug, tf: isTF }
+  return { q, correct, options, tip, category, unit, slug: bookSlug, tf: isTF, tier }
 }
 
 /**
@@ -104,18 +114,20 @@ export function reviewBooks(slug) {
  * Review questions are tagged category 'review' so the game can mix them in
  * at the share the teacher chose.
  */
-export function buildPool({ slug, units = [], categories = [], review = [], tier = 0 }) {
+export function buildPool({ slug, units = [], categories = [], review = [], tier = 0, tierOnly = 0 }) {
   const pool = []
   if (categories.includes('book') && slug && BOOK_BANKS[slug]) {
     units.forEach(u => (BOOK_BANKS[slug][u] || []).forEach(r => pool.push(toQuestion(r, 'book', u, slug))))
   }
   // Non-book questions: the class's tier plus the one just below it (tier 1 gets only tier 1)
+  // (tierOnly = exactly one tier, used by Escape Room's challenge locks)
   const top = tier || tierForSlug(slug)
-  const tiers = top === 1 ? [1] : [top - 1, top]
+  const tiers = tierOnly ? [tierOnly] : top === 1 ? [1] : [top - 1, top]
   Object.entries(TIERED).forEach(([id, bank]) => {
     if (!categories.includes(id)) return
-    tiers.forEach(t => (bank[t] || []).forEach(r => pool.push(toQuestion(r, id))))
+    tiers.forEach(t => (bank[t] || []).forEach(r => pool.push(toQuestion(r, id, null, null, t))))
   })
+  if (tierOnly) return pool
   review.forEach(({ slug: rs, units: ru }) => {
     if (!BOOK_BANKS[rs]) return
     ;(ru || []).forEach(u => (BOOK_BANKS[rs][u] || []).forEach(r => pool.push(toQuestion(r, 'review', u, rs))))
