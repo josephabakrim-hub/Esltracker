@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import IELTSHub from './IELTSHub'
+import StrategyLab from './StrategyLab'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FLASHCARD DATA (unchanged)
@@ -1871,7 +1872,7 @@ function ScenarioSimulator() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MAIN TeacherAcademy — tab switcher across four tools
+// MAIN TeacherAcademy — tab switcher across six tools
 // ─────────────────────────────────────────────────────────────────────────────
 export default function TeacherAcademy() {
   const [tool, setTool] = useState('flashcards')
@@ -1881,6 +1882,7 @@ export default function TeacherAcademy() {
     { id: 'simulator',  label: '🎭 Scenario Simulator',  desc: 'Make real classroom decisions. See how each plays out.' },
     { id: 'builder',    label: '📋 Lesson Builder',      desc: 'Build a timed lesson plan from research-backed activities' },
     { id: 'errors',     label: '🔬 Error Tracker',       desc: 'Log student errors, spot patterns, get targeted drills' },
+    { id: 'strategies', label: '📊 Strategy Lab',        desc: '42 ESL techniques ranked by estimated success, with the weak ones called out' },
     { id: 'ielts',      label: '🎓 IELTS Hub',           desc: 'Examiner training, skills teaching, feedback phrases & band calculator' },
   ]
 
@@ -1891,12 +1893,12 @@ export default function TeacherAcademy() {
         <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 8 }}>Teacher Academy</div>
         <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 8 }}>Professional Development Hub</div>
         <div style={{ fontSize: 13, color: 'var(--muted)', maxWidth: 620, lineHeight: 1.7 }}>
-          Five tools to make you a complete educator. Study the research, test your classroom instincts, design better lessons, track student errors, and master IELTS examining and teaching.
+          Six tools to make you a complete educator. Study the research, test your classroom instincts, design better lessons, track student errors, compare 42 teaching techniques, and master IELTS examining and teaching.
         </div>
       </div>
 
       {/* Tool switcher */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 36 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 12, marginBottom: 36 }}>
         {TOOLS.map(t => (
           <div
             key={t.id}
@@ -1923,6 +1925,7 @@ export default function TeacherAcademy() {
       {tool === 'simulator'  && <ScenarioSimulator />}
       {tool === 'builder'    && <LessonBuilder />}
       {tool === 'errors'     && <ErrorTracker />}
+      {tool === 'strategies' && <StrategyLab />}
       {tool === 'ielts'      && <IELTSHub />}
     </div>
   )
