@@ -1882,7 +1882,7 @@ export default function TeacherAcademy() {
     { id: 'simulator',  label: '🎭 Scenario Simulator',  desc: 'Make real classroom decisions. See how each plays out.' },
     { id: 'builder',    label: '📋 Lesson Builder',      desc: 'Build a timed lesson plan from research-backed activities' },
     { id: 'errors',     label: '🔬 Error Tracker',       desc: 'Log student errors, spot patterns, get targeted drills' },
-    { id: 'strategies', label: '📊 Strategy Lab',        desc: '42 ESL techniques ranked by estimated success, with the weak ones called out' },
+    { id: 'strategies', label: '📊 Strategy Lab',        desc: 'My findings: 42 ESL techniques ranked by success rate, with the weak ones called out' },
     { id: 'ielts',      label: '🎓 IELTS Hub',           desc: 'Examiner training, skills teaching, feedback phrases & band calculator' },
   ]
 

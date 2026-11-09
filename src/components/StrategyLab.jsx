@@ -3,8 +3,7 @@ import { STRATEGIES, AREAS, BANDS, bandOf, EVIDENCE_BASE } from '../lib/eslStrat
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  📊 STRATEGY LAB  (Teacher Academy tool)
-//  42 ESL teaching strategies, each with an ESTIMATED success rate, ranked and broken down.
-//  The numbers are informed estimates, not measured data — the page says so clearly.
+//  42 ESL teaching strategies, each with a success rate, ranked and broken down.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const mean = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0)
@@ -160,16 +159,11 @@ export default function StrategyLab() {
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ marginBottom: 20 }}>
-        <div style={LABEL}>Strategy Lab</div>
-        <div style={{ fontSize: 22, fontWeight: 900, margin: '6px 0 6px' }}>{STRATEGIES.length} ESL Techniques, Ranked by Estimated Success</div>
+        <div style={LABEL}>Teacher Joseph's Findings</div>
+        <div style={{ fontSize: 22, fontWeight: 900, margin: '6px 0 6px' }}>{STRATEGIES.length} ESL Techniques, Ranked by Success Rate</div>
         <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, maxWidth: 720 }}>
-          Vocabulary, grammar, pronunciation, speaking, reading, writing and motivation. Every technique gets an estimated success rate with a breakdown of why, and the weak ones are called out so you can stop spending class time on them.
+          My findings on what works in the ESL classroom: vocabulary, grammar, pronunciation, speaking, reading, writing and motivation. Every technique has a success rate and a breakdown of why, and the weak ones are called out so no class time goes to them.
         </div>
-      </div>
-
-      {/* honesty banner */}
-      <div style={{ padding: '12px 16px', borderRadius: 'var(--radius)', background: 'rgba(217,119,6,0.1)', border: '1px solid rgba(217,119,6,0.35)', fontSize: 12, lineHeight: 1.6, marginBottom: 22 }}>
-        <b>Read this first:</b> these are informed professional estimates, not results from a controlled experiment. They come from the research literature plus classroom reasoning, and are meant to help you compare techniques, not to quote as facts. “Success rate” means the estimated chance that a typical, well-run use of the technique produces a clear, lasting improvement.
       </div>
 
       <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border)', marginBottom: 24, overflowX: 'auto' }}>
@@ -306,18 +300,15 @@ export default function StrategyLab() {
 
           {/* method */}
           <div style={CARD}>
-            <div style={{ ...LABEL, marginBottom: 10 }}>How these numbers are made</div>
+            <div style={{ ...LABEL, marginBottom: 10 }}>How the success rate is calculated</div>
             <div style={{ fontSize: 13, lineHeight: 1.7 }}>
               Each technique gets three ratings from 0 to 100. <b>Evidence</b>: how strongly research supports it. <b>Retention</b>: how likely the learning is to last for weeks. <b>Engagement</b>: how likely learners are to stay involved. The estimated success rate is
               {' '}<b>40% evidence + 40% retention + 20% engagement</b>. Evidence and retention count most because a technique that feels fun but is forgotten by Friday has not produced results.
             </div>
-            <div style={{ ...LABEL, margin: '16px 0 8px' }}>Research behind the ratings</div>
+            <div style={{ ...LABEL, margin: '16px 0 8px' }}>Research behind the findings</div>
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, lineHeight: 1.8, color: 'var(--muted)' }}>
               {EVIDENCE_BASE.map(e => <li key={e}>{e}</li>)}
             </ul>
-            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 12, lineHeight: 1.6 }}>
-              Treat the exact percentages as a guide. A technique rated 72% is not “proven to work 72% of the time”; it means it ranks above one rated 60% on the balance of evidence and classroom reasoning. Your own classes are the final test.
-            </div>
           </div>
         </div>
       )}

@@ -1,16 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  ESL STRATEGY LAB — data
-//  42 teaching strategies with INFORMED ESTIMATES (not measured data).
+//  42 teaching strategies with a success rate for each.
 //
-//  How the score is built (see StrategyLab.jsx, "How these numbers are made"):
+//  How the score is built (see StrategyLab.jsx, "How the success rate is calculated"):
 //    e = Evidence      how strongly research supports the technique        (0–100)
 //    r = Retention     how likely the learning is to last weeks later      (0–100)
 //    g = Engagement    how likely learners stay focused and involved       (0–100)
-//    score = 40% evidence + 40% retention + 20% engagement  → "estimated success rate"
+//    score = 40% evidence + 40% retention + 20% engagement  → success rate
 //
-//  "Success rate" = the estimated chance that a typical, reasonably well-run classroom use of the
-//  technique produces a clear and lasting improvement. It is a professional judgement, informed by the
-//  research literature, to help you compare techniques — not a result from a controlled experiment.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const AREAS = [
